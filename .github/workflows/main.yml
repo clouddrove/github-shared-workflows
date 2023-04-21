@@ -1,9 +1,11 @@
 name: CHANGELOG
 
 on:
-  push:
-    tags:
-      - "*"
+  workflow_call:
+    inputs:
+      severity:
+        required: true
+        type: string
 
 jobs:
   deploy:
