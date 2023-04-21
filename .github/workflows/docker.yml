@@ -1,0 +1,102 @@
+name: docker-build-push
+
+on:
+  workflow_call:
+    inputs:
+      user:
+        required: true
+        type: string
+      images:
+        required: true
+        type: string
+      aws-region:
+        required: true
+        type: string
+      ECR_REPOSITORY:
+        required: true
+        type: string
+      registry:
+        required: true
+        type: string
+      IMAGE_TAG:
+        required: true
+        type: string
+      
+    secrets:
+      aws-access-key-id:
+        description: 'aws access keys'
+        required: true
+      aws-secret-access-key:
+        description: 'aws secret access keys'
+        required: true
+      dockerhub-username:
+        description: 'dockerhub username'
+        required: true
+      dockerhub-password:
+        description: 'dockerhub password'
+        required: true
+
+jobs:
+  build-image:
+    name: Build Images
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout git repo
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.dockerhub-username }}
+          password: ${{ secrets.dockerhub-password }}
+
+      - name: Push docker image to DOCKERHUB
+        if: ${{ inputs.registry == 'DOCKERHUB' }}
+        env:
+          IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
+          images: ${{ inputs.images }}  
+        run: |
+          docker build -t $images:$IMAGE_TAG .
+          docker push $images:$IMAGE_TAG
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Push docker image to Amazon ECR
+        if: ${{ inputs.registry == 'ECR' }}
+        id: docker-build
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+#           IMAGE_TAG: ${{ github.run_number }}
+          IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Push docker image to Amazon ECR and DOCKERHUB
+        if: ${{ inputs.registry == 'DOCKERHUB,ECR' }}
+        env:
+          ## For ECR env variable
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
+          ## For DOCKERHUB env variable
+          images: ${{ inputs.images }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          
+          docker build -t $images:$IMAGE_TAG .
+          docker push $images:$IMAGE_TAG
+          
