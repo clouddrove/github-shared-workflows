@@ -9,6 +9,12 @@ updates:
       day: 'sunday'
       time: '09:00'
       timezone: 'America/Toronto'
+    open-pull-requests-limit: 3
+    assignees:
+    - "clouddrove-ci"
+    reviewers:
+    - "d4kverma"
+    - "anmolnagpal"
   - package-ecosystem: 'terraform'
     directory: '*' # Location of package manifests
     schedule:
@@ -16,3 +22,9 @@ updates:
       day: 'sunday'
       time: '09:00'
       timezone: 'America/Toronto'
+    open-pull-requests-limit: 3
+    assignees:
+    - "clouddrove-ci"
+    reviewers:
+    - "d4kverma"
+    - "anmolnagpal"
