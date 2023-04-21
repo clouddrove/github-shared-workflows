@@ -1,0 +1,57 @@
+name: docker-scanner
+
+on:
+  workflow_call:
+    inputs:
+      severity:
+        required: true
+        type: string
+
+jobs:
+  build-image:
+    name: Build Images
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout git repo
+        uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and export to Docker
+        id: build-id
+        uses: docker/build-push-action@v4
+        with:
+          push: false
+          load: true # Export to Docker Engine rather than pushing to a registry
+          tags: ${{ github.run_number }}
+          platforms: linux/amd64
+      
+      - name: Docker Scan with trivy (non-blocking)
+        uses: aquasecurity/trivy-action@master
+        env:
+          tags: ${{ github.run_number }}
+        with:
+         image-ref: ${{ github.run_number }}
+         exit-code: 0
+         format: 'sarif'
+         output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Docker Scan with trivy (blocking)
+        uses: aquasecurity/trivy-action@master
+        with:
+         image-ref: ${{ github.run_number }}
+         format: table 
+         exit-code: 1
+        #  severity: 'HIGH,CRITICAL'
+         severity: ${{ inputs.severity}}
