@@ -31,7 +31,8 @@ jobs:
           draft: false
           makeLatest: true
           name: ${{ github.ref_name }}
-          body: ${{ steps.changelog.outputs.changes }}
+          body: ${{ steps.
+          .outputs.changes }}
           token: ${{ github.token }}
 
       - name: Commit CHANGELOG.md
