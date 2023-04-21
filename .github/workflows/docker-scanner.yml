@@ -29,15 +29,15 @@ jobs:
         with:
           push: false
           load: true # Export to Docker Engine rather than pushing to a registry
-          tags: ${{ github.run_number }}
+          tags: ${{ github.sha }}
           platforms: linux/amd64
       
       - name: Docker Scan with trivy (non-blocking)
         uses: aquasecurity/trivy-action@master
         env:
-          tags: ${{ github.run_number }}
+          tags: ${{ github.sha }}
         with:
-         image-ref: ${{ github.run_number }}
+         image-ref: ${{ github.sha }}
          exit-code: 0
          format: 'sarif'
          output: 'trivy-results.sarif'
@@ -50,7 +50,7 @@ jobs:
       - name: Docker Scan with trivy (blocking)
         uses: aquasecurity/trivy-action@master
         with:
-         image-ref: ${{ github.run_number }}
+         image-ref: ${{ github.sha }}
          format: table 
          exit-code: 1
         #  severity: 'HIGH,CRITICAL'
