@@ -36,7 +36,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB}}
           working_directory: ${{ inputs.working_directory }}
 
-
       - name: 'Terraform security scan Advanced'
         uses: triat/terraform-security-scan@v3.0.3
         if: github.event_name == 'pull_request'
