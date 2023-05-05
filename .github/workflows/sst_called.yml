@@ -13,14 +13,11 @@ on:
         type: string
 
     secrets:
-      ACCOUNT:
-        description: 'account id'
-        required: true
       aws-access-key-id:
-        description: 'account id1'
+        description: 'aws access key id '
         required: true
       aws-secret-access-key:
-        description: 'account id2'
+        description: 'aws secret access key'
         required: true
 
 jobs:
@@ -55,6 +52,7 @@ jobs:
           SLUG_BRANCH_NAME=$(echo "${BRANCH_NAME}" | sed 's/[^[:alnum:]]/-/g' | tr -s '-' | tr A-Z a-z)
           echo "SLUG_BRANCH_NAME=${SLUG_BRANCH_NAME}"
           echo "GITHUB_HEAD_REF_SLUG=${SLUG_BRANCH_NAME}" >> $GITHUB_ENV
+          
       - name: Deploy and get API endpoint
         if: ${{ (github.event.action == 'opened' || github.event.action == 'synchronize' && inputs.app-env == 'preview') || ( github.event.pull_request.merged == true && (inputs.app-env == 'prod' || inputs.app-env == 'stage')) }}
         run: |
