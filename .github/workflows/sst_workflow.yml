@@ -8,16 +8,16 @@ on:
         required: false
         type: string
       working-directory:
-        description: 'Working directory in repo'
+        description: 'Working directory in the repository'
         required: true
         type: string
 
     secrets:
       aws-access-key-id:
-        description: 'AWS access key ID'
+        description: 'AWS Access Key ID'
         required: true
       aws-secret-access-key:
-        description: 'AWS secret access key'
+        description: 'AWS Secret Access Key'
         required: true
 
 jobs:
