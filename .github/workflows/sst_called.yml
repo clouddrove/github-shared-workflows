@@ -8,16 +8,16 @@ on:
         required: false
         type: string
       working-directory:
-        description: 'working directory in repo'
+        description: 'Working directory in repo'
         required: true
         type: string
 
     secrets:
       aws-access-key-id:
-        description: 'aws access key id '
+        description: 'AWS access key ID'
         required: true
       aws-secret-access-key:
-        description: 'aws secret access key'
+        description: 'AWS secret access key'
         required: true
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
       - name: Checkout git repo
         uses: actions/checkout@v3
 
-      - name: 'Configure AWS Credentials'
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
@@ -60,6 +60,6 @@ jobs:
           echo "API endpoint: $api_endpoint"
           echo "API_ENDPOINT_URL=$api_endpoint" >> $GITHUB_ENV
         
-      - name: Destroy SST App 
+      - name: Destroy SST App for Preview app environment
         if: ${{ ( github.event.action == 'labeled' && github.event.label.name == 'destroy' && inputs.app-env == 'preview' ) || (github.event.action == 'closed' && inputs.app-env == 'preview' || github.event.pull_request.merged == true && inputs.app-env == 'preview') }}
         run: yarn sst remove --stage pr-${{ github.event.number }}-${{ env.GITHUB_HEAD_REF_SLUG }}
