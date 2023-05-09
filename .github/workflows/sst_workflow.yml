@@ -1,0 +1,65 @@
+name: Shared workflow- SST APP   
+
+on:
+  workflow_call:
+    inputs:
+      app-env:
+        description: 'Application environment' 
+        required: false
+        type: string
+      working-directory:
+        description: 'Working directory in the repository'
+        required: true
+        type: string
+
+    secrets:
+      aws-access-key-id:
+        description: 'AWS Access Key ID'
+        required: true
+      aws-secret-access-key:
+        description: 'AWS Secret Access Key'
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    environment: 
+      name: ${{ github.head_ref }}
+      url: ${{ env.API_ENDPOINT_URL }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
+    name: Deploy SST APP   
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: us-east-2
+
+      - name: Install dependencies (yarn install)
+        run: yarn install
+        
+      - name: Extract branch name
+        run: |
+          BRANCH_NAME=$(echo "${{ github.head_ref }}" | cut -d'/' -f3)
+          echo "BRANCH_NAME=${BRANCH_NAME}"
+          SLUG_BRANCH_NAME=$(echo "${BRANCH_NAME}" | sed 's/[^[:alnum:]]/-/g' | tr -s '-' | tr A-Z a-z)
+          echo "SLUG_BRANCH_NAME=${SLUG_BRANCH_NAME}"
+          echo "GITHUB_HEAD_REF_SLUG=${SLUG_BRANCH_NAME}" >> $GITHUB_ENV
+          
+      - name: Deploy and get API endpoint
+        if: ${{ (github.event.action == 'opened' || github.event.action == 'synchronize' && inputs.app-env == 'preview') || ( github.event.pull_request.merged == true && (inputs.app-env == 'prod' || inputs.app-env == 'stage')) }}
+        run: |
+          api_endpoint=$(yarn sst deploy --stage pr-${{ github.event.number }}-${{ env.GITHUB_HEAD_REF_SLUG }} | egrep "ApiEndpoint|SiteUrl" | awk '{print $2}')
+          echo "API endpoint: $api_endpoint"
+          echo "API_ENDPOINT_URL=$api_endpoint" >> $GITHUB_ENV
+        
+      - name: Destroy SST App for Preview app environment
+        if: ${{ ( github.event.action == 'labeled' && github.event.label.name == 'destroy' && inputs.app-env == 'preview' ) || (github.event.action == 'closed' && inputs.app-env == 'preview' || github.event.pull_request.merged == true && inputs.app-env == 'preview') }}
+        run: yarn sst remove --stage pr-${{ github.event.number }}-${{ env.GITHUB_HEAD_REF_SLUG }}
