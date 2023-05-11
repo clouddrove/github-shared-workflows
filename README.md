@@ -15,7 +15,7 @@ Used to call AWS Access Key ID and AWS Secret Access Key
 ##### runs-on
 Job will run on ubuntu-20.04 runner
 #### Deploy SST APP
-##### steps
+#### steps
 __1. Checkout git repo__  
 
 Checkout the repository and triggers the GitHub Action  
