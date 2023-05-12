@@ -1,0 +1,96 @@
+name: HELM
+
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        required: true
+        type: string
+        description: 'AWS EKS cluster region'
+      eks-cluster-name:
+        required: true
+        type: string
+        description: 'EKS cluster name'
+      namespace:
+        required: false
+        type: string
+        description: 'Boundary for Kubernetes resources'
+      helm-chart-directory:
+        required: true
+        type: string
+        description: 'Kubernetes deployment configurations files'
+      release-name:
+        required: false
+        type: string
+        description: 'Unique ID for installed chart'
+      rollback:
+         required: false
+         type: string
+         description: 'Environment name for rollback'
+      timeout:
+         required: true
+         type: string
+         description: 'Timeout for helm install step in seconds'
+      set-parameters:
+        required: false
+        type: string 
+        description: 'Overriding the default values'
+      values-file-path: 
+        required: true
+        type: string
+        description: 'Values file path from helm chart directory'
+      history-max: 
+        required: true
+        type: number
+        description: 'number of revisions stored in the revision history.'
+    secrets:
+      aws-access-key-id:
+        description: 'AWS Access Key ID'
+        required: true
+      aws-secret-access-key:
+        description: 'AWS Secret Access Key'
+        required: true
+jobs:
+  helm-action:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.aws-access-key-id }}
+          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Update Kubeconfig
+        run: |
+          aws eks --region ${{ inputs.aws-region }} update-kubeconfig --name ${{ inputs.eks-cluster-name }}
+      
+      - name: helm lint
+        if: ${{ inputs.rollback != 'rollback' }}
+        run: |
+          helm lint ${{ inputs.helm-chart-directory }}
+          
+      - name: helm template
+        if: ${{ inputs.rollback != 'rollback' }}
+        run: |
+          helm template ${{ inputs.helm-chart-directory }}
+          
+      - name: helm install and upgrade2
+        if: ${{ inputs.rollback != 'rollback' }}
+        run: |
+          if [ -n "${{ inputs.set-parameters }}" ]; then
+            helm upgrade --install --atomic --create-namespace --wait --history-max ${{ inputs.history-max }} --debug \
+              ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} ${{ inputs.set-parameters }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
+          else
+            helm upgrade --install --atomic --create-namespace --wait --history-max ${{ inputs.history-max }} --debug \
+              ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
+          fi
+                                                                                                               
+      - name: Rollback Helm Release
+        if: ${{ inputs.rollback == 'rollback' }}
+        run: |
+            helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} 
