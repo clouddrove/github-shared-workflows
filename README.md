@@ -1,6 +1,7 @@
 <h1 align="center">github-shared-workflows</h1>
 
 # SST Workflow
+This GitHub Actions workflow is designed to deploy an AWS Serverless Stack (SST) app to an AWS environment based on inputs provided to the workflow. The environment can be specified using the app-env input, and the working directory can be specified using the working-directory input.
 
 ## Prerequisites
 
@@ -13,20 +14,34 @@ Before using this workflow, make sure you have the following:
 
 
 ---
-### workflow_call
-#### app-env (Optional)
-This step is used to call environment which we are using.
-#### working-directory
-This step is used to call Working Directory in the Repository.
+## Workflow Inputs
 
-### secrets
-Used to call AWS Access Key ID and AWS Secret Access Key
+The workflow accepts the following inputs:
 
-### Jobs
-##### runs-on
-Job will run on ubuntu-20.04 runner
-#### Deploy SST APP
-#### steps
+- __app-env__ (optional): Specifies the application environment. It can be set to `preview`, `prod`, or `stage`.
+- __working-directory__ (required): Specifies the working directory in the repository where the code resides.
+
+## Secrets
+
+The workflow requires the following secrets to be set in the repository:
+
+- `aws-access-key-id`: AWS Access Key ID for configuring AWS credentials.
+- `aws-secret-access-key`: AWS Secret Access Key for configuring AWS credentials.
+
+## Jobs
+
+The workflow consists of a single job named "deploy" that runs on an Ubuntu 20.04 machine.
+
+### Job Environment
+
+The job environment is configured based on the following variables:
+
+- `name`: The name of the environment is set to the branch name associated with the pull request or the commit.
+- `url`: The API endpoint URL is obtained from the `API_ENDPOINT_URL` environment variable.
+
+### Steps
+
+The job comprises the following steps:
 __1. Checkout git repo__  
 
 Checkout the repository and triggers the GitHub Action  
@@ -50,6 +65,16 @@ This step deployes application on AWS Lambda in preview environment and gives __
 __7. Destroy SST App for Preview app environment__  
 
 This step destroy the SST App in Preview app environment once it is merge to __prod__ and __stage__ environment.
+
+## Example
+
+To use this workflow, create a new GitHub Actions workflow file in your repository with the following YAML code:
+
+'''json
+Here goes your json object definition
+'''
+
+
 
 
 
