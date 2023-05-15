@@ -1,6 +1,9 @@
 <h1 align="center">github-shared-workflows</h1>
 
+---
+
 # SST Workflow
+
 This GitHub Actions workflow is designed to deploy an AWS Serverless Stack (SST) app to an AWS environment based on inputs provided to the workflow. The environment can be specified using the app-env input, and the working directory can be specified using the working-directory input.
 
 ## Prerequisites
@@ -12,7 +15,6 @@ Before using this workflow, make sure you have the following:
 - AWS Access Key ID and Secret Access Key with sufficient permissions
 - The Serverless Framework CLI, Node.js, and Yarn installed on the runner
 
----
 ## Workflow Inputs
 
 The workflow accepts the following inputs:
