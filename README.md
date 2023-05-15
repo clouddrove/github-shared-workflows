@@ -1,6 +1,17 @@
-# github-shared-workflows
+<h1 align="center">github-shared-workflows</h1>
 
-## SST Workflow
+# SST Workflow
+
+## Prerequisites
+
+Before using this workflow, make sure you have the following:
+
+- An AWS account with appropriate permissions to deploy and remove SST apps
+- AWS CLI should be installed and configured with appropriate IAM user credentials
+- AWS Access Key ID and Secret Access Key with sufficient permissions
+- The Serverless Framework CLI, Node.js, and Yarn installed on the runner
+
+
 ---
 ### workflow_call
 #### app-env (Optional)
