@@ -43,6 +43,7 @@ The job environment is configured based on the following variables:
 ### Steps
 
 The job comprises the following steps:
+
 __1. Checkout git repo__  
 
 Checkout the repository and triggers the GitHub Action  
