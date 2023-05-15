@@ -81,8 +81,8 @@ Here are some examples to use this workflow:
 
 | Input Name         | Description                             | Required | Type   |
 | ------------------| ----------------------------------------| -------- | ------ |
-| app-env            | Application environment                  | false    | string |
-| working-directory | Working directory in the repository     | true     | string |
+| app-env            | Application environment                  | false    | 'string' |
+| working-directory | Working directory in the repository     | true     | 'string' |
 | aws-access-key-id  | AWS Access Key ID                        | true     | N/A    |
 | aws-secret-access-key | AWS Secret Access Key                 | true     | N/A    |
 
