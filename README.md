@@ -72,9 +72,10 @@ Here are some examples to use this workflow:
 
 ```json
 
-Your JSON here
+
 
 ```
+## Inputs
 
 | Input Name         | Description                             | Required | Type   |
 | ------------------| ----------------------------------------| -------- | ------ |
@@ -83,6 +84,8 @@ Your JSON here
 | aws-access-key-id  | AWS Access Key ID                        | true     | N/A    |
 | aws-secret-access-key | AWS Secret Access Key                 | true     | N/A    |
 
+##Conclusion
+The YAML script is a GitHub Actions workflow that deploys a Serverless Stack (SST) application to different environments using AWS credentials. The workflow takes inputs for the application environment and working directory, and requires AWS access keys as secrets. It consists of several steps, including checking out the repository, configuring AWS credentials, installing dependencies, extracting the branch name, deploying the SST app and obtaining the API endpoint, and destroying the app for the preview environment. The script includes conditions for when to run each step based on the inputs and GitHub events.
 
 
 
