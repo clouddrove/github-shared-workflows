@@ -68,11 +68,20 @@ This step destroy the SST App in Preview app environment once it is merge to __p
 
 ## Example
 
-To use this workflow, create a new GitHub Actions workflow file in your repository with the following YAML code:
+Here are some examples to use this workflow:
 
-'''json
-Here goes your json object definition
-'''
+```json
+
+Your JSON here
+
+```
+
+| Input Name         | Description                             | Required | Type   |
+| ------------------| ----------------------------------------| -------- | ------ |
+| app-env            | Application environment                  | false    | string |
+| working-directory | Working directory in the repository     | true     | string |
+| aws-access-key-id  | AWS Access Key ID                        | true     | N/A    |
+| aws-secret-access-key | AWS Secret Access Key                 | true     | N/A    |
 
 
 
