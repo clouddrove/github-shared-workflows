@@ -88,9 +88,9 @@ README.md
 ```
 An SST app contains a couple of parts.
 
-*stacks/ — App Infrastructure. This folder contains the Infrastructure code. SST uses AWS CDK to create the infrastructure.
-*src/ — App Code. These are your Lambda functions.
-*test/ — Unit tests. There's also a test/ directory where you can add your tests. SST uses Jest internally to run your tests.
+* stacks/ — App Infrastructure. This folder contains the Infrastructure code. SST uses AWS CDK to create the infrastructure.
+* src/ — App Code. These are your Lambda functions.
+* test/ — Unit tests. There's also a test/ directory where you can add your tests. SST uses Jest internally to run your tests.
 
 You can change this structure around to fit your workflow.
 
