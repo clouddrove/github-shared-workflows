@@ -72,12 +72,20 @@ This step destroy the SST App in Preview app environment once it is merge to __p
 
 Here are some examples to use this workflow:
 
-```json
-
-
-
+```txt
+README.md
+├── node_modules
+├── .gitignore
+├── package.json
+├── sst.json
+├── test
+│   └── MyStack.test.js
+├── stacks
+|   ├── MyStack.js
+|   └── index.js
+└── src
+└── lambda.js
 ```
-
 ## Inputs
 
 | Input Name         | Description                             | Required | Type   |
