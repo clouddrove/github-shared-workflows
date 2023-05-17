@@ -18,13 +18,7 @@ on:
         type: string
         default: us-east-1
         description: 'AWS region of terraform deployment.'
-
-#Special permissions required for OIDC authentication
-permissions:
-  id-token: write
-  contents: read
-  issues: write
-
+        
 jobs:
   terraform-plan:
     name: 'Terraform Plan'
