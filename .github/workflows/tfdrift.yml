@@ -1,8 +1,6 @@
 name: 'Terraform Configuration Drift Detection'
 
 on:
-  schedule:
-    - cron: '30 13 * * *' # runs every afternoon at 1:30 pm (Depends on Timezone)
   workflow_call: 
     inputs:
       working_directory:
@@ -20,13 +18,7 @@ on:
         type: string
         default: us-east-1
         description: 'AWS region of terraform deployment.'
-
-#Special permissions required for OIDC authentication
-permissions:
-  id-token: write
-  contents: read
-  issues: write
-
+        
 jobs:
   terraform-plan:
     name: 'Terraform Plan'
