@@ -3,14 +3,26 @@ name: HELM
 on:
   workflow_call:
     inputs:
-      aws-region:
+      provider:
         required: true
+        type: string
+        description: 'Cloud provider to run the workflow. e.g. azure or aws'
+      aws-region:
+        required: false
         type: string
         description: 'AWS EKS cluster region'
       eks-cluster-name:
-        required: true
+        required: false
         type: string
         description: 'EKS cluster name'
+      resource-group:
+        required: false
+        type: string
+        description: 'Container for managing Azure resources'
+      azure-cluster-name:
+        required: false
+        type: string
+        description: 'Azure cluster name'
       namespace:
         required: false
         type: string
@@ -46,10 +58,13 @@ on:
     secrets:
       aws-access-key-id:
         description: 'AWS Access Key ID'
-        required: true
+        required: false
       aws-secret-access-key:
         description: 'AWS Secret Access Key'
-        required: true
+        required: false
+      AZURE_CREDENTIALS:
+        description: 'Azure Credentilas'
+        required: false
 jobs:
   helm-action:
     runs-on: ubuntu-latest
@@ -59,15 +74,26 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configure AWS credentials
+        if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.aws-access-key-id }}
           aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
           aws-region: ${{ inputs.aws-region }}
 
+      - name: Install Azure CLI
+        if: ${{ inputs.provider == 'azure' }}
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Update Kubeconfig
         run: |
-          aws eks --region ${{ inputs.aws-region }} update-kubeconfig --name ${{ inputs.eks-cluster-name }}
+          if [ "${{ inputs.provider }}" = "azure" ]; then
+            az aks get-credentials --resource-group ${{ inputs.resource-group }} --name ${{ inputs.azure-cluster-name }}
+          else 
+            aws eks --region ${{ inputs.aws-region }} update-kubeconfig --name ${{ inputs.eks-cluster-name }}
+          fi
       
       - name: helm lint
         if: ${{ inputs.rollback != 'rollback' }}
