@@ -1,8 +1,6 @@
 name: 'Terraform Configuration Drift Detection'
 
 on:
-  schedule:
-    - cron: '30 13 * * *' # runs every afternoon at 1:30 pm (Depends on Timezone)
   workflow_call: 
     inputs:
       working_directory:
