@@ -45,7 +45,7 @@ jobs:
 ```
 
 ## HELM-cred Workflow
-This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in .github/workflows/helmcalled.yml.
+This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in `.github/workflows/helmcalled.yml`.
 
 Usage
 The HELM-cred workflow can be triggered through push events or manually using the GitHub Actions workflow dispatch feature. It deploys or rolls back Helm charts based on the specified inputs.
