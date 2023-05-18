@@ -6,9 +6,10 @@ This workflow is used to deploy serverless application on AWS environment where
 
 first job called as SST workflow which deploys in preview environment when pull request generated and it destroys the preview environment when pull request closed, merged and labeled as destroy. 
 
-Second job is called as SST workflow which deploy stage environment when pull request merged in base branch stage and after that preview environment also destroy.
+Second job deploys to stage environment when pull request merged in base branch stage and after that preview environment also destroys.
 
-Third job is called SST workflow which deploy prod environment when pull request merged in base branch master and after that preview environment also destroy. 
+Third job deploys to prod environment when pull request merged in base branch master and after that preview environment also destroys.
+
 
 Caller repositories can checkout the shared actions and call them locally by providing the sst_workflow.yml path
 
