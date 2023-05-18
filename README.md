@@ -52,13 +52,9 @@ The HELM-cred workflow can be triggered through push events or manually using th
 
 To use the HELM-cred Workflow, add the following workflow definition to your .github/workflows/helm_workflow.yml file:
 ```yaml
-name: HELM-cred
+name: HELM
 
 on:
-  push:
-    branches: none # [ main ]
-  pull_request:
-    branches: none # [ main ]
   workflow_dispatch:
     inputs:
       environment:
@@ -73,14 +69,27 @@ jobs:
   call-workflow-helm:
     uses: clouddrove-sandbox/test-environment-workflows/.github/workflows/helmcalled.yml@master
     with:
-      provider: aws
-      ## environment for deploy and rollback 
-      rollback: ${{ github.event.inputs.environment }}
-      ## mandatory inputs
-      aws-region: us-east-2
-      helm-chart-directory: helloworld
-      eks-cluster-name: test13-dev13-cluster
-      ## deploy inputs
+      provider: # cloud provider eg. aws or azure
+      rollback: ${{ github.event.inputs.environment }}        ## environment for rollback
+      aws-region: # aws region 
+      helm-chart-directory: # Helm chart directory from the repo
+      eks-cluster-name: # EKS cluster name
+      namespace: # Namespace for deploy or rollback
+      release-name: # Helm chart realease name
+      set-parameters:                                                                          # set parameter is optionals below format for set parameters you csn use 1 format from below options
+        --set image.tag=latest
+        --set replicaCount=3
+        --set service.type=LoadBalancer
+      # set-parameters: --set image.tag=latest,replicaCount=7,service.type=LoadBalancer
+      timeout: # Timeout in seconds eg. 100s
+      values-file-path: #values file path from directory
+      history-max: revisions stored in the revision history eg. 4
+      resource-group: # Resource group for azure cluster
+      azure-cluster-name: # azure cluster name
+   secrets:
+      aws-access-key-id: # AWS Access Key ID
+      aws-secret-access-key: AWS Secret Access Key ID
+      AZURE_CREDENTIALS: # Azure Credentials
 ```
 
 ## Feedback 
