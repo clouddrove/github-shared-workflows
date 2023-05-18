@@ -52,11 +52,10 @@ The helm workflow can be triggered manually using the GitHub Actions workflow di
 
 To use the helm Workflow, add the following workflow definition to your `.github/workflows/helm.yml` file:
 
-#### Note:
-You can eliminate some input and secret parameter as per the AWS and Azure cloudprovider
+#### Example for AWS cloud provider
 
 ```yaml
-name: Helm Workflow
+name: Helm Workflow aws
 on:
   workflow_dispatch:
     inputs:
@@ -69,17 +68,18 @@ on:
           - rollback   #GitHub manual workflow trigger with environment selection for rollback
 
 jobs:
-  call-workflow-helm:
+  aws:
     uses: clouddrove/github-shared-workflows/.github/workflows/helm.yml@master
+    secrets:
+      aws-access-key-id: # AWS Access Key ID
+      aws-secret-access-key: # AWS Secret Access Key ID
     with:
-      provider: # cloud provider eg. aws or azure
-      rollback: ${{ github.event.inputs.environment }}        ## environment for rollback
-      aws-region: # aws region 
-      helm-chart-directory: # Helm chart directory from the repository
+      provider: # aws
+      rollback: ${{ github.event.inputs.environment }}
+      aws-region: # AWS region 
+      helm-chart-directory: # Helm chart directory from repo
       eks-cluster-name: # EKS cluster name
-      azure-cluster-name: # Azure cluster name
-      resource-group: # Resource group for azure cluster
-      namespace: # Namespace for deploy or rollback
+      namespace: # Namespace 
       release-name: # Helm chart realease name
       set-parameters:  # Set parameter is optionals below format support set parameters you can use 1 format from below options
         --set image.tag=latest
@@ -87,13 +87,44 @@ jobs:
         --set service.type=LoadBalancer
       # set-parameters: --set image.tag=latest,replicaCount=7,service.type=LoadBalancer
       timeout: # Timeout in seconds eg. 100s
-      values-file-path: #values file path from directory
-      history-max: # revisions stored in the revision history eg. 4
-      resource-group: # Resource group for azure cluster 
+      values-file-path: #Values file path
+      history-max: # Revision history eg. 4 
+```
+
+#### Example for Azure cloud provider
+
+```yaml
+name: Helm Workflow Azure
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: false 
+        type: choice
+        description: Select Environment name
+        options:
+          - 
+          - rollback   #GitHub manual workflow trigger with environment selection for rollback
+jobs:
+  azure:
+    uses: clouddrove/github-shared-workflows/.github/workflows/helm.yml@master
     secrets:
-      aws-access-key-id: # AWS Access Key ID
-      aws-secret-access-key: # AWS Secret Access Key ID
       AZURE_CREDENTIALS: # Azure Credentials
+    with:
+      provider: # azure
+      azure-cluster-name: # Azure cluster name
+      rollback: ${{ github.event.inputs.environment }}
+      helm-chart-directory: # Helm chart directory from repo
+      namespace: # Namespace for deploy or rollback
+      release-name: # Release name
+      set-parameters:  # Set parameter is optionals below format support set parameters you can use 1 format from below options
+<!--         --set image.tag=latest
+        --set replicaCount=3
+        --set service.type=LoadBalancer -->
+      # set-parameters: --set image.tag=latest,replicaCount=7,service.type=LoadBalancer
+      timeout: # Timeout in seconds eg. 100s
+      values-file-path: # Values file path
+      history-max: # Revision history eg. 4 
 ```
 
 ## Feedback 
