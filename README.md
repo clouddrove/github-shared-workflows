@@ -48,12 +48,11 @@ jobs:
 This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in `.github/workflows/helmcalled.yml`.
 
 Usage
-The HELM-cred workflow can be triggered through push events or manually using the GitHub Actions workflow dispatch feature. It deploys or rolls back Helm charts based on the specified inputs.
+The HELM-cred workflow can be triggered manually using the GitHub Actions workflow dispatch feature. It deploys or rolls back Helm charts based on the specified inputs. Additionally, it also performs Helm template and Helm lint operations.
 
-To use the HELM-cred Workflow, add the following workflow definition to your .github/workflows/helm_workflow.yml file:
+To use the helm Workflow, add the following workflow definition to your .github/workflows/helm.yml file:
 ```yaml
 name: HELM
-
 on:
   workflow_dispatch:
     inputs:
@@ -67,7 +66,7 @@ on:
 
 jobs:
   call-workflow-helm:
-    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/helm.yml@master
     with:
       provider: # cloud provider eg. aws or azure
       rollback: ${{ github.event.inputs.environment }}        ## environment for rollback
