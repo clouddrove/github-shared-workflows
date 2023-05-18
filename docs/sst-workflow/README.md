@@ -4,23 +4,18 @@
 
 This workflow is used to deploy serverless stack (SST) application on AWS environment. Workflows have been added in `.github/workflows/sst_workflow.yml`.
 
-First job called as SST workflow which deploys in preview environment when pull request generated and it destroys the preview environment when pull request closed, merged and labeled as destroy. 
+First job call  workflow which deploys in preview environment when pull request generated and it destroys the preview environment when pull request closed, merged and labeled as destroy, similarly staging and production is deployed using there defined branches 
 
-Second job deploys to stage environment when pull request merged in base branch stage and after that preview environment also destroys.
-
-Third job deploys to prod environment when pull request merged in base branch master and after that preview environment also destroys.
-
-Caller repositories can checkout the shared actions and call them locally by providing the sst_workflow.yml path
 
 ```yaml
-name: Reusable SST Workflow
+name: SST Workflow
 
 on:
   pull_request: 
     types: [closed, merged, labeled]
   workflow_dispatch:
 jobs:
-  call-workflow-preview:
+  preview:
     uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
     with:
       app-env: # preview                  
@@ -29,7 +24,7 @@ jobs:
       aws-access-key-id: # AWS Access Key ID for preview
       aws-secret-access-key: # AWS Secret Access Key for preview
 
-  call-workflow-stage:
+  staging:
     if: ${{ github.base_ref == 'stage' }}
     uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
     with:
@@ -39,7 +34,7 @@ jobs:
       aws-access-key-id: # AWS Access Key ID for stage
       aws-secret-access-key: # AWS Secret Access Key for stage
 
-  call-workflow-prod:
+  production:
     if: ${{ github.base_ref == 'master' }}
     uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
     with:
