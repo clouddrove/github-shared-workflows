@@ -45,14 +45,17 @@ jobs:
 ```
 
 ## HELM-cred Workflow
-This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in `.github/workflows/helmcalled.yml`.
+This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in `.github/workflows/helm.yml`
 
 Usage
 The HELM-cred workflow can be triggered manually using the GitHub Actions workflow dispatch feature. It deploys or rolls back Helm charts based on the specified inputs. Additionally, it also performs Helm template and Helm lint operations.
 
-To use the helm Workflow, add the following workflow definition to your .github/workflows/helm.yml file:
+To use the helm Workflow, add the following workflow definition to your `.github/workflows/helm.yml` file:
+
+Note: You can eliminate some fields some input and secret parameter as per the AWS and Azure cloudprovider
+
 ```yaml
-name: HELM
+name: Helm Workflow
 on:
   workflow_dispatch:
     inputs:
@@ -62,7 +65,7 @@ on:
         description: Select Environment name
         options:
           - 
-          - rollback
+          - rollback   #GitHub manual workflow trigger with environment selection for rollback
 
 jobs:
   call-workflow-helm:
@@ -71,13 +74,13 @@ jobs:
       provider: # cloud provider eg. aws or azure
       rollback: ${{ github.event.inputs.environment }}        ## environment for rollback
       aws-region: # aws region 
-      helm-chart-directory: # Helm chart directory from the repo
+      helm-chart-directory: # Helm chart directory from the repository
       eks-cluster-name: # EKS cluster name
-      azure-cluster-name: # azure cluster name
+      azure-cluster-name: # Azure cluster name
       resource-group: # Resource group for azure cluster
       namespace: # Namespace for deploy or rollback
       release-name: # Helm chart realease name
-      set-parameters:  # set parameter is optionals below format support set parameters you csn use 1 format from below options
+      set-parameters:  # Set parameter is optionals below format support set parameters you can use 1 format from below options
         --set image.tag=latest
         --set replicaCount=3
         --set service.type=LoadBalancer
@@ -86,7 +89,7 @@ jobs:
       values-file-path: #values file path from directory
       history-max: # revisions stored in the revision history eg. 4
       resource-group: # Resource group for azure cluster 
-   secrets:
+    secrets:
       aws-access-key-id: # AWS Access Key ID
       aws-secret-access-key: # AWS Secret Access Key ID
       AZURE_CREDENTIALS: # Azure Credentials
