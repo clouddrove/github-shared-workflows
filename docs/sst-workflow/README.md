@@ -2,9 +2,9 @@
 
 ---
 
-# SST Workflow
+This repository contains GitHub Actions workflow is designed to deploy an Serverless Stack (SST) app to an AWS environment. Workflow have been under a workflows directory as `.github/workflows/sst_workflow.yml`.
 
-This GitHub Actions workflow is designed to deploy an AWS Serverless Stack (SST) app to an AWS environment based on inputs provided to the workflow. The environment can be specified using the app-env input, and the working directory can be specified using the working-directory input.
+# SST Workflow structure
 
 ```yaml
 name:
@@ -48,7 +48,7 @@ runs:
     - run:  # It will destroy our preview environment once pull request merged or closed.
 ```
 
-Caller repositories can checkout the shared actions and call them locally by providing the action.yml path
+Caller repositories can checkout the shared actions and call them locally by providing the sst_workflow.yml path
 
 ```yaml
 name: Reusable SST Workflow
