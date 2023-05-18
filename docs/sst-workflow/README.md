@@ -48,6 +48,46 @@ runs:
     - run:  # It will destroy our preview environment once pull request merged or closed.
 ```
 
+Caller repositories can checkout the shared actions and call them locally by providing the action.yml path
+
+```yaml
+name: Reusable SST Workflow
+
+on:
+  pull_request: 
+    types: [closed, merged, labeled]
+  workflow_dispatch:
+jobs:
+  call-workflow-preview:
+    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
+    with:
+      app-env: # preview                  
+      working-directory: # specify your working folder from repo
+    secrets:
+      aws-access-key-id: # AWS Access Key ID for preview
+      aws-secret-access-key: # AWS Secret Access Key for preview
+
+  call-workflow-stage:
+    if: ${{ github.base_ref == 'stage' }}
+    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
+    with:
+      app-env: # stage                      
+      working-directory: # specify your working folder from repo
+    secrets:
+      aws-access-key-id: # AWS Access Key ID for stage
+      aws-secret-access-key: # AWS Secret Access Key for stage
+
+  call-workflow-prod:
+    if: ${{ github.base_ref == 'master' }}
+    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
+    with:
+      app-env: # prod                   
+      working-directory: # specify your working folder from repo
+    secrets:
+      aws-access-key-id: # AWS Access Key ID for prod
+      aws-secret-access-key: # AWS Secret Access Key for prod
+```
+
 
 
 
