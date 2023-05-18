@@ -81,9 +81,9 @@ jobs:
       namespace: # Namespace 
       release-name: # Helm chart realease name
       set-parameters:  # Set parameter is optionals below format support set parameters you can use 1 format from below options
-        --set image.tag=latest
-        --set replicaCount=3
-        --set service.type=LoadBalancer
+       # --set image.tag=latest
+       # --set replicaCount=3
+       # --set service.type=LoadBalancer
       # set-parameters: --set image.tag=latest,replicaCount=7,service.type=LoadBalancer
       timeout: # Timeout in seconds eg. 100s
       values-file-path: #Values file path
