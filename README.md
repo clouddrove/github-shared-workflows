@@ -76,7 +76,7 @@ jobs:
       eks-cluster-name: # EKS cluster name
       namespace: # Namespace for deploy or rollback
       release-name: # Helm chart realease name
-      set-parameters:                                                                          # set parameter is optionals below format for set parameters you csn use 1 format from below options
+      set-parameters:  # set parameter is optionals below format support set parameters you csn use 1 format from below options
         --set image.tag=latest
         --set replicaCount=3
         --set service.type=LoadBalancer
