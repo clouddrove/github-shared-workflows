@@ -53,7 +53,7 @@ The helm workflow can be triggered manually using the GitHub Actions workflow di
 To use the helm Workflow, add the following workflow definition to your `.github/workflows/helm.yml` file:
 
 #### Note:
-You can eliminate some fields some input and secret parameter as per the AWS and Azure cloudprovider
+You can eliminate some input and secret parameter as per the AWS and Azure cloudprovider
 
 ```yaml
 name: Helm Workflow
