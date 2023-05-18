@@ -74,6 +74,8 @@ jobs:
       aws-region: # aws region 
       helm-chart-directory: # Helm chart directory from the repo
       eks-cluster-name: # EKS cluster name
+      azure-cluster-name: # azure cluster name
+      resource-group: # Resource group for azure cluster
       namespace: # Namespace for deploy or rollback
       release-name: # Helm chart realease name
       set-parameters:  # set parameter is optionals below format support set parameters you csn use 1 format from below options
@@ -83,12 +85,12 @@ jobs:
       # set-parameters: --set image.tag=latest,replicaCount=7,service.type=LoadBalancer
       timeout: # Timeout in seconds eg. 100s
       values-file-path: #values file path from directory
-      history-max: revisions stored in the revision history eg. 4
+      history-max: # revisions stored in the revision history eg. 4
       resource-group: # Resource group for azure cluster
-      azure-cluster-name: # azure cluster name
+      
    secrets:
       aws-access-key-id: # AWS Access Key ID
-      aws-secret-access-key: AWS Secret Access Key ID
+      aws-secret-access-key: # AWS Secret Access Key ID
       AZURE_CREDENTIALS: # Azure Credentials
 ```
 
