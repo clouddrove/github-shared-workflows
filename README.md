@@ -66,7 +66,6 @@ on:
         options:
           - 
           - rollback   #GitHub manual workflow trigger with environment selection for rollback
-
 jobs:
   aws:
     uses: clouddrove/github-shared-workflows/.github/workflows/helm.yml@master
