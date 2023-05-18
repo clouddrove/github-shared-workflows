@@ -44,7 +44,7 @@ jobs:
       aws-secret-access-key: # AWS Secret Access Key for prod
 ```
 
-## HELM-cred Workflow
+## HELM Workflow
 This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in `.github/workflows/helm.yml`
 
 Usage
