@@ -10,8 +10,6 @@ Second job is called as SST workflow which deploy stage environment when pull re
 
 Third job is called SST workflow which deploy prod environment when pull request merged in base branch master and after that preview environment also destroy. 
 
----
-
 Caller repositories can checkout the shared actions and call them locally by providing the sst_workflow.yml path
 
 ```yaml
