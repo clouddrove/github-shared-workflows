@@ -43,6 +43,46 @@ jobs:
       aws-access-key-id: # AWS Access Key ID for prod
       aws-secret-access-key: # AWS Secret Access Key for prod
 ```
+
+## HELM-cred Workflow
+This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in .github/workflows/helmcalled.yml.
+
+Usage
+The HELM-cred workflow can be triggered through push events or manually using the GitHub Actions workflow dispatch feature. It deploys or rolls back Helm charts based on the specified inputs.
+
+To use the HELM-cred Workflow, add the following workflow definition to your .github/workflows/helm_workflow.yml file:
+```yaml
+name: HELM-cred
+
+on:
+  push:
+    branches: none # [ main ]
+  pull_request:
+    branches: none # [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: false 
+        type: choice
+        description: Select Environment name
+        options:
+          - 
+          - rollback
+
+jobs:
+  call-workflow-helm:
+    uses: clouddrove-sandbox/test-environment-workflows/.github/workflows/helmcalled.yml@master
+    with:
+      provider: aws
+      ## environment for deploy and rollback 
+      rollback: ${{ github.event.inputs.environment }}
+      ## mandatory inputs
+      aws-region: us-east-2
+      helm-chart-directory: helloworld
+      eks-cluster-name: test13-dev13-cluster
+      ## deploy inputs
+```
+
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/terraform-azure-aks/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
 
