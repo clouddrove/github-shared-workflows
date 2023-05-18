@@ -67,7 +67,7 @@ on:
 
 jobs:
   call-workflow-helm:
-    uses: clouddrove-sandbox/test-environment-workflows/.github/workflows/helmcalled.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
     with:
       provider: # cloud provider eg. aws or azure
       rollback: ${{ github.event.inputs.environment }}        ## environment for rollback
@@ -86,8 +86,7 @@ jobs:
       timeout: # Timeout in seconds eg. 100s
       values-file-path: #values file path from directory
       history-max: # revisions stored in the revision history eg. 4
-      resource-group: # Resource group for azure cluster
-      
+      resource-group: # Resource group for azure cluster 
    secrets:
       aws-access-key-id: # AWS Access Key ID
       aws-secret-access-key: # AWS Secret Access Key ID
