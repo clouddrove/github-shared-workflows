@@ -2,9 +2,9 @@
 
 ## SST Workflow
 
-This workflow is used to deploy serverless stack (SST) application on AWS environment
+This workflow is used to deploy serverless stack (SST) application on AWS environment. Workflows have been added in `.github/workflows/sst_workflow.yml`.
 
-first job called as SST workflow which deploys in preview environment when pull request generated and it destroys the preview environment when pull request closed, merged and labeled as destroy. 
+First job called as SST workflow which deploys in preview environment when pull request generated and it destroys the preview environment when pull request closed, merged and labeled as destroy. 
 
 Second job deploys to stage environment when pull request merged in base branch stage and after that preview environment also destroys.
 
