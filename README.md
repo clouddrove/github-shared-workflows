@@ -55,7 +55,7 @@ To use the helm Workflow, add the following workflow definition to your `.github
 #### Example for AWS cloud provider
 
 ```yaml
-name: Helm Workflow aws
+name: Helm Workflow AWS
 on:
   workflow_dispatch:
     inputs:
