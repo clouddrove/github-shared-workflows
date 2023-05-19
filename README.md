@@ -45,7 +45,7 @@ jobs:
       working-directory: # specify your working folder from repo
 ```
 
-## [HELM Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/helm.yml)
+## [Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/helm.yml)
 
 This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in `.github/workflows/helm.yml`
 
@@ -89,7 +89,7 @@ jobs:
       values-file-path: #Values file path
       history-max: # Revision history deafault values is 7
       namespace: # Namespace 
-      rollback: ${{ github.event.inputs.environment }}  # mandetory input do not change this 
+      rollback: ${{ github.event.inputs.environment }}  # Mandetory input do not change this 
 ```
 
 #### Example for Azure cloud provider
@@ -126,7 +126,82 @@ jobs:
       values-file-path: #Values file path
       history-max: # Revision history deafault values is 7
       namespace: # Namespace 
-      rollback: ${{ github.event.inputs.environment }}  # mandetory input do not change this 
+      rollback: ${{ github.event.inputs.environment }}  # Mandetory input do not change this 
+```
+
+## [Docker Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker-scanner.yml)
+
+This workflow scans the Docker image locally before pushing it to the Docker registry. Workflows have been added in `.github/workflows/docker-scanner.yml`.
+
+#### Usage
+The following workflow can build and scan a Docker image locally, providing vulnerability results under the code scanning section of the security tab. It also allows you to choose which vulnerability should block the workflow before pushing the Docker image to the Docker registry.
+
+#### Example for scan and push docker image on Dockerhub
+
+```yaml
+name: Docker Workflow
+# This permission are helpful for pushing vulnerability in security tab
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+  statuses: write
+
+on:
+  workflow_dispatch:
+
+jobs:
+  docker-scanner:
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker-scanner.yml@master
+    with:
+      severity: # which vulnerability should disable the workflow before pusing image to registry. eg. 'HIGH,CRITICAL,MEDIUM,LOW'
+
+  docker-push:
+    needs: docker-scanner  
+    if: ${{ success() && needs.docker-scanner.result == 'success' }}   # This condition start this docker push workflow on succesfull scanning of docker image
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker.yml@master
+    secrets:
+      DOCKERHUB_USERNAME: # Dockerhub username
+      DOCKERHUB_PASSWORD: # Dockerhub password
+    with:
+      registry: # DOCKERHUB
+      images: # dockerhub repository name
+      IMAGE_TAG: # image tag eg. ${{ github.run_number }}
+```
+
+#### Example for scan and push docker image on ECR
+
+```yaml
+name: Docker Workflow
+# This permission are helpful for pushing vulnerability in security tab
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+  statuses: write
+
+on:
+  workflow_dispatch:
+
+jobs:
+  docker-scanner:
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker-scanner.yml@master
+    with:
+      severity: # which vulnerability should disable the workflow before pusing image to registry. eg. 'HIGH,CRITICAL,MEDIUM,LOW'
+
+  docker-push:
+    needs: docker-scanner
+    if: ${{ success() && needs.docker-scanner.result == 'success' }}   # This condition start this docker push workflow on succesfull scanning of docker image
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker.yml@master
+    secrets:
+      AWS_ACCESS_KEY_ID: # AWS Access Key ID
+      AWS_SECRET_ACCESS_KEY: # AWS Secret Access Key ID
+    with:
+      registry: # 'ECR'
+      ECR_REPOSITORY: # ECR Repository name
+      aws-region: # AWS region
+      IMAGE_TAG: # image tag eg. ${{ github.run_number }}
+
 ```
 
 ## Feedback 
