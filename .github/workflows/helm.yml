@@ -7,26 +7,22 @@ on:
         required: true
         type: string
         description: 'Cloud provider to run the workflow. e.g. azure or aws'
-      aws-region:
-        required: false
-        type: string
-        description: 'AWS EKS cluster region'
       eks-cluster-name:
         required: false
         type: string
         description: 'EKS cluster name'
-      resource-group:
+      aws-region:
         required: false
         type: string
-        description: 'Container for managing Azure resources'
+        description: 'AWS EKS cluster region'
       azure-cluster-name:
         required: false
         type: string
         description: 'Azure cluster name'
-      namespace:
+      resource-group:
         required: false
         type: string
-        description: 'Boundary for Kubernetes resources'
+        description: 'Container for managing Azure resources'
       helm-chart-directory:
         required: true
         type: string
@@ -35,14 +31,11 @@ on:
         required: false
         type: string
         description: 'Unique ID for installed chart'
-      rollback:
-         required: false
-         type: string
-         description: 'Environment name for rollback'
       timeout:
          required: true
          type: string
          description: 'Timeout for helm install step in seconds'
+         default: '120s'
       set-parameters:
         required: false
         type: string 
@@ -55,6 +48,15 @@ on:
         required: true
         type: number
         description: 'number of revisions stored in the revision history.'
+        default: '7'
+      namespace:
+        required: false
+        type: string
+        description: 'Boundary for Kubernetes resources'
+      rollback:
+         required: false
+         type: string
+         description: 'Environment name for rollback'
     secrets:
       aws-access-key-id:
         description: 'AWS Access Key ID'
