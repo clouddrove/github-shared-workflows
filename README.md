@@ -135,8 +135,8 @@ jobs:
 ```
 
 ## Docker Workflow
-### [Docker Scanner workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker-scanner.yml)
-### [Docker push workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker.yml)
+### [1. Docker Scanner workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker-scanner.yml)
+### [2. Docker push workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker.yml)
 
 This workflow scans the Docker image locally before pushing it to the Docker registry. Workflows have been added in `.github/workflows/docker-scanner.yml`.
 
