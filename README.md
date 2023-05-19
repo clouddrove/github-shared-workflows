@@ -1,7 +1,7 @@
 <h1 align="center">github-shared-workflows</h1>
 
 ## 🚀 Table Of Content
-- [SST Workflow](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#sst-workflow)
+- [**SST Workflow**](https://github.com/clouddrove/github-shared-workflows/tree/master#sst-workflow)
 
 
 ## [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/sst_workflow.yml)
