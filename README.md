@@ -2,8 +2,16 @@
 
 ## 🚀 Table Of Content
 1. [**SST Workflow**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#sst-workflow)
+   
 2. [**Helm Workflow**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#helm-workflow)
     * [**Example for AWS cloud provider**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#example-for-aws-cloud-provider)
+    * [**Example for Azure cloud provider**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#example-for-aws-cloud-provider)
+  
+3. [**Docker Workflow**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#docker-workflow)
+   * [**Example for scan and push docker image on Dockerhub**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#example-for-scan-and-push-docker-image-on-dockerhub)
+   * [**Example for scan and push docker image on ECR**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#example-for-scan-and-push-docker-image-on-ecr)
+
+
 
 ## [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/sst_workflow.yml)
 
@@ -135,8 +143,8 @@ jobs:
 ```
 
 ## Docker Workflow
-### [1. Docker Scanner workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker-scanner.yml)
-### [2. Docker push workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker.yml)
+### [1. Docker Scanner workflow reference](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker-scanner.yml)
+### [2. Docker push workflow reference](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker.yml)
 
 This workflow scans the Docker image locally before pushing it to the Docker registry. Workflows have been added in `.github/workflows/docker-scanner.yml`.
 
