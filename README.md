@@ -1,6 +1,6 @@
 <h1 align="center">github-shared-workflows</h1>
 
-## SST Workflow
+## [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/.github/workflows/sst_workflow.yml)
 
 This workflow is used to deploy serverless stack (SST) application on AWS environment. Workflows have been added in `.github/workflows/sst_workflow.yml`.
 
@@ -45,7 +45,6 @@ jobs:
       working-directory: # specify your working folder from repo
 ```
 
-## [HELM Workflow] (https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/helm.yml)
 ## [HELM Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/helm.yml)
 
 This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in `.github/workflows/helm.yml`
