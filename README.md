@@ -1,8 +1,9 @@
 <h1 align="center">github-shared-workflows</h1>
 
 ## 🚀 Table Of Content
-## [SST Workflow](https://github.com/clouddrove/github-shared-workflows/tree/#sst-workflow)
-
+1. [SST Workflow](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#sst-workflow)
+2. [Helm Workflow](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#helm-workflow)
+    * [Example for AWS cloud provider](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#example-for-aws-cloud-provider)
 
 ## [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/sst_workflow.yml)
 
