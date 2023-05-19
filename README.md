@@ -1,5 +1,9 @@
 <h1 align="center">github-shared-workflows</h1>
 
+## 🚀 Table Of Content
+- [SST Workflow](## SST Workflow)
+
+
 ## [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/sst_workflow.yml)
 
 This workflow is used to deploy serverless stack (SST) application on AWS environment. Workflows have been added in `.github/workflows/sst_workflow.yml`.
@@ -136,7 +140,7 @@ jobs:
 This workflow scans the Docker image locally before pushing it to the Docker registry. Workflows have been added in `.github/workflows/docker-scanner.yml`.
 
 #### Usage
-The following workflow can build and scan a Docker image locally, providing vulnerability results under the code scanning section of the security tab. It also allows you to choose which vulnerability should block the workflow before pushing the Docker image to the Docker registry.
+The following workflow can build and scan a Docker image locally, providing vulnerability results under the code scanning section of the security tab. It also allows you to choose which vulnerability should block the workflow before pushing the Docker image to the Docker registry this workflow support DOCKERHUB, ECR or both.
 
 #### Example for scan and push docker image on Dockerhub
 
@@ -203,7 +207,6 @@ jobs:
       ECR_REPOSITORY: # ECR Repository name
       aws-region: # AWS region
       IMAGE_TAG: # image tag eg. ${{ github.run_number }}
-
 ```
 
 ## Feedback 
