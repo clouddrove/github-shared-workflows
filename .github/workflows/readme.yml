@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: 'Set up Python 3.7'
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
@@ -25,11 +25,11 @@ jobs:
 
 
       - name: 'pre-commit check errors'
-        uses: pre-commit/action@v2.0.0
+        uses: pre-commit/action@v3.0.0
         continue-on-error: true
 
       - name: 'pre-commit fix erros'
-        uses: pre-commit/action@v2.0.0
+        uses: pre-commit/action@v3.0.0
         continue-on-error: true
 
       - name: 'push readme'
