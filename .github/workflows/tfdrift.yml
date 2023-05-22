@@ -18,7 +18,24 @@ on:
         type: string
         default: us-east-1
         description: 'AWS region of terraform deployment.'
-        
+      var_file:
+        required: false
+        default: ""
+        type: string
+        description: 'Terraform var file directory. e.g. vars/dev.tfvars'
+    secrets:
+      AZURE_CREDENTIALS:
+        required: false
+        description: 'Azure Credentials to install Azure in github runner.'
+      aws_access_key_id:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      aws_secret_access_key:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      GITHUB:
+        required: true
+        description: 'PAT of the user to run the jobs.'
 jobs:
   terraform-plan:
     name: 'Terraform Plan'
@@ -77,8 +94,12 @@ jobs:
       run: |
         export exitcode=0
         cd ${{ inputs.working_directory }}
+        if [ -n "${{ inputs.var_file }}" ]; then
+        terraform plan -detailed-exitcode -no-color -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
+        else
         terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
-        
+        fi
+
         echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
         
         if [ $exitcode -eq 1 ]; then
@@ -173,7 +194,7 @@ jobs:
       if: steps.tf-plan.outputs.exitcode == 0
       uses: actions/github-script@v6
       with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB }}
           script: |
             const title = 'Terraform Configuration Drift Detected';
             const creator = 'github-actions[bot]'
@@ -202,3 +223,4 @@ jobs:
     - name: Error on Failure
       if: steps.tf-plan.outputs.exitcode == 2
       run: exit 1
+      
