@@ -1,13 +1,13 @@
 <h1 align="center">github-shared-workflows</h1>
 
 ## 🚀 Table Of Content
-1. [**SST Workflow**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#sst-workflow)   
-2. [**Helm Workflow**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#helm-workflow)
-   * [**Example for AWS cloud provider**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#example-for-aws-cloud-provider)
-   * [**Example for Azure cloud provider**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#example-for-aws-cloud-provider) 
-3. [**Docker Workflow**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#docker-workflow)
-   * [**Example for scan and push docker image on Dockerhub**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#example-for-scan-and-push-docker-image-on-dockerhub)
-   * [**Example for scan and push docker image on ECR**](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#example-for-scan-and-push-docker-image-on-ecr)
+1. [**SST Workflow**](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/SST_WF.md)   
+2. [**Helm Workflow**](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/HELM_WF.md)
+   * [**Example for AWS cloud provider**](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/HELM_WF.md#example-for-aws-cloud-provider)
+   * [**Example for Azure cloud provider**](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/HELM_WF.md#example-for-azure-cloud-provider) 
+3. [**Docker Workflow**](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/DOCKER_WF.md)
+   * [**Example for scan and push docker image on Dockerhub**](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/DOCKER_WF.md#example-for-scan-and-push-docker-image-on-dockerhub)
+   * [**Example for scan and push docker image on ECR**](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/DOCKER_WF.md#example-for-scan-and-push-docker-image-on-ecr)
 
 
 ## Feedback 
