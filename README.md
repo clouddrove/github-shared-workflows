@@ -11,6 +11,19 @@ This GitHub Shared Workflows offers benefits such as code reusability, consisten
    * [Example for scan and push docker image on Dockerhub](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/DOCKER_WF.md#example-for-scan-and-push-docker-image-on-dockerhub)
    * [Example for scan and push docker image on ECR](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/DOCKER_WF.md#example-for-scan-and-push-docker-image-on-ecr)
 
+## Example
+```yaml
+jobs:
+  staging: # Job name
+    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
+    secrets:
+      secret-1:
+      secret-2: 
+    with:
+      input-1:                 
+      input-1:
+```
+Above example calls SST workflow from `clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master` and used in the jobs as per our requirement for deployment.
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
