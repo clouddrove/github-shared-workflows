@@ -1,4 +1,4 @@
-<h1 align="center">github-shared-workflows</h1>
+<h1 align="center">GitHub-Shared-Workflows</h1>
 
 ## 🚀 Table Of Content
 1. [**SST Workflow**](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/SST_WF.md)   
