@@ -21,7 +21,7 @@ jobs:
       secret-2: 
     with:
       input-1:                 
-      input-1:
+      input-2:
 ```
 Above example calls SST workflow from `clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master` and used in the jobs as per our requirement for deployment.
 
