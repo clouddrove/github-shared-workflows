@@ -1,6 +1,6 @@
 <h1 align="center">GitHub-Shared-Workflows</h1>
 
-This GitHub Shared Workflows offers benefits such as code reusability, consistent processes, simplified maintenance, faster onboarding, improved collaboration, easy updates and upgrades, easier troubleshooting, and community contributions. By adopting shared workflows, we can standardize development and deployment practices, increase efficiency, and promote collaboration among team members. This repository contains GitHub Shared Workflows that build, security scanning, and deployment processes for SST Application, Docker images and Helm charts. For more information please follow below Table of Content.
+This GitHub Shared Workflows offers benefits such as code reusability, consistent processes, simplified maintenance, faster onboarding, improved collaboration, easy updates and upgrades, easier troubleshooting, and community contributions. By adopting shared workflows, we can standardize development and deployment practices, increase efficiency, and promote collaboration among team members. This repository contains GitHub Shared Workflows that build, security scanning, and deployment processes for SST Application, Docker images and Helm charts. For more information please follow below [Table of Content](https://github.com/clouddrove/github-shared-workflows/tree/issue_357#-table-of-content).
 
 ## 🚀 Table Of Content
 1. [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/issue_357/SST_WF.md)   
