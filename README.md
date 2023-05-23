@@ -17,11 +17,11 @@ jobs:
   staging: # Job name
     uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
     secrets:
-      secret-1:
-      secret-2: 
+      SECRET_1:
+      SECRET_2: 
     with:
-      input-1:                 
-      input-2:
+      input_1:                 
+      input_2:
 ```
 Above example calls SST workflow from `clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master` and used in the jobs as per our requirement for deployment.
 
