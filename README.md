@@ -1,9 +1,9 @@
 <h1 align="center">GitHub-Shared-Workflows</h1>
 <p align="center">
-Github shared workflow means workflow which we can use in multiple repo with some kind of simple structure.
+GitHub shared workflow defines a workflow that we can use in multiple repos with a simple structure.
 </p>
 
-The GitHub Shared Workflows offers benefits to use a workflow with simple calling structure and proper documentation. Basically this shared workflow feature can overcome the issue of upgrading hundreds of workflows when any new updation will come. In this repo we have many kind of workflows related to terraform, kubernetes, helm, sst and some kind of regular workflows like maintain changelog, auto assignee and many more.
+This repo offers to using a workflow with a simple calling structure and proper documentation. This shared workflow feature can overcome the issue of upgrading hundreds of workflows whenever any new updation is required. In this repo, we have many kinds of workflows related to Terraform, Kubernetes, Helm, SST, and regular workflows like maintain changelog, auto assignee, and many more.
 
 ## How shared workflow use
 ```yaml
