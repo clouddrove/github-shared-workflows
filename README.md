@@ -1,12 +1,15 @@
 <h1 align="center">GitHub-Shared-Workflows</h1>
+<p align="center">
+Github shared workflow means workflow which we can use in multiple repo with some kind of simple structure.
+</p>
 
-This GitHub Shared Workflows offers benefits such as code reusability, consistent processes, simplified maintenance, easy updates and upgrades and easier troubleshooting. By adopting shared workflows, we can make workflows reusable and anyone with access to the Shared workflow can then call the Shared workflow from another workflow when require. This repository contains GitHub Shared Workflows that build, security scanning, and deployment processes for SST Application, Docker images, Helm charts and more. For more information please follow below [Table of Content](https://github.com/clouddrove/github-shared-workflows/tree/master#-table-of-content).
+The GitHub Shared Workflows offers benefits to use a workflow with simple calling structure and proper documentation. Basically this shared workflow feature can overcome the issue of upgrading hundreds of workflows when any new updation will come. In this repo we have many kind of workflows related to terraform, kubernetes, helm, sst and some kind of regular workflows like maintain changelog, auto assignee and many more.
 
-## Example
+## How shared workflow use
 ```yaml
 jobs:
   staging: # Job name
-    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/example.yml@master
     secrets:
       SECRET_1:
       SECRET_2: 
@@ -14,7 +17,7 @@ jobs:
       input_1:                 
       input_2:
 ```
-Above example calls SST workflow from `clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master` and used in the jobs as per our requirement for deployment.
+Above example is just a simple example to call workflow from `clouddrove/github-shared-workflows/.github/workflows/example.yml@master` and used in the jobs as per our requirement.
 
 ## 🚀 Table Of Content
 1. [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/sst.md)   
