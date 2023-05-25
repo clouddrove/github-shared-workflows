@@ -1,52 +1,37 @@
-<h1 align="center">github-shared-workflows</h1>
+<h1 align="center">GitHub-Shared-Workflows</h1>
+<p align="center">
+GitHub shared workflow defines a workflow that we can use in multiple repos with a simple structure.
+</p>
 
-## SST Workflow
+This repo offers to using a workflow with a simple calling structure and proper documentation. This shared workflow feature can overcome the issue of upgrading hundreds of workflows whenever any new updation is required. In this repo, we have many kinds of workflows related to Terraform, Kubernetes, Helm, SST, and regular workflows like maintain changelog, auto assignee, and many more.
 
-This workflow is used to deploy serverless stack (SST) application on AWS environment. Workflows have been added in `.github/workflows/sst_workflow.yml`.
-
-Below workflow can be used to deploy SST in preview environment when pull request generated and it destroys the preview environment when pull request closed, merged and labeled as destroy, similarly staging and production is deployed using there defined branches.
-
+## How shared workflow use
 ```yaml
-name: SST Workflow
-
-on:
-  pull_request: 
-    types: [closed, merged, labeled]
-  workflow_dispatch:
 jobs:
-  preview:
-    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
-    with:
-      app-env: # preview                  
-      working-directory: # specify your working folder from repo
+  staging: # Job name
+    uses: clouddrove/github-shared-workflows/.github/workflows/example.yml@master
     secrets:
-      aws-access-key-id: # AWS Access Key ID for preview
-      aws-secret-access-key: # AWS Secret Access Key for preview
-
-  staging:
-    if: ${{ github.base_ref == 'stage' }}
-    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
+      SECRET_1:
+      SECRET_2: 
     with:
-      app-env: # stage                      
-      working-directory: # specify your working folder from repo
-    secrets:
-      aws-access-key-id: # AWS Access Key ID for stage
-      aws-secret-access-key: # AWS Secret Access Key for stage
-
-  production:
-    if: ${{ github.base_ref == 'master' }}
-    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
-    with:
-      app-env: # prod                   
-      working-directory: # specify your working folder from repo
-    secrets:
-      aws-access-key-id: # AWS Access Key ID for prod
-      aws-secret-access-key: # AWS Secret Access Key for prod
+      input_1:                 
+      input_2:
 ```
-## Feedback 
-If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/terraform-azure-aks/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
+Above example is just a simple example to call workflow from github shared workflow to your workflow and used in the jobs as per your requirements.
 
-If you have found it worth your time, go ahead and give us a ★ on [our GitHub](https://github.com/clouddrove/terraform-azure-aks)!
+## 🚀 Table Of Content
+1. [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/sst.md)   
+2. [Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/helm.md)
+   * [Example for AWS cloud provider](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/helm.md#example-for-aws-cloud-provider)
+   * [Example for Azure cloud provider](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/helm.md#example-for-azure-cloud-provider) 
+3. [Docker Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/docker.md)
+   * [Example for scan and push docker image on Dockerhub](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/docker.md#example-for-scan-and-push-docker-image-on-dockerhub)
+   * [Example for scan and push docker image on ECR](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/docker.md#example-for-scan-and-push-docker-image-on-ecr)
+
+## Feedback 
+If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
+
+If you have found it worth your time, go ahead and give us a ★ on [our GitHub](https://github.com/clouddrove/github-shared-workflows)!
 
 ## About us
 
