@@ -17,7 +17,7 @@ jobs:
       input_1:                 
       input_2:
 ```
-Above example is just a simple example to call workflow from `clouddrove/github-shared-workflows/.github/workflows/example.yml@master` and used in the jobs as per our requirement.
+Above example is just a simple example to call workflow from github shared workflow to your workflow and used in the jobs as per your requirements.
 
 ## 🚀 Table Of Content
 1. [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/sst.md)   
