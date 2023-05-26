@@ -7,7 +7,7 @@ GitHub shared workflow defines a workflow that we can use in multiple repos with
 </p>
 
 <p align="center">
-<a href="LICENSE.md">
+<a href="LICENSE">
   <img src="https://img.shields.io/badge/License-APACHE-blue.svg" alt="Licence">
 </a>
 </p>
