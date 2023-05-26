@@ -11,7 +11,7 @@ GitHub shared workflow defines a workflow that we can use in multiple repos with
   <img src="https://img.shields.io/badge/License-APACHE-blue.svg" alt="Licence">
 </a>
 <a href="https://docs.github.com/en/actions/using-workflows/reusing-workflows">
-  <img src="https://img.shields.io/badge/shared%20workflow-reference-green" alt="ref">
+  <img src="https://img.shields.io/badge/shared-workflow-green" alt="ref">
 </a>
 </p>
 
