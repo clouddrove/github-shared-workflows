@@ -10,16 +10,19 @@ GitHub shared workflow defines a workflow that we can use in multiple repos with
 <a href="LICENSE">
   <img src="https://img.shields.io/badge/License-APACHE-blue.svg" alt="Licence">
 </a>
+<a href="https://docs.github.com/en/actions/using-workflows/reusing-workflows">
+  <img src="https://img.shields.io/badge/shared%20workflow-reference-green" alt="ref">
+</a>
 </p>
 
 <p align="center">
-<a href='https://facebook.com/sharer/sharer.php?u=https://github.com/clouddrove/terraform-aws-secrets-manager'>
+<a href='https://facebook.com/sharer/sharer.php?u=https://github.com/clouddrove/github-shared-workflows'>
   <img title="Share on Facebook" src="https://user-images.githubusercontent.com/50652676/62817743-4f64cb80-bb59-11e9-90c7-b057252ded50.png" />
 </a>
-<a href='https://www.linkedin.com/shareArticle?mini=true&title=Terraform+AWS+Secrets+Manager&url=https://github.com/clouddrove/terraform-aws-secrets-manager'>
+<a href='https://www.linkedin.com/shareArticle?mini=true&title=Terraform+AWS+Secrets+Manager&url=https://github.com/clouddrove/github-shared-workflows'>
   <img title="Share on LinkedIn" src="https://user-images.githubusercontent.com/50652676/62817742-4e339e80-bb59-11e9-87b9-a1f68cae1049.png" />
 </a>
-<a href='https://twitter.com/intent/tweet/?text=Terraform+AWS+Secrets+Manager&url=https://github.com/clouddrove/terraform-aws-secrets-manager'>
+<a href='https://twitter.com/intent/tweet/?text=Terraform+AWS+Secrets+Manager&url=https://github.com/clouddrove/github-shared-workflows'>
   <img title="Share on Twitter" src="https://user-images.githubusercontent.com/50652676/62817740-4c69db00-bb59-11e9-8a79-3580fbbf6d5c.png" />
 </a>
 </p>
