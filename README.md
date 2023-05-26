@@ -19,10 +19,10 @@ GitHub shared workflow defines a workflow that we can use in multiple repos with
 <a href='https://facebook.com/sharer/sharer.php?u=https://github.com/clouddrove/github-shared-workflows'>
   <img title="Share on Facebook" src="https://user-images.githubusercontent.com/50652676/62817743-4f64cb80-bb59-11e9-90c7-b057252ded50.png" />
 </a>
-<a href='https://www.linkedin.com/shareArticle?mini=true&title=Terraform+AWS+Secrets+Manager&url=https://github.com/clouddrove/github-shared-workflows'>
+<a href='https://www.linkedin.com/shareArticle?mini=true&title=Github+Shared+Workflow&url=https://github.com/clouddrove/github-shared-workflows'>
   <img title="Share on LinkedIn" src="https://user-images.githubusercontent.com/50652676/62817742-4e339e80-bb59-11e9-87b9-a1f68cae1049.png" />
 </a>
-<a href='https://twitter.com/intent/tweet/?text=Terraform+AWS+Secrets+Manager&url=https://github.com/clouddrove/github-shared-workflows'>
+<a href='https://twitter.com/intent/tweet/?text=Github+Shared+Workflow&url=https://github.com/clouddrove/github-shared-workflows'>
   <img title="Share on Twitter" src="https://user-images.githubusercontent.com/50652676/62817740-4c69db00-bb59-11e9-8a79-3580fbbf6d5c.png" />
 </a>
 </p>
