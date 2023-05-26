@@ -1,13 +1,30 @@
+<p align="center"> <img src="https://camo.githubusercontent.com/a47ec6a3814b0a78105e9b1130cea653cbf319913f4d321f7512a60c3a4c1df0/68747470733a2f2f63646e2e73766172756e2e6465762f67682f616374696f6e732d736d616c6c2e706e67" width="100" height="100"></p>
+
 <h1 align="center">GitHub-Shared-Workflows</h1>
-
-<p align="center">
-<img src=./img/logo.png>
-</p>
-
 
 <p align="center">
 GitHub shared workflow defines a workflow that we can use in multiple repos with a simple structure.
 </p>
+
+<p align="center">
+<a href="LICENSE.md">
+  <img src="https://img.shields.io/badge/License-APACHE-blue.svg" alt="Licence">
+</a>
+</p>
+
+<p align="center">
+<a href='https://facebook.com/sharer/sharer.php?u=https://github.com/clouddrove/terraform-aws-secrets-manager'>
+  <img title="Share on Facebook" src="https://user-images.githubusercontent.com/50652676/62817743-4f64cb80-bb59-11e9-90c7-b057252ded50.png" />
+</a>
+<a href='https://www.linkedin.com/shareArticle?mini=true&title=Terraform+AWS+Secrets+Manager&url=https://github.com/clouddrove/terraform-aws-secrets-manager'>
+  <img title="Share on LinkedIn" src="https://user-images.githubusercontent.com/50652676/62817742-4e339e80-bb59-11e9-87b9-a1f68cae1049.png" />
+</a>
+<a href='https://twitter.com/intent/tweet/?text=Terraform+AWS+Secrets+Manager&url=https://github.com/clouddrove/terraform-aws-secrets-manager'>
+  <img title="Share on Twitter" src="https://user-images.githubusercontent.com/50652676/62817740-4c69db00-bb59-11e9-8a79-3580fbbf6d5c.png" />
+</a>
+</p>
+
+---
 
 This repo offers to using a workflow with a simple calling structure and proper documentation. This shared workflow feature can overcome the issue of upgrading hundreds of workflows whenever any new updation is required. In this repo, we have many kinds of workflows related to Terraform, Kubernetes, Helm, SST, and regular workflows like maintain changelog, auto assignee, and many more.
 
