@@ -53,6 +53,7 @@ Above example is just a simple example to call workflow from github shared workf
 3. [Docker Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/docker.md)
    * [Example for scan and push docker image on Dockerhub](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/docker.md#example-for-scan-and-push-docker-image-on-dockerhub)
    * [Example for scan and push docker image on ECR](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/docker.md#example-for-scan-and-push-docker-image-on-ecr)
+4. [Auto Assign Assignee Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/auto-assignee.yml)
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
