@@ -6,6 +6,9 @@ on:
       branch:
         required: true
         type: string
+  push:
+    tags:
+      - "*"      
 
 jobs:
   create_changelog:
