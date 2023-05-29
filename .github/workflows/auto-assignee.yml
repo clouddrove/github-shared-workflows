@@ -1,4 +1,4 @@
-name: Shared Workflow- Auto Assign PRs
+name: Assignees
 
 on:
   workflow_call:
