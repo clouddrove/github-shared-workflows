@@ -14,7 +14,7 @@ on:
             required: true
 
 jobs:
-  assign-pr:
+  assign:
     runs-on: ubuntu-latest
     steps:
       - uses: wow-actions/auto-assign@v3
