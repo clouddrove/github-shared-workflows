@@ -36,6 +36,9 @@ on:
       GITHUB:
         required: true
         description: 'PAT of the user to run the jobs.'
+      TF_API_TOKEN:
+        required: false
+        description: 'Terraform cloud token if your backend is terraform cloud.'
 jobs:
   terraform-plan:
     name: 'Terraform Plan'
@@ -86,6 +89,7 @@ jobs:
         tf_actions_working_dir: ${{ inputs.working_directory }}
       env:
         GITHUB_TOKEN: '${{ secrets.GITHUB }}'
+        TF_CLI_ARGS: "-backend-config=token=${{ secrets.TF_API_TOKEN }}"
 
     # Generates an execution plan for Terraform
     # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
