@@ -1,0 +1,23 @@
+name: Shared Workflow- Auto Assign PRs
+
+on:
+  workflow_call:
+    inputs:
+        assignees:
+            description: 'A list of assignees(GitHub user name) to be added to PR'
+            required: true
+            type: string
+    
+    secrets:
+        GITHUB:
+            description: 'Your GitHub token for authentication.'
+            required: true
+
+jobs:
+  assign-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: wow-actions/auto-assign@v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB }}
+          assignees: ${{ inputs.assignees }}
