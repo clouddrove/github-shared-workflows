@@ -7,6 +7,10 @@ on:
         required: false
         type: string
         default: './_example/'
+    secrets:
+      GITHUB:
+        required: true
+        description: 'PAT of the user to run the jobs.'
 
 jobs:
   tfsec:
