@@ -6,6 +6,10 @@ on:
       branch:
         required: true
         type: string
+    secrets:
+      GITHUB:
+        required: true
+        description: 'PAT of the user to run the jobs.'    
   push:
     tags:
       - "*"      
