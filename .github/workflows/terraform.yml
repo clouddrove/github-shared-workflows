@@ -95,10 +95,6 @@ jobs:
         with:
           actions_subcommand: 'fmt'
 
-      # Run some scripts
-      - name: Run shell commands
-        run: ls -la
-
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: "Terraform Init"
         uses: hashicorp/terraform-github-actions@master
