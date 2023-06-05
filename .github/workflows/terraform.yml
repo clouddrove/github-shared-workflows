@@ -1,0 +1,136 @@
+name: 'Terraform Checks'
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        required: true
+        type: string
+        default: _example
+        description: 'Root directory of the terraform where all resources exist.'
+      provider:
+        required: true
+        type: string
+        default: azurerm
+        description: 'Cloud provider to run the workflow. e.g. azurerm, aws or Digitalocean'
+      aws_region:
+        required: false
+        type: string
+        default: us-east-1
+        description: 'AWS region of terraform deployment.'
+      var_file:
+        required: false
+        default: ""
+        type: string
+        description: 'Terraform var file directory. e.g. vars/dev.tfvars'
+    secrets:
+      AZURE_CREDENTIALS:
+        required: false
+        description: 'Azure Credentials to install Azure in github runner.'
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
+      DIGITALOCEAN_ACCESS_TOKEN:
+        required: false
+        description: 'Digitalocean access Token to install Digitalocean CLI'
+      GITHUB:
+        required: true
+        description: 'PAT of the user to run the jobs.'
+      TF_API_TOKEN:
+        required: false
+        description: 'Terraform cloud token if your backend is terraform cloud.'
+
+jobs:
+  terraform-checks:
+    name: 'Terraform Validate, Init and Plan'
+    runs-on: ubuntu-latest
+    env:
+      #this is needed since we are running terraform with read-only permissions
+      ARM_SKIP_PROVIDER_REGISTRATION: true
+    outputs:
+      tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # install AWS-cli
+      - name: Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ inputs.aws_region }}
+
+      # Install azure-cli
+      - name: Install Azure CLI
+        if: ${{ inputs.provider == 'azurerm' }}
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Install digitalocean-cli
+      - name: Install doctl
+        if: ${{ inputs.provider == 'digitalocean' }}
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      # Install the latest version of the Terraform CLI
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      # The terraform fmt command is used to format your configuration files into a canonical format and style
+      - name: 'Terraform Format'
+        uses: 'dflook/terraform-fmt-check@v1'
+        with:
+          actions_subcommand: 'fmt'
+
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: "Terraform Init"
+        uses: hashicorp/terraform-github-actions@master
+        with:
+          tf_actions_subcommand: "init"
+          tf_actions_version: 1.3.6
+          tf_actions_working_dir: ${{ inputs.working_directory }}
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB }}'
+          TF_CLI_ARGS: "-backend-config=token=${{ secrets.TF_API_TOKEN }}"
+
+      # The terraform validate command validates the configuration files in a directory, referring only to the configuration
+      - name: 'Terraform validate'
+        uses: dflook/terraform-validate@v1
+        with:
+          tf_actions_working_dir: ${{ inputs.working_directory }}
+
+      # Generates an execution plan for Terraform
+      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
+      - name: Terraform Plan
+        id: tf-plan
+        run: |
+          export exitcode=0
+          cd ${{ inputs.working_directory }}
+          if [ -n "${{ inputs.var_file }}" ]; then
+          terraform plan -detailed-exitcode -no-color -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
+          else
+          terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+          fi
+          
+          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+          
+          if [ $exitcode -eq 1 ]; then
+            echo Terraform Plan Failed!
+            exit 1
+          else 
+            exit 0
+          fi
