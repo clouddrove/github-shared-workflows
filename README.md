@@ -54,6 +54,10 @@ Above example is just a simple example to call workflow from github shared workf
    * [Example for scan and push docker image on Dockerhub](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/docker.md#example-for-scan-and-push-docker-image-on-dockerhub)
    * [Example for scan and push docker image on ECR](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/docker.md#example-for-scan-and-push-docker-image-on-ecr)
 4. [Auto Assign Assignee Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/auto-assignee.md)
+5. [Terraform Checks Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform-checks.md)
+   * [Example for terraform checks with azure cloud](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform-checks.md#example-for-terraform-checks-with-azure-cloud)
+   * [Example for terraform checks with aws cloud](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform-checks.md#example-for-terraform-checks-with-aws-cloud)
+   * [Example for terraform checks with digitalocean cloud](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform-checks.md#example-for-terraform-checks-with-digitalocean-cloud)
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
