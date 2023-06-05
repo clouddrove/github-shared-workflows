@@ -1,4 +1,4 @@
-name: 'Terraform GitHub Actions'
+name: 'Terraform Checks'
 on:
   workflow_call:
     inputs:
@@ -46,7 +46,7 @@ on:
         description: 'Terraform cloud token if your backend is terraform cloud.'
 
 jobs:
-  terraform-plan:
+  terraform-checks:
     name: 'Terraform Validate, Init and Plan'
     runs-on: ubuntu-latest
     env:
@@ -90,6 +90,7 @@ jobs:
         with:
           terraform_wrapper: false
 
+      # The terraform fmt command is used to format your configuration files into a canonical format and style
       - name: 'Terraform Format'
         uses: 'dflook/terraform-fmt-check@v1'
         with:
@@ -106,6 +107,7 @@ jobs:
           GITHUB_TOKEN: '${{ secrets.GITHUB }}'
           TF_CLI_ARGS: "-backend-config=token=${{ secrets.TF_API_TOKEN }}"
 
+      # The terraform validate command validates the configuration files in a directory, referring only to the configuration
       - name: 'Terraform validate'
         uses: dflook/terraform-validate@v1
         with:
