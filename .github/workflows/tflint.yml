@@ -1,5 +1,5 @@
 name: TF-Lint
-on:
+on: 
   workflow_call:
 
 jobs:
