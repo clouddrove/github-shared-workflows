@@ -1,0 +1,53 @@
+# Tf lint work flow checks for possible errors, best practices in your terraform code. 
+name: tf-lint
+on:
+  workflow_call:
+  # Secrets can be defined to use during workflow call. 
+    secrets:
+      GITHUB:
+        required: true
+        description: 'PAT of the user to run the jobs.'
+
+jobs:
+  tflint:
+    runs-on: ubuntu-latest
+
+   # Checkout the repository to the GitHub Actions runner
+    steps:
+    - uses: actions/checkout@v3
+      name: Checkout source code
+    
+    # Action to add tflint plugin based in OS 
+    - uses: actions/cache@v3
+      name: Cache plugin dir
+      with:
+        path: ~/.tflint.d/plugins
+        key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
+
+    #Setting up terraform lint 
+    - uses: terraform-linters/setup-tflint@v3
+      name: Setup TFLint
+      with:
+        tflint_version: v0.44.1
+        github_token: ${{ secrets.GITHUB }}
+
+    # Added tflint config to check tflint additional rules 
+    - uses: terraform-linters/tflint-load-config-action@v1
+      name: Setup tflint-config
+      with:
+        source-repo: clouddrove/github-shared-workflows
+        source-path: .github/config/.tflint.hcl
+
+    # Verfiy the installed tflint version.    
+    - name: Show version
+      run: tflint --version
+
+    - name: init lint
+      run: tflint --init
+      env:
+        # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
+        GITHUB_TOKEN: ${{ github.token }}
+    
+    # command to check tf lint in terraform code. 
+    - name: Run lint
+      run: tflint --recursive --color --force -f compact
