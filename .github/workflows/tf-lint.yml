@@ -1,0 +1,45 @@
+name: tf-lint
+on:
+  workflow_call:
+    secrets:
+      GITHUB:
+        required: true
+        description: 'PAT of the user to run the jobs.'
+
+jobs:
+  tflint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      name: Checkout source code
+
+    - uses: actions/cache@v3
+      name: Cache plugin dir
+      with:
+        path: ~/.tflint.d/plugins
+        key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
+
+    - uses: terraform-linters/setup-tflint@v3
+      name: Setup TFLint
+      with:
+        tflint_version: v0.44.1
+        github_token: ${{ secrets.GITHUB }}
+
+    - uses: terraform-linters/tflint-load-config-action@v1
+      name: Setup TFLint-config
+      with:
+        source-repo: clouddrove/github-shared-workflows
+        source-path: .github/config/.tflint.hcl
+
+    - name: Show version
+      run: tflint --version
+
+    - name: Init TFLint
+      run: tflint --init
+      env:
+        # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
+        GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Run TFLint
+      run: tflint --recursive --color --force -f compact

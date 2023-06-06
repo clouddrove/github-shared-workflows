@@ -1,60 +1,21 @@
-## [Terraform Checks Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/terraform.yml)
+## [Terraform Checks Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/tf-checks.yml)
 
-This workflow is used to terraform checks. Workflows have been added in `.github/workflows/terraform.yml`
+This workflow automates terraform checks for min, max version , terraform fmt , terraform init & terraform validate in your terraform code. `.github/workflows/tf-checks.yml`
 
 #### Usage
-This workflow is used to terraform checks. Workflows have been added in `.github/workflows/terraform.yml`
+There are several checks you can perform to ensure the accuracy and integrity of your infrastructure provisioning process for Major Cloud providers (AWS/Azure/GCP). Warn about version, fmt and terraform validate.
 
-#### Example with azure cloud
+#### Example
 ```yaml
-name: Terraform Checks
-
+name: tf-checks
 on:
+  push:
+    branches: [ master ]
   pull_request:
-
+  workflow_dispatch:
 jobs:
-  terraform:
-    uses: clouddrove/github-shared-workflows/.github/workflows/terraform.yml@master
-    secrets:
-      GITHUB: ${{ secrets.GITHUB }}
-      DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-    with:
-      provider: 'azurerm'
-      working_directory: './_example/'
-```
-#### Example with aws cloud
-```yaml
-name: Terraform Checks
-
-on:
-  pull_request:
-
-jobs:
-  terraform:
-    uses: clouddrove/github-shared-workflows/.github/workflows/terraform.yml@master
-    secrets:
-      GITHUB: ${{ secrets.GITHUB }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-    with:
-      provider: 'aws'
-      working_directory: './_example/'
-```
-#### Example with digitalocean cloud
-```yaml
-name: Terraform Checks
-
-on:
-  pull_request:
-
-jobs:
-  terraform:
-    uses: clouddrove/github-shared-workflows/.github/workflows/terraform.yml@master
-    secrets:
-      GITHUB: ${{ secrets.GITHUB }}
-      DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-    with:
-      provider: 'digitalocean'
-      working_directory: './_example/'
+  tf-static-checks:
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    with:  
+        working_directory: './_example/complete/'
 ```
