@@ -26,8 +26,6 @@ jobs:
       - name: Terraform min/max versions
         id: minMax
         uses: clowdhaus/terraform-min-max@main
-        with:
-          directory: ${{ inputs.working_directory}}
     outputs:
       minVersion: ${{ steps.minMax.outputs.minVersion }}
       maxVersion: ${{ steps.minMax.outputs.maxVersion }}
