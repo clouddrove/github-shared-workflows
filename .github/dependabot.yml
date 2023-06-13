@@ -10,8 +10,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    open-pull-requests-limit: 3
     assignees:
-    - "anmolnagpal"
+      - "anmolnagpal"
     reviewers:
-    - "anmolnagpal"
+      - "anmolnagpal"
