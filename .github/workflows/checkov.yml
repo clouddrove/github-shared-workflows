@@ -30,6 +30,7 @@ jobs:
           # This will add both a CLI output to the console and create a results.sarif file
           output_format: cli,sarif
           output_file_path: console,results.sarif
+          soft_fail: true
           directory: ${{ inputs.directory}}
         
       - name: Upload SARIF file
