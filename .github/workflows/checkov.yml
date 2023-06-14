@@ -9,8 +9,8 @@ on:
         type: string
      continue_on_error:
         required: true
-        type: boolean
-        default: true
+        type: string
+        default: 'true'
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "scan"
