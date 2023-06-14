@@ -7,6 +7,10 @@ on:
      directory:
         required: true
         type: string
+     continue_on_error:
+        required: true
+        type: boolean
+        default: true
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "scan"
@@ -23,8 +27,9 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so follow-up steps can access it
       - uses: actions/checkout@v3
-
+      
       - name: Checkov GitHub Action
+        if: ${{ inputs.continue_on_error == 'true' }}
         uses: bridgecrewio/checkov-action@v12
         with:
           # This will add both a CLI output to the console and create a results.sarif file
@@ -32,6 +37,16 @@ jobs:
           output_file_path: console,results.sarif
           soft_fail: true
           directory: ${{ inputs.directory}}
+      
+      - name: Checkov GitHub Action
+        if: ${{ inputs.continue_on_error == 'false' }}
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          # This will add both a CLI output to the console and create a results.sarif file
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+          directory: ${{ inputs.directory}}
+      
         
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2

@@ -31,4 +31,5 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/checkov.yml@master # shared workflow 
     with:
      directory: # specify your working folder from repo
+     continue_on_error: true #action will continue on error 
 ```
