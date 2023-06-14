@@ -11,6 +11,10 @@ on:
         required: true
         type: string
         default: 'true'
+     var_file:
+        required: false
+        type: string
+    
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "scan"
@@ -37,6 +41,7 @@ jobs:
           output_file_path: console,results.sarif
           soft_fail: true
           directory: ${{ inputs.directory}}
+          var_file: ${{ inputs.var_file}}
       
       - name: Checkov GitHub Action
         if: ${{ inputs.continue_on_error == 'false' }}
@@ -46,6 +51,7 @@ jobs:
           output_format: cli,sarif
           output_file_path: console,results.sarif
           directory: ${{ inputs.directory}}
+          var_file: ${{ inputs.var_file}}
       
         
       - name: Upload SARIF file
