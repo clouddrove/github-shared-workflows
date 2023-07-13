@@ -4,34 +4,34 @@ on:
   workflow_call:
     inputs:
       app-env:
-        description: 'application environment'
+        description: 'Application environment'
         required: true
         type: string
       preview:
-        description: 'create or destroy preview env'
+        description: 'Create or destroy preview env'
         required: false
         type: string
         default: false
       working-directory:
-        description: 'working directory in repo'
+        description: 'Working directory in repo'
         required: false
         type: string
         default: ./
       stack-name:
-        description: 'stack name'
+        description: 'Stack name'
         required: false
         default: ""
         type: string
       yarn-cache:
-        description: 'cache required or not for yarn install' 
+        description: 'Cache required or not for yarn install' 
         type: string
         default: false
       deploy:
-        description: 'default deploy otherwise run diff command to detect changes in stacks' 
+        description: 'Default deploy otherwise run diff command to detect changes in stacks' 
         type: string
         default: true
       self-hosted:
-        description: 'deploy stack with github self hosted runner or not' 
+        description: 'Deploy stack with github self hosted runner or not' 
         type: string
         default: true
 
@@ -40,10 +40,10 @@ on:
         description: 'GitHub Token'
         required: false
       env-vars:
-        description: 'environment-variables to store in .env file'
+        description: 'Environment-variables to store in .env file'
         required: false
       build-role:
-        description: 'assume role arn'
+        description: 'Assume role arn'
         required: true
 
 
@@ -57,7 +57,7 @@ jobs:
         id: step1
         run: |
           if [ ${{ inputs.self-hosted }} == 'true' ]; then
-            echo "runner=flo-${{ inputs.app-env }}" >> "$GITHUB_OUTPUT"
+            echo "runner=${{ inputs.app-env }}" >> "$GITHUB_OUTPUT"
           else
             echo "runner=ubuntu-latest" >> "$GITHUB_OUTPUT"
           fi
