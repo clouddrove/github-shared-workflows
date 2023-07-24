@@ -5,7 +5,7 @@ This workflow is used to apply and destroy terraform infra using GitHub Actions.
 #### Usage
 This workflow generates an issue before the apply or destroy step with a required plan in it. If we comment "yes," the workflow will proceed to the next step. However, if we comment "deny," the workflow will be canceled.
 
-#### Example
+#### Example for terraform workflow for aws cloud provider
 ```yaml
 name: terraform workflow
 on:
