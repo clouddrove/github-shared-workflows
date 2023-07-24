@@ -1,44 +1,50 @@
 ## [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/sst_workflow.yml)
 
-This workflow is used to deploy serverless stack (SST) application on AWS environment. Workflows have been added in `.github/workflows/sst_workflow.yml`.
+This workflow is used to deploy or destroy serverless stack (SST) application on AWS environment. Workflows have been added in `.github/workflows/sst_workflow.yml`.
 
 #### Usage
-Below workflow can be used to deploy SST in preview environment when pull request generated and it destroys the preview environment when pull request closed, merged and labeled as destroy, similarly staging and production is deployed using there defined branches.
+The following workflow can be used to deploy the SST application in the staging environment when a pull request is generated on the base branch named "master". It will deploy the SST application in the production environment when a new tag is released. Additionally, it will destroy the preview environment when a pull request is closed, merged, and labeled as "destroy".
+
+Inputs:
+| Input name | Type | Required | Default | Comment |
+|---|---|---|---|---|
+| app-env | string | true |  | Staging or Production |
+| preview | string | false | false | If true SST deployed in preview environment |
+| working-directory | string | false | ./ | SST code location path |
+| stack-name | string | false |  | Specify stack name for deployment |
+| yarn-cache | string | false | false | Yarn stores packages in global cache |
+| deploy | string | false | true | Plan app stacks or deploy. |
+| self-hosted | string | false | true | Deploy stack with github runner or without it. |
+
+Secrets:
+| Secret name | Required | Comment |
+|---|---|---|
+| token | false | GitHub token for environment deletion |
+| env-vars |  false | Stack environment variables |
+| build-role | true | | AWS authentication role |
 
 ```yaml
-name: SST Workflow
-
-on:
-  pull_request: 
-    types: [closed, merged, labeled]
-  workflow_dispatch:
-jobs:
-  preview:
+  staging-workflow:
+    if: ${{ github.event.pull_request.base.ref == 'master' }} 
     uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
-    secrets:
-      AWS_ACCESS_KEY_ID: # AWS Access Key ID for preview
-      AWS_SECRET_ACCESS_KEY: # AWS Secret Access Key for preview
     with:
-      app-env: # preview                  
-      working-directory: # specify your working folder from repo
+      app-env: staging
 
-  staging:
-    if: ${{ github.base_ref == 'stage' }}
+  production-workflow:
+    if: startsWith(github.event.ref, 'refs/tags/v') 
     uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
-    secrets:
-      AWS_ACCESS_KEY_ID: # AWS Access Key ID for Stage
-      AWS_SECRET_ACCESS_KEY: # AWS Secret Access Key for stage
     with:
-      app-env: # stage                      
-      working-directory: # specify your working folder from repo
-
-  production:
-    if: ${{ github.base_ref == 'master' }}
-    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
-    secrets:
-      AWS_ACCESS_KEY_ID: # AWS Access Key ID for prod
-      AWS_SECRET_ACCESS_KEY: # AWS Secret Access Key for prod
-    with:
-      app-env: # prod                   
-      working-directory: # specify your working folder from repo
+      app-env: production
 ```
+
+
+##### Path: `clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master`
+
+Should be used with `on: pull_request`. Includes the following:
+1. Adds SST Deployed application link into the description of a pull request.
+2. Appends Pull Request number and head branch name for the stage name when the preview environment is set to true.
+
+Handles the following branch naming styles :
+- `feature-123`
+- `feature_123`
+- `feature-123/feature-description`

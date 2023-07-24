@@ -58,10 +58,10 @@ on:
          type: string
          description: 'Environment name for rollback'
     secrets:
-      aws-access-key-id:
+      AWS_ACCESS_KEY_ID:
         description: 'AWS Access Key ID'
         required: false
-      aws-secret-access-key:
+      AWS_SECRET_ACCESS_KEY:
         description: 'AWS Secret Access Key'
         required: false
       AZURE_CREDENTIALS:
@@ -79,8 +79,8 @@ jobs:
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.aws-access-key-id }}
-          aws-secret-access-key: ${{ secrets.aws-secret-access-key }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.aws-region }}
 
       - name: Install Azure CLI
