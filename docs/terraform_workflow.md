@@ -16,10 +16,10 @@ on:
 jobs:
   prod:
     uses: clouddrove/github-shared-workflows/.github/workflows/terraform_workflow.yml@master
-    with:  
+    with:
+        provider:           # aws
         working_directory:  # Specify terraform code directory in repo
         var_file:           # name of tfvar file e.g "variable.tfvar"
-        provider:           # aws
         aws_region:         # specify region eg. us-east-2
         approvers:          # Assignee name for approve apply or destroy step
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
