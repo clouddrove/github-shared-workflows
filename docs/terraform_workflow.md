@@ -17,6 +17,15 @@ jobs:
   prod:
     uses: clouddrove/github-shared-workflows/.github/workflows/terraform_workflow.yml@master
     with:  
-        working_directory: './'
-        destroy: true
+        working_directory:  # Specify terraform code directory in repo
+        var_file:           # name of tfvar file e.g "variable.tfvar"
+        provider:           # aws
+        aws_region:         # specify region eg. us-east-2
+        approvers:          # Assignee name for approve apply or destroy step
+        destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
+     secrets:
+        AWS_ACCESS_KEY_ID:  # Specify AWS Access key ID
+        AWS_SECRET_ACCESS_KEY: # Specify AWS Secret Access key ID
+        AWS_SESSION_TOKEN:  # Specify Session ID
+
 ```
