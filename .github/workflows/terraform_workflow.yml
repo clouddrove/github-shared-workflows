@@ -135,15 +135,15 @@ jobs:
           cd ${{ inputs.working_directory }}
           if [ "${{ inputs.destroy }}" = "true" ]; then
             if [ -n "${{ inputs.var_file }}" ]; then
-              terraform plan -destroy -detailed-exitcode -no-color -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
+              terraform plan -destroy -detailed-exitcode -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
             else
-              terraform plan -destroy -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+              terraform plan -destroy -detailed-exitcode -out tfplan || export exitcode=$?
             fi
           else
             if [ -n "${{ inputs.var_file }}" ]; then
-              terraform plan -detailed-exitcode -no-color -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
+              terraform plan -detailed-exitcode -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
             else
-              terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+              terraform plan -detailed-exitcode -out tfplan || export exitcode=$?
             fi
           fi
           echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
@@ -175,8 +175,9 @@ jobs:
           echo '```' >> $GITHUB_OUTPUT
           echo "</details>" >> $GITHUB_OUTPUT
           echo "${delimiter}" >> $GITHUB_OUTPUT
-
-      - uses: trstringer/manual-approval@v1
+          
+      - name: "Accept plan or deny"
+        uses: trstringer/manual-approval@v1
         timeout-minutes: ${{ inputs.timeout }}
         with:
           secret: ${{ github.TOKEN }}
