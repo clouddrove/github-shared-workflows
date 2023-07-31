@@ -8,6 +8,7 @@ This workflow generates an issue before the apply or destroy step with a require
 #### Example for terraform workflow for aws cloud provider
 ```yaml
 name: terraform workflow
+permissions: write-all
 on:
   push:
     branches: [ master ]
