@@ -104,25 +104,24 @@ jobs:
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-
-      - name: Setup Terraform
+          
+      - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_wrapper: false
+          terraform_version: ${{ inputs.terraform_version }}
 
       - name: 'Terraform Format'
+        if: ${{ inputs.destroy != 'true' }}
         id: fmt
         uses: 'dflook/terraform-fmt-check@v1'
         with:
           actions_subcommand: 'fmt'
+          path: ${{ inputs.working_directory }}
 
-      - name: "Terraform Init"
-        id: init
-        uses: hashicorp/terraform-github-actions@master
-        with:
-          tf_actions_subcommand: "init"
-          tf_actions_version: ${{ inputs.terraform_version }}
-          tf_actions_working_dir: ${{ inputs.working_directory }}
+      - name: terraform init
+        run: |
+           cd ${{ inputs.working_directory }}
+           terraform init
  
       - name: 'Terraform validate'
         if: ${{ inputs.destroy != 'true' }}
@@ -131,7 +130,6 @@ jobs:
         with:
           tf_actions_working_dir: ${{ inputs.working_directory }}
 
-      # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
       - name: Terraform Plan
         id: tf-plan
         run: |
@@ -139,23 +137,16 @@ jobs:
           cd ${{ inputs.working_directory }}
           if [ "${{ inputs.destroy }}" = "true" ]; then
             if [ -n "${{ inputs.var_file }}" ]; then
-              terraform plan -destroy -detailed-exitcode -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
+              terraform plan -destroy -out tfplan --var-file=${{ inputs.var_file }}
             else
-              terraform plan -destroy -detailed-exitcode -out tfplan || export exitcode=$?
+              terraform plan -destroy -out tfplan
             fi
           else
             if [ -n "${{ inputs.var_file }}" ]; then
-              terraform plan -detailed-exitcode -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
+              terraform plan -out tfplan --var-file=${{ inputs.var_file }}
             else
-              terraform plan -detailed-exitcode -out tfplan || export exitcode=$?
+              terraform plan -out tfplan
             fi
-          fi
-          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-          if [ $exitcode -eq 1 ]; then
-            echo Terraform Plan Failed!
-            exit 1
-          else 
-            exit 0
           fi
 
       - name: Publish Terraform Plan
