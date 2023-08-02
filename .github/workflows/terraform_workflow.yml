@@ -10,7 +10,7 @@ on:
         required: true
         type: string
         default: aws
-        description: 'Cloud provider to run the workflow. e.g. azurerm, aws, GCp or Digitalocean'
+        description: 'Cloud provider to run the workflow. e.g. azurerm, aws, gcp or digitalocean'
       aws_region:
         required: false
         type: string
