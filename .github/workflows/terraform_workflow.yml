@@ -84,14 +84,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install AWS CLI
+      # - name: Install AWS CLI
+      #   if: ${{ inputs.provider == 'aws' }}
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+      #     aws-region: ${{ inputs.aws_region }}
+
+      - name: Configure AWS Creds via role
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ inputs.aws_region }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
 
       - name: Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
