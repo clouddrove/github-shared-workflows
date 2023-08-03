@@ -47,6 +47,9 @@ on:
       AWS_ACCESS_KEY_ID:
         required: false
         description: 'AWS Access Key ID to install AWS CLI.'
+      BUILD_ROLE:
+        required: false
+        description: 'AWS OIDC role for aws authentication.'
       AWS_SECRET_ACCESS_KEY:
         required: false
         description: 'AWS Secret access key to install AWS CLI'
