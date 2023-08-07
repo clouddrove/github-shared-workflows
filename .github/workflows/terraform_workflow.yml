@@ -193,7 +193,6 @@ jobs:
           secret: ${{ github.TOKEN }}
           approvers: ${{ inputs.approvers }}
           issue-title: "Terraform Plan for Infrastructure Update"
-          issue-body: ${{ steps.tf-plan-string.outputs.summary }}
             
       - name: terraform apply
         if: ${{ inputs.destroy != 'true' }}
