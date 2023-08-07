@@ -1,0 +1,219 @@
+run-name: 'Terraform workflow' 
+on: 
+  workflow_call:
+    inputs:
+      working_directory:
+        required: true
+        type: string
+        description: 'Root directory of the terraform where all resources exist.'
+      provider:
+        required: true
+        type: string
+        default: aws
+        description: 'Cloud provider to run the workflow. e.g. azurerm, aws, gcp or digitalocean'
+      aws_region:
+        required: false
+        type: string
+        default: us-east-2
+        description: 'AWS region of terraform deployment.'
+      gcp_region:
+        required: false
+        type: string
+        description: 'GCP region of terraform deployment.'
+      var_file:
+        required: false
+        type: string
+        description: 'Terraform var file directory. e.g. vars/dev.tfvars'
+      destroy:
+        type: string
+        default: false
+        description: 'you want to destroy infra or not'
+      approvers:
+        required: false
+        type: string
+        description: 'Approvals list to approve apply or destroy'
+      terraform_version:
+        type: string
+        default: 1.3.6
+        description: 'Required erraform version  '
+      timeout:
+        required: false
+        type: number
+        default: 10
+        description: 'Timeout for approval step'
+    secrets:
+      AZURE_CREDENTIALS:
+        required: false
+        description: 'Azure Credentials to install Azure in github runner.'
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      BUILD_ROLE:
+        required: false
+        description: 'AWS OIDC role for aws authentication.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
+      GCP_SA_KEY:
+        required: false
+        description: 'GCP service account Secret access key to install GCP CLI'
+      PROJECT_ID:
+        required: false
+        description: 'GCP Secret access key to install GCP CLI'
+      DIGITALOCEAN_ACCESS_TOKEN:
+        required: false
+        description: 'Digitalocean access Token to install Digitalocean CLI'
+      SPACES_ACCESS_KEY_ID:
+        required: false
+        description: 'Spaces access key ID for digitalocean if required'
+      SPACES_SECRET_ACCESS_KEY:
+        required: false
+        description: 'Spaces secret access key for digitalocean if required'
+
+jobs:
+  terraform-workflow:
+    runs-on: ubuntu-latest
+    env:
+      ARM_SKIP_PROVIDER_REGISTRATION: true
+      DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      SPACES_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY_ID }}
+      SPACES_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_ACCESS_KEY }}
+    outputs:
+      tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
+
+      - name: Install Azure CLI
+        if: ${{ inputs.provider == 'azurerm' }}
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - name: Install GCP CLI
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: google-github-actions/auth@v0
+        with:
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.PROJECT_ID }}
+          region: ${{ inputs.gcp_region }}
+
+      - name: Install doctl
+        if: ${{ inputs.provider == 'digitalocean' }}
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: 'Terraform Format'
+        if: ${{ inputs.destroy != 'true' }}
+        id: fmt
+        uses: 'dflook/terraform-fmt-check@v1'
+        with:
+          actions_subcommand: 'fmt'
+          path: ${{ inputs.working_directory }}
+
+      - name: terraform init
+        run: |
+           cd ${{ inputs.working_directory }}
+           terraform init
+ 
+      - name: 'Terraform validate'
+        if: ${{ inputs.destroy != 'true' }}
+        id: validate
+        uses: dflook/terraform-validate@v1
+        with:
+          tf_actions_working_dir: ${{ inputs.working_directory }}
+
+      - name: Terraform Plan
+        id: tf-plan
+        run: |
+          export exitcode=0
+          cd ${{ inputs.working_directory }}
+          if [ "${{ inputs.destroy }}" = "true" ]; then
+            if [ -n "${{ inputs.var_file }}" ]; then
+              terraform plan -destroy -out tfplan --var-file=${{ inputs.var_file }}
+            else
+              terraform plan -destroy -out tfplan
+            fi
+          else
+            if [ -n "${{ inputs.var_file }}" ]; then
+              terraform plan -out tfplan --var-file=${{ inputs.var_file }}
+            else
+              terraform plan -out tfplan
+            fi
+          fi
+
+      - name: Publish Terraform Plan
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfplan
+          path: ${{ inputs.working_directory }}/tfplan
+          
+      - name: Create String Output
+        id: tf-plan-string
+        run: |
+          cd ${{ inputs.working_directory }}
+          TERRAFORM_PLAN=$(terraform show -no-color tfplan)
+          delimiter="$(openssl rand -hex 8)"
+          echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
+          echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
+          echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo '```terraform' >> $GITHUB_OUTPUT
+          echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
+          echo '```' >> $GITHUB_OUTPUT
+          echo "</details>" >> $GITHUB_OUTPUT
+          echo "${delimiter}" >> $GITHUB_OUTPUT
+          
+      - name: "Accept plan or deny"
+        uses: trstringer/manual-approval@v1
+        timeout-minutes: ${{ inputs.timeout }}
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: ${{ inputs.approvers }}
+          issue-title: "Terraform Plan for Infrastructure Update"
+          issue-body: ${{ steps.tf-plan-string.outputs.summary }}
+            
+      - name: terraform apply
+        if: ${{ inputs.destroy != 'true' }}
+        run: |
+          if [ -n "${{ inputs.var_file }}" ]; then
+           cd ${{ inputs.working_directory }}
+           terraform apply -var-file="${{ inputs.var_file }}" -auto-approve
+          else
+           cd ${{ inputs.working_directory }}
+           terraform apply -auto-approve
+          fi
+          
+      - name: Terraform destroy
+        if: ${{ inputs.destroy == 'true' }}
+        id: destroy
+        run: |
+          if [ -n "${{ inputs.var_file }}" ]; then
+           cd ${{ inputs.working_directory }}
+           terraform destroy -var-file="${{ inputs.var_file }}" -auto-approve
+          else
+           cd ${{ inputs.working_directory }}
+           terraform destroy -auto-approve
+          fi
