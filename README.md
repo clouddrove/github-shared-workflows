@@ -61,6 +61,7 @@ Above example is just a simple example to call workflow from github shared workf
 6. [Terraform Lint Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform-lint.md)
 7. [Terraform Checks Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform-checks.md)
 7. [Checkov Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/checkov.md)
+8. [Terraform Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform_workflow.md)
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
