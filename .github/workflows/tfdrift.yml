@@ -33,6 +33,9 @@ on:
       aws_secret_access_key:
         required: false
         description: 'AWS Secret access key to install AWS CLI'
+      build_role:
+        required: false
+        description: 'AWS OIDC role for aws authentication'
       GITHUB:
         required: true
         description: 'PAT of the user to run the jobs.'
