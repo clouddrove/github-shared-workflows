@@ -75,7 +75,7 @@ jobs:
         terraform_version:  # Specify terraform version e.g 1.3.6
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
      secrets:
-      DIGITALOCEAN_TOKEN:       # Digitalocean token
+      DIGITALOCEAN_ACCESS_TOKEN:       # Digitalocean token
       SPACES_ACCESS_KEY_ID:     # Provide spaces access key id if required
       SPACES_SECRET_ACCESS_KEY: # Provide spaces secret access key if required
 ```
