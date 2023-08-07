@@ -1,4 +1,4 @@
-## [Auto Assign Assignee Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/tflint.yml)
+## [Auto Assign Assignee Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/tf-lint.yml)
 
 This workflow automates terraform linter that checks for possible errors, best practices, etc in your terraform code Workflows have been added in `.github/workflows/tflint.yml`
 
@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 jobs:
   tf-lint:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tflint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-lint.yml@master
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
 ```
