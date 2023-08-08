@@ -9,6 +9,8 @@ plugin "aws" {
   version = "0.21.0"
   source  = "github.com/terraform-linters/tflint-ruleset-aws"
   deep_check = false
+  access_key = ${{ secrets.TEST_AWS_ACCESS_KEY }}
+  secret_key = ${{ secrets.TEST_AWS_ACCESS_SECRET_KEY }}
 }
 
 rule "aws_instance_invalid_type" {
