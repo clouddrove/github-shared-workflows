@@ -41,6 +41,10 @@ jobs:
     # Verfiy the installed tflint version.    
     - name: Show version
       run: tflint --version
+      
+    # used for debugg plugins 
+    - name: Debug plugin directory
+      run: ls -R ~/.tflint.d/plugins
 
     - name: init lint
       run: tflint --init
