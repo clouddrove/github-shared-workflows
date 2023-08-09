@@ -58,8 +58,7 @@ jobs:
     
     # command to check tf lint in terraform code. 
     - name: Run lint
-      # run: tflint --init && tflint --recursive --color --force -f compact
-      run:  tflint --init-plugin aws && tflint --recursive --color --force -f compact
+      run: tflint --init && tflint --recursive --color --force -f compact
       env:
         # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
         GITHUB_TOKEN: ${{ github.token }}
