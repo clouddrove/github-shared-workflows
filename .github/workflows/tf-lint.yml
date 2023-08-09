@@ -21,7 +21,7 @@ jobs:
     - uses: actions/cache@v3
       name: Cache plugin dir
       with:
-        path: ~/.tflint.d/plugins
+        path: ./.tflint.d/plugins
         key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
 
     #Setting up terraform lint 
@@ -44,7 +44,7 @@ jobs:
       
     # used for debugg plugins 
     - name: Debug plugin directory
-      run: ls -R ~/.tflint.d/plugins
+      run: ls -R ./.tflint.d/plugins
 
     - name: init lint
       run: tflint --init
