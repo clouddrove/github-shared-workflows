@@ -39,6 +39,12 @@ jobs:
       - name: Show version
         run: tflint --version
 
+      - name: Debug TFLint Configuration
+        run: |
+          cat .github/config/.tflint.hcl
+          tflint --config=.github/config/.tflint.hcl --debug
+
+
       # - name: Debug plugin directory
       #   run: | 
       #     sudo apt install tree
