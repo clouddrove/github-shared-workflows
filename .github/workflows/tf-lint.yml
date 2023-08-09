@@ -30,17 +30,17 @@ jobs:
       - uses: terraform-linters/tflint-load-config-action@v1
         name: Setup tflint-config
         with:
-          source-repo: clouddrove/github-shared-workflows
+          source-repo: clouddrove/github-shared-workflows@tflint-test
           source-path: .github/config/.tflint.hcl
 
       - name: Show version
         run: tflint --version
 
-      - name: Debug plugin directory
-        run: | 
-          sudo apt install tree
-          ls -la 
-          tree
+      # - name: Debug plugin directory
+      #   run: | 
+      #     sudo apt install tree
+      #     ls -la 
+      #     tree
 
       - name: init lint
         run: tflint --init
@@ -48,6 +48,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Run lint
-        run: tflint --init && tflint --recursive --color --force -f compact
+        run: tflint --recursive --color --force -f compact
         env:
           GITHUB_TOKEN: ${{ github.token }}
