@@ -51,6 +51,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Run lint
-        run: Tanveer143s/tanveer tflint --recursive --color --force -f compact
+        run: .github/config/.tflint.hcl tflint --recursive --color --force -f compact
         env:
           GITHUB_TOKEN: ${{ github.token }}
