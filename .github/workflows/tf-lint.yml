@@ -32,6 +32,8 @@ jobs:
         with:
           source-repo: Tanveer143s/tanveer
           # source-path: .github/config/.tflint.hcl
+          destination-path: master/.tflint.hcl
+          source-ref: master
 
       - name: Show version
         run: tflint --version
