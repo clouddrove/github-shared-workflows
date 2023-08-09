@@ -34,19 +34,14 @@ jobs:
           source-path: .github/config/.tflint.hcl
           source-ref: tflint-test
 
-      # - name: Debug TFLint Configuration
-      #   run: |
-      #     cat .github/config/.tflint.hcl
-      #     tflint --config=.github/config/.tflint.hcl --debug
+      - name: Debug TFLint Configuration
+        run: |
+          cat .github/config/.tflint.hcl
+          tflint --config=.github/config/.tflint.hcl --debug
 
       - name: Show version
         run: tflint --version
 
-      # - name: Debug plugin directory
-      #   run: | 
-      #     sudo apt install tree
-      #     ls -la 
-      #     tree
 
       - name: init lint
         run: tflint --init
