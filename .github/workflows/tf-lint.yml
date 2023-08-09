@@ -30,20 +30,16 @@ jobs:
       - uses: terraform-linters/tflint-load-config-action@v1
         name: Setup tflint-config
         with:
-          # source-repo: Tanveer143s/tanveer
           source-repo: clouddrove/github-shared-workflows
           source-path: .github/config/.tflint.hcl
-          # destination-path: master/.tflint.hcl
-          # source-ref: tflint-test
-
-      - name: Show version
-        run: tflint --version
 
       - name: Debug TFLint Configuration
         run: |
           cat .github/config/.tflint.hcl
           tflint --config=.github/config/.tflint.hcl --debug
 
+      - name: Show version
+        run: tflint --version
 
       # - name: Debug plugin directory
       #   run: | 
