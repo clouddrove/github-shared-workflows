@@ -45,7 +45,7 @@ jobs:
     # used for debugg plugins 
     - name: Debug plugin directory
       run: | 
-        apt install tree
+        sudo apt install tree
         ls -la 
         tree
         # ls -R ./.tflint.d/plugins
