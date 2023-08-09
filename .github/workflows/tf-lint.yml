@@ -24,7 +24,7 @@ jobs:
       - uses: terraform-linters/setup-tflint@v3
         name: Setup TFLint
         with:
-          tflint_version: v0.47.0
+          tflint_version: v0.44.1
           github_token: ${{ secrets.GITHUB }}
 
       - uses: terraform-linters/tflint-load-config-action@v1
