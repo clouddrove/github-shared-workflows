@@ -31,7 +31,7 @@ jobs:
         name: Setup tflint-config
         with:
           source-repo: clouddrove/github-shared-workflows
-          source-path: /.tflint.hcl
+          source-path: .github/config/.tflint.hcl
           source-ref: tflint-test
 
       - name: Debug TFLint Configuration
