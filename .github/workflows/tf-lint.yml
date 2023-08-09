@@ -2,7 +2,6 @@
 name: tf-lint
 on:
   workflow_call:
-  # Secrets can be defined to use during workflow call. 
     secrets:
       GITHUB:
         required: true
@@ -12,53 +11,43 @@ jobs:
   tflint:
     runs-on: ubuntu-latest
 
-   # Checkout the repository to the GitHub Actions runner
     steps:
-    - uses: actions/checkout@v3
-      name: Checkout source code
-    
-    # Action to add tflint plugin based in OS 
-    - uses: actions/cache@v3
-      name: Cache plugin dir
-      with:
-        path: ~/.tflint.d/plugins
-        key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
+      - uses: actions/checkout@v3
+        name: Checkout source code
 
-    #Setting up terraform lint 
-    - uses: terraform-linters/setup-tflint@v3
-      name: Setup TFLint
-      with:
-        tflint_version: v0.47.0
-        github_token: ${{ secrets.GITHUB }}
+      - uses: actions/cache@v3
+        name: Cache plugin dir
+        with:
+          path: ~/.tflint.d/plugins
+          key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
 
-    # Added tflint config to check tflint additional rules 
-    - uses: terraform-linters/tflint-load-config-action@v1
-      name: Setup tflint-config
-      with:
-        source-repo: clouddrove/github-shared-workflows
-        source-path: .github/config/.tflint.hcl
+      - uses: terraform-linters/setup-tflint@v3
+        name: Setup TFLint
+        with:
+          tflint_version: v0.47.0
+          github_token: ${{ secrets.GITHUB }}
 
-    # Verfiy the installed tflint version.    
-    - name: Show version
-      run: tflint --version
-      
-    # used for debugg plugins 
-    - name: Debug plugin directory
-      run: | 
-        sudo apt install tree
-        ls -la 
-        tree
-        # ls -R ./.tflint.d/plugins
+      - uses: terraform-linters/tflint-load-config-action@v1
+        name: Setup tflint-config
+        with:
+          source-repo: clouddrove/github-shared-workflows
+          source-path: .github/config/.tflint.hcl
 
-    - name: init lint
-      run: tflint --init
-      env:
-        # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
-        GITHUB_TOKEN: ${{ github.token }}
-    
-    # command to check tf lint in terraform code. 
-    - name: Run lint
-      run: tflint --init && tflint --recursive --color --force -f compact
-      env:
-        # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
-        GITHUB_TOKEN: ${{ github.token }}
+      - name: Show version
+        run: tflint --version
+
+      - name: Debug plugin directory
+        run: | 
+          sudo apt install tree
+          ls -la 
+          tree
+
+      - name: init lint
+        run: tflint --init
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Run lint
+        run: tflint --init && tflint --recursive --color --force -f compact
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
