@@ -23,6 +23,10 @@ on:
         default: ""
         type: string
         description: 'Terraform var file directory. e.g. vars/dev.tfvars'
+      terraform_version:
+        type: string
+        default: 1.3.6
+        description: 'Required erraform version '
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -33,6 +37,12 @@ on:
       aws_secret_access_key:
         required: false
         description: 'AWS Secret access key to install AWS CLI'
+      aws_session_token:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
+      build_role:
+        required: false
+        description: 'AWS OIDC role for aws authentication'
       GITHUB:
         required: true
         description: 'PAT of the user to run the jobs.'
@@ -54,14 +64,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    # install AWS-cli
     - name: Install AWS CLI
       if: ${{ inputs.provider == 'aws' }}
-      uses: aws-actions/configure-aws-credentials@v2.2.0
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.aws_access_key_id }}
         aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+        aws-session-token: ${{ secrets.aws_session_token }}
+        role-to-assume: ${{ secrets.build_role }}
         aws-region: ${{ inputs.aws_region }}
+        role-duration-seconds: 900
+        role-skip-session-tagging: true
 
     # Install azure-cli
     - name: Install Azure CLI
@@ -70,26 +83,19 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # Install the latest version of the Terraform CLI
-    - name: Setup Terraform
+    - name: Set up Terraform
       uses: hashicorp/setup-terraform@v2
       with:
-        terraform_wrapper: false
+        terraform_version: ${{ inputs.terraform_version }}
 
     # Run some scripts
     - name: Run shell commands
       run: ls -la
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: "Terraform Init"
-      uses: hashicorp/terraform-github-actions@master
-      with:
-        tf_actions_subcommand: "init"
-        tf_actions_version: 1.3.6
-        tf_actions_working_dir: ${{ inputs.working_directory }}
-      env:
-        GITHUB_TOKEN: '${{ secrets.GITHUB }}'
-        TF_CLI_ARGS: "-backend-config=token=${{ secrets.TF_API_TOKEN }}"
+    - name: terraform init
+      run: |
+         cd ${{ inputs.working_directory }}
+         terraform init
 
     # Generates an execution plan for Terraform
     # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
