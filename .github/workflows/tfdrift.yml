@@ -83,14 +83,14 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    # Run some scripts
-    - name: Run shell commands
-      run: ls -la
-
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: ${{ inputs.terraform_version }}
+
+    # Run some scripts
+    - name: Run shell commands
+      run: ls -la
 
     - name: terraform init
       run: |
