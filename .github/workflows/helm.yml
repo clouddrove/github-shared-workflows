@@ -62,8 +62,14 @@ on:
         description: 'AWS Access Key ID'
         required: false
       AWS_SECRET_ACCESS_KEY:
-        description: 'AWS Secret Access Key'
         required: false
+        description: 'AWS Secret Access Key'
+      AWS_SESSION_TOKEN:
+          required: false
+          description: 'AWS Session Token'
+      BUILD_ROLE:
+          required: false
+          description: 'AWS OIDC role for aws authentication'
       AZURE_CREDENTIALS:
         description: 'Azure Credentilas'
         required: false
@@ -82,6 +88,18 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.aws-region }}
+
+      - name: Configure AWS credentials
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
 
       - name: Install Azure CLI
         if: ${{ inputs.provider == 'azure' }}
