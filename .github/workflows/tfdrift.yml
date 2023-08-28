@@ -66,7 +66,7 @@ jobs:
 
     - name: Install AWS CLI
       if: ${{ inputs.provider == 'aws' }}
-      uses: aws-actions/configure-aws-credentials@v2
+      uses: aws-actions/configure-aws-credentials@v3
       with:
         aws-access-key-id: ${{ secrets.aws_access_key_id }}
         aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
