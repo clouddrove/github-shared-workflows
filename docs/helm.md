@@ -24,12 +24,10 @@ jobs:
   aws:
     uses: clouddrove/github-shared-workflows/.github/workflows/helm.yml@master
     secrets:
-      AWS_ACCESS_KEY_ID: # AWS Access Key ID
-      AWS_SECRET_ACCESS_KEY: # AWS Secret Access Key ID
+      BUILD_ROLE: # AWS OIDC role for aws authentication
     with:
       provider: # aws 
       aws-region: # AWS region 
-      helm-chart-directory: # Helm chart directory from repo
       eks-cluster-name: # EKS cluster name 
       release-name: # Helm chart realease name
       helm-chart-directory: # Helm chart directory from repo
