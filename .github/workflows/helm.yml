@@ -11,10 +11,10 @@ on:
         required: false
         type: string
         description: 'EKS cluster name'
-      aws-region:
+      aws_region:
         required: false
         type: string
-        description: 'AWS EKS cluster region'
+        default: us-east-1
       azure-cluster-name:
         required: false
         type: string
