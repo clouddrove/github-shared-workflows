@@ -9,10 +9,7 @@ on:
     secrets:
       GITHUB:
         required: true
-        description: 'PAT of the user to run the jobs.'    
-  push:
-    tags:
-      - "*"      
+        description: 'PAT of the user to run the jobs.'  
 
 jobs:
   create_changelog:

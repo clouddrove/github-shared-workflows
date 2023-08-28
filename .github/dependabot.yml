@@ -1,17 +1,30 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
----
 version: 2
-updates:   
-  - package-ecosystem: "github-actions" # See documentation for possible values
-    directory: "/" # Location of package manifests
+updates:
+  - package-ecosystem: 'github-actions'
+    # Workflow files stored in the
+    # default location of `.github/workflows`
+    directory: '/' # Location of package manifests
     schedule:
-      interval: "weekly"
-    # Add assignees
+      interval: 'weekly'
+      day: 'sunday'
+      time: '09:00'
+      timezone: 'America/Toronto'
+    open-pull-requests-limit: 3
     assignees:
-      - "clouddrove-ci"
-    # Add reviewer
-    reviewers: 
-      - "anmolnagpal"
+    - "clouddrove-ci"
+    reviewers:
+    - "d4kverma"
+    - "anmolnagpal"
+  - package-ecosystem: 'terraform'
+    directory: '*' # Location of package manifests
+    schedule:
+      interval: 'weekly'
+      day: 'sunday'
+      time: '09:00'
+      timezone: 'America/Toronto'
+    open-pull-requests-limit: 3
+    assignees:
+    - "clouddrove-ci"
+    reviewers:
+    - "d4kverma"
+    - "anmolnagpal"
