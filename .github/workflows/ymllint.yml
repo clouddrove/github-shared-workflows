@@ -5,33 +5,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      # - name: yaml-lint
-      #   uses: ibiqlik/action-yamllint@v3
 
-      # - name: yaml-lint
-      - id: yaml-lint
+      - name: yaml-lint
         uses: ibiqlik/action-yamllint@v3
         with:
-          # Multi line
           config_data: |
             extends: default
             rules:
               line-length:
                 level: warning
               comments-indentation:
-                 level: warning
+                 level: error
               indentation:
-                  level: warning
+                  level: error
               empty-lines:
-                  level: warning
+                  level: error
               colons:
-                  level: warning
+                  level: error
               brackets:
-                  level: warning
+                  level: error
               trailing-spaces:
-                  level: warning
+                  level: error
               new-line-at-end-of-file:
-                  level: warning
+                  level: error
               new-lines:
-                  level: warning
-
+                  level: error
