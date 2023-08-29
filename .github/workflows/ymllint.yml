@@ -32,3 +32,6 @@ jobs:
                   level: warning
               new-line-at-end-of-file:
                   level: warning
+              new-lines:
+                  level: warning
+
