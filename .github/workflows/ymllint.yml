@@ -1,4 +1,5 @@
-name: Yaml Lint 
+---
+name: Yaml Lint
 on: [push]
 jobs:
   lintAllTheThings:
@@ -45,3 +46,4 @@ jobs:
                   level: error
               hyphens:
                   level: error
+...
