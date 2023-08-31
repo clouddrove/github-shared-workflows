@@ -198,7 +198,7 @@ jobs:
                 body: body
              })
             }
-            
+
     # If changes aren't detected, close any open drift issues
     - name: Publish Drift Report
       if: steps.tf-plan.outputs.exitcode == 0

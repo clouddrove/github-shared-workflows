@@ -1,5 +1,6 @@
-run-name: 'Terraform workflow' 
-on: 
+---
+run-name: 'Terraform workflow'
+on:
   workflow_call:
     inputs:
       working_directory:
@@ -87,7 +88,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        
+
       - name: Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v3
@@ -105,7 +106,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-          
+
       - name: Install GCP CLI
         if: ${{ inputs.provider == 'gcp' }}
         uses: google-github-actions/auth@v1
@@ -119,7 +120,7 @@ jobs:
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-          
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
         with:
@@ -137,7 +138,7 @@ jobs:
         run: |
            cd ${{ inputs.working_directory }}
            terraform init
- 
+
       - name: 'Terraform validate'
         if: ${{ inputs.destroy != 'true' }}
         id: validate
@@ -169,7 +170,7 @@ jobs:
         with:
           name: tfplan
           path: ${{ inputs.working_directory }}/tfplan
-          
+
       - name: Create String Output
         id: tf-plan-string
         run: |
@@ -185,7 +186,7 @@ jobs:
           echo '```' >> $GITHUB_OUTPUT
           echo "</details>" >> $GITHUB_OUTPUT
           echo "${delimiter}" >> $GITHUB_OUTPUT
-          
+
       - name: "Accept plan or deny"
         uses: trstringer/manual-approval@v1
         timeout-minutes: ${{ inputs.timeout }}
@@ -193,7 +194,7 @@ jobs:
           secret: ${{ github.TOKEN }}
           approvers: ${{ inputs.approvers }}
           issue-title: "Terraform Plan for Infrastructure Update"
-            
+
       - name: terraform apply
         if: ${{ inputs.destroy != 'true' }}
         run: |
@@ -204,7 +205,7 @@ jobs:
            cd ${{ inputs.working_directory }}
            terraform apply -auto-approve
           fi
-          
+
       - name: Terraform destroy
         if: ${{ inputs.destroy == 'true' }}
         id: destroy
@@ -216,3 +217,4 @@ jobs:
            cd ${{ inputs.working_directory }}
            terraform destroy -auto-approve
           fi
+...

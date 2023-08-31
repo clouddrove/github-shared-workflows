@@ -1,3 +1,4 @@
+---
 name: Shared Workflow - SST Deploy
 
 on:
@@ -23,15 +24,15 @@ on:
         default: ""
         type: string
       yarn-cache:
-        description: 'Cache required or not for yarn install' 
+        description: 'Cache required or not for yarn install'
         type: string
         default: false
       deploy:
-        description: 'Default deploy otherwise run diff command to detect changes in stacks' 
+        description: 'Default deploy otherwise run diff command to detect changes in stacks'
         type: string
         default: true
       self-hosted:
-        description: 'Deploy stack with github self hosted runner or not' 
+        description: 'Deploy stack with github self hosted runner or not'
         type: string
         default: true
 
@@ -108,10 +109,10 @@ jobs:
           SLUG_BRANCH_NAME=$(echo "${BRANCH_NAME}" | sed 's/[^[:alnum:]]/-/g' | tr -s '-' | tr A-Z a-z)
           echo "SLUG_BRANCH_NAME=${SLUG_BRANCH_NAME}"
           echo "GITHUB_HEAD_REF_SLUG=${SLUG_BRANCH_NAME}" >> $GITHUB_ENV
-          
+
       - name: check diffrence in deployed and local stacks
         if: ${{ inputs.deploy != 'true' }}
-        run:  yarn sst diff --stage ${{ inputs.app-env }}
+        run: yarn sst diff --stage ${{ inputs.app-env }}
 
       - name: Deploy and get API endpoint
         if: ${{ inputs.deploy == 'true' && ((github.event.action == 'opened' && inputs.preview == 'true') || (github.event.action == 'synchronize' && inputs.preview == 'true') || (github.event.pull_request.merged == true && inputs.preview == 'false' && inputs.app-env == 'staging') || (inputs.app-env == 'production' && startsWith(github.ref, 'refs/tags/v'))) }}
@@ -143,3 +144,4 @@ jobs:
         with:
           token: ${{ secrets.token }}
           environment: ${{ github.head_ref }}
+...

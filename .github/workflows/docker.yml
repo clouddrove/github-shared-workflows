@@ -1,3 +1,4 @@
+---
 name: docker-build-push
 
 on:
@@ -18,7 +19,6 @@ on:
       IMAGE_TAG:
         required: true
         type: string
-      
     secrets:
       AWS_ACCESS_KEY_ID:
         description: 'aws access keys'
@@ -53,7 +53,7 @@ jobs:
         if: ${{ inputs.registry == 'DOCKERHUB' }}
         env:
           IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
-          images: ${{ inputs.images }}  
+          images: ${{ inputs.images }}
         run: |
           docker build -t $images:$IMAGE_TAG .
           docker push $images:$IMAGE_TAG
@@ -75,7 +75,6 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
-#           IMAGE_TAG: ${{ github.run_number }}
           IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
@@ -93,7 +92,6 @@ jobs:
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          
           docker build -t $images:$IMAGE_TAG .
           docker push $images:$IMAGE_TAG
-          
+...
