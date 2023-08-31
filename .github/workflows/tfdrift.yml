@@ -1,5 +1,5 @@
+---
 name: 'Terraform Configuration Drift Detection'
-
 on:
   workflow_call: 
     inputs:
@@ -54,7 +54,7 @@ jobs:
     name: 'Terraform Plan'
     runs-on: ubuntu-latest
     env:
-      #this is needed since we are running terraform with read-only permissions
+      # This is needed since we are running terraform with read-only permissions
       ARM_SKIP_PROVIDER_REGISTRATION: true
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
@@ -109,16 +109,14 @@ jobs:
         else
         terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
         fi
-
         echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-        
         if [ $exitcode -eq 1 ]; then
           echo Terraform Plan Failed!
           exit 1
         else 
           exit 0
         fi
-        
+
     # Save plan to artifacts  
     - name: Publish Terraform Plan
       uses: actions/upload-artifact@v3
@@ -164,20 +162,18 @@ jobs:
             const title = 'Terraform Configuration Drift Detected';
             const creator = 'github-actions[bot]'
           
-            // Look to see if there is an existing drift issue
+            # Look to see if there is an existing drift issue
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
               creator: creator,
               title: title
-            })
-              
+            })    
             if( issues.data.length > 0 ) {
               // We assume there shouldn't be more than 1 open issue, since we update any issue we find
               const issue = issues.data[0]
-              
-              if ( issue.body == body ) {
+            if ( issue.body == body ) {
                 console.log('Drift Detected: Found matching issue with duplicate content')
               } else {
                 console.log('Drift Detected: Found matching issue, updating body')
@@ -190,7 +186,6 @@ jobs:
               }
             } else {
               console.log('Drift Detected: Creating new issue')
-
               github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -209,7 +204,7 @@ jobs:
             const title = 'Terraform Configuration Drift Detected';
             const creator = 'github-actions[bot]'
           
-            // Look to see if there is an existing drift issue
+            # Look to see if there is an existing drift issue
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -220,17 +215,16 @@ jobs:
               
             if( issues.data.length > 0 ) {
               const issue = issues.data[0]
-              
               github.rest.issues.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
                 state: 'closed'
               })
-            } 
-             
-    # Mark the workflow as failed if drift detected 
+            }
+           
+    # Mark the workflow as failed if drift detected
     - name: Error on Failure
       if: steps.tf-plan.outputs.exitcode == 2
       run: exit 1
-      
+...      
