@@ -13,8 +13,8 @@ jobs:
             extends: default
             rules:
               line-length:
-                max: 150
-                level: error
+                max: 80
+                level: warning
               comments-indentation:
                  level: error
               indentation:
