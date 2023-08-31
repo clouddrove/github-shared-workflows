@@ -1,3 +1,4 @@
+---
 name: docker-scanner
 
 on:
@@ -31,7 +32,7 @@ jobs:
           load: true  #  Export to Docker Engine rather than pushing to a registry
           tags: ${{ github.sha }}
           platforms: linux/amd64
-      
+
       - name: Docker Scan with trivy (non-blocking)
         uses: aquasecurity/trivy-action@master
         env:
@@ -54,3 +55,4 @@ jobs:
           format: table
           exit-code: 1
           severity: ${{ inputs.severity}}
+...
