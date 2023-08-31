@@ -1,36 +1,37 @@
 ---
-# Tf check workflow checks for min, max version , terraform fmt , terraform init & terraform validate in your terraform code.
+# Tf check workflow checks for min, max version, terraform fmt, terraform init & terraform validate in your terraform code.
 name: tf-checks
 
 on:
   workflow_call:
-# inputs can be defined to use during workflow call. 
     inputs:
       working_directory:
-        description: 'Directory where complete example exist of the module.'
+        description: 'Directory where a complete example exists for the module.'
         required: false
         type: string
         default: './_example/complete/'
+
 jobs:
-   # - Terrafrom version extract as output. 
+  # - Terraform version extract as output.
   versionExtract:
     name: Get min/max versions
     runs-on: ubuntu-latest
 
-    steps:
-# Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      # - Checking terraform Max and Min version .
-      - name: Terraform min/max versions
-        id: minMax
-        uses: clowdhaus/terraform-min-max@main
     outputs:
       minVersion: ${{ steps.minMax.outputs.minVersion }}
       maxVersion: ${{ steps.minMax.outputs.maxVersion }}
 
-# Evaluting terraform version based on version extract.
+    steps:
+      # - Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # - Checking terraform Max and Min version.
+      - name: Terraform min/max versions
+        id: minMax
+        uses: clowdhaus/terraform-min-max@main
+
+# Evaluating terraform version based on version extract.
   versionEvaluate:
     name: Evaluate Terraform versions
     runs-on: ubuntu-latest
@@ -42,44 +43,44 @@ jobs:
           - ${{ needs.versionExtract.outputs.minVersion }}
           - ${{ needs.versionExtract.outputs.maxVersion }}
         directory:
-          - ${{ inputs.working_directory}}
+          - ${{ inputs.working_directory }}
 
     steps:
-      # Checkout the repository to the GitHub Actions runner
+      # - Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v3
 
-     # Installing terraform version based on version extract.
+      # - Installing terraform version based on version extract.
       - name: Install Terraform v${{ matrix.version }}
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ matrix.version }}
 
-      # Terraform checks to Init and Validate terraform code. 
+      # - Terraform checks to Init and Validate terraform code.
       - name: Init & validate v${{ matrix.version }}
         run: |
           cd ${{ matrix.directory }}
           terraform init
           terraform validate
 
-  # Action to verfiy terraform formatting . 
+# Action to verify terraform formatting.
   format:
     name: Check code format
     runs-on: ubuntu-latest
     needs: versionExtract
 
     steps:
-       # Checkout the repository to the GitHub Actions runner
+      # - Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v3
 
-     # Action added to install terraform 
+      # - Action added to install terraform
       - name: Install Terraform v${{ needs.versionExtract.outputs.maxVersion }}
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: ${{ needs.versionExtract.outputs.maxVersion }}
 
-      # Running command to check terraform formatting changes. 
+      # - Running command to check terraform formatting changes.
       - name: Check Terraform format changes
         run: terraform fmt --recursive -check=true
 ...
