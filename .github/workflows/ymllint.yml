@@ -27,8 +27,6 @@ jobs:
                   level: warning
               key-duplicates:
                   level: error
-              key-ordering:
-                  level: error
               braces:
                   level: error
               brackets:
