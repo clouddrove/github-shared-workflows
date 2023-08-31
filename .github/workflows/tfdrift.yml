@@ -60,7 +60,7 @@ jobs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
-       # Checkout the repository to the GitHub Actions runner
+      # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -156,7 +156,7 @@ jobs:
           SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
         with:
           github-token: ${{ secrets.GITHUB }}
-            script: |
+          script: |
               const body = `${process.env.SUMMARY}`;
               const title = 'Terraform Configuration Drift Detected';
               const creator = 'github-actions[bot]'
