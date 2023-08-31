@@ -1,12 +1,13 @@
+---
 name: Assignees
 
 on:
   workflow_call:
     inputs:
-        assignees:
-            description: 'A list of assignees(GitHub user name) to be added to PR'
-            required: true
-            type: string
+      assignees:
+          description: 'A list of assignees(GitHub user name) to be added to PR'
+          required: true
+          type: string
     
     secrets:
         GITHUB:
@@ -21,3 +22,4 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB }}
           assignees: ${{ inputs.assignees }}
+...
