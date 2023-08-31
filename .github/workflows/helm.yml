@@ -1,3 +1,4 @@
+---
 name: HELM
 
 on:
@@ -132,3 +133,4 @@ jobs:
         if: ${{ inputs.rollback == 'rollback' }}
         run: |
           helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }}
+...
