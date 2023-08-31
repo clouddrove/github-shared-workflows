@@ -1,3 +1,4 @@
+---
 name: HELM
 
 on:
@@ -32,31 +33,31 @@ on:
         type: string
         description: 'Unique ID for installed chart'
       timeout:
-         required: true
-         type: string
-         description: 'Timeout for helm install step in seconds'
-         default: '120s'
+        required: true
+        type: string
+        description: 'Timeout for helm install step in seconds'
+        default: '120s'
       set-parameters:
         required: false
-        type: string 
+        type: string
         description: 'Overriding the default values'
-      values-file-path: 
+      values-file-path:
         required: true
         type: string
         description: 'Values file path from helm chart directory'
-      history-max: 
+      history-max:
         required: true
         type: number
         description: 'number of revisions stored in the revision history.'
-        default: '7'
+        default: 7
       namespace:
         required: false
         type: string
         description: 'Boundary for Kubernetes resources'
       rollback:
-         required: false
-         type: string
-         description: 'Environment name for rollback'
+        required: false
+        type: string
+        description: 'Environment name for rollback'
     secrets:
       AWS_ACCESS_KEY_ID:
         description: 'AWS Access Key ID'
@@ -65,11 +66,11 @@ on:
         required: false
         description: 'AWS Secret Access Key'
       AWS_SESSION_TOKEN:
-          required: false
-          description: 'AWS Session Token'
+        required: false
+        description: 'AWS Session Token'
       BUILD_ROLE:
-          required: false
-          description: 'AWS OIDC role for aws authentication'
+        required: false
+        description: 'AWS OIDC role for aws authentication'
       AZURE_CREDENTIALS:
         description: 'Azure Credentilas'
         required: false
@@ -103,20 +104,20 @@ jobs:
         run: |
           if [ "${{ inputs.provider }}" = "azure" ]; then
             az aks get-credentials --resource-group ${{ inputs.resource-group }} --name ${{ inputs.azure-cluster-name }}
-          else 
+          else
             aws eks --region ${{ inputs.aws-region }} update-kubeconfig --name ${{ inputs.eks-cluster-name }}
           fi
-      
+
       - name: helm lint
         if: ${{ inputs.rollback != 'rollback' }}
         run: |
           helm lint ${{ inputs.helm-chart-directory }}
-          
+
       - name: helm template
         if: ${{ inputs.rollback != 'rollback' }}
         run: |
           helm template ${{ inputs.helm-chart-directory }}
-          
+
       - name: helm install and upgrade2
         if: ${{ inputs.rollback != 'rollback' }}
         run: |
@@ -127,8 +128,9 @@ jobs:
             helm upgrade --install --atomic --create-namespace --wait --history-max ${{ inputs.history-max }} --debug \
               ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
           fi
-                                                                                                               
+
       - name: Rollback Helm Release
         if: ${{ inputs.rollback == 'rollback' }}
         run: |
-            helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} 
+          helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }}
+...

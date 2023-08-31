@@ -1,10 +1,10 @@
+---
 name: changelog
 permissions: write-all
 on:
   push:
     tags:
       - "*"
-  workflow_dispatch:
 jobs:
   changelog:
     uses: clouddrove/github-shared-workflows/.github/workflows/changelog.yml@master
@@ -12,3 +12,4 @@ jobs:
       branch: 'master'
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
+...

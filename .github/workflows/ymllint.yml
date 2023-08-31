@@ -1,0 +1,49 @@
+---
+name: Yaml Lint
+on: [pull_request]
+jobs:
+  Yaml-Lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: yaml-lint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          config_data: |
+            rules:
+              line-length:
+                level: warning
+              comments-indentation:
+                 level: error
+              indentation:
+                  level: error
+              trailing-spaces:
+                  level: error
+              new-line-at-end-of-file:
+                  level: error
+              document-start:
+                  level: error
+              document-end:
+                  level: error
+              key-duplicates:
+                  level: error
+              braces:
+                  level: error
+              brackets:
+                  level: error
+              colons:
+                  level: error
+              commas:
+                  level: error
+              comments:
+                  level: error
+              empty-lines:
+                  level: error
+              empty-values:
+                  level: error
+              float-values:
+                  level: error
+              hyphens:
+                  level: error
+...
