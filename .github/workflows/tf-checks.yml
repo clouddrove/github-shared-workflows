@@ -1,28 +1,28 @@
+---
 # Tf check workflow checks for min, max version , terraform fmt , terraform init & terraform validate in your terraform code.
 name: tf-checks
 
 on:
   workflow_call:
-  # inputs can be defined to use during workflow call. 
+# inputs can be defined to use during workflow call. 
     inputs:
       working_directory:
         description: 'Directory where complete example exist of the module.'
         required: false
         type: string
         default: './_example/complete/'
-
 jobs:
-  # Terrafrom version extract as output. 
+   # - Terrafrom version extract as output. 
   versionExtract:
     name: Get min/max versions
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the repository to the GitHub Actions runner
+# Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v3
 
-      # Checking terraform Max and Min version .
+      # - Checking terraform Max and Min version .
       - name: Terraform min/max versions
         id: minMax
         uses: clowdhaus/terraform-min-max@main
@@ -30,7 +30,7 @@ jobs:
       minVersion: ${{ steps.minMax.outputs.minVersion }}
       maxVersion: ${{ steps.minMax.outputs.maxVersion }}
 
-  # Evaluting terraform version based on version extract.
+# Evaluting terraform version based on version extract.
   versionEvaluate:
     name: Evaluate Terraform versions
     runs-on: ubuntu-latest
@@ -82,3 +82,4 @@ jobs:
       # Running command to check terraform formatting changes. 
       - name: Check Terraform format changes
         run: terraform fmt --recursive -check=true
+...
