@@ -199,7 +199,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB }}
-            script: |
+          script: |
               const title = 'Terraform Configuration Drift Detected';
               const creator = 'github-actions[bot]'
 
