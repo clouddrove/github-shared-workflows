@@ -60,7 +60,7 @@ jobs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
-       # - Checkout the repository to the GitHub Actions runner
+       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -91,12 +91,12 @@ jobs:
       # Run some scripts
       - name: Run shell commands
         run: ls -la
-    
+
       - name: terraform init
         run: |
            cd ${{ inputs.working_directory }}
            terraform init
-    
+
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
       - name: Terraform Plan
@@ -155,12 +155,12 @@ jobs:
         env:
           SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
         with:
-            github-token: ${{ secrets.GITHUB }}
+          github-token: ${{ secrets.GITHUB }}
             script: |
               const body = `${process.env.SUMMARY}`;
               const title = 'Terraform Configuration Drift Detected';
               const creator = 'github-actions[bot]'
-            
+
               # Look to see if there is an existing drift issue
               const issues = await github.rest.issues.listForRepo({
                 owner: context.repo.owner,
@@ -168,7 +168,7 @@ jobs:
                 state: 'open',
                 creator: creator,
                 title: title
-              })    
+              })
               if( issues.data.length > 0 ) {
                 // We assume there shouldn't be more than 1 open issue, since we update any issue we find
                 const issue = issues.data[0]
@@ -198,11 +198,11 @@ jobs:
         if: steps.tf-plan.outputs.exitcode == 0
         uses: actions/github-script@v6
         with:
-            github-token: ${{ secrets.GITHUB }}
+          github-token: ${{ secrets.GITHUB }}
             script: |
               const title = 'Terraform Configuration Drift Detected';
               const creator = 'github-actions[bot]'
-            
+
               # Look to see if there is an existing drift issue
               const issues = await github.rest.issues.listForRepo({
                 owner: context.repo.owner,
@@ -210,7 +210,7 @@ jobs:
                 state: 'open',
                 creator: creator,
                 title: title
-              }) 
+              })
               if( issues.data.length > 0 ){
                 const issue = issues.data[0]
                 github.rest.issues.update({
