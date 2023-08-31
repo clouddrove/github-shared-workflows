@@ -49,7 +49,7 @@ on:
         required: true
         type: number
         description: 'number of revisions stored in the revision history.'
-        default: '7'
+        default: 7
       namespace:
         required: false
         type: string
