@@ -1,3 +1,4 @@
+---
 name: tfsec
 on:
   workflow_call:
@@ -49,4 +50,5 @@ jobs:
           tfsec_actions_working_dir: ${{ inputs.working_directory}}
           tfsec_actions_comment: true
           tfsec_output_format: sarif
-        continue-on-error: true 
+        continue-on-error: true
+...
