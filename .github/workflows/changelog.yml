@@ -1,3 +1,4 @@
+---
 name: CHANGELOG
 
 on:
@@ -9,7 +10,7 @@ on:
     secrets:
       GITHUB:
         required: true
-        description: 'PAT of the user to run the jobs.'  
+        description: 'PAT of the user to run the jobs.'
 
 jobs:
   create_changelog:
@@ -45,8 +46,9 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           branch: ${{ inputs.branch}}
-          commit_user_name: clouddrove-ci # defaults to "github-actions[bot]"
-          commit_user_email: 84795582+clouddrove-ci@users.noreply.github.com # defaults to "41898282+github-actions[bot]@users.noreply.github.com"
+          commit_user_name: clouddrove-ci  #  defaults to "github-actions[bot]"
+          commit_user_email: 84795582+clouddrove-ci@users.noreply.github.com  #  defaults to "41898282+github-actions[bot]@users.noreply.github.com"
           commit_author: CloudDrove CI <84795582+clouddrove-ci@users.noreply.github.com>
           commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }}'
           file_pattern: CHANGELOG.md
+...
