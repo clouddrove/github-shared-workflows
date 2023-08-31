@@ -55,9 +55,9 @@ jobs:
       ARM_SKIP_PROVIDER_REGISTRATION: true
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
-      
+
     steps:
-      #  Checkout the repository to the GitHub Actions runner
+      # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -127,7 +127,6 @@ jobs:
           terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
           fi
             echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-          
           if [ $exitcode -eq 1 ]; then
             echo Terraform Plan Failed!
             exit 1
