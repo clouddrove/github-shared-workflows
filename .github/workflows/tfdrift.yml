@@ -1,7 +1,7 @@
 ---
 name: 'Terraform Configuration Drift Detection'
 on:
-  workflow_call: 
+  workflow_call:
     inputs:
       working_directory:
         required: true
@@ -113,17 +113,17 @@ jobs:
         if [ $exitcode -eq 1 ]; then
           echo Terraform Plan Failed!
           exit 1
-        else 
+        else
           exit 0
         fi
 
-    # Save plan to artifacts  
+    # Save plan to artifacts
     - name: Publish Terraform Plan
       uses: actions/upload-artifact@v3
       with:
         name: tfplan
         path: tfplan
-        
+
     # Create string output of Terraform Plan
     - name: Create String Output
       id: tf-plan-string
@@ -211,8 +211,7 @@ jobs:
               state: 'open',
               creator: creator,
               title: title
-            })
-              
+            }) 
             if( issues.data.length > 0 ) {
               const issue = issues.data[0]
               github.rest.issues.update({
@@ -222,9 +221,9 @@ jobs:
                 state: 'closed'
               })
             }
-           
+  
     # Mark the workflow as failed if drift detected
     - name: Error on Failure
       if: steps.tf-plan.outputs.exitcode == 2
       run: exit 1
-...      
+...
