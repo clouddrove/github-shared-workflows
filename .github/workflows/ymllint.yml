@@ -1,5 +1,5 @@
 name: Yaml Lint 
-on: [push]  # yamllint disable-line rule:truthy
+on: [push]
 jobs:
   lintAllTheThings:
     runs-on: ubuntu-latest
@@ -10,24 +10,40 @@ jobs:
         uses: ibiqlik/action-yamllint@v3
         with:
           config_data: |
-            extends: default
             rules:
               line-length:
-                max: 80
                 level: warning
               comments-indentation:
                  level: error
               indentation:
                   level: error
-              empty-lines:
-                  level: error
-              colons:
-                  level: error
-              brackets:
-                  level: error
               trailing-spaces:
                   level: error
               new-line-at-end-of-file:
                   level: error
-              new-lines:
+              document-start:
+                  level: warning
+              document-end:
+                  level: warning
+              key-duplicates:
+                  level: error
+              key-ordering:
+                  level: error
+              braces:
+                  level: error
+              brackets:
+                  level: error
+              colons:
+                  level: error
+              commas:
+                  level: error
+              comments:
+                  level: error
+              empty-lines:
+                  level: error
+              empty-values:
+                  level: error
+              float-values:
+                  level: error
+              hyphens:
                   level: error
