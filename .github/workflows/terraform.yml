@@ -1,4 +1,5 @@
-name: 'Terraform Checks'
+---
+name: Terraform Checks
 on:
   workflow_call:
     inputs:
@@ -6,61 +7,61 @@ on:
         required: true
         type: string
         default: _example
-        description: 'Root directory of the terraform where all resources exist.'
+        description: Root directory of the terraform where all resources exist.
       provider:
         required: true
         type: string
         default: azurerm
-        description: 'Cloud provider to run the workflow. e.g. azurerm, aws or Digitalocean'
+        description: Cloud provider to run the workflow. e.g. azurerm, aws or Digitalocean
       aws_region:
         required: false
         type: string
         default: us-east-1
-        description: 'AWS region of terraform deployment.'
+        description: AWS region of terraform deployment.
       var_file:
         required: false
         default: ""
         type: string
-        description: 'Terraform var file directory. e.g. vars/dev.tfvars'
+        description: Terraform var file directory. e.g. vars/dev.tfvars
     secrets:
       AZURE_CREDENTIALS:
         required: false
-        description: 'Azure Credentials to install Azure in github runner.'
+        description: Azure Credentials to install Azure in github runner.
       AWS_ACCESS_KEY_ID:
         required: false
-        description: 'AWS Access Key ID to install AWS CLI.'
+        description: AWS Access Key ID to install AWS CLI.
       AWS_SECRET_ACCESS_KEY:
         required: false
-        description: 'AWS Secret access key to install AWS CLI'
+        description: AWS Secret access key to install AWS CLI
       AWS_SESSION_TOKEN:
         required: false
-        description: 'AWS Session Token to install AWS CLI'
+        description: AWS Session Token to install AWS CLI
       DIGITALOCEAN_ACCESS_TOKEN:
         required: false
-        description: 'Digitalocean access Token to install Digitalocean CLI'
+        description: Digitalocean access Token to install Digitalocean CLI
       GITHUB:
         required: true
-        description: 'PAT of the user to run the jobs.'
+        description: PAT of the user to run the jobs.
       TF_API_TOKEN:
         required: false
-        description: 'Terraform cloud token if your backend is terraform cloud.'
+        description: Terraform cloud token if your backend is terraform cloud.
 
 jobs:
   terraform-checks:
     name: 'Terraform Validate, Init and Plan'
     runs-on: ubuntu-latest
     env:
-      #this is needed since we are running terraform with read-only permissions
+      #  This is needed since we are running terraform with read-only permissions
       ARM_SKIP_PROVIDER_REGISTRATION: true
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
-
+      
     steps:
-      # Checkout the repository to the GitHub Actions runner
+      #  Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v3
 
-      # install AWS-cli
+      #  install AWS-cli
       - name: Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v3
@@ -125,8 +126,7 @@ jobs:
           else
           terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
           fi
-          
-          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+            echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
           
           if [ $exitcode -eq 1 ]; then
             echo Terraform Plan Failed!
@@ -134,3 +134,4 @@ jobs:
           else 
             exit 0
           fi
+...
