@@ -1,5 +1,5 @@
 ---
-# Tf lint workflow checks for possible errors,best practices in your terraform code. 
+# Tflint workflow checks for possible errors, and best practices in your terraform code. 
 name: tf-lint
 on:
   workflow_call:
