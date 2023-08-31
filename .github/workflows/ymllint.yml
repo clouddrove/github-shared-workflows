@@ -23,9 +23,9 @@ jobs:
               new-line-at-end-of-file:
                   level: error
               document-start:
-                  level: warning
+                  level: error
               document-end:
-                  level: warning
+                  level: error
               key-duplicates:
                   level: error
               braces:
