@@ -1,3 +1,4 @@
+---
 name: docker-scanner
 
 on:
@@ -28,19 +29,19 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: false
-          load: true # Export to Docker Engine rather than pushing to a registry
+          load: true  #  Export to Docker Engine rather than pushing to a registry
           tags: ${{ github.sha }}
           platforms: linux/amd64
-      
+
       - name: Docker Scan with trivy (non-blocking)
         uses: aquasecurity/trivy-action@master
         env:
           tags: ${{ github.sha }}
         with:
-         image-ref: ${{ github.sha }}
-         exit-code: 0
-         format: 'sarif'
-         output: 'trivy-results.sarif'
+          image-ref: ${{ github.sha }}
+          exit-code: 0
+          format: 'sarif'
+          output: 'trivy-results.sarif'
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v2
@@ -50,8 +51,8 @@ jobs:
       - name: Docker Scan with trivy (blocking)
         uses: aquasecurity/trivy-action@master
         with:
-         image-ref: ${{ github.sha }}
-         format: table 
-         exit-code: 1
-        #  severity: 'HIGH,CRITICAL'
-         severity: ${{ inputs.severity}}
+          image-ref: ${{ github.sha }}
+          format: table
+          exit-code: 1
+          severity: ${{ inputs.severity}}
+...
