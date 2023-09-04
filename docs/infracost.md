@@ -3,7 +3,8 @@ Infracost shows cloud cost estimates for Terraform. It lets engineers see a cost
 It utilizes the workflows defined in `.github/workflows/infracost.yml`
 
 #### Usage
-With Terraform, you can easily estimate cloud costs by leveraging Infracost, and you can easily compare potential bills between different vendors. Infracost, as they state on their website, makes you love your cloud bill
+- With Terraform, you can easily estimate cloud costs by leveraging Infracost, and you can easily compare potential bills between different vendors. Infracost, as they state on their website, makes you love your cloud bill
+- When you create PR we show the difference of cost in a PR comment, and the actual cost report generated in artifactory
 
 #### Get started
 Infracost also has many CI/CD integrations so you can easily post cost estimates in pull requests. This provides your team with a safety net as people can discuss costs as part of the workflow.
