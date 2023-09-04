@@ -1,0 +1,80 @@
+---
+name: "Infracost Analysis" 
+
+on:
+  workflow_call:
+    inputs:
+      working-directory:
+        description: 'Working directory of terraform resources'
+        required: true
+        type: string
+        default: './terraform'
+    secrets:
+      INFRACOST_API_KEY:
+        description: 'Provide Key from infracost api'
+        required: true
+      GITHUB:
+        required: true
+        description: 'token.'
+
+jobs:
+  infracost:
+    name: Infracost Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Infracost
+        uses: infracost/actions/setup@6bdd3cb01a306596e8a614e62af7a9c0a133bc5c
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+
+      - name: Checkout base branch
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Print debug info
+        run: |
+          echo "github base branch is ${{ github.event.pull_request.base.ref }}"
+          echo "github.event.pull_request.number is ${{ github.event.pull_request.number }}"
+
+      - name: Generate Infracost cost estimate baseline
+        run: |
+          export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
+          cd ${{ inputs.working-directory }} 
+          infracost breakdown --path . \
+                              --format=json \
+                              --out-file=/tmp/infracost-base.json
+
+      - name: Checkout PR branch
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Generate Infracost diff
+        run: |
+          export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
+          cd ${{ inputs.working-directory }}
+          infracost diff --path=. \
+                          --format=json \
+                          --show-skipped \
+                          --compare-to=/tmp/infracost-base.json \
+                          --out-file=/tmp/infracost.json
+
+      - name: Generate Infracost Report
+        run: |
+          export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
+          cd ${{ inputs.working-directory }}
+          infracost output --path /tmp/infracost.json --show-skipped --format html --out-file report.html
+
+      - uses: actions/upload-artifact@83fd05a356d7e2593de66fc9913b3002723633cb
+        with:
+          name: report.html
+          path: ${{ inputs.working-directory }}/report.html
+
+      - name: Post Infracost comment
+        run: |
+          export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
+          infracost comment github --path=/tmp/infracost.json \
+                                   --repo=$GITHUB_REPOSITORY \
+                                   --github-token=${{ secrets.GITHUB }} \
+                                   --pull-request=${{ github.event.pull_request.number }} \
+                                   --behavior=update
+...
