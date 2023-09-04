@@ -1,5 +1,5 @@
 ---
-name: "Infracost Analysis" 
+name: "Infracost Analysis"
 
 on:
   workflow_call:
@@ -40,7 +40,7 @@ jobs:
       - name: Generate Infracost cost estimate baseline
         run: |
           export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
-          cd ${{ inputs.working-directory }} 
+          cd ${{ inputs.working-directory }}
           infracost breakdown --path . \
                               --format=json \
                               --out-file=/tmp/infracost-base.json
