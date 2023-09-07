@@ -78,7 +78,6 @@ jobs:
       - name: Post Infracost comment
         run: >
           export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
-
           infracost comment github --path=/tmp/infracost.json \
                                    --repo=$GITHUB_REPOSITORY \
                                    --github-token=${{ secrets.GITHUB }} \
