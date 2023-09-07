@@ -7,7 +7,7 @@ on:
         description: Working directory of terraform resources
         required: true
         type: string
-        default: ./terraform
+        default: ./
       slack_notification:
         description: slack notification required or not
         type: string
