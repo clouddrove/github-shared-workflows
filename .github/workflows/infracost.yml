@@ -49,7 +49,7 @@ jobs:
           infracost breakdown --path . \
                               --format=json \
                               --out-file=/tmp/infracost-base.json
-              
+                    
       - name: Checkout PR branch
         uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
 
@@ -84,7 +84,7 @@ jobs:
                                    --github-token=${{ secrets.GITHUB }} \
                                    --pull-request=${{ github.event.pull_request.number }} \
                                    --behavior=update
-       
+               
       - name: Generate Slack message
         id: infracost-slack
         run: |
