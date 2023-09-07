@@ -38,7 +38,7 @@ jobs:
           ref: ${{ github.event.pull_request.base.ref }}
 
       - name: Print debug info
-        run: >
+        run: |
           echo "github base branch is ${{ github.event.pull_request.base.ref }}"
           echo "github.event.pull_request.number is ${{ github.event.pull_request.number }}"
 
@@ -76,7 +76,7 @@ jobs:
           path: ${{ inputs.working-directory }}/report.html
 
       - name: Post Infracost comment
-        run: >
+        run: |
           export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
           infracost comment github --path=/tmp/infracost.json \
                                    --repo=$GITHUB_REPOSITORY \
