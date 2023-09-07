@@ -4,24 +4,24 @@ on:
   workflow_call:
     inputs:
       working-directory:
-        description: Working directory of terraform resources
         required: true
+        description: Working directory of terraform resources
         type: string
         default: ./
       slack_notification:
-        description: slack notification required or not
+        description: Slack notification required or not
         type: string
         default: false
     secrets:
       INFRACOST_API_KEY:
-        description: Provide Key from infracost api
         required: true
+        description: Provide Key from infracost api
       GITHUB:
         required: true
-        description: token.
+        description: GitHub token.
       SLACK_WEBHOOK:
         required: false
-        description: slack notification url
+        description: Slack webhook url
 jobs:
   infracost:
     name: Infracost Analysis
