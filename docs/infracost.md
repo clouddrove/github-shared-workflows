@@ -33,9 +33,11 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/infracost.yml@master
     with:
       working-directory:   # Need to specify working-directory as that's where the terraform files live in the source code
+      slack_notification:  # If we need slack notification then its value is true else false
     secrets:
       INFRACOST_API_KEY:   # Provide Infra-Cost-API-key
       GITHUB: # Add github token here
+      SLACK_WEBHOOK:       # If slack_notification is true then add Webhook URL
 ```
 
 ## When you do some changes in resources, after that create Pull Request in this we shows difference between previous cost & new cost
