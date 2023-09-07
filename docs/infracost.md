@@ -43,24 +43,3 @@ Show below picture for more understanding
 
 ![image](https://github.com/clouddrove-sandbox/Infra-cost/assets/116706588/4de7eb51-57a2-4165-8332-fea4a9c5311d)
 
-## For Slack Notification
-
-```
-       - name: Generate Slack message
-         id: infracost-slack
-         run: |
-           echo "::set-output name=slack-message::$(infracost output --path=/tmp/infracost.json --format=slack-message --show-skipped)"
-           echo "::set-output name=diffTotalMonthlyCost::$(jq '(.diffTotalMonthlyCost // 0) | tonumber' /tmp/infracost.json)"
-
-       - name: Send cost estimate to Slack
-         uses: slackapi/slack-github-action@v1
-         if: ${{ steps.infracost-slack.outputs.diffTotalMonthlyCost > 0 }} # Only post to Slack if there is a cost diff
-         with:
-           payload: ${{ steps.infracost-slack.outputs.slack-message }}
-         env:
-           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK}}
-           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-```
-## Inputs
-- `SLACK_WEBHOOK_URL` (required). URL of Slack incoming webhook.
-- `payload` (required). For send output of generated slack report
