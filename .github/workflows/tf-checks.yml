@@ -24,7 +24,7 @@ jobs:
     steps:
       # - Checkout the repository to the GitHub Actions runner
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # - Checking terraform Max and Min version.
       - name: Terraform min/max versions
@@ -48,7 +48,7 @@ jobs:
     steps:
       # - Checkout the repository to the GitHub Actions runner
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # - Installing terraform version based on version extract.
       - name: Install Terraform v${{ matrix.version }}
@@ -72,7 +72,7 @@ jobs:
     steps:
       # - Checkout the repository to the GitHub Actions runner
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # - Action added to install terraform
       - name: Install Terraform v${{ needs.versionExtract.outputs.maxVersion }}
