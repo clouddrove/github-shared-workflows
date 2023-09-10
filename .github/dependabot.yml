@@ -14,8 +14,9 @@ updates:
     assignees:
       - "clouddrove-ci"
     reviewers:
-      - "d4kverma"
       - "anmolnagpal"
+      - "approvers"
+
   - package-ecosystem: 'terraform'
     directory: '*'  #  Location of package manifests
     schedule:
@@ -27,6 +28,6 @@ updates:
     assignees:
       - "clouddrove-ci"
     reviewers:
-      - "d4kverma"
       - "anmolnagpal"
+      - "approvers"
 ...
