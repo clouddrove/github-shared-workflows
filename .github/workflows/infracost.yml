@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Infracost
-        uses: infracost/actions/setup@6bdd3cb01a306596e8a614e62af7a9c0a133bc5c
+        uses: infracost/actions/setup@0d27b734c72a1abb0aba3e2c3f54e4982cbd2591
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
