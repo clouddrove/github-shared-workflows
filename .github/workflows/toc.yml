@@ -1,0 +1,38 @@
+---
+name: toc
+on:
+  workflow_call:
+    inputs:
+      modules:
+        description: 'Comma-separated list of modules to include in TOC'
+        required: false
+        default: terraform-aws,terraform-azure,terraform-gcp,docker,ansible,tools
+        type: string
+      username:
+        description: 'Set git user-name'
+        required: false
+        type: string
+      email:
+        description: 'Set git Email id'
+        required: false
+        type: string
+    secrets:
+      github-token:
+        required: true
+        description: 'GitHub token.'        
+jobs:
+  TOC:
+    name: 'toc-readme-create'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@master
+
+      - name: 'update readme'
+        uses: clouddrove/github-actions/toc@internal_502
+        with:
+          github-token: '${{ secrets.github-token }}'
+          username: ${{ inputs.username }}
+          email: ${{ inputs.email }}
+          modules: ${{ inputs.modules }}
+...
