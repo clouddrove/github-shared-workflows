@@ -19,7 +19,7 @@ on:
     secrets:
       github-token:
         required: true
-        description: 'GitHub token.'        
+        description: 'GitHub token.'     
 jobs:
   TOC:
     name: 'toc-readme-create'
