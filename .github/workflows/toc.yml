@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: 'update readme'
-        uses: clouddrove/github-actions/toc@internal_502
+        uses: clouddrove/github-actions/toc@master
         with:
           github-token: '${{ secrets.github-token }}'
           username: ${{ inputs.username }}
