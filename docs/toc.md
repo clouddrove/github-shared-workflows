@@ -1,10 +1,10 @@
-## [toc Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/toc.yml)
+## [Toc Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/toc.yml)
 
 This workflow is used to update Table Of Content(TOC) of modules in readme, It utilizes the workflows defined in `.github/workflows/toc.yml`
 
 #### Usage
 - With the use of this shared workflow, upgradation of toc for some modules are automate instead of manually updating.
-- Creating readme file on github for toc automatically if any module are changed or updated or created.
+- Creating readme file on GitHub for toc automatically if any module are changed or updated or created.
 
 
 #### Example
