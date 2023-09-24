@@ -84,7 +84,7 @@ jobs:
           fi
 
       - name: Configure AWS Creds via role
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
           role-to-assume: ${{ secrets.build-role }}
