@@ -24,5 +24,5 @@ jobs:
       - name: cfn security checks
         uses: minchao/cfn-nag-action@v0.1
         with:
-          args: '--input-path ${{ inputs.cf_file_path }}' 
+          args: '--input-path ${{ inputs.cf_file_path }}'
 ...
