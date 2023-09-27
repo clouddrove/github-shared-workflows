@@ -47,7 +47,7 @@ jobs:
         id: minMax
         uses: clowdhaus/terraform-min-max@main
 
-  # - Evaluating terraform version based on version extract
+  # - Evaluating the terraform version based on version extract
   versionEvaluate:
     name: Evaluate Terraform versions
     runs-on: ubuntu-latest
