@@ -1,6 +1,7 @@
 ---
-name: Yaml Lint
-on: [pull_request]
+name: YAML-LINTER
+on:
+  workflow_call:
 jobs:
   Yaml-Lint:
     runs-on: ubuntu-latest
