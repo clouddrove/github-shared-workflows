@@ -1,0 +1,28 @@
+---
+name: cloudformation-linter
+on:
+  workflow_call:
+    inputs:
+      cf_file_path:
+        required: true
+        type: string
+        description: 'path of cloudformation template.'
+
+jobs:
+  cloudformation-linter:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: cfn-lint-action
+        uses: ScottBrenner/cfn-lint-action@v2
+        with:
+          command: cfn-lint -t ${{ inputs.cf_file_path }}
+
+      - name: cfn security checks
+        uses: minchao/cfn-nag-action@v0.1
+        with:
+          args: '--input-path ${{ inputs.cf_file_path }}'
+...

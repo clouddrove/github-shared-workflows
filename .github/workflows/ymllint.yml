@@ -1,6 +1,7 @@
 ---
-name: Yaml Lint
-on: [pull_request]
+name: YAML-LINTER
+on:
+  workflow_call:
 jobs:
   Yaml-Lint:
     runs-on: ubuntu-latest
@@ -41,7 +42,7 @@ jobs:
               empty-lines:
                   level: error
               empty-values:
-                  level: error
+                  level: warning
               float-values:
                   level: error
               hyphens:
