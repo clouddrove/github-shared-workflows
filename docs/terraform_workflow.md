@@ -23,6 +23,7 @@ jobs:
         var_file:           # name of tfvar file e.g "variable.tfvar"
         aws_region:         # specify region eg. us-east-2
         approvers:          # Assignee name for approve apply or destroy step
+        minimum-approvals:  # Minimum number of approvals required to progress the workflow, deafault value is 1
         terraform_version:  # Specify terraform version e.g 1.3.6
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
      secrets:
@@ -49,6 +50,7 @@ jobs:
         working_directory:  # Specify terraform code directory in repo
         var_file:           # Name of tfvar file e.g "variable.tfvar"
         approvers:          # Assignee name for approve apply or destroy step
+        minimum-approvals:  # Minimum number of approvals required to progress the workflow, deafault value is 1
         terraform_version:  # Specify terraform version e.g 1.3.6
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
      secrets:
@@ -72,6 +74,7 @@ jobs:
         working_directory:  # Specify terraform code directory in repo
         var_file:           # Name of tfvar file e.g "variable.tfvar"
         approvers:          # Assignee name for approve apply or destroy step
+        minimum-approvals:  # Minimum number of approvals required to progress the workflow, deafault value is 1
         terraform_version:  # Specify terraform version e.g 1.3.6
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
      secrets:
@@ -97,6 +100,7 @@ jobs:
         working_directory:  # Specify terraform code directory in repo
         var_file:           # Name of tfvar file e.g "variable.tfvar"
         approvers:          # Assignee name for approve apply or destroy step
+        minimum-approvals:  # Minimum number of approvals required to progress the workflow, deafault value is 1
         terraform_version:  # Specify terraform version e.g 1.3.6
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
      secrets:
