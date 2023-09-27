@@ -40,9 +40,9 @@ jobs:
               comments:
                   level: error
               empty-lines:
-                  level: warning
-              empty-values:
                   level: error
+              empty-values:
+                  level: warning
               float-values:
                   level: error
               hyphens:
