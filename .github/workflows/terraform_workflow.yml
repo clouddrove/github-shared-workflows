@@ -42,6 +42,11 @@ on:
         type: number
         default: 10
         description: 'Timeout for approval step'
+      minimum-approvals:
+        required: false
+        type: string
+        default: 1
+        description: 'Minimum approvals required to accept the plan'
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -198,6 +203,7 @@ jobs:
         with:
           secret: ${{ github.TOKEN }}
           approvers: ${{ inputs.approvers }}
+          minimum-approvals: ${{ inputs.minimum-approvals }}
           issue-title: "Terraform Plan for Infrastructure Update"
 
       - name: terraform apply
