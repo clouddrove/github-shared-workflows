@@ -1,11 +1,8 @@
 ---
 name: YAML-LINTER
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
+on: [pull_request]
 
 jobs:
   YAML-LINTER:
-    uses: clouddrove/github-shared-workflows/.github/workflows/ymllint.yml@internal_506
+    uses: clouddrove/github-shared-workflows/.github/workflows/ymllint.yml@master
 ...
