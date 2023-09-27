@@ -10,6 +10,22 @@ on:
         required: false
         type: string
         default: './_example/complete/'
+      terraform_version:
+        description: 'Terraform version to use. Leave empty for the latest version.'
+        required: false
+        type: string
+      aws_credentials:
+        description: 'AWS credentials to use.'
+        required: false
+        default: false
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        description: 'aws access keys'
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        description: 'aws secret access keys'
+        required: false
 
 jobs:
   # - Terraform version extract as output.
@@ -50,11 +66,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure AWS credentials
+        if: ${{ inputs.aws_credentials == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
       # - Installing terraform version based on version extract.
-      - name: Install Terraform v${{ matrix.version }}
+      - name: Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: ${{ matrix.version }}
+          terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
 
       # - Terraform checks to Init and Validate terraform code.
       - name: Init & validate v${{ matrix.version }}
@@ -75,10 +99,10 @@ jobs:
         uses: actions/checkout@v4
 
       # - Action added to install terraform
-      - name: Install Terraform v${{ needs.versionExtract.outputs.maxVersion }}
+      - name: Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: ${{ needs.versionExtract.outputs.maxVersion }}
+          terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
 
       # - Running command to check terraform formatting changes.
       - name: Check Terraform format changes

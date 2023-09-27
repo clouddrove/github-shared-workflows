@@ -18,4 +18,9 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
     with:  
         working_directory: './_example/complete/'
+        # terraform_version: 0.12.31 // Specify the Terraform version to use. Uncomment and provide your desired version, or leave it as is to use the latest version.
+        aws_credentials: false // Provide your AWS Credentails ID here if 'aws_credentials' is set to 'true'.
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
 ```
