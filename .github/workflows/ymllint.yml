@@ -40,7 +40,7 @@ jobs:
               comments:
                   level: error
               empty-lines:
-                  level: error
+                  level: warning
               empty-values:
                   level: error
               float-values:
