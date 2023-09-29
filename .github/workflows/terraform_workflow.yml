@@ -69,28 +69,14 @@ on:
       PROJECT_ID:
         required: false
         description: 'GCP Secret access key to install GCP CLI'
-      DIGITALOCEAN_ACCESS_TOKEN:
+      env-vars:
         required: false
-        description: 'Digitalocean access Token to install Digitalocean CLI'
-      SPACES_ACCESS_KEY_ID:
-        required: false
-        description: 'Spaces access key ID for digitalocean if required'
-      SPACES_SECRET_ACCESS_KEY:
-        required: false
-        description: 'Spaces secret access key for digitalocean if required'
-      TF_VAR_access_token:
-        required: false
-        description: 'TF var access token'
+        description: 'Pass required environment variables'
 
 jobs:
   terraform-workflow:
     runs-on: ubuntu-latest
-    env:
-      ARM_SKIP_PROVIDER_REGISTRATION: true
-      DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
-      SPACES_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY_ID }}
-      SPACES_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_ACCESS_KEY }}
-      TF_VAR_access_token: ${{ secrets.TF_VAR_access_token }}
+    env: ${{ fromJSON(secrets.env-vars) }}
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
