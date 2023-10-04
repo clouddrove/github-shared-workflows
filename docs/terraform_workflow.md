@@ -30,7 +30,9 @@ jobs:
         AWS_ACCESS_KEY_ID:  # Specify AWS Access key ID
         AWS_SECRET_ACCESS_KEY: # Specify AWS Secret Access key ID
         AWS_SESSION_TOKEN:  # Specify Session ID
-        env-vars: # Specify env variables. ex. '{"KEY1":"VALUE1", "KEY2":" ${{ secrets.VALUE2 }}"}'
+        env-vars: |         # Specify env variables in following format
+               key1=value1
+               key2=value2
 
 ```
 
@@ -56,7 +58,9 @@ jobs:
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
      secrets:
         AZURE_CREDENTIALS:  # Specify Azure credentilas
-        env-vars: # Specify env variables. ex. '{"KEY1":"VALUE1", "KEY2":" ${{ secrets.VALUE2 }}"}'
+        env-vars: |         # Specify env variables in following format
+               key1=value1
+               key2=value2
 ```
 
 #### Example of a Terraform workflow for a Digitalocean cloud provider
@@ -81,7 +85,9 @@ jobs:
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
      secrets:
       DIGITALOCEAN_ACCESS_TOKEN:       # Digitalocean token
-      env-vars: # Specify env variables. ex. '{"KEY1":"VALUE1", "KEY2":" ${{ secrets.VALUE2 }}"}'
+      env-vars: |                      # Specify env variables in following format
+             key1=value1
+             key2=value2
 ```
 
 #### Example of a Terraform workflow for a GCP cloud provider
@@ -106,5 +112,7 @@ jobs:
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
      secrets:
       GCP_SA_KEY:           # GCP service account Secret access key
-      env-vars: # Specify env variables. ex. '{"KEY1":"VALUE1", "KEY2":" ${{ secrets.VALUE2 }}"}'
+      env-vars: |           # Specify env variables in following format
+             key1=value1
+             key2=value2
 ```
