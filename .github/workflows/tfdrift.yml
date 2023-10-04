@@ -192,7 +192,7 @@ jobs:
                 }
               } else {
                 console.log('Drift Detected: Creating new issue')
-  
+
                 github.rest.issues.create({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -222,7 +222,7 @@ jobs:
 
               if( issues.data.length > 0 ) {
                 const issue = issues.data[0]
- 
+
                 github.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
