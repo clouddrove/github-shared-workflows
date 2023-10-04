@@ -76,13 +76,20 @@ on:
 jobs:
   terraform-workflow:
     runs-on: ubuntu-latest
-    env: ${{ fromJSON(secrets.env-vars) }}
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          (
+          cat <<'_EOT'
+          ${{ secrets.env-vars }}
+          _EOT
+          ) >> "$GITHUB_ENV"
 
       - name: Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
