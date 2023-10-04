@@ -50,8 +50,8 @@ on:
         required: false
         description: 'Terraform cloud token if your backend is terraform cloud.'
       env-vars:
-          required: false
-          description: 'Pass required environment variables'
+        required: false
+        description: 'Pass required environment variables'
 
 jobs:
   terraform-plan:
@@ -160,12 +160,12 @@ jobs:
         env:
           SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
         with:
-            github-token: ${{ secrets.GITHUB }}
-            script: |
+          github-token: ${{ secrets.GITHUB }}
+          script: |
               const body = `${process.env.SUMMARY}`;
               const title = 'Terraform Configuration Drift Detected';
               const creator = 'github-actions[bot]'
-            
+
               // Look to see if there is an existing drift issue
               const issues = await github.rest.issues.listForRepo({
                 owner: context.repo.owner,
@@ -174,11 +174,11 @@ jobs:
                 creator: creator,
                 title: title
               })
-                
+
               if( issues.data.length > 0 ) {
                 // We assume there shouldn't be more than 1 open issue, since we update any issue we find
                 const issue = issues.data[0]
-                
+
                 if ( issue.body == body ) {
                   console.log('Drift Detected: Found matching issue with duplicate content')
                 } else {
@@ -206,11 +206,11 @@ jobs:
         if: steps.tf-plan.outputs.exitcode == 0
         uses: actions/github-script@v6
         with:
-            github-token: ${{ secrets.GITHUB }}
-            script: |
+          github-token: ${{ secrets.GITHUB }}
+          script: |
               const title = 'Terraform Configuration Drift Detected';
               const creator = 'github-actions[bot]'
-            
+
               // Look to see if there is an existing drift issue
               const issues = await github.rest.issues.listForRepo({
                 owner: context.repo.owner,
@@ -219,17 +219,17 @@ jobs:
                 creator: creator,
                 title: title
               })
-                
+
               if( issues.data.length > 0 ) {
                 const issue = issues.data[0]
-                
+ 
                 github.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: issue.number,
                   state: 'closed'
                 })
-              } 
+              }
 
       # Mark the workflow as failed if drift detected
       - name: Error on Failure
