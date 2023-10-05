@@ -146,7 +146,7 @@ jobs:
         id: validate
         uses: dflook/terraform-validate@v1
         with:
-          tf_actions_working_dir: ${{ inputs.working_directory }}
+          path: ${{ inputs.working_directory }}
 
       - name: Terraform Plan
         id: tf-plan
