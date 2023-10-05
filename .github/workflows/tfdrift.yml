@@ -114,19 +114,11 @@ jobs:
       - name: Terraform Plan
         id: tf-plan
         run: |
-          export exitcode=0
           cd ${{ inputs.working_directory }}
           if [ -n "${{ inputs.var_file }}" ]; then
           terraform plan -detailed-exitcode -no-color -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
           else
           terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
-          fi
-          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-          if [ $exitcode -eq 1 ]; then
-            echo Terraform Plan Failed!
-            exit 1
-          else
-            exit 0
           fi
 
       # Save plan to artifacts
