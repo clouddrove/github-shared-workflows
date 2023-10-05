@@ -1,5 +1,5 @@
 ---
-name: "Deploy CloudFormation Stack" 
+name: "Deploy CloudFormation Stack"
 
 on:
   workflow_call:
@@ -17,11 +17,11 @@ on:
         required: false
         default: 'us-east-1'
         type: string
-      stack-name: 
+      stack-name:
         description: 'Stack name defined'
         required: true
         type: string
-      template-path: 
+      template-path:
         description: 'Cloudformation template path add here'
         required: true
         type: string
@@ -29,16 +29,16 @@ on:
         description: ' GitHub organization name'
         required: true
         type: string
-      GitHub-repo-name: 
+      GitHub-repo-name:
         description: ' GitHub repo name'
         required: true
         type: string
-      GitHub-branch: 
+      GitHub-branch:
         description: 'GitHub branch name'
         required: true
         default: 'main'
         type: string
-      code-folder: 
+      code-folder:
         description: 'Code folder where your lambda code stored ex-src(format-.ts/.py)'
         required: false
         default: 'src'
