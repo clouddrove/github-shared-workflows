@@ -49,6 +49,10 @@ on:
       TF_API_TOKEN:
         required: false
         description: 'Terraform cloud token if your backend is terraform cloud.'
+      env-vars:
+        required: false
+        description: 'Pass required environment variables'
+
 jobs:
   terraform-plan:
     name: 'Terraform Plan'
@@ -63,6 +67,14 @@ jobs:
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          (
+          cat <<'_EOT'
+          ${{ secrets.env-vars }}
+          _EOT
+          ) >> "$GITHUB_ENV"
 
       - name: Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
@@ -102,19 +114,11 @@ jobs:
       - name: Terraform Plan
         id: tf-plan
         run: |
-          export exitcode=0
           cd ${{ inputs.working_directory }}
           if [ -n "${{ inputs.var_file }}" ]; then
           terraform plan -detailed-exitcode -no-color -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
           else
           terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
-          fi
-          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-          if [ $exitcode -eq 1 ]; then
-            echo Terraform Plan Failed!
-            exit 1
-          else
-            exit 0
           fi
 
       # Save plan to artifacts
@@ -149,7 +153,7 @@ jobs:
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
       # If changes are detected, create a new issue
-      - name: Publish Drift Report
+      - name: Publish Drift Report and create new issue
         if: steps.tf-plan.outputs.exitcode == 2
         uses: actions/github-script@v6
         env:
@@ -161,7 +165,7 @@ jobs:
               const title = 'Terraform Configuration Drift Detected';
               const creator = 'github-actions[bot]'
 
-              # Look to see if there is an existing drift issue
+              // Look to see if there is an existing drift issue
               const issues = await github.rest.issues.listForRepo({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -169,10 +173,12 @@ jobs:
                 creator: creator,
                 title: title
               })
+
               if( issues.data.length > 0 ) {
                 // We assume there shouldn't be more than 1 open issue, since we update any issue we find
                 const issue = issues.data[0]
-              if ( issue.body == body ) {
+
+                if ( issue.body == body ) {
                   console.log('Drift Detected: Found matching issue with duplicate content')
                 } else {
                   console.log('Drift Detected: Found matching issue, updating body')
@@ -185,6 +191,7 @@ jobs:
                 }
               } else {
                 console.log('Drift Detected: Creating new issue')
+
                 github.rest.issues.create({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
@@ -203,7 +210,7 @@ jobs:
               const title = 'Terraform Configuration Drift Detected';
               const creator = 'github-actions[bot]'
 
-              # Look to see if there is an existing drift issue
+              // Look to see if there is an existing drift issue
               const issues = await github.rest.issues.listForRepo({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -211,8 +218,10 @@ jobs:
                 creator: creator,
                 title: title
               })
-              if( issues.data.length > 0 ){
+
+              if( issues.data.length > 0 ) {
                 const issue = issues.data[0]
+
                 github.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
