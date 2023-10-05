@@ -1,58 +1,58 @@
 ---
-    name: "Deploy CloudFormation Stack" 
-    
-    on:
-      workflow_call:
-        inputs:
-          s3-bucket:
-            description: 'Add bucket name'
-            required: true
-            type: string
-          bucket-prefix:
-            description: 'bucket folder name'
-            required: true
-            type: string
-          aws-region:
-            description: 'AWS REGION'
-            required: false
-            default: 'us-east-1'
-            type: string
-          stack-name: 
-            description: 'Stack name defined'
-            required: true
-            type: string
-          template-path: 
-            description: 'Cloudformation template path add here'
-            required: true
-            type: string
-          organization-name:
-            description: ' GitHub organization name'
-            required: true
-            type: string
-          GitHub-repo-name: 
-            description: ' GitHub repo name'
-            required: true
-            type: string
-          GitHub-branch: 
-            description: 'GitHub branch name'
-            required: true
-            default: 'main'
-            type: string
-          code-folder: 
-            description: 'Code folder where your lambda code stored ex-src(format-.ts/.py)'
-            required: false
-            default: 'src'
-            type: string
-          zip-file-name:
-            description: 'Name of zip file which converted into zip & adding into S3 bucket'
-            required: true
-            default: 'main.zip'
-            type: string
-          parameter-overrides:
-            description: 'The parameters to override in the stack inputs. You can pass a comma-delimited list or a file URL. The comma-delimited list has each entry formatted as <ParameterName>=<ParameterValue> or <ParameterName>="<ParameterValue>,<ParameterValue>".'
-            required: false
-            type: string
-        secrets:
+name: "Deploy CloudFormation Stack" 
+
+on:
+  workflow_call:
+    inputs:
+      s3-bucket:
+        description: 'Add bucket name'
+        required: true
+        type: string
+      bucket-prefix:
+        description: 'bucket folder name'
+        required: true
+        type: string
+      aws-region:
+        description: 'AWS REGION'
+        required: false
+        default: 'us-east-1'
+        type: string
+      stack-name: 
+        description: 'Stack name defined'
+        required: true
+        type: string
+      template-path: 
+        description: 'Cloudformation template path add here'
+        required: true
+        type: string
+      organization-name:
+        description: ' GitHub organization name'
+        required: true
+        type: string
+      GitHub-repo-name: 
+        description: ' GitHub repo name'
+        required: true
+        type: string
+      GitHub-branch: 
+        description: 'GitHub branch name'
+        required: true
+        default: 'main'
+        type: string
+      code-folder: 
+        description: 'Code folder where your lambda code stored ex-src(format-.ts/.py)'
+        required: false
+        default: 'src'
+        type: string
+      zip-file-name:
+        description: 'Name of zip file which converted into zip & adding into S3 bucket'
+        required: true
+        default: 'main.zip'
+        type: string
+      parameter-overrides:
+        description: 'The parameters to override in the stack inputs. You can pass a comma-delimited list or a file URL. The comma-delimited list has each entry formatted as <ParameterName>=<ParameterValue> or <ParameterName>="<ParameterValue>,<ParameterValue>".'
+        required: false
+        type: string
+    secrets:
           AWS_ACCESS_KEY_ID:
             required: false
             description: 'AWS Access Key ID to install AWS CLI.'
@@ -69,43 +69,43 @@
             required: false
             description: 'GitHub token'
 
-    jobs:
-      deploy-cf-stack:
-        runs-on: ubuntu-latest
+jobs:
+  deploy-cf-stack:
+    runs-on: ubuntu-latest
 
-        steps:
-          - name: Checkout code from master branch
-            uses: actions/checkout@v2
+    steps:
+      - name: Checkout code from master branch
+        uses: actions/checkout@v2
 
-          - name: Checkout code from another Repo
-            uses: actions/checkout@v4
-            with:
-              repository: ${{ inputs.organization-name }}/${{ inputs.GitHub-repo-name }}
-              ref: ${{ inputs.GitHub-branch }}
-              token: ${{ secrets.GITHUB }}
-              path: ${{ inputs.GitHub-repo-name }}
+      - name: Checkout code from another Repo
+        uses: actions/checkout@v4
+        with:
+            repository: ${{ inputs.organization-name }}/${{ inputs.GitHub-repo-name }}
+            ref: ${{ inputs.GitHub-branch }}
+            token: ${{ secrets.GITHUB }}
+            path: ${{ inputs.GitHub-repo-name }}
 
-          - name: Configure AWS Credentials
-            uses: aws-actions/configure-aws-credentials@v4
-            with:
-              aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
-              aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-              aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-              aws-region: ${{ inputs.aws-region }}
-              role-to-assume: ${{ inputs.ROLE-TO-ASSUME }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+            aws-region: ${{ inputs.aws-region }}
+            role-to-assume: ${{ inputs.ROLE-TO-ASSUME }}
 
-          - name: Src folder code convert into zip and upload to S3
+      - name: Src folder code convert into zip and upload to S3
+        run: |
+            cd ${{ inputs.GitHub-repo-name }}/${{ inputs.code-folder }}
+            find . -maxdepth 1 -type f -exec zip  ${{inputs.zip-file-name}} {} +
             run: |
-              cd ${{ inputs.GitHub-repo-name }}/${{ inputs.code-folder }}
-              find . -maxdepth 1 -type f -exec zip  ${{inputs.zip-file-name}} {} +
-              run: |
-                aws s3 cp  ${{inputs.zip-file-name}} s3://${{ inputs.s3-bucket }}/${{ inputs.bucket-prefix }}/
+            aws s3 cp  ${{inputs.zip-file-name}} s3://${{ inputs.s3-bucket }}/${{ inputs.bucket-prefix }}/
 
-          - name: Deploy cloudformation stack using template
-            uses: aws-actions/aws-cloudformation-github-deploy@v1
-            with:
-              name: ${{ inputs.stack-name }}
-              template: ${{ inputs.template-path }}
-              no-fail-on-empty-changeset: "1"
-              parameter-overrides: ${{ inputs.parameter-overrides}}
+      - name: Deploy cloudformation stack using template
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+            name: ${{ inputs.stack-name }}
+            template: ${{ inputs.template-path }}
+            no-fail-on-empty-changeset: "1"
+            parameter-overrides: ${{ inputs.parameter-overrides}}
 ...
