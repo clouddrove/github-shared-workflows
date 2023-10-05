@@ -104,8 +104,8 @@ jobs:
       - name: Deploy cloudformation stack using template
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-           name: ${{ inputs.stack-name }}
-           template: ${{ inputs.template-path }}
-           no-fail-on-empty-changeset: "1"
-           parameter-overrides: ${{ inputs.parameter-overrides}}
+          name: ${{ inputs.stack-name }}
+          template: ${{ inputs.template-path }}
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: ${{ inputs.parameter-overrides}}
 ...
