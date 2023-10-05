@@ -80,19 +80,19 @@ jobs:
       - name: Checkout code from another Repo
         uses: actions/checkout@v4
         with:
-            repository: ${{ inputs.organization-name }}/${{ inputs.GitHub-repo-name }}
-            ref: ${{ inputs.GitHub-branch }}
-            token: ${{ secrets.GITHUB }}
-            path: ${{ inputs.GitHub-repo-name }}
+          repository: ${{ inputs.organization-name }}/${{ inputs.GitHub-repo-name }}
+          ref: ${{ inputs.GitHub-branch }}
+          token: ${{ secrets.GITHUB }}
+          path: ${{ inputs.GitHub-repo-name }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-            aws-region: ${{ inputs.aws-region }}
-            role-to-assume: ${{ inputs.ROLE-TO-ASSUME }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ inputs.aws-region }}
+          role-to-assume: ${{ inputs.ROLE-TO-ASSUME }}
 
       - name: Src folder code convert into zip and upload to S3
         run: |
@@ -104,8 +104,8 @@ jobs:
       - name: Deploy cloudformation stack using template
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-            name: ${{ inputs.stack-name }}
-            template: ${{ inputs.template-path }}
-            no-fail-on-empty-changeset: "1"
-            parameter-overrides: ${{ inputs.parameter-overrides}}
+           name: ${{ inputs.stack-name }}
+           template: ${{ inputs.template-path }}
+           no-fail-on-empty-changeset: "1"
+           parameter-overrides: ${{ inputs.parameter-overrides}}
 ...
