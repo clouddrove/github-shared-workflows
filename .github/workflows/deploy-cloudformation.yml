@@ -53,21 +53,21 @@ on:
         required: false
         type: string
     secrets:
-          AWS_ACCESS_KEY_ID:
-            required: false
-            description: 'AWS Access Key ID to install AWS CLI.'
-          AWS_SECRET_ACCESS_KEY:
-            required: false
-            description: 'AWS Secret access key to install AWS CLI'
-          AWS_SESSION_TOKEN:
-            required: false
-            description: 'AWS Session Token to install AWS CLI'
-          ROLE-TO-ASSUME:
-            required: false
-            description: 'AWS Role ARN defined'
-          GITHUB:
-            required: false
-            description: 'GitHub token'
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
+      ROLE-TO-ASSUME:
+        required: false
+        description: 'AWS Role ARN defined'
+      GITHUB:
+        required: false
+        description: 'GitHub token'
 
 jobs:
   deploy-cf-stack:
