@@ -75,7 +75,7 @@ jobs:
 
     steps:
       - name: Checkout code from master branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Checkout code from another Repo
         uses: actions/checkout@v4

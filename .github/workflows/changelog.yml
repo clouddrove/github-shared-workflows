@@ -43,7 +43,7 @@ jobs:
           token: '${{ secrets.GITHUB }}'
 
       - name: Commit CHANGELOG.md
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           branch: ${{ inputs.branch}}
           commit_user_name: clouddrove-ci  #  defaults to "github-actions[bot]"
