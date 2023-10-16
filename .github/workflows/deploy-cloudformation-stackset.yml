@@ -174,7 +174,7 @@ jobs:
                 --parameter-overrides ${{ inputs.parameter-overrides }} \
                 --accounts ${{ inputs.account-ids }} \
                 --regions ${{ inputs.stackset-instance-region }} \
-                --operation-preferences FailureToleranceCount=1,MaxConcurrentCount=2           
+                --operation-preferences FailureToleranceCount=1,MaxConcurrentCount=2
             else
               echo "StackSet-instance, updating..."
               aws cloudformation update-stack-instances \
