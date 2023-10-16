@@ -1,4 +1,5 @@
-name: Cloudformation stack-set & stack-set-instances             
+---
+name: Cloudformation stack-set & stack-set-instances
 on:
   workflow_call:
     inputs:
@@ -75,7 +76,7 @@ jobs:
     steps:
       - name: Checkout code from master branch
         uses: actions/checkout@v4
-      
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -149,7 +150,6 @@ jobs:
       - name: Create or Update StackSet-instance
         run: |
           stack_instance_list=$(aws cloudformation list-stack-instances --region ${{ inputs.stackset-instance-region }} --stack-set-name ${{ inputs.stack-set-name }})
-      
           if [ "${{ inputs.permission-model }}" == "SERVICE_MANAGED" ]; then
             if [[ "$stack_instance_list" == *'"Summaries": []'* ]]; then
               echo "StackSet-instance, creating..."
@@ -174,7 +174,7 @@ jobs:
                 --parameter-overrides ${{ inputs.parameter-overrides }} \
                 --accounts ${{ inputs.account-ids }} \
                 --regions ${{ inputs.stackset-instance-region }} \
-                --operation-preferences FailureToleranceCount=1,MaxConcurrentCount=2                
+                --operation-preferences FailureToleranceCount=1,MaxConcurrentCount=2           
             else
               echo "StackSet-instance, updating..."
               aws cloudformation update-stack-instances \
@@ -182,6 +182,7 @@ jobs:
                 --parameter-overrides ${{ inputs.parameter-overrides }} \
                 --accounts ${{ inputs.account-ids }} \
                 --regions ${{ inputs.stackset-instance-region }} \
-                --operation-preferences MaxConcurrentPercentage=1        
+                --operation-preferences MaxConcurrentPercentage=1
             fi
           fi
+...
