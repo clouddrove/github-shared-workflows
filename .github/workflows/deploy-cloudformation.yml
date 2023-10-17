@@ -52,6 +52,12 @@ on:
         description: 'The parameters to override in the stack inputs. You can pass a comma-delimited list or a file URL. The comma-delimited list has each entry formatted as <ParameterName>=<ParameterValue> or <ParameterName>="<ParameterValue>,<ParameterValue>".'
         required: false
         type: string
+      capabilities:
+        description: "The comma-delimited list of stack template capabilities to acknowledge. Defaults to 'CAPABILITY_IAM'"
+        required: false
+        default: "CAPABILITY_IAM"
+        type: string
+
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
