@@ -67,3 +67,4 @@ jobs:
           only-fixed: false
           write-comment: true
           github-token: ${{ secrets.TOKEN }}
+...
