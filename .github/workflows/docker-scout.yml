@@ -4,13 +4,15 @@ on:
   workflow_call:
     inputs:
       images:
+        description: 'Dockerhub repository name'
         required: true
         type: string
       IMAGE_TAG:
-        required: true
+        description: 'Image tag for latest docker image'
         type: string
         default: latest
       COMPARE_TAG:
+        description: 'provide the tag of the image you like to compare with'
         required: true
         type: string
     secrets:
