@@ -9,6 +9,7 @@ on:
       IMAGE_TAG:
         required: true
         type: string
+        default: latest
       COMPARE_TAG:
         required: true
         type: string
