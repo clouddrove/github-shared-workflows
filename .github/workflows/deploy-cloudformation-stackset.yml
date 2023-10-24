@@ -112,7 +112,7 @@ jobs:
                 --parameters ${{ inputs.parameter-overrides }} \
                 --capabilities CAPABILITY_NAMED_IAM \
                 --permission-model ${{ inputs.permission-model }} \
-                o--auto-deployment Enabled=${{ inputs.auto-deployment-enabled }},RetainStacksOnAccountRemoval=${{ inputs.RetainStacksOnAccountRemoval }}
+                --auto-deployment Enabled=${{ inputs.auto-deployment-enabled }},RetainStacksOnAccountRemoval=${{ inputs.RetainStacksOnAccountRemoval }}
               else
                 exit $RC
               fi
