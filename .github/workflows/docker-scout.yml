@@ -3,7 +3,7 @@ name: docker-scout
 on:
   workflow_call:
     inputs:
-      images:
+      IMAGES:
         description: 'Dockerhub repository name'
         required: true
         type: string
@@ -14,6 +14,23 @@ on:
       COMPARE_TAG:
         description: 'provide the tag of the image you like to compare with'
         required: true
+        type: string
+      # Filter flags
+      IGNORE-BASE:
+        description: 'Ignore vulnerabilities from base image'
+        default: false
+        type: string
+      IGNORE-UNCHANGED:
+        description: 'Filter out unchanged packages'
+        default: true
+        type: string
+      ONLY-FIXED:
+        description: 'Filter to fixable CVEs'
+        default: false
+        type: string
+      WRITE-COMMENT:
+        description: 'Write the output as a Pull Request comment'
+        default: true
         type: string
     secrets:
       DOCKERHUB_USERNAME:
@@ -49,7 +66,7 @@ jobs:
       - name: Build docker image
         env:
           IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
-          images: ${{ inputs.images }}
+          images: ${{ inputs.IMAGES }}
         run: |
           docker build -t $images:$IMAGE_TAG .
           # docker push $images:$IMAGE_TAG
@@ -60,11 +77,11 @@ jobs:
         with:
           command: cves,recommendations,compare
           to-latest: false
-          to: ${{ inputs.images }}:${{ inputs.COMPARE_TAG }}
-          image: ${{ inputs.images }}:${{ inputs.IMAGE_TAG }}
-          ignore-base: false
-          ignore-unchanged: true
-          only-fixed: false
-          write-comment: true
+          to: ${{ inputs.IMAGES }}:${{ inputs.COMPARE_TAG }}
+          image: ${{ inputs.IMAGES }}:${{ inputs.IMAGE_TAG }}
+          ignore-base: ${{ inputs.IGNORE-BASE }}
+          ignore-unchanged: ${{ inputs.IGNORE-BASE }}
+          only-fixed: ${{ inputs.ONLY-FIXED }}
+          write-comment: ${{ inputs.WRITE-COMMENT }}
           github-token: ${{ secrets.TOKEN }}
 ...
