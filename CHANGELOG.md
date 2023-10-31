@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2023-10-31
+### :sparkles: New Features
+- [`c92588b`](https://github.com/clouddrove/github-shared-workflows/commit/c92588b84705dc33fa5527e4a11145a1861b60c9) - Added attribute for passing environment variables as a input *(commit by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+- [`f85bc2f`](https://github.com/clouddrove/github-shared-workflows/commit/f85bc2f34ec51b8eff2a6bae14d73f0048628d7f) - added uses of env-var secret in readme *(commit by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+- [`6b14cb1`](https://github.com/clouddrove/github-shared-workflows/commit/6b14cb1fdc33f10fb1ba0efa744e1f04ca25d0c9) - 🚀 Added a feature to pass environment variables in Terraform workflows and TFDrift workflows. *(PR [#89](https://github.com/clouddrove/github-shared-workflows/pull/89) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+- [`8bc1e51`](https://github.com/clouddrove/github-shared-workflows/commit/8bc1e51e4a7f204c8b1ccce62309c4f13858940b) - :rocket: Created cloudformation workflow and its readme *(PR [#90](https://github.com/clouddrove/github-shared-workflows/pull/90) by [@Tanveer143s](https://github.com/Tanveer143s))*
+- [`68b5370`](https://github.com/clouddrove/github-shared-workflows/commit/68b53701e992da467f627906f9c992bafc2ee986) - 🚀 Docker scout reusable workflow *(PR [#96](https://github.com/clouddrove/github-shared-workflows/pull/96) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+- [`9e9106e`](https://github.com/clouddrove/github-shared-workflows/commit/9e9106e93b06b3813b619bda628085c33ab34e30) - :rocket: Created cloudformation-stackset workflow and readme *(PR [#95](https://github.com/clouddrove/github-shared-workflows/pull/95) by [@Tanveer143s](https://github.com/Tanveer143s))*
+- [`c73c8b5`](https://github.com/clouddrove/github-shared-workflows/commit/c73c8b5394b9dc2da6a05adb31dd017d5a8443d5) - updated instance region for list command *(PR [#98](https://github.com/clouddrove/github-shared-workflows/pull/98) by [@Tanveer143s](https://github.com/Tanveer143s))*
+
+### :construction_worker: Build System
+- [`c608cdc`](https://github.com/clouddrove/github-shared-workflows/commit/c608cdc6ea0e5bbc4d88d65239f22d242c4a8daa) - **deps**: bump aws-actions/configure-aws-credentials from 3 to 4 *(PR [#87](https://github.com/clouddrove/github-shared-workflows/pull/87) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`51d21c1`](https://github.com/clouddrove/github-shared-workflows/commit/51d21c170e1badd8c0a21456675df32b19e01b59) - **deps**: bump terraform-linters/setup-tflint from 3 to 4 *(PR [#86](https://github.com/clouddrove/github-shared-workflows/pull/86) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`5a5757d`](https://github.com/clouddrove/github-shared-workflows/commit/5a5757d8c9a4a730425592d476b2817a80322cbd) - **deps**: bump actions/checkout from 2 to 4 *(PR [#91](https://github.com/clouddrove/github-shared-workflows/pull/91) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`eba9f0c`](https://github.com/clouddrove/github-shared-workflows/commit/eba9f0c4867969a3f774a8ee971d142f7b3ea555) - **deps**: bump stefanzweifel/git-auto-commit-action from 4 to 5 *(PR [#92](https://github.com/clouddrove/github-shared-workflows/pull/92) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`0f82da9`](https://github.com/clouddrove/github-shared-workflows/commit/0f82da9b6d5ebc24a7405a85871dcfe4276322a3) - **deps**: bump aws-actions/amazon-ecr-login from 1 to 2 *(PR [#93](https://github.com/clouddrove/github-shared-workflows/pull/93) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`1c231ea`](https://github.com/clouddrove/github-shared-workflows/commit/1c231ea7cd61f58d77fef4ba3af6efa22ff6f71d) - **deps**: bump clouddrove/github-actions from 9.0.2 to 9.0.3 *(PR [#94](https://github.com/clouddrove/github-shared-workflows/pull/94) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`ba5eb58`](https://github.com/clouddrove/github-shared-workflows/commit/ba5eb5826dfd40be99fcf8780b1c2736912d1bbc) - **deps**: bump docker/setup-buildx-action from 2.5.0 to 3.0.0 *(PR [#97](https://github.com/clouddrove/github-shared-workflows/pull/97) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`38907f6`](https://github.com/clouddrove/github-shared-workflows/commit/38907f61aef1517478572b947db4980e5c8845a0) - update CHANGELOG.md for 1.0.6 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.0.6] - 2023-09-27
 ### :sparkles: New Features
 - [`bb25820`](https://github.com/clouddrove/github-shared-workflows/commit/bb2582034586acc7e2e5838e9e16e53ff79143d4) - Added workflow for cloudformation linter and security scan *(PR [#83](https://github.com/clouddrove/github-shared-workflows/pull/83) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
@@ -25,3 +48,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [1.0.5]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.4...1.0.5
 [1.0.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.5...1.0.6
+[1.0.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.6...1.0.7
