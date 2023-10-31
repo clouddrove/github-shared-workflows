@@ -149,7 +149,7 @@ jobs:
 
       - name: Create or Update StackSet-instance
         run: |
-          stack_instance_list=$(aws cloudformation list-stack-instances --region ${{ inputs.stackset-instance-region }} --stack-set-name ${{ inputs.stack-set-name }})
+          stack_instance_list=$(aws cloudformation list-stack-instances --region ${{ inputs.aws-region }} --stack-set-name ${{ inputs.stack-set-name }})
           if [ "${{ inputs.permission-model }}" == "SERVICE_MANAGED" ]; then
             if [[ "$stack_instance_list" == *'"Summaries": []'* ]]; then
               echo "StackSet-instance, creating..."
