@@ -7,8 +7,11 @@ This workflow is used to generate readme for TErraform modules using GitHub Acti
 name: readme workflow
 on:
   push:
+    branches:
+      - master
     paths-ignore:
       - 'README.md'
+  workflow_dispatch:
 jobs:
   assignee:
     uses: clouddrove/github-shared-workflows/.github/workflows/readme.yml@master
