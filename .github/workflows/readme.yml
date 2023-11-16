@@ -6,9 +6,9 @@ on:
       TOKEN:
         required: true
         description: 'GitHub Token.'
-      SLACK_WEBHOOK_TERRAFORM:
-        required: true
-        description: 'Slack webhook url.'
+      # SLACK_WEBHOOK_TERRAFORM:
+      #   required: true
+      #   description: 'Slack webhook url.'
 
 jobs:
   readme-workflow:
@@ -54,14 +54,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN}}
 
-      - name: 'Slack Notification'
-        uses: clouddrove/action-slack@v2
-        with:
-          status: ${{ job.status }}
-          fields: repo,author
-          author_name: 'CloudDrove'
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_TERRAFORM }}
-        if: always()
+      # - name: 'Slack Notification'
+      #   uses: clouddrove/action-slack@v2
+      #   with:
+      #     status: ${{ job.status }}
+      #     fields: repo,author
+      #     author_name: 'CloudDrove'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_TERRAFORM }}
+      #   if: always()
 ...
