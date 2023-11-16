@@ -2,7 +2,7 @@
 
 This workflow is used to generate readme for TErraform modules using GitHub Actions. It utilizes the workflows defined in `.github/workflows/readme.yml`
 
-#### Example of a Terraform workflow for a Azure cloud provider
+#### Example of a readme workflow
 ```yaml
 name: readme workflow
 on:
