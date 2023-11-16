@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] - 2023-11-16
+### :sparkles: New Features
+- [`4ba1097`](https://github.com/clouddrove/github-shared-workflows/commit/4ba109727fcc302269347fe7f4c5c0f74bd5a77a) - Created shared workflow for readme generator *(PR [#100](https://github.com/clouddrove/github-shared-workflows/pull/100) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+
+### :construction_worker: Build System
+- [`5d41248`](https://github.com/clouddrove/github-shared-workflows/commit/5d412489a03faa352d25c344e0ea6c28a8f54c4e) - **deps**: bump hashicorp/setup-terraform from 2 to 3 *(PR [#99](https://github.com/clouddrove/github-shared-workflows/pull/99) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`0ae9661`](https://github.com/clouddrove/github-shared-workflows/commit/0ae966131a4c1a0daf689e4f790adb9c5fa13fcd) - update CHANGELOG.md for 1.0.7 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.0.7] - 2023-10-31
 ### :sparkles: New Features
 - [`c92588b`](https://github.com/clouddrove/github-shared-workflows/commit/c92588b84705dc33fa5527e4a11145a1861b60c9) - Added attribute for passing environment variables as a input *(commit by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
@@ -49,3 +60,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.0.5]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.4...1.0.5
 [1.0.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.5...1.0.6
 [1.0.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.6...1.0.7
+[1.0.8]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.7...1.0.8
