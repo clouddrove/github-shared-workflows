@@ -63,12 +63,9 @@ on:
       AWS_SESSION_TOKEN:
         required: false
         description: 'AWS Session Token to install AWS CLI'
-      GCP_SA_KEY:
+      GCP_CREDENTIALS:
         required: false
-        description: 'GCP service account Secret access key to install GCP CLI'
-      PROJECT_ID:
-        required: false
-        description: 'GCP Secret access key to install GCP CLI'
+        description: 'The Google Cloud JSON service account key to use for authentication'
       env-vars:
         required: false
         description: 'Pass required environment variables'
@@ -109,13 +106,11 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Install GCP CLI
+      - name: 'Authenticate to Google Cloud'
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/auth@v1
+        uses: 'google-github-actions/auth@v1'
         with:
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          project_id: ${{ secrets.PROJECT_ID }}
-          region: ${{ inputs.gcp_region }}
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       - name: Install doctl
         if: ${{ inputs.provider == 'digitalocean' }}

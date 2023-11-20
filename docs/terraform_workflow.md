@@ -111,7 +111,7 @@ jobs:
         terraform_version:  # Specify terraform version e.g 1.3.6
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
      secrets:
-      GCP_SA_KEY:           # GCP service account Secret access key
+      GCP_CREDENTIALS:      # The Google Cloud JSON service account key to use for authentication
       env-vars: |           # Specify env variables in following format
              key1=value1
              key2=value2
