@@ -26,6 +26,10 @@ on:
       AWS_SECRET_ACCESS_KEY:
         description: 'aws secret access keys'
         required: false
+      GCP_CREDENTIALS:
+        description: 'The Google Cloud JSON service account key to use for authentication'
+        required: false
+
 
 jobs:
   # - Terraform version extract as output.
@@ -73,6 +77,12 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
+
+      - name: 'Authenticate to Google Cloud'
+        if: ${{ inputs.gcp_credentials == 'true' }}
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       # - Installing terraform version based on version extract.
       - name: Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
