@@ -19,6 +19,11 @@ on:
         required: false
         default: false
         type: string
+      gcp_credentials:
+        description: 'GCP credentials to use.'
+        required: false
+        default: false
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         description: 'aws access keys'
