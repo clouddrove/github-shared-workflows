@@ -1,0 +1,35 @@
+name: Dependabot auto-approve
+on:
+  workflow_call:
+    inputs:
+      PR_URL:
+        description: 'URL of Pull Request. e.g. ${{github.event.pull_request.html_url}}'
+        required: true
+        type: string
+    secrets:
+      GITHUB:
+        description: 'Your GitHub token for authentication.'
+        required: true
+jobs:
+  dependabot:
+    permissions:
+      contents: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: "${{ secrets.GITHUB }}"
+      - name: Approve a PR
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ inputs.PR_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB }}
+      - name: Enable auto-merge for Dependabot PRs
+        # if: contains(steps.metadata.outputs.dependency-names, 'my-dependency') && steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ inputs.PR_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB }}
