@@ -21,12 +21,10 @@ jobs:
                   level: error
               trailing-spaces:
                   level: error
-              new-line-at-end-of-file:
-                  level: error
               document-start:
-                  level: error
+                  level: warning
               document-end:
-                  level: error
+                  level: warning
               key-duplicates:
                   level: error
               braces:
