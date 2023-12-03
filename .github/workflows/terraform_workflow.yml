@@ -108,7 +108,7 @@ jobs:
 
       - name: 'Authenticate to Google Cloud'
         if: ${{ inputs.provider == 'gcp' }}
-        uses: 'google-github-actions/auth@v1'
+        uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
