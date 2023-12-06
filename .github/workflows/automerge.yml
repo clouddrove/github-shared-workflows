@@ -10,7 +10,7 @@ on:
       GITHUB:
         description: 'GitHub Token'
         required: false
-      GITHUB_TOKEN:
+      CI_GITHUB_TOKEN:
         description: 'GitHub Token'
         required: false
 jobs:
