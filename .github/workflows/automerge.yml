@@ -1,0 +1,62 @@
+name: automerge
+on:
+  workflow_call:
+    inputs:
+      tfcheck:
+        description: 'Enter the tfcheck action name.'
+        required: false
+        type: string
+    secrets:
+      GITHUB:
+        description: 'GitHub Token'
+        required: false
+jobs:
+  static-checks:
+    name: Check the status of static checks 
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tf-checks: ["tf-lint / tflint", "tfsec / tfsec sarif report", "${{ inputs.tfcheck }}"]
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Wait for "${{ matrix.tf-checks }}" to succeed
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: ${{ matrix.tf-checks }}
+          repo-token: ${{ secrets.GITHUB }}
+          wait-interval: 30
+
+  autoapprove:
+    name: Auto Approve a PR by dependabot
+    needs: static-checks
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Approve a PR for Github Bot
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Approve a PR for Anmol nagpal
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB}}
+
+  automerge:
+    runs-on: ubuntu-latest
+    needs: autoapprove
+    steps:
+      - id: automerge
+        name: automerge
+        uses: pascalgn/automerge-action@v0.15.6
+        if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB }}
+          MERGE_FILTER_AUTHOR: 'dependabot[bot]'
+          MERGE_METHOD: "merge"
+          MERGE_DELETE_BRANCH: "true"
+          MERGE_LABELS: "dependencies"
+          MERGE_REQUIRED_APPROVALS: ""
