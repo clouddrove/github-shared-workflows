@@ -10,9 +10,9 @@ on:
       GITHUB:
         description: 'GitHub Token'
         required: false
-      CI_GITHUB_TOKEN:
-        description: 'GitHub Token'
-        required: false
+permissions:
+  contents: write
+  pull-requests: write      
 jobs:
   static-checks:
     name: Check the status of static checks 
@@ -31,6 +31,9 @@ jobs:
           wait-interval: 30
 
   autoapprove:
+    permissions:
+      contents: write
+      pull-requests: write  
     name: Auto Approve a PR by dependabot
     needs: static-checks
     runs-on: ubuntu-latest
@@ -40,7 +43,7 @@ jobs:
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: Approve a PR for Anmol nagpal
         run: gh pr review --approve "$PR_URL"
