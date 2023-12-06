@@ -10,6 +10,9 @@ on:
       GITHUB:
         description: 'GitHub Token'
         required: false
+      GITHUB_TOKEN:
+        description: 'GitHub Token'
+        required: false
 jobs:
   static-checks:
     name: Check the status of static checks 
