@@ -19,12 +19,10 @@ jobs:
   static-checks:
     name: Check the status of static checks 
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         tf-checks: ["tf-lint / tflint", "tfsec / tfsec sarif report", "${{ inputs.tfcheck }}"]
     if: github.actor == 'dependabot[bot]'
-
     steps:
       - name: Wait for "${{ matrix.tf-checks }}" to succeed
         uses: lewagon/wait-on-check-action@v1.3.1
@@ -43,7 +41,6 @@ jobs:
     needs: static-checks
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
-
     steps:
       - name: Approve a PR for Github Bot
         run: gh pr review --approve "$PR_URL"
@@ -71,4 +68,4 @@ jobs:
           MERGE_METHOD: "merge"
           MERGE_DELETE_BRANCH: "true"
           MERGE_LABELS: "dependencies"
-          MERGE_REQUIRED_APPROVALS: ""
+          MERGE_REQUIRED_APPROVALS: ''
