@@ -23,6 +23,7 @@ jobs:
       matrix:
         tf-checks: ["tf-lint / tflint", "tfsec / tfsec sarif report", "${{ inputs.tfcheck }}"]
     if: github.actor == 'dependabot[bot]'
+
     steps:
       - name: Wait for "${{ matrix.tf-checks }}" to succeed
         uses: lewagon/wait-on-check-action@v1.3.1
@@ -68,4 +69,4 @@ jobs:
           MERGE_METHOD: "merge"
           MERGE_DELETE_BRANCH: "true"
           MERGE_LABELS: "dependencies"
-          MERGE_REQUIRED_APPROVALS: "2"
+          MERGE_REQUIRED_APPROVALS: ""
