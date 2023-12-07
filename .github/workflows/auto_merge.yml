@@ -42,6 +42,7 @@ jobs:
     needs: static-checks
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
+
     steps:
       - name: Approve a PR for Github Bot
         run: gh pr review --approve "$PR_URL"
