@@ -15,7 +15,7 @@ on:
 
 jobs:
   static-checks:
-    name: Check the status of static checks 
+    name: Check the status of static checks
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -33,7 +33,7 @@ jobs:
   autoapprove:
     permissions:
       contents: write
-      pull-requests: write  
+      pull-requests: write
     name: Auto Approve a PR by dependabot
     needs: static-checks
     runs-on: ubuntu-latest
