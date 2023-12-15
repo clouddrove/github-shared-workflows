@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2023-12-15
+### :sparkles: New Features
+- [`163865b`](https://github.com/clouddrove/github-shared-workflows/commit/163865be402b05d5e4a683de1373165c294fa868) - Updated GCP Authentication step with required attributes *(PR [#102](https://github.com/clouddrove/github-shared-workflows/pull/102) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+- [`05ebccf`](https://github.com/clouddrove/github-shared-workflows/commit/05ebccf87b941a366432b9580118cef261c21d27) - Added GCP authentication step for tf-checks *(PR [#103](https://github.com/clouddrove/github-shared-workflows/pull/103) by [@Tanveer143s](https://github.com/Tanveer143s))*
+- [`1ef2195`](https://github.com/clouddrove/github-shared-workflows/commit/1ef2195c5247d3f207e30fff2d33f39e1075eec6) - Add auto-approve and merge shared workflow. *(PR [#107](https://github.com/clouddrove/github-shared-workflows/pull/107) by [@vaibhav7797](https://github.com/vaibhav7797))*
+
+### :construction_worker: Build System
+- [`6f7c6fc`](https://github.com/clouddrove/github-shared-workflows/commit/6f7c6fc4d3d935cc44a84c5d6f15dc601cc4a767) - **deps**: bump actions/github-script from 6 to 7 *(PR [#101](https://github.com/clouddrove/github-shared-workflows/pull/101) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`7933c1b`](https://github.com/clouddrove/github-shared-workflows/commit/7933c1b806bdba266a8278da53bcbfc51974c8b4) - update CHANGELOG.md for 1.0.8 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.0.8] - 2023-11-16
 ### :sparkles: New Features
 - [`4ba1097`](https://github.com/clouddrove/github-shared-workflows/commit/4ba109727fcc302269347fe7f4c5c0f74bd5a77a) - Created shared workflow for readme generator *(PR [#100](https://github.com/clouddrove/github-shared-workflows/pull/100) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
@@ -61,3 +74,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.0.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.5...1.0.6
 [1.0.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.6...1.0.7
 [1.0.8]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.7...1.0.8
+[1.0.9]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.8...1.0.9
