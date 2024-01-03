@@ -34,6 +34,7 @@ jobs:
         with:
           # Path to SARIF file relative to the root of the repository
           sarif_file: tfsec.sarif
+        continue-on-error: true
 
       - name: tfsec commenter for PR
         uses: tfsec/tfsec-pr-commenter-action@v1.3.1
