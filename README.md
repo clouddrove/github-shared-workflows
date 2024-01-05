@@ -1,4 +1,4 @@
-<p align="center"> <img src="https://camo.githubusercontent.com/a47ec6a3814b0a78105e9b1130cea653cbf319913f4d321f7512a60c3a4c1df0/68747470733a2f2f63646e2e73766172756e2e6465762f67682f616374696f6e732d736d616c6c2e706e67" width="100" height="100"></p>
+<p align="center"> <img src="https://p1.hiclipart.com/preview/844/510/361/github-head-software-repository-email-decimal-separator-cron-delimiter-workflow-syntax-error-png-clipart.jpg" width="100" height="100"></p>
 
 <h1 align="center">GitHub Shared Workflows</h1>
 
