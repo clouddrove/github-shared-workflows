@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2024-01-12
+### :sparkles: New Features
+- [`550af26`](https://github.com/clouddrove/github-shared-workflows/commit/550af26dda0a1f163f5201f7ebc3d06a2b03bbf6) - updated wait for the checks *(PR [#117](https://github.com/clouddrove/github-shared-workflows/pull/117) by [@themaniskshah](https://github.com/themaniskshah))*
+
+### :memo: Documentation Changes
+- [`3efbfd8`](https://github.com/clouddrove/github-shared-workflows/commit/3efbfd86089a6f3560a3fa9e5f35d110021f13a8) - update CHANGELOG.md for 1.2.0 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.2.0] - 2024-01-12
 ### :sparkles: New Features
 - [`077e955`](https://github.com/clouddrove/github-shared-workflows/commit/077e95534ef3390bb5ac2e84ed01bc28da40445d) - tfcheck dependency update with versionEvaluate *(PR [#115](https://github.com/clouddrove/github-shared-workflows/pull/115) by [@themaniskshah](https://github.com/themaniskshah))*
@@ -99,3 +107,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.0.9]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.8...1.0.9
 [1.0.10]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.9...1.0.10
 [1.2.0]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.10...1.2.0
+[1.2.1]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.0...1.2.1
