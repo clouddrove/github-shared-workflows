@@ -34,7 +34,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    name: Auto Approve a PR by dependabot
+    name: Auto Approve PRs by Dependabot
     needs: static-checks
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
