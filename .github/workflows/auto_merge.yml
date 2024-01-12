@@ -22,6 +22,10 @@ jobs:
         tf-checks: ["tf-lint / tflint", "tfsec / tfsec sarif report", "${{ inputs.tfcheck }}"]
     if: github.actor == 'dependabot[bot]'
     steps:
+      - name: Wait for 2 Minutes
+        run: sleep 120s
+        shell: bash
+
       - name: Wait for "${{ matrix.tf-checks }}" to Succeed
         uses: lewagon/wait-on-check-action@v1.3.3
         with:
