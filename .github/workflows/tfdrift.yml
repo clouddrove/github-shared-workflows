@@ -96,7 +96,7 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      # Authenticate to GCP   
+      # Authenticate to GCP
       - name: 'Authenticate to Google Cloud'
         if: ${{ inputs.gcp_credentials == 'true' }}
         uses: 'google-github-actions/auth@v2'
