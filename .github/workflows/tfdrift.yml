@@ -26,7 +26,7 @@ on:
       terraform_version:
         type: string
         default: 1.3.6
-        description: 'Required erraform version '
+        description: 'Required erraform version'
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -43,6 +43,9 @@ on:
       build_role:
         required: false
         description: 'AWS OIDC role for aws authentication'
+      GCP_CREDENTIALS:
+        description: 'The Google Cloud JSON service account key to use for authentication'
+        required: false
       GITHUB:
         required: true
         description: 'PAT of the user to run the jobs.'
@@ -87,6 +90,13 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
           role-duration-seconds: 900
           role-skip-session-tagging: true
+
+      # Authenticate to GCP
+      - name: 'Authenticate to Google Cloud'
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       # Install azure-cli
       - name: Install Azure CLI
