@@ -15,14 +15,18 @@ on:
 
 jobs:
   static-checks:
-    name: Check the status of static checks
+    name: Check Static Analysis
     runs-on: ubuntu-latest
     strategy:
       matrix:
         tf-checks: ["tf-lint / tflint", "tfsec / tfsec sarif report", "${{ inputs.tfcheck }}"]
     if: github.actor == 'dependabot[bot]'
     steps:
-      - name: Wait for "${{ matrix.tf-checks }}" to succeed
+      - name: Wait for 2 Minutes
+        run: sleep 120s
+        shell: bash
+
+      - name: Wait for "${{ matrix.tf-checks }}" to Succeed
         uses: lewagon/wait-on-check-action@v1.3.3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
@@ -34,18 +38,18 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    name: Auto Approve a PR by dependabot
+    name: Auto Approve PRs by Dependabot
     needs: static-checks
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]'
     steps:
-      - name: Approve a PR for Github Bot
+      - name: Approve PR via GitHub Bot
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Approve a PR for Anmol nagpal
+      - name: Approve PR via Anmol Nagpal
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
@@ -55,8 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: autoapprove
     steps:
-      - id: automerge
-        name: automerge
+      - name: Automerge
         uses: pascalgn/automerge-action@v0.15.6
         if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
         env:
