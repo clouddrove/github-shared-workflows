@@ -2,14 +2,6 @@
 name: AWS SSM Send-Command
 on:
   workflow_call:
-    inputs:
-        description: 'This action helps you to execute remote bash command for AWS EC2 instance without SSH or other accessing.'
-        required: false
-        type: string
-    secrets:
-      GITHUB:
-        description: 'GitHub Token'
-        required: false
 
 jobs:
   start:
