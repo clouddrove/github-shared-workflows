@@ -1,0 +1,38 @@
+---
+name: AWS SSM Send-Command
+on:
+  workflow_call:
+    inputs:
+        description: 'This action helps you to execute remote bash command for AWS EC2 instance without SSH or other accessing.'
+        required: false
+        type: string
+    secrets:
+      GITHUB:
+        description: 'GitHub Token'
+        required: false
+
+jobs:
+  start:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: AWS SSM Send-Command
+        uses: peterkimzz/aws-ssm-send-command@v1.1.1
+        id: ssm
+        with:
+          aws-region: eu-west-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          instance-ids: ${{ secrets.INSTANCE_ID }}
+          comment: aws-ssm-send-command testing
+          working-directory: /home/ubuntu/
+          command: |
+            sudo apt update
+            sudo apt install -y nodejs npm
+            git clone https://github.com/rat9615/simple-nodejs-app
+            cd simple-nodejs-app
+            npm install
+            npm start &
+...
