@@ -1,4 +1,3 @@
----
 name: AWS SSM Send-Command
 on:
   workflow_call:
@@ -27,4 +26,3 @@ jobs:
             cd simple-nodejs-app
             npm install
             npm start &
-...
