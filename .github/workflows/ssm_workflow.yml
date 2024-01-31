@@ -1,6 +1,21 @@
 name: AWS SSM Send-Command
 on:
   workflow_call:
+    inputs:
+      COMMAND:
+        description: 'This action helps you to execute remote bash command for AWS EC2 instance without SSH or other accessing.'
+        required: false
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      INSTANCE_ID:
+        required: false
+        description: 'To get the instance ID of a running instance'
 
 jobs:
   start:
@@ -19,10 +34,4 @@ jobs:
           instance-ids: ${{ secrets.INSTANCE_ID }}
           comment: aws-ssm-send-command testing
           working-directory: /home/ubuntu/
-          command: |
-            sudo apt update
-            sudo apt install -y nodejs npm
-            git clone https://github.com/rat9615/simple-nodejs-app
-            cd simple-nodejs-app
-            npm install
-            npm start &
+          command: ${{ inputs.COMMAND }}
