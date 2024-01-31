@@ -1,3 +1,4 @@
+---
 name: AWS SSM Send-Command
 on:
   workflow_call:
@@ -35,3 +36,4 @@ jobs:
           comment: aws-ssm-send-command testing
           working-directory: /home/ubuntu/
           command: ${{ inputs.COMMAND }}
+...
