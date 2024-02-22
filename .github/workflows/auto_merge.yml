@@ -33,6 +33,7 @@ jobs:
           check-name: ${{ matrix.tf-checks }}
           repo-token: ${{ secrets.GITHUB }}
           wait-interval: 30
+          allowed-conclusions: success
 
   autoapprove:
     permissions:
