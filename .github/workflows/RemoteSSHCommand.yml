@@ -66,8 +66,8 @@ on:
       slack-notification:
         description: "sending a brief message to a designated Slack channel."
         default: false
-        type: string    
-    secrets:    
+        type: string  
+    secrets:
       PRIVATE_SSH_KEY:
         description: "Private SSH Key for secure communication with the server."
         required: true
@@ -84,7 +84,7 @@ jobs:
   ssh-action:
     runs-on: ubuntu-latest
 
-    steps:   
+    steps:
       - name: Checkout git repo
         uses: actions/checkout@v4
       - name: executing remote ssh commands using ssh key
@@ -94,4 +94,5 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           port: ${{ inputs.port }}
-          envs: ${{ inputs.envs }} 
+          envs: ${{ inputs.envs }}
+---          
