@@ -61,12 +61,14 @@ Above example is just a simple example to call workflow from github shared workf
    * [Example for terraform checks with digitalocean cloud](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform-checks.md#example-for-terraform-checks-with-digitalocean-cloud)
 6. [Terraform Lint Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform-lint.md)
 7. [Terraform Checks Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform-checks.md)
-7. [Checkov Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/checkov.md)
-8. [Terraform Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform_workflow.md)
-9. [Infracost workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/infracost.md)
-10. [ Deploy Cloudformation Stack workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/deploy-cloudformation.md)
-11. [ Deploy Cloudformation Stackset workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/deploy-cloudformation-stackset.md)
-12. [ Readme Generation workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/readme.md)
+8. [Checkov Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/checkov.md)
+9. [Terraform Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform_workflow.md)
+10. [Infracost workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/infracost.md)
+11. [ Deploy Cloudformation Stack workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/deploy-cloudformation.md)
+12. [ Deploy Cloudformation Stackset workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/deploy-cloudformation-stackset.md)
+13. [ Readme Generation workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/readme.md)
+14. [ AWS SSM Send Command workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/AWSSSMSendCommand.md)
+15. [ Remote SSH Command workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/RemoteSSHCommand.md)
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
