@@ -40,7 +40,7 @@ on:
         type: string
         default: false
       request_pty:
-        description: "Request a pseudo-terminal from the server."  
+        description: "Request a pseudo-terminal from the server."
         type: string
         default: false
       SLACK_USERNAME:
@@ -69,18 +69,18 @@ on:
         type: string
         
     secrets:    
-         PRIVATE_SSH_KEY:
-           description: "Private SSH Key for secure communication with the server."
-           required: true
-         HOST:
-           description: "Public IP address of the server for remote access."
-           required: true
-         USERNAME: 
-           description: "Username for authentication on the remote system or service."
-           required: true
-         SLACK_WEBHOOK_URL:
-           description: Specify Slack Incoming Webhook URL
-           required: false  
+      PRIVATE_SSH_KEY:
+        description: "Private SSH Key for secure communication with the server."
+        required: true
+      HOST:
+        description: "Public IP address of the server for remote access."
+        required: true
+      USERNAME: 
+        description: "Username for authentication on the remote system or service."
+        required: true
+      SLACK_WEBHOOK_URL:
+        description: Specify Slack Incoming Webhook URL
+        required: false  
 
 
 jobs:
