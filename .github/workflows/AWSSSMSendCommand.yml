@@ -13,11 +13,11 @@ on:
         type: string
       slack_username:
         description: "It is the name displayed to others in Message on Slack channel"
-        required: true
+        required: false
         type: string
       slack_footer:
         description: "Additional information or context often placed at the bottom of a message in Slack"
-        required: true
+        required: false
         type: string
       slack_icon:
         description: "The visual representation associated with a user or a group on Slack"
@@ -26,10 +26,12 @@ on:
       slack_message:
         description: "The content or information you want to share on Slack, which is a messaging platform."
         required: false
+        default: ${{ job.status }}
         type: string
       slack_color:
         description: "The visual styling applied to elements within a message or interface on Slack."
         required: false
+        default: ${{ job.status }}
         type: string
       slack-notification:
         description: "Sending a brief message to a designated Slack channel."
@@ -75,10 +77,10 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_MESSAGE: ${{ job.status }}
+          SLACK_MESSAGE: ${{ inputs.slack_message }}
           SLACK_ICON: ${{ inputs.slack_icon }}
           SLACK_USERNAME: ${{ inputs.slack_username }}
           SLACK_FOOTER: ${{ inputs.slack_footer }}
-          SLACK_COLOR: ${{ job.status }}
+          SLACK_COLOR: ${{ inputs.slack_color }}
           slack-notification: ${{ inputs.slack-notification }}
 ...
