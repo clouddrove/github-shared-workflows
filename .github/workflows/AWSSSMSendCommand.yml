@@ -36,21 +36,21 @@ on:
         default: false
         type: string
 secrets:
-      AWS_REGION:
-        required: true
-        description: "Specify the AWS region where the EC2 instance is located"
-      AWS_ACCESS_KEY_ID:
-        required: true
-        description: "Provide the AWS access key ID for authentication"
-      AWS_SECRET_ACCESS_KEY:
-        required: true
-        description: "Provide the AWS secret access key for authentication"
-      INSTANCE_ID:
-        required: true
-        description: "Specify the AWS EC2 instance ID or IDs"
-      SLACK_WEBHOOK_URL:
-        required: false
-        description: "Specify Slack Incoming Webhook URL"
+  AWS_REGION:
+    required: true
+    description: "Specify the AWS region where the EC2 instance is located"
+  AWS_ACCESS_KEY_ID:
+    required: true
+    description: "Provide the AWS access key ID for authentication"
+  AWS_SECRET_ACCESS_KEY:
+    required: true
+    description: "Provide the AWS secret access key for authentication"
+  INSTANCE_ID:
+    required: true
+    description: "Specify the AWS EC2 instance ID or IDs"
+  SLACK_WEBHOOK_URL:
+    required: false
+    description: "Specify Slack Incoming Webhook URL"
 jobs:
   ssm-send-commands:
     runs-on: ubuntu-latest
@@ -81,4 +81,4 @@ jobs:
           SLACK_FOOTER: ${{ inputs.slack_footer }}
           SLACK_COLOR: ${{ job.status }}
           slack-notification: ${{ inputs.slack-notification }}
----  
+---
