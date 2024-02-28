@@ -66,7 +66,7 @@ on:
       slack-notification:
         description: "sending a brief message to a designated Slack channel."
         default: false
-        type: string  
+        type: string
     secrets:
       PRIVATE_SSH_KEY:
         description: "Private SSH Key for secure communication with the server."
@@ -95,4 +95,4 @@ jobs:
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           port: ${{ inputs.port }}
           envs: ${{ inputs.envs }}
----          
+          ---
