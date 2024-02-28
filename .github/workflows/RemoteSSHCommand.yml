@@ -108,7 +108,4 @@ jobs:
           SLACK_FOOTER: ${{ inputs.slack_footer }}
           SLACK_COLOR: ${{ job.status }}
           slack-notification: ${{ inputs.slack-notification }}
-
-
-
 ...
