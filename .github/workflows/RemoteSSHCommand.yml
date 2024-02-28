@@ -87,6 +87,7 @@ jobs:
     steps:
       - name: Checkout git repo
         uses: actions/checkout@v4
+        
       - name: executing remote ssh commands using ssh key
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -95,4 +96,19 @@ jobs:
           key: ${{ secrets.PRIVATE_SSH_KEY }}
           port: ${{ inputs.port }}
           envs: ${{ inputs.envs }}
+
+      - name: slack notification
+        if: ${{ inputs.slack-notification == 'true' && always() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: ${{ job.status }}
+          SLACK_ICON: ${{ inputs.slack_icon }}
+          SLACK_USERNAME: ${{ inputs.slack_username }}
+          SLACK_FOOTER: ${{ inputs.slack_footer }}
+          SLACK_COLOR: ${{ job.status }}
+          slack-notification: ${{ inputs.slack-notification }}
+
+
+
 ...
