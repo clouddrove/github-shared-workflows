@@ -13,9 +13,9 @@ on:
         default: ./Dockerfile
         description: dockerfile path
       security-upload:
-       description: "Enable image scan report upload to GitHub Security tab."
-       default: false
-       type: string  
+        default: false
+        type: string
+        description: "Enable image scan report upload to GitHub Security tab."
 
 jobs:
   build-image:
@@ -66,4 +66,4 @@ jobs:
           format: table
           exit-code: 1
           severity: ${{ inputs.severity}}
-...
+---
