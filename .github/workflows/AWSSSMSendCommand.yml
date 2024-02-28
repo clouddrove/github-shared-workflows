@@ -26,12 +26,10 @@ on:
       slack_message:
         description: "The content or information you want to share on Slack, which is a messaging platform."
         required: false
-        default: ${{ job.status }}
         type: string
       slack_color:
         description: "The visual styling applied to elements within a message or interface on Slack."
         required: false
-        default: ${{ job.status }}
         type: string
       slack-notification:
         description: "Sending a brief message to a designated Slack channel."
@@ -81,6 +79,6 @@ jobs:
           SLACK_ICON: ${{ inputs.slack_icon }}
           SLACK_USERNAME: ${{ inputs.slack_username }}
           SLACK_FOOTER: ${{ inputs.slack_footer }}
-          SLACK_COLOR: ${{ inputs.slack_color }}
+          SLACK_COLOR: ${{ job.status }}
           slack-notification: ${{ inputs.slack-notification }}
 ...
