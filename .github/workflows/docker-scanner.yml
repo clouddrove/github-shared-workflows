@@ -66,4 +66,4 @@ jobs:
           format: table
           exit-code: 1
           severity: ${{ inputs.severity}}
-          ---
+...
