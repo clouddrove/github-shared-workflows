@@ -31,7 +31,6 @@ on:
       envs:
         description: "Specify environment variables to be passed to the remote shell script."
         type: string
-      
       debug:
         description: "Enable debug mode for additional logging."
         type: string
