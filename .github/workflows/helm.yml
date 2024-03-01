@@ -36,28 +36,36 @@ on:
         required: true
         type: string
         description: 'Timeout for helm install step in seconds'
-        default: '120s'
-      set-parameters:
-        required: false
-        type: string
-        description: 'Overriding the default values'
       values-file-path:
-        required: true
+        required: false
         type: string
         description: 'Values file path from helm chart directory'
       history-max:
         required: true
         type: number
         description: 'number of revisions stored in the revision history.'
-        default: 7
       namespace:
         required: false
         type: string
         description: 'Boundary for Kubernetes resources'
       rollback:
         required: false
-        type: string
-        description: 'Environment name for rollback'
+        type: boolean
+        description: 'Environment name for rollback'                   
+      revision:
+        required: false
+        type: number
+        description: 'If this argument is omitted or set to 0, it will roll back to the previous release.'
+      uninstall:
+        required: false
+        type: boolean
+        default: false
+        description: 'Set true to uninstall helmchart'
+      role-duration-seconds:
+        required: false
+        type: number
+        default: 900
+        description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour.'
     secrets:
       AWS_ACCESS_KEY_ID:
         description: 'AWS Access Key ID'
@@ -74,6 +82,9 @@ on:
       AZURE_CREDENTIALS:
         description: 'Azure Credentilas'
         required: false
+      set-parameters:
+        required: false
+        description: 'Overriding the default values using --set flag'        
 jobs:
   helm-action:
     runs-on: ubuntu-latest
@@ -91,7 +102,7 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: 900
+          role-duration-seconds: ${{ inputs.role-duration-seconds }}
           role-skip-session-tagging: true
 
       - name: Install Azure CLI
@@ -105,32 +116,38 @@ jobs:
           if [ "${{ inputs.provider }}" = "azure" ]; then
             az aks get-credentials --resource-group ${{ inputs.resource-group }} --name ${{ inputs.azure-cluster-name }}
           else
-            aws eks --region ${{ inputs.aws-region }} update-kubeconfig --name ${{ inputs.eks-cluster-name }}
+            aws eks update-kubeconfig --name ${{ inputs.eks-cluster-name }} --region ${{ inputs.aws_region }}
           fi
 
       - name: helm lint
-        if: ${{ inputs.rollback != 'rollback' }}
+        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
-          helm lint ${{ inputs.helm-chart-directory }}
+          helm lint ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
       - name: helm template
-        if: ${{ inputs.rollback != 'rollback' }}
+        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
-          helm template ${{ inputs.helm-chart-directory }}
+          helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
       - name: helm install and upgrade2
-        if: ${{ inputs.rollback != 'rollback' }}
+        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
-          if [ -n "${{ inputs.set-parameters }}" ]; then
-            helm upgrade --install --atomic --create-namespace --wait --history-max ${{ inputs.history-max }} --debug \
-              ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} ${{ inputs.set-parameters }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
+          if [ -n "${{ secrets.set-parameters }}" ]; then
+            helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace ${{ secrets.set-parameters }} \
+              --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
           else
-            helm upgrade --install --atomic --create-namespace --wait --history-max ${{ inputs.history-max }} --debug \
-              ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
+            helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace \
+              --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
           fi
 
       - name: Rollback Helm Release
-        if: ${{ inputs.rollback == 'rollback' }}
+        if: ${{ inputs.rollback == true && inputs.uninstall != true }}
         run: |
-          helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }}
+          export HISTORY_COUNT=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | head -2 | tail -1 | awk '{print $1}')
+          helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} ${{ inputs.revision }} --debug || ( echo "Valid revision values can be greater than or equal to $HISTORY_COUNT" && exit 1 )
+
+      - name: Uninstall Helm Release
+        if: ${{ inputs.uninstall == true }}
+        run: |
+          helm uninstall ${{ inputs.release-name }} -n ${{ inputs.namespace }}
 ...
