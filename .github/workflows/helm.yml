@@ -51,7 +51,7 @@ on:
       rollback:
         required: false
         type: boolean
-        description: 'Environment name for rollback'                   
+        description: 'Environment name for rollback'
       revision:
         required: false
         type: number
@@ -84,7 +84,7 @@ on:
         required: false
       set-parameters:
         required: false
-        description: 'Overriding the default values using --set flag'        
+        description: 'Overriding the default values using --set flag'
 jobs:
   helm-action:
     runs-on: ubuntu-latest
