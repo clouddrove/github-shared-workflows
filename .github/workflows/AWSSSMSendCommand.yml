@@ -1,0 +1,84 @@
+---
+name: "run remote bash commands without ssh"
+on:
+  workflow_call:
+    inputs:
+      command:
+        required: false
+        description: "Specify the Bash command to be executed"
+        type: string
+      working-directory:
+        required: false
+        description: "Specify the location for command execution"
+        type: string
+      slack_username:
+        description: "It is the name displayed to others in Message on Slack channel"
+        required: false
+        type: string
+      slack_footer:
+        description: "Additional information or context often placed at the bottom of a message in Slack"
+        required: false
+        type: string
+      slack_icon:
+        description: "The visual representation associated with a user or a group on Slack"
+        required: false
+        type: string
+      slack_message:
+        description: "The content or information you want to share on Slack, which is a messaging platform."
+        required: false
+        type: string
+      slack_color:
+        description: "The visual styling applied to elements within a message or interface on Slack."
+        required: false
+        type: string
+      slack-notification:
+        description: "Sending a brief message to a designated Slack channel."
+        default: false
+        type: string
+    secrets:
+      AWS_REGION:
+        required: true
+        description: "Specify the AWS region where the EC2 instance is located"
+      AWS_ACCESS_KEY_ID:
+        required: true
+        description: "Provide the AWS access key ID for authentication"
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+        description: "Provide the AWS secret access key for authentication"
+      INSTANCE_ID:
+        required: true
+        description: "Specify the AWS EC2 instance ID or IDs"
+      SLACK_WEBHOOK_URL:
+        required: false
+        description: "Specify Slack Incoming Webhook URL"
+jobs:
+  ssm-send-commands:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Execute Remote Command via AWS SSM
+        uses: peterkimzz/aws-ssm-send-command@master
+        id: ssm
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          instance-ids: ${{ secrets.INSTANCE_ID }}
+          working-directory: ${{ inputs.working-directory }}
+          command: |-
+            ${{ inputs.command }}
+
+      - name: Slack notification
+        if: ${{ inputs.slack-notification == 'true' && always() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: ${{ inputs.slack_message }}
+          SLACK_ICON: ${{ inputs.slack_icon }}
+          SLACK_USERNAME: ${{ inputs.slack_username }}
+          SLACK_FOOTER: ${{ inputs.slack_footer }}
+          SLACK_COLOR: ${{ job.status }}
+          slack-notification: ${{ inputs.slack-notification }}
+...

@@ -7,6 +7,15 @@ on:
       severity:
         required: true
         type: string
+      dockerfile-path:
+        required: false
+        type: string
+        default: ./Dockerfile
+        description: dockerfile path
+      security-upload:
+        default: false
+        type: string
+        description: "Enable image scan report upload to GitHub Security tab."
 
 jobs:
   build-image:
@@ -32,6 +41,7 @@ jobs:
           load: true  #  Export to Docker Engine rather than pushing to a registry
           tags: ${{ github.sha }}
           platforms: linux/amd64
+          file: ${{inputs.dockerfile-path}}
 
       - name: Docker Scan with trivy (non-blocking)
         uses: aquasecurity/trivy-action@master
@@ -44,6 +54,7 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy scan results to GitHub Security tab
+        if: ${{ inputs.security-upload == 'true' }}
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
