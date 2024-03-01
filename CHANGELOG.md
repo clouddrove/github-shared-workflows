@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2024-02-26
+### :sparkles: New Features
+- [`41d870f`](https://github.com/clouddrove/github-shared-workflows/commit/41d870f2b89f1824b5f07d4e9749ffdc5f3334da) - :rocket:  Added GCP authentication steps in tfdrift *(PR [#120](https://github.com/clouddrove/github-shared-workflows/pull/120) by [@Tanveer143s](https://github.com/Tanveer143s))*
+
+### :construction_worker: Build System
+- [`72442df`](https://github.com/clouddrove/github-shared-workflows/commit/72442df07331aaf52929159d61d9448afd3581fb) - **deps**: bump pascalgn/automerge-action from 0.15.6 to 0.16.2 *(PR [#118](https://github.com/clouddrove/github-shared-workflows/pull/118) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`3b39944`](https://github.com/clouddrove/github-shared-workflows/commit/3b399445fffe4c03ef6ba406933894ba6d822a46) - **deps**: bump actions/cache from 3 to 4 *(PR [#119](https://github.com/clouddrove/github-shared-workflows/pull/119) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`8f8260d`](https://github.com/clouddrove/github-shared-workflows/commit/8f8260dff087e4595f566806e9ca591f2393e581) - **deps**: bump actions/upload-artifact from 3 to 4 *(PR [#110](https://github.com/clouddrove/github-shared-workflows/pull/110) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`f61c4c5`](https://github.com/clouddrove/github-shared-workflows/commit/f61c4c5ad1e40a03f1a55014c1182d8b8e1aca8d) - **deps**: bump pre-commit/action from 3.0.0 to 3.0.1 *(PR [#125](https://github.com/clouddrove/github-shared-workflows/pull/125) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`4f36a5f`](https://github.com/clouddrove/github-shared-workflows/commit/4f36a5f6044291274b3845fbf12413dd4f7d5d44) - update CHANGELOG.md for 1.2.1 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.2.1] - 2024-01-12
 ### :sparkles: New Features
 - [`550af26`](https://github.com/clouddrove/github-shared-workflows/commit/550af26dda0a1f163f5201f7ebc3d06a2b03bbf6) - updated wait for the checks *(PR [#117](https://github.com/clouddrove/github-shared-workflows/pull/117) by [@themaniskshah](https://github.com/themaniskshah))*
@@ -108,3 +122,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.0.10]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.9...1.0.10
 [1.2.0]: https://github.com/clouddrove/github-shared-workflows/compare/1.0.10...1.2.0
 [1.2.1]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.0...1.2.1
+[1.2.2]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.1...1.2.2
