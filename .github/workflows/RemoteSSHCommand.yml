@@ -1,0 +1,111 @@
+---
+name: "remote ssh command"
+on:
+  workflow_call:
+    inputs:
+      port:
+        description: "Specify the SSH port number for the remote connection."
+        type: string
+        default: "22"
+      sync:
+        description: "Enable synchronous execution when dealing with multiple hosts."
+        type: string
+        required: false
+      timeout:
+        description: "Timeout duration for establishing an SSH connection to the host."
+        type: string
+        default: "30s"
+        required: false
+      command_timeout:
+        description: "Timeout duration for executing SSH commands."
+        type: string
+        default: "10m"
+        required: false
+      script:
+        description: "Specify the commands to be executed on the remote host."
+        required: false
+        type: string
+      script_stop:
+        description: "Stop the script after the first failure."
+        type: string
+        default: false
+      envs:
+        description: "Specify environment variables to be passed to the remote shell script."
+        type: string
+      debug:
+        description: "Enable debug mode for additional logging."
+        type: string
+        default: false
+      request_pty:
+        description: "Request a pseudo-terminal from the server."
+        type: string
+        default: false
+      slack_username:
+        description: "It is the name displayed to others in Message on Slack channel"
+        required: false
+        type: string
+      slack_footer:
+        description: "Additional information or context often placed at the bottom of a message in Slack"
+        required: false
+        type: string
+      slack_icon:
+        description: "The visual representation associated with a user or a group on Slack"
+        required: false
+        type: string
+      slack_message:
+        description: "The content or information you want to share on Slack, which is a messaging platform."
+        required: false
+        type: string
+      slack_color:
+        description: "The visual styling applied to elements within a message or interface on Slack."
+        required: false
+        type: string
+      slack-notification:
+        description: "sending a brief message to a designated Slack channel."
+        default: false
+        type: string
+    secrets:
+      PRIVATE_SSH_KEY:
+        description: "Private SSH Key for secure communication with the server."
+        required: true
+      HOST:
+        description: "Public IP address of the server for remote access."
+        required: true
+      USERNAME:
+        description: "Username for authentication on the remote system or service."
+        required: true
+      SLACK_WEBHOOK_URL:
+        description: Specify Slack Incoming Webhook URL
+        required: false
+jobs:
+  ssh-action:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout git repo
+        uses: actions/checkout@v4
+
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.PRIVATE_SSH_KEY }}
+          port: ${{ inputs.port }}
+          envs: ${{ inputs.envs }}
+          request_pty: ${{ inputs.request_pty }}
+          script: |
+            ${{ inputs.script }}
+
+      - name: slack notification
+        if: ${{ inputs.slack-notification == 'true' && always() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_MESSAGE: ${{ inputs.slack_message }}
+          SLACK_ICON: ${{ inputs.slack_icon }}
+          SLACK_USERNAME: ${{ inputs.slack_username }}
+          SLACK_FOOTER: ${{ inputs.slack_footer }}
+          SLACK_COLOR: ${{ job.status }}
+          slack-notification: ${{ inputs.slack-notification }}
+...
