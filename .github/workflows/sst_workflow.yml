@@ -140,7 +140,7 @@ jobs:
 
       - name: Cleanup preview env deployment
         if: ${{ ( github.event.action == 'labeled' && github.event.label.name == 'destroy' && inputs.preview == 'true' ) || (github.event.action == 'closed' && inputs.preview == 'true' || github.event.pull_request.merged == true && inputs.preview == 'true' ) }}
-        uses: strumwolf/delete-deployment-environment@v2.3.0
+        uses: strumwolf/delete-deployment-environment@v3.0.0
         with:
           token: ${{ secrets.token }}
           environment: ${{ github.head_ref }}
