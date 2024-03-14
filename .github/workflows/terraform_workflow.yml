@@ -10,7 +10,6 @@ on:
       provider:
         required: true
         type: string
-        default: aws
         description: 'Cloud provider to run the workflow. e.g. azurerm, aws, gcp or digitalocean'
       aws_region:
         required: false
@@ -26,9 +25,10 @@ on:
         type: string
         description: 'Terraform var file directory. e.g. vars/dev.tfvars'
       destroy:
-        type: string
+        required: false
+        type: boolean
         default: false
-        description: 'you want to destroy infra or not'
+        description: 'Set true to to destroy terraform infrastructure.'
       approvers:
         required: false
         type: string
@@ -66,6 +66,9 @@ on:
       GCP_CREDENTIALS:
         required: false
         description: 'The Google Cloud JSON service account key to use for authentication'
+      DIGITALOCEAN_ACCESS_TOKEN:
+        required: false
+        description: 'The DigitalOcean Personal Access Token for Application & API'
       env-vars:
         required: false
         description: 'Pass required environment variables'
@@ -124,7 +127,7 @@ jobs:
           terraform_version: ${{ inputs.terraform_version }}
 
       - name: 'Terraform Format'
-        if: ${{ inputs.destroy != 'true' }}
+        if: ${{ inputs.destroy != true }}
         id: fmt
         uses: 'dflook/terraform-fmt-check@v1'
         with:
@@ -137,7 +140,7 @@ jobs:
            terraform init
 
       - name: 'Terraform validate'
-        if: ${{ inputs.destroy != 'true' }}
+        if: ${{ inputs.destroy != true }}
         id: validate
         uses: dflook/terraform-validate@v1
         with:
@@ -148,7 +151,7 @@ jobs:
         run: |
           export exitcode=0
           cd ${{ inputs.working_directory }}
-          if [ "${{ inputs.destroy }}" = "true" ]; then
+          if [ "${{ inputs.destroy }}" = true ]; then
             if [ -n "${{ inputs.var_file }}" ]; then
               terraform plan -destroy -out tfplan --var-file=${{ inputs.var_file }}
             else
@@ -194,7 +197,7 @@ jobs:
           issue-title: "Terraform Plan for Infrastructure Update"
 
       - name: terraform apply
-        if: ${{ inputs.destroy != 'true' }}
+        if: ${{ inputs.destroy != true }}
         run: |
           if [ -n "${{ inputs.var_file }}" ]; then
            cd ${{ inputs.working_directory }}
@@ -205,7 +208,7 @@ jobs:
           fi
 
       - name: Terraform destroy
-        if: ${{ inputs.destroy == 'true' }}
+        if: ${{ inputs.destroy == true }}
         id: destroy
         run: |
           if [ -n "${{ inputs.var_file }}" ]; then
