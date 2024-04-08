@@ -6,7 +6,7 @@ on:
       working_directory:
         required: true
         type: string
-        default: _example
+        default: examples
         description: 'Root directory of the terraform where all resources exist.'
       provider:
         required: true
