@@ -9,7 +9,7 @@ on:
         description: 'Directory where a complete example exists for the module.'
         required: false
         type: string
-        default: './_example/complete/'
+        default: './examples/complete/'
       terraform_version:
         description: 'Terraform version to use. Leave empty for the latest version.'
         required: false

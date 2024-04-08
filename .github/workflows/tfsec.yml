@@ -7,7 +7,7 @@ on:
         description: 'Directory where main.tf exist of the module.'
         required: false
         type: string
-        default: './_example/'
+        default: './examples/'
     secrets:
       GITHUB:
         required: true
