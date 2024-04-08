@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.4] - 2024-04-08
+### :memo: Documentation Changes
+- [`096ac8b`](https://github.com/clouddrove/github-shared-workflows/commit/096ac8b994db65423c1f1a7b804a547618495a76) - update CHANGELOG.md for 1.2.3 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.2.3] - 2024-04-08
 ### :bug: Bug Fixes
 - [`ae37686`](https://github.com/clouddrove/github-shared-workflows/commit/ae3768657333fbb850f5521b31cf9018e7ce4963) - terraform destroy data-type and helm --set flag to pass secrets and multiple values. *(PR [#128](https://github.com/clouddrove/github-shared-workflows/pull/128) by [@h1manshu98](https://github.com/h1manshu98))*
@@ -132,3 +137,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.1]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.0...1.2.1
 [1.2.2]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.1...1.2.2
 [1.2.3]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.2...1.2.3
+[1.2.4]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.3...1.2.4
