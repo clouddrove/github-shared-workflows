@@ -28,7 +28,7 @@ jobs:
           tflint_version: v0.44.1
           github_token: ${{ secrets.GITHUB }}
 
-      - uses: terraform-linters/tflint-load-config-action@v1
+      - uses: terraform-linters/tflint-load-config-action@v2
         name: Setup tflint-config
         with:
           source-repo: clouddrove/github-shared-workflows
