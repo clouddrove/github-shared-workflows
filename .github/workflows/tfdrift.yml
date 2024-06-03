@@ -40,7 +40,7 @@ on:
       project_id:
         required: false
         type: string
-        description: 'ID of the default project to use for future API calls and invocations.'  
+        description: 'ID of the default project to use for future API calls and invocations.'
     secrets:
       AZURE_CREDENTIALS:
         required: false
