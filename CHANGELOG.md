@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.5] - 2024-06-03
+### :sparkles: New Features
+- [`b59f733`](https://github.com/clouddrove/github-shared-workflows/commit/b59f73329b4d274c889e715f86aa3b0d3421d285) - updated gcp auth input & secrets *(PR [#137](https://github.com/clouddrove/github-shared-workflows/pull/137) by [@Tanveer143s](https://github.com/Tanveer143s))*
+
+### :construction_worker: Build System
+- [`aa75189`](https://github.com/clouddrove/github-shared-workflows/commit/aa7518996aa125916a5bedc6f44dd4a9e118aad6) - **deps**: bump terraform-linters/tflint-load-config-action from 1 to 2 *(PR [#131](https://github.com/clouddrove/github-shared-workflows/pull/131) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`2da23ba`](https://github.com/clouddrove/github-shared-workflows/commit/2da23bae2189267e26c3edf4bf308163e0d9d103) - **deps**: bump azure/login from 1 to 2 *(PR [#133](https://github.com/clouddrove/github-shared-workflows/pull/133) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`be07dc2`](https://github.com/clouddrove/github-shared-workflows/commit/be07dc245d39e1967f830837ae432eb7b0cc4e91) - **deps**: bump docker/setup-buildx-action from 3.0.0 to 3.3.0 *(PR [#132](https://github.com/clouddrove/github-shared-workflows/pull/132) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`ed0b770`](https://github.com/clouddrove/github-shared-workflows/commit/ed0b77039450a7367365becdc8d1fb7a723120da) - **deps**: bump infracost/actions from 2.1.0 to 3.0.0 *(PR [#134](https://github.com/clouddrove/github-shared-workflows/pull/134) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`e4b7dbc`](https://github.com/clouddrove/github-shared-workflows/commit/e4b7dbcca0ef168913639f8258b877f6c537bc1e) - **deps**: bump pascalgn/automerge-action from 0.16.2 to 0.16.3 *(PR [#135](https://github.com/clouddrove/github-shared-workflows/pull/135) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`ec6886f`](https://github.com/clouddrove/github-shared-workflows/commit/ec6886f859c35806208a7c49b36b2247198d54ea) - **deps**: bump lewagon/wait-on-check-action from 1.3.3 to 1.3.4 *(PR [#136](https://github.com/clouddrove/github-shared-workflows/pull/136) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`709a5a9`](https://github.com/clouddrove/github-shared-workflows/commit/709a5a94d365ecf876897a37f8d966339ac555f8) - update CHANGELOG.md for 1.2.4 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.2.4] - 2024-04-08
 ### :memo: Documentation Changes
 - [`096ac8b`](https://github.com/clouddrove/github-shared-workflows/commit/096ac8b994db65423c1f1a7b804a547618495a76) - update CHANGELOG.md for 1.2.3 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
@@ -138,3 +154,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.2]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.1...1.2.2
 [1.2.3]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.2...1.2.3
 [1.2.4]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.3...1.2.4
+[1.2.5]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.4...1.2.5
