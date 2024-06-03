@@ -47,6 +47,20 @@ on:
         type: string
         default: 1
         description: 'Minimum approvals required to accept the plan'
+      token_format:
+        required: false
+        type: string
+        default: access_token
+        description: 'Output format for the generated authentication token. For OAuth 2.0 access tokens, specify "access_token". For OIDC tokens, specify "id_token". To skip token generation, leave this value empty'
+      access_token_lifetime:
+        required: false
+        type: string
+        default: 300s
+        description: 'Desired lifetime duration of the access token, in seconds'
+      project_id:
+        required: false
+        type: string
+        description: 'ID of the default project to use for future API calls and invocations.'
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -72,6 +86,12 @@ on:
       env-vars:
         required: false
         description: 'Pass required environment variables'
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: false
+        description: 'The full identifier of the Workload Identity Provider'
+      SERVICE_ACCOUNT:
+        required: false
+        description: 'The service account to be used'
 
 jobs:
   terraform-workflow:
@@ -114,6 +134,11 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          token_format: ${{ inputs.token_format }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+          project_id: ${{ inputs.project_id }}
 
       - name: Install doctl
         if: ${{ inputs.provider == 'digitalocean' }}
