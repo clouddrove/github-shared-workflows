@@ -64,7 +64,7 @@ on:
       create_credentials_file:
         required: false
         type: string
-        default: true
+        default: false
         description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'        
     secrets:
       AZURE_CREDENTIALS:
