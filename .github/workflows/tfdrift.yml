@@ -41,6 +41,11 @@ on:
         required: false
         type: string
         description: 'ID of the default project to use for future API calls and invocations.'
+      create_credentials_file:
+        required: false
+        type: string
+        default: false
+        description: 'ID of the default project to use for future API calls and invocations.'
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -117,6 +122,7 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          create_credentials_file: ${{ inputs.create_credentials_file }}
           token_format: ${{ inputs.token_format }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
