@@ -24,6 +24,25 @@ on:
         required: false
         default: false
         type: string
+      token_format:
+        required: false
+        type: string
+        default: access_token
+        description: 'Output format for the generated authentication token. For OAuth 2.0 access tokens, specify "access_token". For OIDC tokens, specify "id_token". To skip token generation, leave this value empty'
+      access_token_lifetime:
+        required: false
+        type: string
+        default: 300s
+        description: 'Desired lifetime duration of the access token, in seconds'
+      project_id:
+        required: false
+        type: string
+        description: 'ID of the default project to use for future API calls and invocations.'
+      create_credentials_file:
+        required: false
+        type: string
+        default: false
+        description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
     secrets:
       AWS_ACCESS_KEY_ID:
         description: 'aws access keys'
@@ -34,6 +53,12 @@ on:
       GCP_CREDENTIALS:
         description: 'The Google Cloud JSON service account key to use for authentication'
         required: false
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: false
+        description: 'The full identifier of the Workload Identity Provider'
+      SERVICE_ACCOUNT:
+        required: false
+        description: 'The service account to be used'
 
 
 jobs:
@@ -84,10 +109,16 @@ jobs:
           aws-region: us-east-1
 
       - name: 'Authenticate to Google Cloud'
-        if: ${{ inputs.gcp_credentials == 'true' }}
+        if: ${{ inputs.provider == 'gcp' }}
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          create_credentials_file: ${{ inputs.create_credentials_file }}
+          token_format: ${{ inputs.token_format }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+          project_id: ${{ inputs.project_id }}
 
       # - Installing terraform version based on version extract.
       - name: Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}

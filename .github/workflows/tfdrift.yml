@@ -45,7 +45,7 @@ on:
         required: false
         type: string
         default: false
-        description: 'ID of the default project to use for future API calls and invocations.'
+        description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
     secrets:
       AZURE_CREDENTIALS:
         required: false
