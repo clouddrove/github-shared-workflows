@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.6] - 2024-06-19
+### :sparkles: New Features
+- [`7372b07`](https://github.com/clouddrove/github-shared-workflows/commit/7372b077c7687243e3f5523bc8e2c6640ceddf40) - Added GCP authentication more inputs *(PR [#139](https://github.com/clouddrove/github-shared-workflows/pull/139) by [@Tanveer143s](https://github.com/Tanveer143s))*
+- [`facf438`](https://github.com/clouddrove/github-shared-workflows/commit/facf4386cc894a4f9033acf44e11a3e825fbf545) - Updated gcp authenticate inputs *(PR [#140](https://github.com/clouddrove/github-shared-workflows/pull/140) by [@Tanveer143s](https://github.com/Tanveer143s))*
+
+### :memo: Documentation Changes
+- [`3d06831`](https://github.com/clouddrove/github-shared-workflows/commit/3d0683119ff7acf1d740308b8479236c68c3a1cd) - update CHANGELOG.md for 1.2.5 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.2.5] - 2024-06-03
 ### :sparkles: New Features
 - [`b59f733`](https://github.com/clouddrove/github-shared-workflows/commit/b59f73329b4d274c889e715f86aa3b0d3421d285) - updated gcp auth input & secrets *(PR [#137](https://github.com/clouddrove/github-shared-workflows/pull/137) by [@Tanveer143s](https://github.com/Tanveer143s))*
@@ -155,3 +164,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.3]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.2...1.2.3
 [1.2.4]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.3...1.2.4
 [1.2.5]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.4...1.2.5
+[1.2.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.5...1.2.6
