@@ -66,6 +66,12 @@ on:
         type: string
         default: true
         description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+      backend_bucket_name:
+        required: false
+        type: string
+      errored_tfstate_path:
+        required: false
+        type: string
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -165,10 +171,17 @@ jobs:
           actions_subcommand: 'fmt'
           path: ${{ inputs.working_directory }}
 
+      # - name: terraform init
+      #   run: |
+      #      cd ${{ inputs.working_directory }}
+      #      terraform init
+
       - name: terraform init
         run: |
            cd ${{ inputs.working_directory }}
-           terraform init
+           terraform init \
+             -backend-config="bucket=${{ inputs.backend_bucket_name }}" \
+             -backend-config="key=${{ inputs.errored_tfstate_path }}"
 
       - name: 'Terraform validate'
         if: ${{ inputs.destroy != true }}
