@@ -255,13 +255,13 @@ jobs:
             terraform apply -auto-approve || (terraform state pull > errored.tfstate && aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate)
           fi
 
-      - name: Handle errored.tfstate
-        if: ${{ always() }}
-        run: |
-          cd ${{ inputs.working_directory }}
-          if [ -f "errored.tfstate" ]; then
-            aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate
-          fi
+      # - name: Handle errored.tfstate
+      #   if: ${{ always() }}
+      #   run: |
+      #     cd ${{ inputs.working_directory }}
+      #     if [ -f "errored.tfstate" ]; then
+      #       aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate
+      #     fi
 
       - name: Terraform destroy
         if: ${{ inputs.destroy == true }}
