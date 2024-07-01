@@ -248,27 +248,13 @@ jobs:
       #       aws s3 cp tfplan s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/tfplan
       #     fi
 
-      - name: Handle errored.tfstate
-        if: always()  # Always execute this step
-        id: handle_errored_tfstate
-        run: |
-          cd ${{ inputs.working_directory }}
-          ls -la  # List all files including hidden ones
-          if [ -f "errored.tfstate" ]; then
-            echo "errored.tfstate found. Moving to artifact..."
-            mv errored.tfstate $GITHUB_WORKSPACE/errored.tfstate
-            echo "::set-output name=errored_tfstate_path::$GITHUB_WORKSPACE/errored.tfstate"
-          else
-            echo "errored.tfstate not found."
-            echo "::set-output name=errored_tfstate_path::"  # Set empty output if file not found
-          fi
-
-      - name: Upload errored.tfstate artifact
-        if: ${{ steps.handle_errored_tfstate.outputs.errored_tfstate_path != '' }}  # Upload artifact only if path is not empty
+      # Include errored.tfstate in artifacts if it exists
+      - name: Publish Errored State File
+        if: ${{ success() && exists('errored.tfstate') }}
         uses: actions/upload-artifact@v4
         with:
-          name: errored_tfstate
-          path: ${{ inputs.working_directory }}/errored.tfstate
+          name: errored-tfstate
+          path: ${{ inputs.working_directory }}/errored.tfsate
 
 
 
