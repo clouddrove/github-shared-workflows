@@ -247,21 +247,16 @@ jobs:
       #     if [ -f "tfplan" ]; then
       #       aws s3 cp tfplan s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/tfplan
       #     fi
-
-      - name: Check for errored.tfstate
-        id: check-errored-state
+      - name: Find and upload Errored Terraform State
         run: |
-          cd ${{ inputs.working_directory }}
           if [ -f "errored.tfstate" ]; then
-            echo "Found errored.tfstate file."
-            echo "::set-output name=errored_state_present::true"
+            ls -la errored.tfstate
+            echo "Uploading errored.tfstate as artifact..."
           else
-            echo "No errored.tfstate file found."
-            echo "::set-output name=errored_state_present::false"
+            echo "Errored Terraform state file not found."
+            exit 1
           fi
-
-      - name: Publish Errored Terraform State
-        if: steps.check-errored-state.outputs.errored_state_present == 'true'
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: errored_tfstate
