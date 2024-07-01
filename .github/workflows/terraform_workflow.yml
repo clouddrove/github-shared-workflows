@@ -66,10 +66,10 @@ on:
         type: string
         default: true
         description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
-      backend_bucket_name:
+      backend_s3_bucket:
         required: false
         type: string
-      errored_tfstate_path:
+      backend_s3_key:
         required: false
         type: string
     secrets:
@@ -103,7 +103,7 @@ on:
       SERVICE_ACCOUNT:
         required: false
         description: 'The service account to be used'
-
+        
 jobs:
   terraform-workflow:
     runs-on: ubuntu-latest
