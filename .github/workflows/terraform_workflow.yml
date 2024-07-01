@@ -69,7 +69,7 @@ on:
       backend_s3_bucket:
         required: false
         type: string
-      backend_s3_key:
+      backend_key:
         required: false
         type: string
     secrets:
@@ -243,38 +243,25 @@ jobs:
       #      cd ${{ inputs.working_directory }}
       #      terraform apply -auto-approve
       #     fi
-      - name: terraform apply
+
+      - name: Terraform Apply
+        id: apply
         if: ${{ inputs.destroy != true }}
         run: |
           cd ${{ inputs.working_directory }}
-
-          # Check for errored state and attempt recovery
-          if [ -f "errored.tfstate" ]; then
-            echo "Found errored.tfstate, attempting state recovery..."
-            terraform state push errored.tfstate
-            mv errored.tfstate /path/to/backup/location # Optionally move or manage the errored.tfstate file
+          if [ -n "${{ inputs.var_file }}" ]; then
+            terraform apply -var-file="${{ inputs.var_file }}" -auto-approve || (terraform state pull > errored.tfstate && aws s3 cp errored.tfstate s3://${{ secrets.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate)
+          else
+            terraform apply -auto-approve || (terraform state pull > errored.tfstate && aws s3 cp errored.tfstate s3://${{ secrets.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate)
           fi
 
-          # Run terraform apply with var file if provided, handle errors
-          if [ -n "${{ inputs.var_file }}" ]; then
-            terraform apply -var-file="${{ inputs.var_file }}" -auto-approve || {
-              # Handle error, optionally backup errored state to S3
-              if [ -f "errored.tfstate" ]; then
-                echo "Copying errored.tfstate to S3..."
-                aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_s3_key }}/errored.tfstate
-              fi
-              exit 1
-            }
-          else
-            terraform apply -auto-approve || {
-              # Handle error, optionally backup errored state to S3
-              if [ -f "errored.tfstate" ]; then
-                echo "Copying errored.tfstate to S3..."
-                aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_s3_key }}/errored.tfstate
-              fi
-              exit 1
-            }
-          }
+      - name: Handle errored.tfstate
+        if: ${{ always() }}
+        run: |
+          cd ${{ inputs.working_directory }}
+          if [ -f "errored.tfstate" ]; then
+            aws s3 cp errored.tfstate s3://${{ secrets.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate
+          fi
 
       - name: Terraform destroy
         if: ${{ inputs.destroy == true }}
