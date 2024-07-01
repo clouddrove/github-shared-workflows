@@ -244,14 +244,24 @@ jobs:
            terraform apply -auto-approve
           fi
 
+      # - name: Handle errored.tfstate
+      #   if: ${{ always() }}
+      #   run: |
+      #     cd ${{ inputs.working_directory }}
+      #     ls -la  # List all files including hidden ones
+      #     if [ -f "errored.tfstate" ]; then
+      #       aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate
+      #     fi
+
       - name: Handle errored.tfstate
         if: ${{ always() }}
         run: |
           cd ${{ inputs.working_directory }}
           ls -la  # List all files including hidden ones
-          if [ -f "errored.tfstate" ]; then
-            aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate
+          if [ -f "tfplan" ]; then
+            aws s3 cp tfplan s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/tfplan
           fi
+
 
 
       - name: Terraform destroy
