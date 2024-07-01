@@ -249,6 +249,7 @@ jobs:
       #     fi
 
       - name: Find Errored Terraform State
+        if: ${{ always() }}
         run: |
           cd ${{ inputs.working_directory }}
           if [ -f "errored.tfstate" ]; then
