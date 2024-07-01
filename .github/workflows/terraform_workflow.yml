@@ -233,35 +233,26 @@ jobs:
           minimum-approvals: ${{ inputs.minimum-approvals }}
           issue-title: "Terraform Plan for Infrastructure Update"
 
-      # - name: terraform apply
-      #   if: ${{ inputs.destroy != true }}
-      #   run: |
-      #     if [ -n "${{ inputs.var_file }}" ]; then
-      #      cd ${{ inputs.working_directory }}
-      #      terraform apply -var-file="${{ inputs.var_file }}" -auto-approve
-      #     else
-      #      cd ${{ inputs.working_directory }}
-      #      terraform apply -auto-approve
-      #     fi
-
-      - name: Terraform Apply
-        id: apply
+      - name: terraform apply
         if: ${{ inputs.destroy != true }}
         run: |
-          cd ${{ inputs.working_directory }}
           if [ -n "${{ inputs.var_file }}" ]; then
-            terraform apply -var-file="${{ inputs.var_file }}" -auto-approve || (terraform state pull > errored.tfstate && aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate)
+           cd ${{ inputs.working_directory }}
+           terraform apply -var-file="${{ inputs.var_file }}" -auto-approve
           else
-            terraform apply -auto-approve || (terraform state pull > errored.tfstate && aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate)
+           cd ${{ inputs.working_directory }}
+           terraform apply -auto-approve
           fi
 
-      # - name: Handle errored.tfstate
-      #   if: ${{ always() }}
-      #   run: |
-      #     cd ${{ inputs.working_directory }}
-      #     if [ -f "errored.tfstate" ]; then
-      #       aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate
-      #     fi
+      - name: Handle errored.tfstate
+        if: ${{ always() }}
+        run: |
+          cd ${{ inputs.working_directory }}
+          ls -la  # List all files including hidden ones
+          if [ -f "errored.tfstate" ]; then
+            aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate
+          fi
+
 
       - name: Terraform destroy
         if: ${{ inputs.destroy == true }}
