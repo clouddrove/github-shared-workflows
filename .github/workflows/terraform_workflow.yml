@@ -263,11 +263,12 @@ jobs:
             echo "::set-output name=errored_tfstate_path::"
             
       - name: Upload errored.tfstate artifact
-        if: steps.handle_errored_tfstate.outputs.errored_tfstate_path != ''
+        if: ${{ steps.handle_errored_tfstate.outputs.errored_tfstate_path != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: errored_tfstate
           path: ${{ steps.handle_errored_tfstate.outputs.errored_tfstate_path }}
+
 
 
 
