@@ -66,12 +66,6 @@ on:
         type: string
         default: true
         description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
-      backend_s3_bucket:
-        required: false
-        type: string
-      backend_key:
-        required: false
-        type: string
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -244,23 +238,35 @@ jobs:
            terraform apply -auto-approve
           fi
 
+
       # - name: Handle errored.tfstate
       #   if: ${{ always() }}
       #   run: |
       #     cd ${{ inputs.working_directory }}
       #     ls -la  # List all files including hidden ones
-      #     if [ -f "errored.tfstate" ]; then
-      #       aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/errored.tfstate
+      #     if [ -f "tfplan" ]; then
+      #       aws s3 cp tfplan s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/tfplan
       #     fi
 
       - name: Handle errored.tfstate
         if: ${{ always() }}
         run: |
           cd ${{ inputs.working_directory }}
-          ls -la  # List all files including hidden ones
-          if [ -f "tfplan" ]; then
-            aws s3 cp tfplan s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/tfplan
+          ls -la 
+          if [ -f "errored.tfstate" ]; then
+            echo "Uploading errored.tfstate to artifact..."
+            mv errored.tfstate $GITHUB_WORKSPACE/errored.tfstate
+            echo "::set-output name=errored_tfstate_path::$GITHUB_WORKSPACE/errored.tfstate"
+          else
+            echo "No errored.tfstate file found."
           fi
+
+      - name: Upload errored.tfstate artifact
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: errored_tfstate
+          path: ${{ steps.handle_errored_tfstate.outputs.errored_tfstate_path }}
 
 
 
