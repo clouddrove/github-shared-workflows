@@ -250,16 +250,16 @@ jobs:
 
       - name: Find Errored Terraform State
         run: |
+          cd ${{ inputs.working_directory }}
           if [ -f "errored.tfstate" ]; then
             ls -la errored.tfstate
             echo "Uploading errored.tfstate as artifact..."
           else
             echo "Errored Terraform state file not found."
-            exit 1
           fi
-          
+
       - name: Upload Errored Terraform State Artifact
-        if: success()
+        if: success() && steps.find_errored_tfstate.outputs['errored_found'] == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: errored_tfstate
