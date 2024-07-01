@@ -260,7 +260,7 @@ jobs:
           fi
 
       - name: Upload Errored Terraform State Artifact
-        if: success() && steps.find_errored_tfstate.outputs['errored_found'] == 'true'
+        if: ${{ always() }} && success() && steps.find_errored_tfstate.outputs['errored_found'] == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: errored_tfstate
