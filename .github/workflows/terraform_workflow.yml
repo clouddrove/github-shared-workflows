@@ -268,7 +268,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: errored_tfstate
-          path: ${{ steps.handle_errored_tfstate.outputs.errored_tfstate_path }}
+          path: ${{ inputs.working_directory }}/errored.tfstate
 
 
 
