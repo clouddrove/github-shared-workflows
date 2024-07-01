@@ -171,17 +171,10 @@ jobs:
           actions_subcommand: 'fmt'
           path: ${{ inputs.working_directory }}
 
-      # - name: terraform init
-      #   run: |
-      #      cd ${{ inputs.working_directory }}
-      #      terraform init
-
       - name: terraform init
         run: |
            cd ${{ inputs.working_directory }}
-           terraform init \
-             -backend-config="bucket=${{ inputs.backend_bucket_name }}" \
-             -backend-config="key=${{ inputs.errored_tfstate_path }}"
+           terraform init
 
       - name: 'Terraform validate'
         if: ${{ inputs.destroy != true }}
@@ -240,16 +233,47 @@ jobs:
           minimum-approvals: ${{ inputs.minimum-approvals }}
           issue-title: "Terraform Plan for Infrastructure Update"
 
-      - name: terraform apply
-        if: ${{ inputs.destroy != true }}
-        run: |
-          if [ -n "${{ inputs.var_file }}" ]; then
-           cd ${{ inputs.working_directory }}
-           terraform apply -var-file="${{ inputs.var_file }}" -auto-approve
-          else
-           cd ${{ inputs.working_directory }}
-           terraform apply -auto-approve
-          fi
+      # - name: terraform apply
+      #   if: ${{ inputs.destroy != true }}
+      #   run: |
+      #     if [ -n "${{ inputs.var_file }}" ]; then
+      #      cd ${{ inputs.working_directory }}
+      #      terraform apply -var-file="${{ inputs.var_file }}" -auto-approve
+      #     else
+      #      cd ${{ inputs.working_directory }}
+      #      terraform apply -auto-approve
+      #     fi
+    - name: terraform apply
+      if: ${{ inputs.destroy != true }}
+      run: |
+        cd ${{ inputs.working_directory }}
+
+        if [ -f "errored.tfstate" ]; then
+          echo "Found errored.tfstate, attempting state recovery..."
+          terraform state push errored.tfstate
+          # Optionally move or manage the errored.tfstate file
+          mv errored.tfstate /path/to/backup/location
+        fi
+
+        if [ -n "${{ inputs.var_file }}" ]; then
+          terraform apply -var-file="${{ inputs.var_file }}" -auto-approve || {
+            if [ -f "errored.tfstate" ]; then
+              echo "Copying errored.tfstate to S3..."
+              aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_s3_key }}/errored.tfstate
+            fi
+            exit 1
+          }
+        else
+          terraform apply -auto-approve || {
+            if [ -f "errored.tfstate" ]; then
+              echo "Copying errored.tfstate to S3..."
+              aws s3 cp errored.tfstate s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_s3_key }}/errored.tfstate
+            fi
+            exit 1
+          }
+        }
+
+
 
       - name: Terraform destroy
         if: ${{ inputs.destroy == true }}
