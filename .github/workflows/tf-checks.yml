@@ -13,7 +13,6 @@ on:
       provider:
         required: false
         type: string
-        default: gcp
         description: 'Cloud provider to run the workflow. e.g. azurerm or aws or gcp'
       terraform_version:
         description: 'Terraform version to use. Leave empty for the latest version.'
@@ -46,7 +45,7 @@ on:
       create_credentials_file:
         required: false
         type: string
-        default: true
+        default: false
         description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
     secrets:
       AWS_ACCESS_KEY_ID:
