@@ -11,9 +11,8 @@ on:
         type: string
         default: './examples/complete/'
       provider:
-        required: true
+        required: false
         type: string
-        default: gcp
         description: 'Cloud provider to run the workflow. e.g. azurerm or aws or gcp'
       terraform_version:
         description: 'Terraform version to use. Leave empty for the latest version.'
