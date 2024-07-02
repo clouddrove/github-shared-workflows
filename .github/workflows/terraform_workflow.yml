@@ -238,16 +238,6 @@ jobs:
            terraform apply -auto-approve
           fi
 
-
-      # - name: Handle errored.tfstate
-      #   if: ${{ always() }}
-      #   run: |
-      #     cd ${{ inputs.working_directory }}
-      #     ls -la  # List all files including hidden ones
-      #     if [ -f "tfplan" ]; then
-      #       aws s3 cp tfplan s3://${{ inputs.backend_s3_bucket }}/${{ inputs.backend_key }}/tfplan
-      #     fi
-
       - name: Find Errored Terraform State
         if: ${{ always() }}
         run: |
@@ -265,12 +255,6 @@ jobs:
         with:
           name: errored_tfstate
           path: ${{ inputs.working_directory }}/errored.tfstate
-
-
-
-
-
-
 
       - name: Terraform destroy
         if: ${{ inputs.destroy == true }}
