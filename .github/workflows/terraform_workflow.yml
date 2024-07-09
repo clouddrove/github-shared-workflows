@@ -238,6 +238,24 @@ jobs:
            terraform apply -auto-approve
           fi
 
+      - name: Find Errored Terraform State
+        if: ${{ always() }}
+        run: |
+          cd ${{ inputs.working_directory }}
+          if [ -f "errored.tfstate" ]; then
+            ls -la errored.tfstate
+            echo "Uploading errored.tfstate as artifact..."
+          else
+            echo "Errored Terraform state file not found."
+          fi
+
+      - name: Upload Errored Terraform State Artifact
+        if: ${{ always() }} && success() && steps.find_errored_tfstate.outputs['errored_found'] == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: errored_tfstate
+          path: ${{ inputs.working_directory }}/errored.tfstate
+
       - name: Terraform destroy
         if: ${{ inputs.destroy == true }}
         id: destroy
