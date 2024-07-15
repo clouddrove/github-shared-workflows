@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.7] - 2024-07-15
+### :sparkles: New Features
+- [`db4c51d`](https://github.com/clouddrove/github-shared-workflows/commit/db4c51dfc1b1b5f4f9c4cb9291e7b4a166eddf3c) - Updated terraform workflow to stored file to GitHub artifact *(PR [#142](https://github.com/clouddrove/github-shared-workflows/pull/142) by [@Tanveer143s](https://github.com/Tanveer143s))*
+
+### :construction_worker: Build System
+- [`8dafdc1`](https://github.com/clouddrove/github-shared-workflows/commit/8dafdc18090863e64d2172d4ab2629d76140e3f7) - **deps**: bump docker/build-push-action from 5 to 6 *(PR [#141](https://github.com/clouddrove/github-shared-workflows/pull/141) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`cee2bbc`](https://github.com/clouddrove/github-shared-workflows/commit/cee2bbc0ada2c399033bb5c0147d4c4fa9e8081c) - **deps**: bump docker/setup-buildx-action from 3.3.0 to 3.4.0 *(PR [#143](https://github.com/clouddrove/github-shared-workflows/pull/143) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`145168e`](https://github.com/clouddrove/github-shared-workflows/commit/145168e884e945f2d46be0eb87cdc8ae6084d851) - update CHANGELOG.md for 1.2.6 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.2.6] - 2024-06-19
 ### :sparkles: New Features
 - [`7372b07`](https://github.com/clouddrove/github-shared-workflows/commit/7372b077c7687243e3f5523bc8e2c6640ceddf40) - Added GCP authentication more inputs *(PR [#139](https://github.com/clouddrove/github-shared-workflows/pull/139) by [@Tanveer143s](https://github.com/Tanveer143s))*
@@ -165,3 +177,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.4]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.3...1.2.4
 [1.2.5]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.4...1.2.5
 [1.2.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.5...1.2.6
+[1.2.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.6...1.2.7
