@@ -24,6 +24,9 @@ on:
       SERVICE_ACCOUNT:
         required: false
         description: 'GCP service account'
+      BUILD_ROLE:
+        required: false
+        description: 'AWS OIDC role for aws authentication.'
       AWS_ACCESS_KEY_ID:
         required: false
         description: AWS Access Key ID to install AWS CLI.
@@ -67,7 +70,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
 
       - name: Run Prowler for GCP
         if: ${{ inputs.cloud_provider == 'gcp' }}
