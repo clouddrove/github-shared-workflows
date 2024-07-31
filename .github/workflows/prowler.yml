@@ -17,12 +17,21 @@ on:
         description: 'AWS Region'
 
     secrets:
-      GKE_SA_KEY:
+      WIP:
         required: false
-        description: 'GCP credentials'
+        description: 'WIP'
       SERVICE_ACCOUNT:
         required: false
         description: 'GCP service account'
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: AWS Access Key ID to install AWS CLI.
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: AWS Secret access key to install AWS CLI
+      AWS_SESSION_TOKEN:
+        required: false
+        description: AWS Session Token to install AWS CLI
 
 jobs:
   prowler:
@@ -40,14 +49,25 @@ jobs:
         run: |
           brew install prowler
 
-      - name: "GCP Configuration"
+      - name: Authenticate with Google Cloud
         if: ${{ inputs.cloud_provider == 'gcp' }}
-        id: "auth"
-        uses: "google-github-actions/auth@v1"
+        uses: google-github-actions/auth@v1
         with:
-          credentials_json: ${{ secrets.GKE_SA_KEY }}
+          token_format: access_token
+          workload_identity_provider: ${{ secrets.WIP }}
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
-
+          access_token_lifetime: 300s
+          project_id: ${{ inputs.project_id }}
+       
+      - name: Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ inputs.aws_region }}
+          
       - name: configure aws credentials
         if: ${{ inputs.cloud_provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v3
@@ -58,18 +78,20 @@ jobs:
 
       - name: Run Prowler for GCP
         if: ${{ inputs.cloud_provider == 'gcp' }}
+        id: prowler-gcp
         run: |
-          prowler gcp --project-ids ${{ inputs.project_id }}
+          prowler gcp --project-ids ${{ inputs.project_id }} -o ${{ github.workspace }}/report/
         continue-on-error: true
 
       - name: Run Prowler for AWS
         if: ${{ inputs.cloud_provider == 'aws' }}
+        id: prowler-aws
         run: |
-          prowler aws -f ${{ inputs.aws_region }}
+          prowler aws -f ${{ inputs.aws_region }} -o ${{ github.workspace }}/report/
         continue-on-error: true
 
-      - name: Upload data to artifact
+      - name: Upload report directory
         uses: actions/upload-artifact@v3
         with:
-          name: compliance-output
-          path: /Users/runner/work/x/x/output/
+          name: compliance-report
+          path: ${{ github.workspace }}/report/
