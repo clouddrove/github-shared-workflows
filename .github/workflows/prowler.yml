@@ -68,14 +68,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ inputs.aws_region }}
-          
-      - name: configure aws credentials
-        if: ${{ inputs.cloud_provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v3
-        with:
-          role-to-assume: arn:aws:iam::924144197303:role/git
-          role-session-name: OIDCSession
-          aws-region: ${{ inputs.aws_region }}
 
       - name: Run Prowler for GCP
         if: ${{ inputs.cloud_provider == 'gcp' }}
