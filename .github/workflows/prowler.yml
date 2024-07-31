@@ -1,0 +1,75 @@
+name: Prowler Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      cloud_provider:
+        required: true
+        type: string
+        description: 'Cloud Provider'
+      project_id:
+        required: false
+        type: string
+        description: 'Project id for GCP'
+      aws_region:
+        required: false
+        type: string
+        description: 'AWS Region'
+
+    secrets:
+      GKE_SA_KEY:
+        required: false
+        description: 'GCP credentials'
+      SERVICE_ACCOUNT:
+        required: false
+        description: 'GCP service account'
+
+jobs:
+  prowler:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Install Homebrew
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+      - name: Install Prowler
+        run: |
+          brew install prowler
+
+      - name: "GCP Configuration"
+        if: ${{ inputs.cloud_provider == 'gcp' }}
+        id: "auth"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: ${{ secrets.GKE_SA_KEY }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+
+      - name: configure aws credentials
+        if: ${{ inputs.cloud_provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::924144197303:role/git
+          role-session-name: OIDCSession
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Run Prowler for GCP
+        if: ${{ inputs.cloud_provider == 'gcp' }}
+        run: |
+          prowler gcp --project-ids ${{ inputs.project_id }}
+        continue-on-error: true
+
+      - name: Run Prowler for AWS
+        if: ${{ inputs.cloud_provider == 'aws' }}
+        run: |
+          prowler aws -f ${{ inputs.aws_region }}
+        continue-on-error: true
+
+      - name: Upload data to artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: compliance-output
+          path: /Users/runner/work/solardata/solardata/output/
