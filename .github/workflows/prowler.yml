@@ -1,4 +1,3 @@
----
 name: Prowler Reusable Workflow
 
 on:
@@ -62,7 +61,7 @@ jobs:
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
           access_token_lifetime: 300s
           project_id: ${{ inputs.project_id }}
-       
+
       - name: Install AWS CLI
         if: ${{ inputs.cloud_provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
@@ -94,4 +93,4 @@ jobs:
         with:
           name: compliance-report
           path: ${{ github.workspace }}/report/
-...
+          
