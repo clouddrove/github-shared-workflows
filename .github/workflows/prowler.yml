@@ -11,7 +11,7 @@ on:
       project_id:
         required: false
         type: string
-        description: 'Project id for GCP'
+        description: 'Project ID for GCP'
       aws_region:
         required: false
         type: string
@@ -21,7 +21,7 @@ on:
         type: number
         default: 300
         description: 'Duration for which an access token remains valid.'
-      role-duration-seconds:
+      role_duration_seconds:
         required: false
         type: number
         default: 900
@@ -36,16 +36,16 @@ on:
         description: 'GCP service account'
       BUILD_ROLE:
         required: false
-        description: 'AWS OIDC role for aws authentication.'
+        description: 'AWS OIDC role for AWS authentication.'
       AWS_ACCESS_KEY_ID:
         required: false
-        description: 'AWS Access Key ID to install AWS CLI.'
+        description: 'AWS Access Key ID'
       AWS_SECRET_ACCESS_KEY:
         required: false
-        description: 'AWS Secret access key to install AWS CLI.'
+        description: 'AWS Secret Access Key'
       AWS_SESSION_TOKEN:
         required: false
-        description: 'AWS Session Token to install AWS CLI.'
+        description: 'AWS Session Token'
       AZURE_CLIENT_ID:
         required: false
         description: 'Azure Client ID'
@@ -91,14 +91,16 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: ${{ inputs.role-duration-seconds }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
           role-skip-session-tagging: true
 
       - name: Run Prowler for GCP
         if: ${{ inputs.cloud_provider == 'gcp' }}
         id: prowler-gcp
         run: |
-          prowler gcp --project-ids ${{ inputs.project_id }} -o ${{ github.workspace }}/report/
+          prowler gcp \
+          --project-ids ${{ inputs.project_id }} \
+          -o ${{ github.workspace }}/report/
         continue-on-error: true
 
       - name: Run Prowler for AWS
@@ -124,4 +126,3 @@ jobs:
           name: compliance-report
           path: ${{ github.workspace }}/report/
 ...
-
