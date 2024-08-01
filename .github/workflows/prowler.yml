@@ -19,7 +19,7 @@ on:
       access_token_lifetime:
         required: false
         type: number
-        default: 300s
+        default: 300
         description: 'Duration for which an access token remains valid.'
       role-duration-seconds:
         required: false
