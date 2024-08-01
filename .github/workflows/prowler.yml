@@ -49,6 +49,12 @@ on:
       AZURE_CLIENT_ID:
         required: false
         description: 'Azure'
+      AZURE_CLIENT_SECRET:
+        required: false
+        description: 'Azure'
+      AZURE_TENANT_ID:
+        required: false
+        description: 'Azure'
 
 jobs:
   prowler:
@@ -107,6 +113,8 @@ jobs:
         id: prowler-azure
         run: |
           export AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}
+          export AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}
+          export AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}
           prowler azure --sp-env-auth -o ${{ github.workspace }}/report/
         continue-on-error: true
 
@@ -116,3 +124,4 @@ jobs:
           name: compliance-report
           path: ${{ github.workspace }}/report/
 ...
+
