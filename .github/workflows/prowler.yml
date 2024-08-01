@@ -118,7 +118,7 @@ jobs:
 
       - name: Run Prowler for Azure
         if: ${{ inputs.cloud_provider == 'azure' }}
-        id: prowler-aws
+        id: prowler-azure
         run: |
           prowler azure -o ${{ github.workspace }}/report/
         continue-on-error: true
