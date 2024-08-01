@@ -46,16 +46,7 @@ on:
       AWS_SESSION_TOKEN:
         required: false
         description: 'AWS Session Token to install AWS CLI.'
-      # AZURE_CREDENTIALS:
-      #   required: false
-      #   description: 'Azure'
       AZURE_CLIENT_ID:
-        required: false
-        description: 'Azure'
-      AZURE_CLIENT_SECRET:
-        required: false
-        description: 'Azure'
-      AZURE_TENANT_ID:
         required: false
         description: 'Azure'
 
@@ -97,13 +88,6 @@ jobs:
           role-duration-seconds: ${{ inputs.role-duration-seconds }}
           role-skip-session-tagging: true
 
-      # - name: 'Log into Azure using github secret AZURE_CREDENTIALS'
-      #   if: ${{ inputs.cloud_provider == 'azure' }}
-      #   uses: Azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-      #     enable-AzPSSession: true
-
       - name: Run Prowler for GCP
         if: ${{ inputs.cloud_provider == 'gcp' }}
         id: prowler-gcp
@@ -123,8 +107,6 @@ jobs:
         id: prowler-azure
         run: |
           export AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}
-          export AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}
-          export AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}
           prowler azure --sp-env-auth -o ${{ github.workspace }}/report/
         continue-on-error: true
 
