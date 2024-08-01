@@ -46,13 +46,7 @@ on:
       AWS_SESSION_TOKEN:
         required: false
         description: 'AWS Session Token to install AWS CLI.'
-      AZURE_CLIENT_ID:
-        required: false
-        description: 'Azure'
-      AZURE_CLIENT_SECRET:
-        required: false
-        description: 'Azure'
-      AZURE_TENANT_ID:
+      AZURE_CREDENTIALS:
         required: false
         description: 'Azure'
 
@@ -94,13 +88,12 @@ jobs:
           role-duration-seconds: ${{ inputs.role-duration-seconds }}
           role-skip-session-tagging: true
 
-      - name: Install and Login to Azure CLI
+      - name: 'Log into Azure using github secret AZURE_CREDENTIALS'
         if: ${{ inputs.cloud_provider == 'azure' }}
-        shell: bash
-        run: |
-          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-          echo "Logging in to Azure CLI using service principal..."
-          az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+        uses: Azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: true
 
       - name: Run Prowler for GCP
         if: ${{ inputs.cloud_provider == 'gcp' }}
