@@ -16,11 +16,21 @@ on:
         required: false
         type: string
         description: 'AWS Region'
+      access_token_lifetime:
+        required: false
+        type: number
+        default: 300s
+        description: 'Duration for which an access token remains valid.'
+      role-duration-seconds:
+        required: false
+        type: number
+        default: 900
+        description: 'Duration of the session.'
 
     secrets:
       WIP:
         required: false
-        description: 'WIP'
+        description: 'WIP Connected with Service Account'
       SERVICE_ACCOUNT:
         required: false
         description: 'GCP service account'
@@ -29,13 +39,13 @@ on:
         description: 'AWS OIDC role for aws authentication.'
       AWS_ACCESS_KEY_ID:
         required: false
-        description: AWS Access Key ID to install AWS CLI.
+        description: 'AWS Access Key ID to install AWS CLI.'
       AWS_SECRET_ACCESS_KEY:
         required: false
-        description: AWS Secret access key to install AWS CLI
+        description: 'AWS Secret access key to install AWS CLI.'
       AWS_SESSION_TOKEN:
         required: false
-        description: AWS Session Token to install AWS CLI
+        description: 'AWS Session Token to install AWS CLI.'
 
 jobs:
   prowler:
@@ -60,7 +70,7 @@ jobs:
           token_format: access_token
           workload_identity_provider: ${{ secrets.WIP }}
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
-          access_token_lifetime: 300s
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
           project_id: ${{ inputs.project_id }}
 
       - name: Install AWS CLI
@@ -72,7 +82,7 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: 900
+          role-duration-seconds: ${{ inputs.role-duration-seconds }}
           role-skip-session-tagging: true
 
       - name: Run Prowler for GCP
