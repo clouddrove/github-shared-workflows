@@ -48,13 +48,13 @@ on:
         description: 'AWS Session Token to install AWS CLI.'
       AZURE_CLIENT_ID:
         required: false
-        description: 'Azure'
+        description: 'Azure Client ID'
       AZURE_CLIENT_SECRET:
         required: false
-        description: 'Azure'
+        description: 'Azure Client Secret'
       AZURE_TENANT_ID:
         required: false
-        description: 'Azure'
+        description: 'Azure Tenant ID'
 
 jobs:
   prowler:
