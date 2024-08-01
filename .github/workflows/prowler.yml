@@ -46,6 +46,15 @@ on:
       AWS_SESSION_TOKEN:
         required: false
         description: 'AWS Session Token to install AWS CLI.'
+      AZURE_CLIENT_ID:
+        required: false
+        description: 'Azure'
+      AZURE_CLIENT_SECRET:
+        required: false
+        description: 'Azure'
+      AZURE_TENANT_ID:
+        required: false
+        description: 'Azure'
 
 jobs:
   prowler:
@@ -85,6 +94,14 @@ jobs:
           role-duration-seconds: ${{ inputs.role-duration-seconds }}
           role-skip-session-tagging: true
 
+      - name: Install and Login to Azure CLI
+        if: ${{ inputs.cloud_provider == 'azure' }}
+        shell: bash
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          echo "Logging in to Azure CLI using service principal..."
+          az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+
       - name: Run Prowler for GCP
         if: ${{ inputs.cloud_provider == 'gcp' }}
         id: prowler-gcp
@@ -96,7 +113,14 @@ jobs:
         if: ${{ inputs.cloud_provider == 'aws' }}
         id: prowler-aws
         run: |
-          prowler aws -f ${{ inputs.aws_region }} -o ${{ github.workspace }}/report/
+          prowler aws -o ${{ github.workspace }}/report/
+        continue-on-error: true
+
+      - name: Run Prowler for Azure
+        if: ${{ inputs.cloud_provider == 'azure' }}
+        id: prowler-aws
+        run: |
+          prowler azure -o ${{ github.workspace }}/report/
         continue-on-error: true
 
       - name: Upload report directory
@@ -105,3 +129,4 @@ jobs:
           name: compliance-report
           path: ${{ github.workspace }}/report/
 ...
+
