@@ -1,8 +1,8 @@
-## Prowler Workflow 
+## [Prowler Workflow](https://github.com/clouddrove/github-shared-workflows/blob/feat/prowler-workflow/.github/workflows/prowler.yml)
 Prowler an open cloud security platform for our cloud environment. We get a complete report of our cloud infra.
 
 ### Usage
-This workflow is used to run Prowler scan on your cloud infra for AWS, GCP or Azure. At the end of Workflow a report is also saved Artifacts
+This workflow is used to run Prowler scan on your cloud infra for AWS, GCP or Azure. At the end of Workflow a report is also saved Artifacts.
 
 ### Example for AWS cloud provider
 
