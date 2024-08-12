@@ -1,4 +1,5 @@
-## Prowler is an open cloud security platform for our cloud environment. We get a complete report of our cloud infra.
+## Prowler Workflow 
+Prowler an open cloud security platform for our cloud environment. We get a complete report of our cloud infra.
 
 ### Usage
 This workflow is used to run Prowler scan on your cloud infra for AWS, GCP or Azure. At the end of Workflow a report is also saved Artifacts
