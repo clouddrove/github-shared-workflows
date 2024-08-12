@@ -1,4 +1,4 @@
-## [Prowler Workflow](https://github.com/clouddrove/github-shared-workflows/blob/feat/prowler-workflow/.github/workflows/prowler.yml)
+## [Prowler Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/prowler.yml)
 Prowler an open cloud security platform for our cloud environment. We get a complete report of our cloud infra.
 
 ### Usage
