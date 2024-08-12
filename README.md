@@ -2,13 +2,13 @@
 
 <h1 align="center">GitHub Shared Workflows</h1>
 
-<p align="center"> <img src="images/logo.png" width="100" height="100"></p>
+
 
 <p align="center">
 GitHub shared workflow defines a workflow that we can use in multiple repos with a simple structure.
 </p>
 
-We are a group of DevOps engineers & architects, joining hands in this ever evolving digital landscape. With our strong belief in Automation; just like microservices, always on the lookout to split the the infrastructure into smaller connected resources (database, cluster and more) which could be standardized, are manageable, scalable, secure & follow industry best practices. 
+
 
 <p align="center">
 <a href="LICENSE">
@@ -72,6 +72,7 @@ Above example is just a simple example to call workflow from github shared workf
 13. [ Readme Generation workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/readme.md)
 14. [ AWS SSM Send Command workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/AWSSSMSendCommand.md)
 15. [ Remote SSH Command workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/RemoteSSHCommand.md)
+16. [ Prowler workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/prowler.md)
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
