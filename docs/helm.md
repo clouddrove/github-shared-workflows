@@ -45,6 +45,7 @@ jobs:
 
 #### Example for Azure cloud provider
 
+
 ```yaml
 name: Helm Workflow Azure
 on:

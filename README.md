@@ -1,10 +1,13 @@
-<p align="center"> <img src="images/logo.png" width="100" height="100"></p>
+[![Banner](https://github.com/clouddrove/terraform-module-template/assets/119565952/67a8a1af-2eb7-40b7-ae07-c94cde9ce062)][website]
 
 <h1 align="center">GitHub Shared Workflows</h1>
+
+
 
 <p align="center">
 GitHub shared workflow defines a workflow that we can use in multiple repos with a simple structure.
 </p>
+
 
 
 <p align="center">
@@ -69,21 +72,62 @@ Above example is just a simple example to call workflow from github shared workf
 13. [ Readme Generation workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/readme.md)
 14. [ AWS SSM Send Command workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/AWSSSMSendCommand.md)
 15. [ Remote SSH Command workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/RemoteSSHCommand.md)
+16. [ Prowler workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/prowler.md)
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
 
 If you have found it worth your time, go ahead and give us a ★ on [our GitHub](https://github.com/clouddrove/github-shared-workflows)!
 
-## About us
+## :rocket: Our Accomplishment
 
-At [CloudDrove][website], we offer expert guidance, implementation support and services to help organisations accelerate their journey to the cloud. Our services include docker and container orchestration, cloud migration and adoption, infrastructure automation, application modernisation and remediation, and performance engineering.
+We have [*100+ Terraform modules*][terraform_modules] 🙌. You could consider them finished, but, with enthusiasts like yourself, we are able to ever improve them, so we call our status - improvement in progress.
+
+- [Terraform Module Registry:](https://registry.terraform.io/namespaces/clouddrove) Discover our Terraform modules here.
+
+- [Terraform Modules for AWS/Azure Modules:](https://github.com/clouddrove/toc) Explore our comprehensive Table of Contents for easy navigation through our documentation for modules pertaining to AWS, Azure & GCP. 
+
+- [Terraform Modules for Digital Ocean:](https://github.com/terraform-do-modules/toc) Check out our specialized Terraform modules for Digital Ocean.
+
+## Join Our Slack Community
+
+Join our vibrant open-source slack community and embark on an ever-evolving journey with CloudDrove; helping you in moving upwards in your career path.
+Join our vibrant Open Source Slack Community and embark on a learning journey with CloudDrove. Grow with us in the world of DevOps and set your career on a path of consistency.
+
+🌐💬What you'll get after joining this Slack community:
+
+- 🚀 Encouragement to upgrade your best version.
+- 🌈 Learning companionship with our DevOps squad.
+- 🌱 Relentless growth with daily updates on new advancements in technologies.
+
+Join our tech elites [Join Now][slack] 🚀
+
+## ✨ Contributors
+
+Big thanks to our contributors for elevating our project with their dedication and expertise! But, we do not wish to stop there, would like to invite contributions from the community in improving these projects and making them more versatile for better reach. Remember, every bit of contribution is immensely valuable, as, together, we are moving in only 1 direction, i.e. forward. 
+
+<a href="https://github.com/clouddrove/github-shared-workflows/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=clouddrove/github-shared-workflows&max" />
+</a>
+<br>
+<br>
+
+## Explore Our Blogs
+
+ Click [here][blog] :books: :star2:
+
+## Tap into our capabilities
+We provide a platform for organizations to engage with experienced top-tier DevOps & Cloud services. Tap into our pool of certified engineers and architects to elevate your DevOps and Cloud Solutions. 
+
+At [CloudDrove][website], has extensive experience in designing, building & migrating environments, securing, consulting, monitoring, optimizing, automating, and maintaining complex and large modern systems. With remarkable client footprints in American & European corridors, our certified architects & engineers are ready to serve you as per your requirements & schedule. Write to us at [business@clouddrove.com](mailto:business@clouddrove.com).
 
 <p align="center">We are <b> The Cloud Experts!</b></p>
 <hr />
-<p align="center">We ❤️  <a href="https://github.com/clouddrove">Open Source</a> and you can check out <a href="https://github.com/clouddrove">our other modules</a> to get help with your new Cloud ideas.</p>
+<p align="center">We ❤️  <a href="https://github.com/clouddrove">Open Source</a> and you can check out <a href="https://registry.terraform.io/namespaces/clouddrove">our other modules</a> to get help with your new Cloud ideas.</p>
 
   [website]: https://clouddrove.com
+  [blog]: https://blog.clouddrove.com
+  [slack]: https://www.launchpass.com/devops-talks
   [github]: https://github.com/clouddrove
   [linkedin]: https://cpco.io/linkedin
   [twitter]: https://twitter.com/clouddrove/
