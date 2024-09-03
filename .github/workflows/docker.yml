@@ -5,19 +5,19 @@ on:
   workflow_call:
     inputs:
       registry:
-        required: true
+        required: false
         type: string
       images:
-        required: true
+        required: false
         type: string
       aws-region:
-        required: true
+        required: false
         type: string
       ECR_REPOSITORY:
-        required: true
+        required: false
         type: string
       IMAGE_TAG:
-        required: true
+        required: false
         type: string
     secrets:
       AWS_ACCESS_KEY_ID:
@@ -34,10 +34,10 @@ on:
         description: 'AWS Session Token to install AWS CLI'
       DOCKERHUB_USERNAME:
         description: 'dockerhub username'
-        required: true
+        required: false
       DOCKERHUB_PASSWORD:
         description: 'dockerhub password'
-        required: true
+        required: false
 
 jobs:
   build-image:
