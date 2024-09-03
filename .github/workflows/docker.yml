@@ -88,13 +88,13 @@ jobs:
           role-skip-session-tagging: true
 
 
-      # - name: Assume Production Account Role
-      #   if: ${{ inputs.provider == 'aws' }}
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     role-to-assume: ${{ inputs.role_arn }}
-      #     role-duration-seconds: 900
-      #     role-skip-session-tagging: true
+      - name: Assume Production Account Role
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.role_arn }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
 
 
       - name: Login to Amazon ECR
