@@ -22,6 +22,9 @@ on:
       BUILD_PATH:
         required: false
         type: string
+      WORKING_DIRECTORY:
+        required: false
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -94,6 +97,7 @@ jobs:
           ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
           BUILD_PATH: ${{ inputs.BUILD_PATH }}
+        working-directory: ${{ inputs.WORKING_DIRECTORY }}
         run: |
           pwd
           ls -la
