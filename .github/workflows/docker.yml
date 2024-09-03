@@ -96,7 +96,9 @@ jobs:
         id: assume-role
         run: |
           CREDENTIALS=$(aws sts assume-role --role-arn ${{ inputs.assume_role_arn }} --role-session-name local --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" --output text)
-
+          export AWS_ACCESS_KEY_ID=$(echo $CREDENTIALS | awk '{print $1}')
+          export AWS_SECRET_ACCESS_KEY=$(echo $CREDENTIALS | awk '{print $2}')
+          export AWS_SESSION_TOKEN=$(echo $CREDENTIALS | awk '{print $3}')
       - name: Assume Account Role
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
