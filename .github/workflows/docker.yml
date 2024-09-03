@@ -25,6 +25,9 @@ on:
       WORKING_DIRECTORY:
         required: false
         type: string 
+      role_arn:
+        required: false
+        type: string  # Root role ARN to assume  
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -37,10 +40,7 @@ on:
         description: 'AWS Secret access key to install AWS CLI'
       AWS_SESSION_TOKEN:
         required: false
-        description: 'AWS Session Token to install AWS CLI'
-      role_arn:
-        description: 'assume-role'
-        required: false # Root role ARN to assume   
+        description: 'AWS Session Token to install AWS CLI' 
       DOCKERHUB_USERNAME:
         description: 'dockerhub username'
         required: false
