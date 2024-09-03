@@ -87,7 +87,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Push docker image to Amazon ECR
-        if: ${{ inputs.provider == 'ECR' }}
+        if: ${{ inputs.provider == 'aws' }}
         id: docker-build
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -99,7 +99,7 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Push docker image to Amazon ECR and DOCKERHUB
-        if: ${{ inputs.provider == 'DOCKERHUB,ECR' }}
+        if: ${{ inputs.provider == 'DOCKERHUB,aws' }}
         env:
           ## For ECR env variable
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
