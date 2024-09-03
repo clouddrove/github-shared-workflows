@@ -21,11 +21,17 @@ on:
         type: string
     secrets:
       AWS_ACCESS_KEY_ID:
-        description: 'aws access keys'
-        required: true
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      BUILD_ROLE:
+        required: false
+        description: 'AWS OIDC role for aws authentication.'
       AWS_SECRET_ACCESS_KEY:
-        description: 'aws secret access keys'
-        required: true
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
       DOCKERHUB_USERNAME:
         description: 'dockerhub username'
         required: true
@@ -64,6 +70,18 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ inputs.aws-region }}
+
+      - name: Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
 
       - name: Login to Amazon ECR
         id: login-ecr
