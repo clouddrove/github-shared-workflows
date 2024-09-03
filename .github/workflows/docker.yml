@@ -10,7 +10,7 @@ on:
       images:
         required: false
         type: string
-      aws-region:
+      aws_region:
         required: false
         type: string
       ECR_REPOSITORY:
