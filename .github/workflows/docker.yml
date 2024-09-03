@@ -93,7 +93,6 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.root_role_arn }}
-          aws-region: ${{ inputs.aws_region }}
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
