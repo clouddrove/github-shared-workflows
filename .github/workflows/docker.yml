@@ -99,8 +99,6 @@ jobs:
           BUILD_PATH: ${{ inputs.BUILD_PATH }}
         working-directory: ${{ inputs.WORKING_DIRECTORY }}
         run: |
-          pwd
-          ls -la
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $BUILD_PATH
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
