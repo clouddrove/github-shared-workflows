@@ -19,6 +19,9 @@ on:
       IMAGE_TAG:
         required: false
         type: string
+      BUILD_PATH:
+        required: false
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -60,16 +63,10 @@ jobs:
         env:
           IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
           images: ${{ inputs.images }}
+          BUILD_PATH: ${{ inputs.BUILD_PATH }}
         run: |
-          docker build -t $images:$IMAGE_TAG .
+          docker build -t $images:$IMAGE_TAG BUILD_PATH
           docker push $images:$IMAGE_TAG
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.aws-region }}
 
       - name: Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
@@ -94,8 +91,9 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
+          BUILD_PATH: ${{ inputs.BUILD_PATH }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $BUILD_PATH
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Push docker image to Amazon ECR and DOCKERHUB
@@ -105,11 +103,12 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ inputs.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
+          BUILD_PATH: ${{ inputs.BUILD_PATH }}
           ## For DOCKERHUB env variable
           images: ${{ inputs.images }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG BUILD_PATH
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker build -t $images:$IMAGE_TAG .
+          docker build -t $images:$IMAGE_TAG BUILD_PATH
           docker push $images:$IMAGE_TAG
 ...
