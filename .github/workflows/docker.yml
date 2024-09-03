@@ -39,8 +39,8 @@ on:
         required: false
         description: 'AWS Session Token to install AWS CLI'
       role_arn:
-        required: false
-        type: string  # Root role ARN to assume   
+        description: 'assume-role'
+        required: false # Root role ARN to assume   
       DOCKERHUB_USERNAME:
         description: 'dockerhub username'
         required: false
