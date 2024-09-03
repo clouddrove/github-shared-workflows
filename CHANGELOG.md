@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.8] - 2024-09-03
+### :sparkles: New Features
+- [`bd67b58`](https://github.com/clouddrove/github-shared-workflows/commit/bd67b584655bcb467c54dacf6c1ffc8a96757c44) - added conditional paramter for blocking action *(PR [#151](https://github.com/clouddrove/github-shared-workflows/pull/151) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+
+### :construction_worker: Build System
+- [`3e2d4e8`](https://github.com/clouddrove/github-shared-workflows/commit/3e2d4e8d7853a502cacf414a870d595911d2c067) - **deps**: bump infracost/actions from 3.0.0 to 3.0.1 *(PR [#148](https://github.com/clouddrove/github-shared-workflows/pull/148) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`26ff21b`](https://github.com/clouddrove/github-shared-workflows/commit/26ff21bd735b6b4efe2cd7a8dd7f529809664a2a) - **deps**: bump docker/setup-buildx-action from 3.4.0 to 3.6.1 *(PR [#147](https://github.com/clouddrove/github-shared-workflows/pull/147) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`55b2bf8`](https://github.com/clouddrove/github-shared-workflows/commit/55b2bf876eea5e191fc8ff54be2b8e093ba8f717) - **deps**: bump google-github-actions/auth from 1 to 2 *(PR [#150](https://github.com/clouddrove/github-shared-workflows/pull/150) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`0cb64bf`](https://github.com/clouddrove/github-shared-workflows/commit/0cb64bf97422957f9106660d687ac4be8a0ea6ca) - **deps**: bump actions/upload-artifact from 3 to 4 *(PR [#149](https://github.com/clouddrove/github-shared-workflows/pull/149) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`1e5db60`](https://github.com/clouddrove/github-shared-workflows/commit/1e5db60ce6c5dc4a33520136e809e8a17cb48fa3) - update CHANGELOG.md for 1.2.7 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.2.7] - 2024-07-15
 ### :sparkles: New Features
 - [`db4c51d`](https://github.com/clouddrove/github-shared-workflows/commit/db4c51dfc1b1b5f4f9c4cb9291e7b4a166eddf3c) - Updated terraform workflow to stored file to GitHub artifact *(PR [#142](https://github.com/clouddrove/github-shared-workflows/pull/142) by [@Tanveer143s](https://github.com/Tanveer143s))*
@@ -178,3 +192,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.5]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.4...1.2.5
 [1.2.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.5...1.2.6
 [1.2.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.6...1.2.7
+[1.2.8]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.7...1.2.8
