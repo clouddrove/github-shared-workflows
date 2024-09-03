@@ -120,6 +120,8 @@ jobs:
         if: ${{ inputs.provider == 'aws' }}
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+        with:
+          registry: 017820686756.dkr.ecr.us-east-1.amazonaws.com  # Replace <region> with your AWS region
 
       - name: Push docker image to Amazon ECR
         if: ${{ inputs.provider == 'aws' }}
