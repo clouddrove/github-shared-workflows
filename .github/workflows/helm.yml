@@ -66,6 +66,9 @@ on:
         type: number
         default: 900
         description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour.'
+      assume_role_arn:
+        required: false
+        type: string  # ARN for the role to assume with STS
     secrets:
       AWS_ACCESS_KEY_ID:
         description: 'AWS Access Key ID'
@@ -93,17 +96,12 @@ jobs:
       - name: Checkout git repo
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          role-to-assume: ${{ inputs.assume_role_arn }}
+          role-session-name: github
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: ${{ inputs.role-duration-seconds }}
-          role-skip-session-tagging: true
 
       - name: Install Azure CLI
         if: ${{ inputs.provider == 'azure' }}
