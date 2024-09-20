@@ -24,10 +24,10 @@ on:
         type: string
       WORKING_DIRECTORY:
         required: false
-        type: string 
+        type: string
       role_arn:
         required: false
-        type: string  # Root role ARN to assume  
+        type: string
       assume_role_arn:
         required: false
         type: string  # ARN for the role to assume with STS
@@ -43,7 +43,7 @@ on:
         description: 'AWS Secret access key to install AWS CLI'
       AWS_SESSION_TOKEN:
         required: false
-        description: 'AWS Session Token to install AWS CLI' 
+        description: 'AWS Session Token to install AWS CLI'
       DOCKERHUB_USERNAME:
         description: 'dockerhub username'
         required: false
@@ -84,11 +84,10 @@ jobs:
           role-to-assume: ${{ inputs.assume_role_arn }}
           role-session-name: github
           aws-region: ${{ inputs.aws_region }}
-          
+
       - name: Verify awscli
         run: |
           aws sts get-caller-identity
-
 
       - name: Login to Amazon ECR
         if: ${{ inputs.provider == 'aws' }}
