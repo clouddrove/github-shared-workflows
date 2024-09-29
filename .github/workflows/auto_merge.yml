@@ -61,7 +61,7 @@ jobs:
     needs: autoapprove
     steps:
       - name: Automerge
-        uses: pascalgn/automerge-action@v0.16.3
+        uses: pascalgn/automerge-action@v0.16.4
         if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB }}
