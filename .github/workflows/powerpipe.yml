@@ -1,0 +1,127 @@
+---
+name: 'Powerpipe'
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "feat/powerpipe"
+  # workflow_call:
+  #   inputs:
+  #     working_directory:
+  #       required: true
+  #       type: string
+  #       default: examples
+  #       description: 'Root directory of the terraform where all resources exist.'
+  #     provider:
+  #       required: true
+  #       type: string
+  #       default: azurerm
+  #       description: 'Cloud provider to run the workflow. e.g. azurerm or aws or gcp'
+  #     aws_region:
+  #       required: false
+  #       type: string
+  #       default: us-east-1
+  #       description: 'AWS region of terraform deployment.'
+  #     var_file:
+  #       required: false
+  #       default: ""
+  #       type: string
+  #       description: 'Terraform var file directory. e.g. vars/dev.tfvars'
+  #     terraform_version:
+  #       type: string
+  #       default: 1.3.6
+  #       description: 'Required erraform version'
+  #     token_format:
+  #       required: false
+  #       type: string
+  #       default: access_token
+  #       description: 'Output format for the generated authentication token. For OAuth 2.0 access tokens, specify "access_token". For OIDC tokens, specify "id_token". To skip token generation, leave this value empty'
+  #     access_token_lifetime:
+  #       required: false
+  #       type: string
+  #       default: 300s
+  #       description: 'Desired lifetime duration of the access token, in seconds'
+  #     project_id:
+  #       required: false
+  #       type: string
+  #       description: 'ID of the default project to use for future API calls and invocations.'
+  #     create_credentials_file:
+  #       required: false
+  #       type: string
+  #       default: true
+  #       description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+  #   secrets:
+  #     AZURE_CREDENTIALS:
+  #       required: false
+  #       description: 'Azure Credentials to install Azure in github runner.'
+  #     aws_access_key_id:
+  #       required: false
+  #       description: 'AWS Access Key ID to install AWS CLI.'
+  #     aws_secret_access_key:
+  #       required: false
+  #       description: 'AWS Secret access key to install AWS CLI'
+  #     aws_session_token:
+  #       required: false
+  #       description: 'AWS Session Token to install AWS CLI'
+  #     build_role:
+  #       required: false
+  #       description: 'AWS OIDC role for aws authentication'
+  #     GCP_CREDENTIALS:
+  #       description: 'The Google Cloud JSON service account key to use for authentication'
+  #       required: false
+  #     GITHUB:
+  #       required: true
+  #       description: 'PAT of the user to run the jobs.'
+  #     TF_API_TOKEN:
+  #       required: false
+  #       description: 'Terraform cloud token if your backend is terraform cloud.'
+  #     env-vars:
+  #       required: false
+  #       description: 'Pass required environment variables'
+  #     WORKLOAD_IDENTITY_PROVIDER:
+  #       required: false
+  #       description: 'The full identifier of the Workload Identity Provider'
+  #     SERVICE_ACCOUNT:
+  #       required: false
+  #       description: 'The service account to be used'
+
+jobs:
+  powerpipe:
+    name: 'Powerpipe'
+    runs-on: ubuntu-latest
+    # env:
+    #   # This is needed since we are running terraform with read-only permissions
+    #   ARM_SKIP_PROVIDER_REGISTRATION: true
+    # outputs:
+    #   tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # - name: Setup Steampipe
+      #   uses: turbot/steampipe-action-setup@v1
+      #   with:
+      #     plugin-connections: | # setup your steampipe plugin & connections
+      #       connection "aws" {
+      #         plugin     = "aws"
+      #         access_key = "${{ secrets.AWS_ACCESS_KEY_ID }}"
+      #         secret_key = "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+      #         regions    = ["ap-south-1"]
+      #       }
+
+      - name: Install Powerpipe
+        uses: turbot/powerpipe-action-setup@v1
+
+      - name: Start steampipe service # start steampipe service - powerpipe will connect to this running steampipe postgres database
+        run: |
+          steampipe service start
+
+      - name: Run specific AWS Compliance controls
+        uses: turbot/powerpipe-action-check@v1
+        with:
+          mod-url: https://github.com/turbot/steampipe-mod-aws-compliance
+          controls: |
+            ebs_volume_unused
+            foundational_security_s3_1
+...
