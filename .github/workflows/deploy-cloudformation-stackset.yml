@@ -6,12 +6,12 @@ on:
       aws-region:
         description: 'Aws region (in this region stackset enabled)'
         required: false
-        default: 'us-east-2'
+        default: 'us-east-1'
         type: string
       stackset-instance-region:
         description: 'Stackset-instance regions where you need cloudformation stacks'
         required: false
-        default: 'us-east-2'
+        default: 'us-east-1'
         type: string
       stack-set-name:
         description: 'Stack-set name defined here'
@@ -23,10 +23,6 @@ on:
         type: string
       OrganizationalUnitIds:
         description: 'Organization unit ID for deployment in target accounts when service_managed permission added'
-        required: false
-        type: string
-      account-ids:
-        description: 'account ids for self_managed permission added'
         required: false
         type: string
       parameter-overrides:
@@ -69,6 +65,15 @@ on:
       GITHUB:
         required: false
         description: 'GitHub token'
+      account-ids:
+        description: 'account ids for self_managed permission added'
+        required: false
+      parameter-overrides:
+        description: 'The parameters to override in the stack inputs. You can pass a comma-delimited list or a file URL. The comma-delimited list has each entry formatted as <ParameterName>=<ParameterValue> or <ParameterName>="<ParameterValue>,<ParameterValue>".'
+        required: false
+      administration-role-arn:
+        description: 'Administrator role arn add here for trust relation on admin and child account'
+        required: false
 
 jobs:
   deploy-cf-stackset:
@@ -99,7 +104,7 @@ jobs:
               aws cloudformation update-stack-set \
                 --stack-set-name ${{ inputs.stack-set-name }} \
                 --template-url ${{ inputs.template-url }} \
-                --parameters ${{ inputs.parameter-overrides }} \
+                --parameters ${{ secrets.parameter-overrides }} \
                 --capabilities CAPABILITY_NAMED_IAM \
                 --permission-model ${{ inputs.permission-model }} \
                 --auto-deployment Enabled=${{ inputs.auto-deployment-enabled }},RetainStacksOnAccountRemoval=${{ inputs.RetainStacksOnAccountRemoval }}
@@ -109,7 +114,7 @@ jobs:
               aws cloudformation create-stack-set \
                 --stack-set-name ${{ inputs.stack-set-name }} \
                 --template-url ${{ inputs.template-url }} \
-                --parameters ${{ inputs.parameter-overrides }} \
+                --parameters ${{ secrets.parameter-overrides }} \
                 --capabilities CAPABILITY_NAMED_IAM \
                 --permission-model ${{ inputs.permission-model }} \
                 --auto-deployment Enabled=${{ inputs.auto-deployment-enabled }},RetainStacksOnAccountRemoval=${{ inputs.RetainStacksOnAccountRemoval }}
@@ -126,8 +131,8 @@ jobs:
                 --stack-set-name ${{ inputs.stack-set-name }} \
                 --template-url ${{ inputs.template-url }} \
                 --capabilities CAPABILITY_NAMED_IAM \
-                --parameters ${{ inputs.parameter-overrides }} \
-                --administration-role-arn ${{ inputs.administration-role-arn }}
+                --parameters ${{ secrets.parameter-overrides }} \
+                --administration-role-arn ${{ secrets.administration-role-arn }}
             elif [ $RC -eq 254 ]; then
               if echo "$result" | grep -q "StackSetNotFoundException"; then
               echo "StackSet does not exist, creating..."
@@ -135,8 +140,8 @@ jobs:
                 --stack-set-name ${{ inputs.stack-set-name }} \
                 --template-url ${{ inputs.template-url }} \
                 --capabilities CAPABILITY_NAMED_IAM \
-                --parameters ${{ inputs.parameter-overrides }} \
-                --administration-role-arn ${{ inputs.administration-role-arn }} \
+                --parameters ${{ secrets.parameter-overrides }} \
+                --administration-role-arn ${{ secrets.administration-role-arn }} \
                 --execution-role-name AWSControlTowerExecution
               else
                 exit $RC
@@ -156,14 +161,14 @@ jobs:
               aws cloudformation create-stack-instances \
                 --stack-set-name ${{ inputs.stack-set-name }} \
                 --deployment-targets OrganizationalUnitIds='["${{ inputs.OrganizationalUnitIds }}"]' \
-                --parameter-overrides ${{ inputs.parameter-overrides }} \
+                --parameter-overrides ${{ secrets.parameter-overrides }} \
                 --regions ${{ inputs.stackset-instance-region }}
             else
               echo "StackSet-instance, updating..."
               aws cloudformation update-stack-instances \
                 --stack-set-name ${{ inputs.stack-set-name }} \
                 --deployment-targets OrganizationalUnitIds='["${{ inputs.OrganizationalUnitIds }}"]' \
-                --parameter-overrides ${{ inputs.parameter-overrides }} \
+                --parameter-overrides ${{ secrets.parameter-overrides }} \
                 --regions ${{ inputs.stackset-instance-region }}
             fi
           else
@@ -171,16 +176,16 @@ jobs:
               echo "StackSet-instance, creating..."
               aws cloudformation create-stack-instances \
                 --stack-set-name ${{ inputs.stack-set-name }} \
-                --parameter-overrides ${{ inputs.parameter-overrides }} \
-                --accounts ${{ inputs.account-ids }} \
+                --parameter-overrides ${{ secrets.parameter-overrides }} \
+                --accounts ${{ secrets.account-ids }} \
                 --regions ${{ inputs.stackset-instance-region }} \
                 --operation-preferences FailureToleranceCount=1,MaxConcurrentCount=2
             else
               echo "StackSet-instance, updating..."
               aws cloudformation update-stack-instances \
                 --stack-set-name ${{ inputs.stack-set-name }} \
-                --parameter-overrides ${{ inputs.parameter-overrides }} \
-                --accounts ${{ inputs.account-ids }} \
+                --parameter-overrides ${{ secrets.parameter-overrides }} \
+                --accounts ${{ secrets.account-ids }} \
                 --regions ${{ inputs.stackset-instance-region }} \
                 --operation-preferences MaxConcurrentPercentage=1
             fi
