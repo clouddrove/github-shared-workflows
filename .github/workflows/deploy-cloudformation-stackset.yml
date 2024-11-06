@@ -4,21 +4,21 @@ on:
   workflow_call:
     inputs:
       aws-region:
-        description: 'Aws region (in this region stackset enabled)'
+        description: 'AWS region (in this region stackset enabled)'
         required: false
-        default: 'us-east-1'
+        default: 'us-east-2'
         type: string
       stackset-instance-region:
-        description: 'Stackset-instance regions where you need cloudformation stacks'
+        description: 'Stackset-instance regions where you need CloudFormation stacks'
         required: false
-        default: 'us-east-1'
+        default: 'us-east-2'
         type: string
       stack-set-name:
         description: 'Stack-set name defined here'
         required: true
         type: string
       template-url:
-        description: 'Cloudformation template path add here (S3 Object URL)'
+        description: 'CloudFormation template path add here (S3 Object URL)'
         required: true
         type: string
       OrganizationalUnitIds:
@@ -26,7 +26,7 @@ on:
         required: false
         type: string
       parameter-overrides:
-        description: 'The parameters to override in the stack inputs. You can pass a comma-delimited list or a file URL. The comma-delimited list has each entry formatted as <ParameterName>=<ParameterValue> or <ParameterName>="<ParameterValue>,<ParameterValue>".'
+        description: 'The parameters to override in the stack inputs. You can pass a comma-delimited list or a file URL.'
         required: false
         type: string
       permission-model:
@@ -42,11 +42,11 @@ on:
         required: true
         type: string
       administration-role-arn:
-        description: 'Administrator role arn add here for trust relation on admin and child account'
+        description: 'Administrator role ARN add here for trust relation on admin and child account'
         required: false
         type: string
       execution-role-name:
-        description: 'execution-role-name add here for trust relation in child account'
+        description: 'Execution role name add here for trust relation in child account'
         required: false
         type: string
     secrets:
@@ -55,24 +55,24 @@ on:
         description: 'AWS Access Key ID to install AWS CLI.'
       AWS_SECRET_ACCESS_KEY:
         required: false
-        description: 'AWS Secret access key to install AWS CLI'
+        description: 'AWS Secret Access Key to install AWS CLI.'
       AWS_SESSION_TOKEN:
         required: false
-        description: 'AWS Session Token to install AWS CLI'
+        description: 'AWS Session Token to install AWS CLI.'
       AWS_ROLE_TO_ASSUME:
         required: false
-        description: 'AWS Role ARN defined'
+        description: 'AWS Role ARN defined.'
       GITHUB:
         required: false
-        description: 'GitHub token'
+        description: 'GitHub token.'
       account-ids:
-        description: 'account ids for self_managed permission added'
+        description: 'Account IDs for self-managed permission added.'
         required: false
       parameter-overrides:
-        description: 'The parameters to override in the stack inputs. You can pass a comma-delimited list or a file URL. The comma-delimited list has each entry formatted as <ParameterName>=<ParameterValue> or <ParameterName>="<ParameterValue>,<ParameterValue>".'
+        description: 'Parameters to override in stack inputs.'
         required: false
       administration-role-arn:
-        description: 'Administrator role arn add here for trust relation on admin and child account'
+        description: 'Administrator role ARN for trust relation on admin and child account.'
         required: false
 
 jobs:
@@ -85,13 +85,19 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ inputs.aws-region }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
-      - name: Check if StackSet exists or not-exist then create/update stack-set
+      - name: Format Account IDs as JSON Array
+        id: format-account-ids
+        run: |
+          ACCOUNT_IDS_JSON=$(echo "[\"$(echo '${{ secrets.account-ids }}' | sed 's/,/\",\"/g')\"]")
+          echo "ACCOUNT_IDS_JSON=$ACCOUNT_IDS_JSON" >> $GITHUB_ENV
+
+      - name: Check if StackSet exists or create/update stack-set
         id: check-stackset
         run: |
           set +e
@@ -109,15 +115,15 @@ jobs:
                 --permission-model ${{ inputs.permission-model }} \
                 --auto-deployment Enabled=${{ inputs.auto-deployment-enabled }},RetainStacksOnAccountRemoval=${{ inputs.RetainStacksOnAccountRemoval }}
             elif [ $RC -eq 254 ]; then
-            if echo "$result" | grep -q "StackSetNotFoundException"; then
-              echo "StackSet does not exist, creating..."
-              aws cloudformation create-stack-set \
-                --stack-set-name ${{ inputs.stack-set-name }} \
-                --template-url ${{ inputs.template-url }} \
-                --parameters ${{ secrets.parameter-overrides }} \
-                --capabilities CAPABILITY_NAMED_IAM \
-                --permission-model ${{ inputs.permission-model }} \
-                --auto-deployment Enabled=${{ inputs.auto-deployment-enabled }},RetainStacksOnAccountRemoval=${{ inputs.RetainStacksOnAccountRemoval }}
+              if echo "$result" | grep -q "StackSetNotFoundException"; then
+                echo "StackSet does not exist, creating..."
+                aws cloudformation create-stack-set \
+                  --stack-set-name ${{ inputs.stack-set-name }} \
+                  --template-url ${{ inputs.template-url }} \
+                  --parameters ${{ secrets.parameter-overrides }} \
+                  --capabilities CAPABILITY_NAMED_IAM \
+                  --permission-model ${{ inputs.permission-model }} \
+                  --auto-deployment Enabled=${{ inputs.auto-deployment-enabled }},RetainStacksOnAccountRemoval=${{ inputs.RetainStacksOnAccountRemoval }}
               else
                 exit $RC
               fi
@@ -135,14 +141,14 @@ jobs:
                 --administration-role-arn ${{ secrets.administration-role-arn }}
             elif [ $RC -eq 254 ]; then
               if echo "$result" | grep -q "StackSetNotFoundException"; then
-              echo "StackSet does not exist, creating..."
-              aws cloudformation create-stack-set \
-                --stack-set-name ${{ inputs.stack-set-name }} \
-                --template-url ${{ inputs.template-url }} \
-                --capabilities CAPABILITY_NAMED_IAM \
-                --parameters ${{ secrets.parameter-overrides }} \
-                --administration-role-arn ${{ secrets.administration-role-arn }} \
-                --execution-role-name AWSControlTowerExecution
+                echo "StackSet does not exist, creating..."
+                aws cloudformation create-stack-set \
+                  --stack-set-name ${{ inputs.stack-set-name }} \
+                  --template-url ${{ inputs.template-url }} \
+                  --capabilities CAPABILITY_NAMED_IAM \
+                  --parameters ${{ secrets.parameter-overrides }} \
+                  --administration-role-arn ${{ secrets.administration-role-arn }} \
+                  --execution-role-name AWSControlTowerExecution
               else
                 exit $RC
               fi
@@ -177,7 +183,7 @@ jobs:
               aws cloudformation create-stack-instances \
                 --stack-set-name ${{ inputs.stack-set-name }} \
                 --parameter-overrides ${{ secrets.parameter-overrides }} \
-                --accounts ${{ secrets.account-ids }} \
+                --accounts $ACCOUNT_IDS_JSON \
                 --regions ${{ inputs.stackset-instance-region }} \
                 --operation-preferences FailureToleranceCount=1,MaxConcurrentCount=2
             else
@@ -185,9 +191,8 @@ jobs:
               aws cloudformation update-stack-instances \
                 --stack-set-name ${{ inputs.stack-set-name }} \
                 --parameter-overrides ${{ secrets.parameter-overrides }} \
-                --accounts ${{ secrets.account-ids }} \
+                --accounts $ACCOUNT_IDS_JSON \
                 --regions ${{ inputs.stackset-instance-region }} \
                 --operation-preferences MaxConcurrentPercentage=1
             fi
           fi
-...
