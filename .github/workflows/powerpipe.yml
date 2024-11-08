@@ -9,7 +9,7 @@ on:
         required: true
         type: string
         default: 'AWS'
-      mod_url: 
+      mod_url:
         description: 'Powerpipe Mod URL. Get URL from here: https://hub.powerpipe.io/'
         required: false
         type: string
@@ -111,7 +111,7 @@ jobs:
       - name: Install Powerpipe
         uses: turbot/powerpipe-action-setup@v1
 
-      - name: Start steampipe service # start steampipe service - powerpipe will connect to this running steampipe postgres database
+      - name: Start steampipe service
         run: |
           steampipe service start
 
