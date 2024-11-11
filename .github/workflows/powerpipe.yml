@@ -71,7 +71,7 @@ on:
       AZURE_TENANT_ID:
         description: 'Tenant ID of aure cloud OIDC.'
         required: false
-      SUBSCRIPTION_ID: 
+      SUBSCRIPTION_ID:
         description: 'Subscript ID of Azure Cloud OIDC.'
         required: false
 
