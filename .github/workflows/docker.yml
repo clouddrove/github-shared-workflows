@@ -24,13 +24,13 @@ on:
         type: string
       WORKING_DIRECTORY:
         required: false
-        type: string 
+        type: string
       role_arn:
         required: false
-        type: string  # Root role ARN to assume  
+        type: string # Root role ARN to assume
       assume_role_arn:
         required: false
-        type: string  # ARN for the role to assume with STS
+        type: string # ARN for the role to assume with STS
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -43,7 +43,7 @@ on:
         description: 'AWS Secret access key to install AWS CLI'
       AWS_SESSION_TOKEN:
         required: false
-        description: 'AWS Session Token to install AWS CLI' 
+        description: 'AWS Session Token to install AWS CLI'
       DOCKERHUB_USERNAME:
         description: 'dockerhub username'
         required: false
@@ -89,7 +89,7 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
           role-duration-seconds: ${{ inputs.role-duration-seconds }}
           role-skip-session-tagging: true
-          
+
       - name: Verify awscli
         run: |
           aws sts get-caller-identity
