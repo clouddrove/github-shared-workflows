@@ -27,10 +27,10 @@ on:
         type: string
       role_arn:
         required: false
-        type: string # Root role ARN to assume
+        type: string
       assume_role_arn:
         required: false
-        type: string # ARN for the role to assume with STS
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
