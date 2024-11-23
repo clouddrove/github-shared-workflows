@@ -91,7 +91,7 @@ jobs:
           echo "::set-output name=diffTotalMonthlyCost::$(jq '(.diffTotalMonthlyCost // 0) | tonumber' /tmp/infracost.json)"
 
       - name: Send cost estimate to Slack
-        uses: slackapi/slack-github-action@v1
+        uses: slackapi/slack-github-action@v2
         if: ${{ inputs.slack_notification == 'true' }}
         with:
           payload: ${{ steps.infracost-slack.outputs.slack-message }}
