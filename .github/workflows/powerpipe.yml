@@ -1,0 +1,164 @@
+---
+name: 'Powerpipe Workflow'
+
+on:
+  workflow_call:
+    inputs:
+      cloud_provider:
+        description: 'Cloud Provider Name. i.g. AWS, Azure, GCP, OCI'
+        required: true
+        type: string
+        default: 'AWS'
+      mod_url:
+        description: 'Powerpipe Mod URL. Get URL from here: https://hub.powerpipe.io/'
+        required: false
+        type: string
+        default: 'https://github.com/turbot/steampipe-mod-aws-thrifty'
+      plugin_connection:
+        description: 'Powerpipe plugin-connection to establish the connection between powerpipe and plugin.'
+        required: false
+        type: string
+        default: |
+          connection "aws" {
+            plugin = "aws"
+          }
+      controls:
+        description: 'Controlers to run in powerpipe'
+        required: false
+        type: string
+      benchmarks:
+        description: 'Powerpipe step benchmarks to scan in specific mod.'
+        required: false
+        type: string
+        default: |
+          all
+
+      # GCP Authentication
+      create_credentials_file:
+        required: false
+        type: string
+        default: true
+        description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+      token_format:
+        required: false
+        type: string
+        default: access_token
+        description: 'Output format for the generated authentication token. For OAuth 2.0 access tokens, specify "access_token". For OIDC tokens, specify "id_token". To skip token generation, leave this value empty'
+      access_token_lifetime:
+        required: false
+        type: string
+        default: 300s
+        description: 'Desired lifetime duration of the access token, in seconds'
+      project_id:
+        required: false
+        type: string
+        description: 'ID of the default project to use for future API calls and invocations.'
+
+    secrets:
+      TOKEN:
+        description: 'GitHub Token'
+        required: false
+
+      # AWS Authentication
+      aws_assume_role:
+        description: 'AWS IAM role to assume. Necessary if cloud_provider is AWS.'
+        required: false
+
+      # Azure Authentication
+      AZURE_CLIENT_ID:
+        description: 'Client ID of Azure cloud OIDC.'
+        required: false
+      AZURE_TENANT_ID:
+        description: 'Tenant ID of aure cloud OIDC.'
+        required: false
+      SUBSCRIPTION_ID:
+        description: 'Subscript ID of Azure Cloud OIDC.'
+        required: false
+
+      # GCP Authentication
+      GCP_CREDENTIALS:
+        description: 'The Google Cloud JSON service account key to use for authentication'
+        required: false
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: false
+        description: 'The full identifier of the Workload Identity Provider'
+      SERVICE_ACCOUNT:
+        required: false
+        description: 'The service account to be used'
+
+jobs:
+  powerpipe:
+    name: 'Powerpipe Shared Workflow'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.aws_assume_role }}
+          role-session-name: powerpipe
+          aws-region: us-east-1
+        if: ${{ inputs.cloud_provider == 'AWS' }}
+
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          create_credentials_file: ${{ inputs.create_credentials_file }}
+          token_format: ${{ inputs.token_format }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+          project_id: ${{ inputs.project_id }}
+        if: ${{ inputs.cloud_provider == 'GCP' }}
+
+      - name: Authenticate to Azure Cloud
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+        if: ${{ inputs.cloud_provider == 'AZURE' }}
+
+      - name: Setup Steampipe
+        uses: turbot/steampipe-action-setup@v1
+        with:
+          plugin-connections: ${{ inputs.plugin_connection }}
+
+      - name: Install Powerpipe
+        uses: turbot/powerpipe-action-setup@v1
+
+      - name: Start steampipe service
+        run: |
+          steampipe service start
+
+      - name: Run Terraform AWS Compliance control
+        uses: turbot/powerpipe-action-check@v1
+        with:
+          mod-url: ${{ inputs.mod_url }}
+          controls: ${{ inputs.controls }}
+          benchmarks: ${{ inputs.benchmarks }}
+          github-token: ${{ secrets.TOKEN }}
+
+      - name: Read generated markdown file
+        id: read_md_file
+        run: |
+          # Read the content of the generated .md file into an environment variable
+          FILE_PATH="${{ github.workspace }}/*.md"
+          MD_CONTENT=$(cat $FILE_PATH)
+          echo "md_content<<EOF" >> $GITHUB_ENV
+          echo "$MD_CONTENT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Comment on the PR with the markdown report
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## Terraform Compliance Report
+            ${{ env.md_content }}
+        continue-on-error: true
+...
