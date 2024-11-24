@@ -153,7 +153,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Comment on the PR with the markdown report
-        uses: peter-evans/create-or-update-comment@v3
+        uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}
