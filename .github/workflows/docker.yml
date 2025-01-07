@@ -73,7 +73,7 @@ jobs:
           images: ${{ inputs.images }}
           BUILD_PATH: ${{ inputs.BUILD_PATH }}
         run: |
-          docker build -t $images:$IMAGE_TAG BUILD_PATH
+          docker build -t $images:$IMAGE_TAG $BUILD_PATH
           docker push $images:$IMAGE_TAG
 
       - name: Configure AWS credentials
@@ -122,8 +122,8 @@ jobs:
           ## For DOCKERHUB env variable
           images: ${{ inputs.images }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG BUILD_PATH
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $BUILD_PATH
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker build -t $images:$IMAGE_TAG BUILD_PATH
+          docker build -t $images:$IMAGE_TAG $BUILD_PATH
           docker push $images:$IMAGE_TAG
 ...
