@@ -89,6 +89,7 @@ jobs:
           role-skip-session-tagging: true
 
       - name: Verify awscli
+        if: ${{ inputs.provider == 'aws' }}
         run: |
           aws sts get-caller-identity
 
