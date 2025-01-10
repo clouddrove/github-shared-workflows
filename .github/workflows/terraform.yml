@@ -67,9 +67,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       #  This is needed since we are running terraform with Azure
-        ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
-        ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-        ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
         ARM_SKIP_PROVIDER_REGISTRATION: true
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
