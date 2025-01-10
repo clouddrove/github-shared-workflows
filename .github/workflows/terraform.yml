@@ -27,6 +27,15 @@ on:
       AZURE_CREDENTIALS:
         required: false
         description: Azure Credentials to install Azure in github runner.
+      AZURE_CLIENT_ID:
+        required: false
+        description: 'Client ID for service principal in Azure.'
+      AZURE_SUBSCRIPTION_ID:
+        required: false
+        description: 'Subscription ID in Azure.'
+      AZURE_TENANT_ID:
+        required: false
+        description: 'Tenant ID of Azure.'
       AWS_ACCESS_KEY_ID:
         required: false
         description: AWS Access Key ID to install AWS CLI.
@@ -46,13 +55,22 @@ on:
         required: false
         description: Terraform cloud token if your backend is terraform cloud.
 
+#Special permissions required for OIDC authentication for Azure
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
 jobs:
   terraform-checks:
     name: 'Terraform Validate, Init and Plan'
     runs-on: ubuntu-latest
     env:
-      #  This is needed since we are running terraform with read-only permissions
-      ARM_SKIP_PROVIDER_REGISTRATION: true
+      #  This is needed since we are running terraform with Azure
+        ARM_CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
+        ARM_SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
+        ARM_TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
+        ARM_SKIP_PROVIDER_REGISTRATION: true
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
