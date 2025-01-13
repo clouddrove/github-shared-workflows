@@ -78,9 +78,10 @@ on:
         description: 'Subscription ID in Azure.'
       AZURE_TENANT_ID:
         required: false
-      SUBSCRIPTION_ID:
+        description: 'Tenant ID in Azure.' 
+      AZURE_CLIENT_SECRET:
         required: false
-        description: 'Subscription ID of Azure.'
+        description: 'Client Secret for the Azure app registration.'
       AWS_ACCESS_KEY_ID:
         required: false
         description: 'AWS Access Key ID to install AWS CLI.'
@@ -179,10 +180,10 @@ jobs:
 
       - name: terraform init
         run: |
-           export ARM_CLIENT_ID="${{ secrets.CLIENT_ID }}"
-           export ARM_CLIENT_SECRET="${{ secrets.CLIENT_SECRET }}"
-           export ARM_TENANT_ID="${{ secrets.TENANT_ID }}"
-           export ARM_SUBSCRIPTION_ID="${{ secrets.SUBSCRIPTION_ID }}"
+           export ARM_CLIENT_ID="${{ secrets.AZURE_CLIENT_ID }}"
+           export ARM_CLIENT_SECRET="${{ secrets.AZURE_CLIENT_SECRET }}"
+           export ARM_TENANT_ID="${{ secrets.AZURE_TENANT_ID }}"
+           export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
            cd ${{ inputs.working_directory }}
            terraform init
 
@@ -198,10 +199,10 @@ jobs:
         run: |
           export exitcode=0
           cd ${{ inputs.working_directory }}
-          export ARM_CLIENT_ID="${{ secrets.CLIENT_ID }}"
-          export ARM_CLIENT_SECRET="${{ secrets.CLIENT_SECRET }}"
-          export ARM_TENANT_ID="${{ secrets.TENANT_ID }}"
-          export ARM_SUBSCRIPTION_ID="${{ secrets.SUBSCRIPTION_ID }}"
+          export ARM_CLIENT_ID="${{ secrets.AZURE_CLIENT_ID }}"
+          export ARM_CLIENT_SECRET="${{ secrets.AZURE_CLIENT_SECRET }}"
+          export ARM_TENANT_ID="${{ secrets.AZURE_TENANT_ID }}"
+          export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           if [ "${{ inputs.destroy }}" = true ]; then
             if [ -n "${{ inputs.var_file }}" ]; then
               terraform plan -destroy -out tfplan --var-file=${{ inputs.var_file }}
@@ -250,10 +251,10 @@ jobs:
       - name: terraform apply
         if: ${{ inputs.destroy != true }}
         run: |
-          export ARM_CLIENT_ID="${{ secrets.CLIENT_ID }}"
-          export ARM_CLIENT_SECRET="${{ secrets.CLIENT_SECRET }}"
-          export ARM_TENANT_ID="${{ secrets.TENANT_ID }}"
-          export ARM_SUBSCRIPTION_ID="${{ secrets.SUBSCRIPTION_ID }}"        
+          export ARM_CLIENT_ID="${{ secrets.AZURE_CLIENT_ID }}"
+          export ARM_CLIENT_SECRET="${{ secrets.AZURE_CLIENT_SECRET }}"
+          export ARM_TENANT_ID="${{ secrets.AZURE_TENANT_ID }}"
+          export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"        
           if [ -n "${{ inputs.var_file }}" ]; then
            cd ${{ inputs.working_directory }}
            terraform apply -var-file="${{ inputs.var_file }}" -auto-approve
@@ -284,10 +285,10 @@ jobs:
         if: ${{ inputs.destroy == true }}
         id: destroy
         run: |
-          export ARM_CLIENT_ID="${{ secrets.CLIENT_ID }}"
-          export ARM_CLIENT_SECRET="${{ secrets.CLIENT_SECRET }}"
-          export ARM_TENANT_ID="${{ secrets.TENANT_ID }}"
-          export ARM_SUBSCRIPTION_ID="${{ secrets.SUBSCRIPTION_ID }}"
+          export ARM_CLIENT_ID="${{ secrets.AZURE_CLIENT_ID }}"
+          export ARM_CLIENT_SECRET="${{ secrets.AZURE_CLIENT_SECRET }}"
+          export ARM_TENANT_ID="${{ secrets.AZURE_TENANT_ID }}"
+          export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           if [ -n "${{ inputs.var_file }}" ]; then
            cd ${{ inputs.working_directory }}
            terraform destroy -var-file="${{ inputs.var_file }}" -auto-approve
