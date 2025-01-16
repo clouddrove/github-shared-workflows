@@ -72,7 +72,7 @@ on:
         description: 'Timeout for approval step'
       minimum-approvals:
         required: false
-        type: string
+        type: number
         default: 1
         description: 'Minimum approvals required to accept the plan'
       token_format:
