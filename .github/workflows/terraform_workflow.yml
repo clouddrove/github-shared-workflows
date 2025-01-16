@@ -11,10 +11,6 @@ on:
         required: false
         type: string
         default: "dev"
-      terraform_version:
-        required: false
-        type: string
-        default: "1.8.0"
       region:
         required: false
         type: string
