@@ -73,7 +73,7 @@ on:
       minimum-approvals:
         required: false
         type: number
-        default: 1
+        default: 0
         description: 'Minimum approvals required to accept the plan'
       token_format:
         required: false
