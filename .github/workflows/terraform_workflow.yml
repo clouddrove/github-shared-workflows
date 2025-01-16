@@ -260,10 +260,10 @@ jobs:
           export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"        
           if [ -n "${{ inputs.var_file }}" ]; then
            cd ${{ inputs.working_directory }}
-           terraform apply -var-file="${{ inputs.var_file }}" -auto-approve
+           terraform apply -var-file="${{ inputs.var_file }}" -auto-approve -parallelism=5
           else
            cd ${{ inputs.working_directory }}
-           terraform apply -auto-approve
+           terraform apply -auto-approve -parallelism=5
           fi
 
       - name: Find Errored Terraform State
@@ -294,10 +294,10 @@ jobs:
           export ARM_SUBSCRIPTION_ID="${{ secrets.AZURE_SUBSCRIPTION_ID }}"
           if [ -n "${{ inputs.var_file }}" ]; then
            cd ${{ inputs.working_directory }}
-           terraform destroy -var-file="${{ inputs.var_file }}" -auto-approve
+           terraform destroy -var-file="${{ inputs.var_file }}" -auto-approve -parallelism=5
           else
            cd ${{ inputs.working_directory }}
-           terraform destroy -auto-approve
+           terraform destroy -auto-approve -parallelism=5
           fi
 
       - name: Notify Slack
