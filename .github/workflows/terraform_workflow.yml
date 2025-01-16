@@ -6,7 +6,6 @@ on:
       replace_tokens:
         required: true
         type: boolean
-        default: true
         description: 'Set true to replace tokens in the terraform files.'
       environmentName:
         required: false
@@ -23,7 +22,6 @@ on:
       working_directory:
         required: true
         type: string
-        default: "terraform/common"
         description: 'Root directory of the terraform where all resources exist.'
       resourceName:
         required: false
