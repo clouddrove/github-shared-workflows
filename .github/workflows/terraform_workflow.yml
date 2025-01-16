@@ -325,37 +325,37 @@ jobs:
       #       $SLACK_WEBHOOK_URL
 
       - name: Notify Slack
-      if: ${{ always() }}
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-      run: |
-        # Determine the operation type (apply or destroy) using a custom environment variable or flag
-        if [[ "${{ inputs.destroy }}" == "true" ]]; then
-          OPERATION="Destroy"
-        else
-          OPERATION="Apply"
-        fi
-    
-        # Check the job status
-        if [ "${{ job.status }}" == "success" ]; then
-          STATUS="Success ✅"
-          COLOR="good"
-          MESSAGE="Terraform $OPERATION completed successfully."
-        else
-          STATUS="Failed ❌"
-          COLOR="danger"
-          MESSAGE="Terraform $OPERATION failed. Check logs for details."
-        fi
-    
-        # Create the Run URL
-        RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-    
-        # Send the notification to Slack
-        curl -X POST -H 'Content-type: application/json' \
-          --data "$(jq -n --arg color "$COLOR" --arg status "$STATUS" --arg message "$MESSAGE" \
-          --arg operation "$OPERATION" --arg repo "$GITHUB_REPOSITORY" --arg branch "$GITHUB_REF_NAME" --arg sha "$GITHUB_SHA" \
-          --arg run_url "$RUN_URL" \
-          '{attachments: [{color: $color, title: ("Terraform " + $operation + ": " + $status), text: $message, fields: [{title: "Operation", value: $operation, short: true}, {title: "Repository", value: $repo, short: true}, {title: "Branch", value: $branch, short: true}, {title: "Commit", value: $sha, short: true}, {title: "Run URL", value: $run_url, short: false}]}]}')" \
-          $SLACK_WEBHOOK_URL
-    
+        if: ${{ always() }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          # Determine the operation type (apply or destroy) using a custom environment variable or flag
+          if [[ "${{ inputs.destroy }}" == "true" ]]; then
+            OPERATION="Destroy"
+          else
+            OPERATION="Apply"
+          fi
+      
+          # Check the job status
+          if [ "${{ job.status }}" == "success" ]; then
+            STATUS="Success ✅"
+            COLOR="good"
+            MESSAGE="Terraform $OPERATION completed successfully."
+          else
+            STATUS="Failed ❌"
+            COLOR="danger"
+            MESSAGE="Terraform $OPERATION failed. Check logs for details."
+          fi
+      
+          # Create the Run URL
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      
+          # Send the notification to Slack
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$(jq -n --arg color "$COLOR" --arg status "$STATUS" --arg message "$MESSAGE" \
+            --arg operation "$OPERATION" --arg repo "$GITHUB_REPOSITORY" --arg branch "$GITHUB_REF_NAME" --arg sha "$GITHUB_SHA" \
+            --arg run_url "$RUN_URL" \
+            '{attachments: [{color: $color, title: ("Terraform " + $operation + ": " + $status), text: $message, fields: [{title: "Operation", value: $operation, short: true}, {title: "Repository", value: $repo, short: true}, {title: "Branch", value: $branch, short: true}, {title: "Commit", value: $sha, short: true}, {title: "Run URL", value: $run_url, short: false}]}]}')" \
+            $SLACK_WEBHOOK_URL
+      
 ...
