@@ -3,38 +3,10 @@ run-name: 'Terraform workflow'
 on:
   workflow_call:
     inputs:
-      replace_tokens:
-        required: true
-        type: boolean
-        description: 'Set true to replace tokens in the terraform files.'
-      environmentName:
-        required: false
-        type: string
-        default: "dev"
-      region:
-        required: false
-        type: string
-        default: "canadaeast"
       working_directory:
         required: true
         type: string
         description: 'Root directory of the terraform where all resources exist.'
-      resourceName:
-        required: false
-        type: string
-        default: "moduletestref"
-      backend_rg_name:
-        required: false
-        type: string
-        default: "terraform-state-rg"
-      backend_sa_name:
-        required: false
-        type: string
-        default: "tfstatestorageaccountest"
-      backend_container_name:
-        required: false
-        type: string
-        default: "terraform-state"
       provider:
         required: true
         type: string
@@ -153,26 +125,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Update environment variables
-        if: ${{ inputs.replace_tokens == true }}
-        uses: cschleiden/replace-tokens@v1
-        with:
-          tokenPrefix: '#{'
-          tokenSuffix: '}#'
-          files: '["${{ inputs.working_directory }}/main.tf", "${{ inputs.working_directory }}/backend.tf"]'
-        env:
-          RESOURCE_NAME: ${{ inputs.resourceName }}
-          SUBSCRIPTION_ID: "${{ secrets.AZURE_SUBSCRIPTION_ID }}"
-          ENV_NAME: ${{ inputs.environmentName }}
-          REPLACE_REGION: ${{ inputs.region }}
-          CLIENT_ID: "${{ secrets.AZURE_CLIENT_ID }}"
-          CLIENT_SECRET: "${{ secrets.AZURE_CLIENT_SECRET }}"
-          TENANT_ID: "${{ secrets.AZURE_TENANT_ID }}"
-          BACKEND_RG_NAME: ${{ inputs.backend_rg_name }}
-          BACKEND_SA_NAME: ${{ inputs.backend_sa_name }}
-          BACKEND_CONTAINER_NAME: ${{ inputs.backend_container_name }}
-
-
       - name: Set environment variables
         run: |
           (
@@ -269,11 +221,6 @@ jobs:
             fi
           fi
 
-      # - name: Publish Terraform Plan
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: tfplan
-      #     path: ${{ inputs.working_directory }}/tfplan
 
       - name: Create String Output
         id: tf-plan-string
