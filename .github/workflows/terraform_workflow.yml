@@ -73,8 +73,13 @@ on:
       minimum-approvals:
         required: false
         type: number
-        default: 0
+        default: 1
         description: 'Minimum approvals required to accept the plan'
+      skip_approval:
+        required: false
+        type: boolean
+        default: false
+        description: 'Set true to skip approval step'
       token_format:
         required: false
         type: string
@@ -287,6 +292,7 @@ jobs:
           echo "${delimiter}" >> $GITHUB_OUTPUT
 
       - name: "Accept plan or deny"
+        if: ${{ inputs.skip_approval == false }}
         uses: trstringer/manual-approval@v1
         timeout-minutes: ${{ inputs.timeout }}
         with:
