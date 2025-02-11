@@ -55,8 +55,7 @@ on:
       revision:
         required: false
         type: number
-        description: 'If this argument is omitted or set to 0,
-                      it will roll back to the previous release.'
+        description: 'If this argument is omitted or set to 0, it will roll back to the previous release.'
       uninstall:
         required: false
         type: boolean
