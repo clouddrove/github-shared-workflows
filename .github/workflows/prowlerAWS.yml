@@ -1,3 +1,4 @@
+---
 name: Prowler Reusable Workflow
 
 on:
@@ -122,7 +123,9 @@ jobs:
         run: |
           YEAR=$(date +'%Y')
           MONTH=$(date +'%m')
-          aws s3 cp /home/runner/work/prowler/prowler/output/ s3://${{ secrets.S3_BUCKET_NAME }}/$YEAR/$MONTH/ --recursive
+          aws s3 cp /home/runner/work/prowler/prowler/output/ \
+            s3://${{ secrets.S3_BUCKET_NAME }}/$YEAR/$MONTH/ \
+            --recursive
 
       - name: 'Notify Slack'
         uses: clouddrove/action-slack-notify@1
