@@ -33,6 +33,11 @@ on:
         type: boolean
         default: false
         description: 'Enable Slack notifications for workflow results.'
+      send_to_securityhub:
+        type: boolean
+        required: false
+        default: false
+        description: 'Send findings to Security Hub'
 
     secrets:
       BUILD_ROLE:
@@ -101,12 +106,17 @@ jobs:
           for ACCOUNTID in $ACCOUNT_ID; do
           {
             echo "Scanning AWS Account: $ACCOUNTID"
-            prowler aws \
+            PROWLER_CMD="prowler aws \
               --role arn:aws:iam::${ACCOUNTID}:role/${{ secrets.PROWLER_ROLE_NAME }} \
               --output-directory /home/runner/work/prowler/prowler/output/$MONTH_NAME \
               --output-modes html csv json-asff \
-              --security-hub \
-              --ignore-exit-code-3
+              --ignore-exit-code-3"
+            
+            if [ "${{ inputs.send_to_securityhub }}" = "true" ]; then
+              PROWLER_CMD="$PROWLER_CMD --security-hub"
+            fi
+            
+            eval $PROWLER_CMD
           }
           done
 
@@ -123,9 +133,7 @@ jobs:
         run: |
           YEAR=$(date +'%Y')
           MONTH=$(date +'%m')
-          aws s3 cp /home/runner/work/prowler/prowler/output/ \
-            s3://${{ secrets.S3_BUCKET_NAME }}/$YEAR/$MONTH/ \
-            --recursive
+          aws s3 cp /home/runner/work/prowler/prowler/output/ s3://${{ secrets.S3_BUCKET_NAME }}/$YEAR/$MONTH/ --recursive
 
       - name: 'Notify Slack'
         uses: clouddrove/action-slack-notify@1
