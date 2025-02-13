@@ -23,6 +23,11 @@ on:
         type: number
         default: 900
         description: 'Duration of the session.'
+      retention_days:
+        required: false
+        type: number
+        default: 1
+        description: 'Duration of the reports retention period.'
       enable_s3_upload:
         required: false
         type: boolean
@@ -33,6 +38,16 @@ on:
         type: boolean
         default: false
         description: 'Enable Slack notifications for workflow results.'
+      SLACK_MESSAGE:
+        required: false
+        type: string
+        default: 'Updated prowler workflow notification'
+        description: 'Message to display in Slack Notification'
+      SLACK_ENV:
+        required: false
+        type: string
+        default: ''
+        description: 'Workflow Environment to show in Slack Notification'
       send_to_securityhub:
         type: boolean
         required: false
@@ -124,7 +139,7 @@ jobs:
         with:
           name: prowler-reports
           path: /home/runner/work/prowler/prowler/output/
-          retention-days: 1
+          retention-days: ${{ inputs.retention_days }}
 
       - name: Upload Prowler Results to AWS S3
         if: ${{ inputs.enable_s3_upload == true }}
@@ -138,8 +153,8 @@ jobs:
         if: ${{ inputs.enable_slack_notification == true }}
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_MESSAGE: 'Updated prowler workflow notification'
-          SLACK_ENV: 'test'
+          SLACK_MESSAGE: ${{ inputs.SLACK_MESSAGE }}
+          SLACK_ENV: ${{ inputs.SLACK_ENV }}
           SLACK_USERNAME: ${{ secrets.SLACK_USERNAME}}
           SLACK_COLOR: ${{ job.status == 'success' && 'good' || job.status == 'failure' && 'danger' || 'warning' }}
 ...
