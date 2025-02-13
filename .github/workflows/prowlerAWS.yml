@@ -111,11 +111,9 @@ jobs:
               --output-directory /home/runner/work/prowler/prowler/output/$MONTH_NAME \
               --output-modes html csv json-asff \
               --ignore-exit-code-3"
-            
             if [ "${{ inputs.send_to_securityhub }}" = "true" ]; then
               PROWLER_CMD="$PROWLER_CMD --security-hub"
             fi
-            
             eval $PROWLER_CMD
           }
           done
