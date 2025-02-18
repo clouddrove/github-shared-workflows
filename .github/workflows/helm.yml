@@ -125,6 +125,8 @@ jobs:
       - name: helm dependency build
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo update
           helm dependency build ${{ inputs.helm-chart-directory }}
 
       - name: helm template
