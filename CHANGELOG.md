@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.9] - 2025-02-18
+### :sparkles: New Features
+- [`8fae76f`](https://github.com/clouddrove/github-shared-workflows/commit/8fae76fb63eb1236c68f46e39bf61810d2842d2e) - Introduce Powerpipe shared workflow *(PR [#156](https://github.com/clouddrove/github-shared-workflows/pull/156) by [@nileshgadgi](https://github.com/nileshgadgi))*
+
+### :construction_worker: Build System
+- [`8706174`](https://github.com/clouddrove/github-shared-workflows/commit/8706174ae1b748dd509c18658778a6b109eee33e) - **deps**: bump pascalgn/automerge-action from 0.16.3 to 0.16.4 *(PR [#153](https://github.com/clouddrove/github-shared-workflows/pull/153) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`b53319f`](https://github.com/clouddrove/github-shared-workflows/commit/b53319f13a478fa7a39458526ac4e46a4063c832) - **deps**: bump appleboy/ssh-action from 1.0.3 to 1.1.0 *(PR [#155](https://github.com/clouddrove/github-shared-workflows/pull/155) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`ba43219`](https://github.com/clouddrove/github-shared-workflows/commit/ba43219a04532e2a8932614110963c7da2da1111) - **deps**: bump docker/setup-buildx-action from 3.6.1 to 3.7.1 *(PR [#154](https://github.com/clouddrove/github-shared-workflows/pull/154) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`26e6886`](https://github.com/clouddrove/github-shared-workflows/commit/26e6886ba4c1644291e7bcd214f0186555fc4899) - **deps**: bump triat/terraform-security-scan from 3.1.0 to 3.2.0 *(PR [#157](https://github.com/clouddrove/github-shared-workflows/pull/157) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`206c479`](https://github.com/clouddrove/github-shared-workflows/commit/206c4792e47389743a119f9cccbcbe1938cc809a) - **deps**: bump appleboy/ssh-action from 1.1.0 to 1.2.0 *(PR [#160](https://github.com/clouddrove/github-shared-workflows/pull/160) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`00641dd`](https://github.com/clouddrove/github-shared-workflows/commit/00641dd140b59f0c3fdc2479f2cae21a66daa3f7) - **deps**: bump slackapi/slack-github-action from 1 to 2 *(PR [#159](https://github.com/clouddrove/github-shared-workflows/pull/159) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`25295dc`](https://github.com/clouddrove/github-shared-workflows/commit/25295dc81ef5c1de2e19f5c36886cf337e111c22) - **deps**: bump azure/login from 1 to 2 *(PR [#162](https://github.com/clouddrove/github-shared-workflows/pull/162) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`8f56c76`](https://github.com/clouddrove/github-shared-workflows/commit/8f56c763d1b37185642aa0bd8ffd612a7095166f) - **deps**: bump peter-evans/create-or-update-comment from 3 to 4 *(PR [#161](https://github.com/clouddrove/github-shared-workflows/pull/161) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`eeeb375`](https://github.com/clouddrove/github-shared-workflows/commit/eeeb3759e8445cba2f6820405d14a1a2d9e111a1) - **deps**: bump docker/setup-buildx-action from 3.7.1 to 3.8.0 *(PR [#163](https://github.com/clouddrove/github-shared-workflows/pull/163) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`ea087db`](https://github.com/clouddrove/github-shared-workflows/commit/ea087db61d0e7f462cdeb2c2ecae16c8ec6fb0c8) - **deps**: bump ncipollo/release-action from 1.13.0 to 1.15.0 *(PR [#164](https://github.com/clouddrove/github-shared-workflows/pull/164) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`707f967`](https://github.com/clouddrove/github-shared-workflows/commit/707f9677e89521737eb7cf0bfe4906f9a05459a2) - **deps**: bump docker/setup-buildx-action from 3.8.0 to 3.9.0 *(PR [#166](https://github.com/clouddrove/github-shared-workflows/pull/166) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`8c09ed3`](https://github.com/clouddrove/github-shared-workflows/commit/8c09ed3589608ca2380148fa32c3e21daadcd082) - update CHANGELOG.md for 1.2.8 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.2.8] - 2024-09-03
 ### :sparkles: New Features
 - [`bd67b58`](https://github.com/clouddrove/github-shared-workflows/commit/bd67b584655bcb467c54dacf6c1ffc8a96757c44) - added conditional paramter for blocking action *(PR [#151](https://github.com/clouddrove/github-shared-workflows/pull/151) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
@@ -193,3 +214,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.5...1.2.6
 [1.2.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.6...1.2.7
 [1.2.8]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.7...1.2.8
+[1.2.9]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.8...1.2.9
