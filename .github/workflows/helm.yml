@@ -121,6 +121,11 @@ jobs:
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
           helm lint ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
+        
+      - name: helm dependency build
+        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+        run: |
+          helm dependency build ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
       - name: helm template
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
