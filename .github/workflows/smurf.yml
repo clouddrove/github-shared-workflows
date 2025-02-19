@@ -1,0 +1,77 @@
+name: Smurf Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        description: 'Branch to checkout'
+        type: string
+        default: 'selm'
+      aws-role:
+        description: 'AWS IAM role ARN to assume'
+        type: string
+        required: true
+      aws-region:
+        description: 'AWS region'
+        type: string
+        default: 'us-east-1'
+      eks-cluster:
+        description: 'EKS cluster name'
+        type: string
+        required: true
+      ecr-repository:
+        description: 'ECR repository URL'
+        type: string
+        required: true
+      dockerfile-path:
+        description: 'Path to Dockerfile'
+        type: string
+        required: true
+      helm-values-path:
+        description: 'Path to Helm values file'
+        type: string
+        required: true
+      helm-chart-path:
+        description: 'Path to Helm chart'
+        type: string
+        required: true
+      namespace:
+        description: 'Kubernetes namespace'
+        type: string
+        default: 'testing-smurf'
+      timeout:
+        description: 'Helm timeout in seconds'
+        type: number
+        default: 30
+
+jobs:
+  smurf-helm:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2.3.4
+        
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws-role }}
+          aws-region: ${{ inputs.aws-region }}
+          
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
+      
+      - name: Smurf SDKR Provision
+        uses: clouddrove-sandbox/smurf-custon-github-action-test@selm
+        with:
+          tool: sdkr
+          command: provision-ecr ${{ inputs.ecr-repository }}:${{ github.run_id }} -f ${{ inputs.dockerfile-path }}
+          
+      - name: Smurf SELM Upgrade
+        uses: clouddrove-sandbox/smurf-custon-github-action-test@selm
+        with:
+          tool: selm
+          command: upgrade smurf --install --atomic --set image.tag=${{ github.run_id }} -f ${{ inputs.helm-values-path }} ${{ inputs.helm-chart-path }} -n ${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
