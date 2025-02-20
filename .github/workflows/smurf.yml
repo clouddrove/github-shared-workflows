@@ -65,13 +65,13 @@ jobs:
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
       
       - name: Smurf SDKR Provision
-        uses: clouddrove-sandbox/smurf-custon-github-action-test@selm
+        uses: clouddrove/smurf@feat/docs_format
         with:
           tool: sdkr
           command: provision-ecr ${{ inputs.ecr-repository }}:${{ github.run_id }}
           
       - name: Smurf SELM Upgrade
-        uses: clouddrove-sandbox/smurf-custon-github-action-test@selm
+        uses: clouddrove/smurf@feat/docs_format
         with:
           tool: selm
           command: upgrade smurf --install --atomic --set image.tag=${{ github.run_id }} -f ${{ inputs.helm-values-path }} ${{ inputs.helm-chart-path }} -n ${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
