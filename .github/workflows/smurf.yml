@@ -23,10 +23,10 @@ on:
         description: 'ECR repository URL'
         type: string
         required: true
-      # dockerfile-path:
-      #   description: 'Path to Dockerfile'
-      #   type: string
-      #   required: true
+      dockerfile-path:
+        description: 'Path to Dockerfile'
+        type: string
+        required: true
       helm-values-path:
         description: 'Path to Helm values file'
         type: string
@@ -68,7 +68,7 @@ jobs:
         uses: clouddrove/smurf@feat/docs_format
         with:
           tool: sdkr
-          command: provision-ecr ${{ inputs.ecr-repository }}:${{ github.run_id }}
+          command: provision-ecr ${{ inputs.ecr-repository }}:${{ github.run_id }} -f ${{ inputs.dockerfile-path }}
           
       - name: Smurf SELM Upgrade
         uses: clouddrove/smurf@feat/docs_format
