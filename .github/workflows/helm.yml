@@ -134,17 +134,16 @@ jobs:
         run: |
           helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
   
-      - name: helm install and upgrade
+      - name: helm install and upgrade2
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
-        run: | 
-              PARAMS=" for var in $(env | grep '^HELM_' | awk -F= '{print $1}'); do key=$(echo $var | sed 's/^HELM_//' | tr '[:upper:]' '[:lower:]' | sed 's/_/./g')  value=${!var}
-              PARAMS="$PARAMS --set $key=$value"
-                done
-
-                echo "Running Helm with parameters: $PARAMS"
-                  helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} \ -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace \
-                --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }} $PARAMS
-              fi
+        run: |
+          if [ -n "${{ secrets.set-parameters }}" ]; then
+            helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace ${{ secrets.set-parameters }} \
+              --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
+          else
+            helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace \
+              --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
+          fi
      
       - name: Rollback Helm Release
         if: ${{ inputs.rollback == true && inputs.uninstall != true }}
