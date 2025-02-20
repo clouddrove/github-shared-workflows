@@ -155,4 +155,12 @@ jobs:
         if: ${{ inputs.uninstall == true }}
         run: |
           helm uninstall ${{ inputs.release-name }} -n ${{ inputs.namespace }}
+
+      - name: Debug set-parameters
+        run: |
+          echo "Username: ${{ secrets.USERNAME }}"
+          echo "Email: ${{ secrets.EMAIL }}"
+          echo "First Name: ${{ secrets.FIRSTNAME }}"
+          echo "Last Name: ${{ secrets.LASTNAME }}"
+          echo "Password: ${{ secrets.PASSWORD }}" 
 ...
