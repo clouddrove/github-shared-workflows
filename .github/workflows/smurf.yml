@@ -65,7 +65,7 @@ jobs:
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
       
       - name: Smurf SDKR Provision
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@master
         with:
           tool: sdkr
           command: provision-ecr ${{ inputs.ecr-repository }}:${{ github.run_id }}
