@@ -144,9 +144,7 @@ jobs:
             helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace \
               --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
           fi
-          echo "Proceeding with installation/upgrade..."
-          helm upgrade --install superset-application ${{ inputs.helm-chart-directory }} --namespace ${{ inputs.namespace }} --atomic
-     
+          
       - name: Rollback Helm Release
         if: ${{ inputs.rollback == true && inputs.uninstall != true }}
         run: |
