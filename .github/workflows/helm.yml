@@ -163,12 +163,9 @@ jobs:
           echo "First Name: ${{ secrets.FIRSTNAME }}"
           echo "Last Name: ${{ secrets.LASTNAME }}"
           echo "Password: ${{ secrets.PASSWORD }}"
-
-      - name: Debug set-parameters
-        run: |
-          echo "Adminusername: ${{ secrets.ADMINUSERNAME  }}"
-          echo "Adminuserpass: ${{ secrets.ADMINUSERPASS }}"
-          echo "Dbuser: ${{ secrets.DBUSER }}"
-          echo "Dbpass: ${{ secrets.DBPASS }}"  
+          echo "Admin Username: ${{ secrets.ADMINUSERNAME }}"
+          echo "Admin Password: ${{ secrets.ADMINUSERPASS }}"
+          echo "DB User: ${{ secrets.DBUSER }}"
+          echo "DB Password: ${{ secrets.DBPASS }}" 
 ...
 
