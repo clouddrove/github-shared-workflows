@@ -71,7 +71,7 @@ jobs:
           command: provision-ecr ${{ inputs.ecr-repository }}:${{ github.run_id }}
           
       - name: Smurf SELM Upgrade
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@master
         with:
           tool: selm
           command: upgrade smurf --install --atomic --set image.tag=${{ github.run_id }} -f ${{ inputs.helm-values-path }} ${{ inputs.helm-chart-path }} -n ${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
