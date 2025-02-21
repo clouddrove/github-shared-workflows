@@ -133,7 +133,12 @@ jobs:
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
           helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
-  
+     
+      - name: helm version
+        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+        run: |
+          helm version 
+              
       - name: helm install and upgrade2
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
