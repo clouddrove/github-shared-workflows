@@ -154,7 +154,7 @@ jobs:
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
             helm upgrade --install superset-application helm/superset -f helm/superset/values.yaml  --namespace=superset --create-namespace ${{ secrets.set-parameters }} \
-              --history-max 10 --atomic --wait --debug --timeout 600s
+              --history-max 4 --atomic --wait --debug --timeout 300s
               
       - name: Rollback Helm Release
         if: ${{ inputs.rollback == true && inputs.uninstall != true }}
