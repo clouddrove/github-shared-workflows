@@ -92,7 +92,7 @@ jobs:
       # Terraform-specific steps
       - name: Smurf STF Init
         if: inputs.tools == 'terraform'
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@feat/docs_format
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
@@ -100,7 +100,7 @@ jobs:
 
       - name: Smurf STF Validate
         if: inputs.tools == 'terraform'
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@feat/docs_format
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
@@ -108,7 +108,7 @@ jobs:
           
       - name: Smurf STF Validate
         if: inputs.tools == 'terraform'
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@feat/docs_format
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
@@ -116,7 +116,7 @@ jobs:
           
       - name: Smurf STF Validate
         if: inputs.tools == 'terraform'
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@feat/docs_format
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
