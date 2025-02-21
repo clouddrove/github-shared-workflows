@@ -1,11 +1,12 @@
 name: Smurf Reusable Workflow
+
 on:
   workflow_call:
     inputs:
-      tools:
-        description: 'Tool to run (helm or terraform)'
+      branch:
+        description: 'Branch to checkout'
         type: string
-        required: true
+        default: 'selm'
       aws-role:
         description: 'AWS IAM role ARN to assume'
         type: string
@@ -14,27 +15,26 @@ on:
         description: 'AWS region'
         type: string
         default: 'us-east-1'
-      # Helm-specific inputs
       eks-cluster:
         description: 'EKS cluster name'
         type: string
-        required: false
+        required: true
       ecr-repository:
         description: 'ECR repository URL'
         type: string
-        required: false
+        required: true
       dockerfile-path:
         description: 'Path to Dockerfile'
         type: string
-        required: false
+        required: true
       helm-values-path:
         description: 'Path to Helm values file'
         type: string
-        required: false
+        required: true
       helm-chart-path:
         description: 'Path to Helm chart'
         type: string
-        required: false
+        required: true
       namespace:
         description: 'Kubernetes namespace'
         type: string
@@ -43,74 +43,23 @@ on:
         description: 'Helm timeout in seconds'
         type: number
         default: 30
-      # Terraform-specific inputs
-      terraform-path:
-        description: 'Path to terraform directory'
-        type: string
-        default: 'terraform'
 
 jobs:
-  terraform:
-    if: inputs.tools == 'terraform'
+  smurf-helm:
     runs-on: ubuntu-latest
+    permissions: write-all
     
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2.3.4
         
       - name: Configure AWS credentials with OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.aws-role }}
           aws-region: ${{ inputs.aws-region }}
-
-      - name: Set AWS Region
-        run: |
-          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-
-      - name: Smurf STF Init
-        uses: clouddrove/smurf@feat/docs_format
-        with:
-          path: ${{ inputs.terraform-path }}
-          tool: stf
-          command: init
-
-      - name: Smurf STF Validate
-        uses: clouddrove/smurf@feat/docs_format
-        with:
-          path: ${{ inputs.terraform-path }}
-          tool: stf
-          command: validate
           
-      - name: Smurf STF Plan
-        uses: clouddrove/smurf@feat/docs_format
-        with:
-          path: ${{ inputs.terraform-path }}
-          tool: stf
-          command: plan
-          
-      - name: Smurf STF Apply
-        uses: clouddrove/smurf@feat/docs_format
-        with:
-          path: ${{ inputs.terraform-path }}
-          tool: stf
-          command: apply
-
-  helm:
-    if: inputs.tools == 'helm'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v3
-        
-      - name: Configure AWS credentials with OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ inputs.aws-role }}
-          aws-region: ${{ inputs.aws-region }}
-
-      - name: Set environment variables for Helm
+      - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
