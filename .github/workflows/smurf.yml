@@ -3,9 +3,9 @@ on:
   workflow_call:
     inputs:
       tools:
-        description: 'List of tools to run (helm,terraform)'
+        description: 'Tool to run (helm or terraform)'
         type: string
-        default: ''
+        required: true
       branch:
         description: 'Branch to checkout'
         type: string
@@ -52,52 +52,46 @@ on:
         default: 'terraform'
 
 jobs:
-  smurf-helm:
-    if: contains(inputs.tools, 'helm')
+  smurf:
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      id-token: write
+      contents: read
     
     steps:
       - name: Check out repo
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3
         
       - name: Configure AWS credentials with OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.aws-role }}
           aws-region: ${{ inputs.aws-region }}
-          
-      - name: Set environment variables
+
+      # Helm-specific steps
+      - name: Set environment variables for Helm
+        if: inputs.tools == 'helm'
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
       
       - name: Smurf SDKR Provision
+        if: inputs.tools == 'helm'
         uses: clouddrove/smurf@feat/docs_format
         with:
           tool: sdkr
           command: provision-ecr ${{ inputs.ecr-repository }}:${{ github.run_id }} -f ${{ inputs.dockerfile-path }}
           
       - name: Smurf SELM Upgrade
+        if: inputs.tools == 'helm'
         uses: clouddrove/smurf@feat/docs_format
         with:
           tool: selm
           command: upgrade smurf --install --atomic --set image.tag=${{ github.run_id }} -f ${{ inputs.helm-values-path }} ${{ inputs.helm-chart-path }} -n ${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
 
-  smurf-terraform:
-    if: contains(inputs.tools, 'terraform')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Configure AWS credentials with OIDC
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ inputs.aws-role }}
-          aws-region: ${{ inputs.aws-region }}
-
+      # Terraform-specific steps
       - name: Smurf STF Init
+        if: inputs.tools == 'terraform'
         uses: clouddrove/smurf@master
         with:
           path: ${{ inputs.terraform-path }}
@@ -105,20 +99,25 @@ jobs:
           command: init
 
       - name: Smurf STF Validate
+        if: inputs.tools == 'terraform'
         uses: clouddrove/smurf@master
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
           command: validate
-      - name: Smurf STF plan
+          
+      - name: Smurf STF Validate
+        if: inputs.tools == 'terraform'
         uses: clouddrove/smurf@master
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
           command: plan
-      - name: Smurf STF apply
+          
+      - name: Smurf STF Validate
+        if: inputs.tools == 'terraform'
         uses: clouddrove/smurf@master
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
-          command: apply      
+          command: apply          
