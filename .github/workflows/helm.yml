@@ -120,7 +120,7 @@ jobs:
       - name: helm dependency build
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add airbyte https://airbytehq.github.io/helm-charts
           helm repo update
           helm dependency build ${{ inputs.helm-chart-directory }}
 
