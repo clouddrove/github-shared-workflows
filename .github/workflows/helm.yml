@@ -163,10 +163,6 @@ jobs:
           echo "First Name: ${{ secrets.FIRSTNAME }}"
           echo "Last Name: ${{ secrets.LASTNAME }}"
           echo "Password: ${{ secrets.PASSWORD }}"
-          echo "Admin Username: ${{ secrets.ADMINUSERNAME }}"
-          echo "Admin Password: ${{ secrets.ADMINUSERPASS }}"
-          echo "DB User: ${{ secrets.DBUSER }}"
-          echo "DB Password: ${{ secrets.DBPASS }}"
-      
+          
 ...
 
