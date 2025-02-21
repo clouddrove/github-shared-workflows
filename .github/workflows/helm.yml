@@ -164,7 +164,7 @@ jobs:
           echo "Last Name: ${{ secrets.LASTNAME }}"
           echo "Password: ${{ secrets.PASSWORD }}"
 
-      - name: set-parameters
+      - name: Debug set-parameters
         run: |
           echo "Admin Username: ${{ secrets.ADMINUSERNAME }}"
           echo "Admin Password: ${{ secrets.ADMINUSERPASS }}"
