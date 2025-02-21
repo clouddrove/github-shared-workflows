@@ -1,6 +1,13 @@
 name: Smurf Reusable Workflow
 on:
   workflow_call:
+    secrets:
+      docker-username:
+        description: 'Docker Hub username'
+        required: false
+      docker-password:
+        description: 'Docker Hub token'
+        required: false
     inputs:
       tools:
         description: 'Tool to run (helm or docker)'
@@ -48,14 +55,6 @@ on:
         type: number
         default: 30
       # Docker-specific inputs
-      docker-username:
-        description: 'Docker Hub username'
-        type: string
-        required: false
-      docker-password:
-        description: 'Docker Hub token'
-        type: string
-        required: false
       image-name:
         description: 'Docker image name'
         type: string
@@ -103,8 +102,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     env:
-      DOCKER_USERNAME: ${{ inputs.docker-username }}
-      DOCKER_PASSWORD: ${{ inputs.docker-password }}
+      DOCKER_USERNAME: ${{ secrets.docker-username }}
+      DOCKER_PASSWORD: ${{ secrets.docker-password }}
     
     steps:
       - name: Checkout code
@@ -127,4 +126,4 @@ jobs:
         uses: clouddrove/smurf@feat/docs_format
         with:
           tool: sdkr
-          command: push hub ${{ inputs.docker-username }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
+          command: push hub ${{ secrets.docker-username }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
