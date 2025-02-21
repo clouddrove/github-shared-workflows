@@ -139,17 +139,23 @@ jobs:
         run: |
           helm version 
               
+      # - name: helm install and upgrade2
+      #   if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+      #   run: |
+      #     if [ -n "${{ secrets.set-parameters }}" ]; then
+      #       helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace ${{ secrets.set-parameters }} \
+      #         --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
+      #     else
+      #       helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace \
+      #         --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
+      #     fi
+     
       - name: helm install and upgrade2
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
-          if [ -n "${{ secrets.set-parameters }}" ]; then
-            helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace ${{ secrets.set-parameters }} \
-              --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
-          else
-            helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace \
-              --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
-          fi
-     
+            helm upgrade --install superset-application helm/superset -f helm/superset/values.yaml  --namespace=superset --create-namespace \
+              --history-max 10 --atomic --wait --debug --timeout 600s
+              
       - name: Rollback Helm Release
         if: ${{ inputs.rollback == true && inputs.uninstall != true }}
         run: |
