@@ -69,28 +69,28 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
 
       - name: Smurf STF Init
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@feat/docs_format
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
           command: init
 
       - name: Smurf STF Validate
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@feat/docs_format
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
           command: validate
           
       - name: Smurf STF Plan
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@feat/docs_format
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
           command: plan
           
       - name: Smurf STF Apply
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@feat/docs_format
         with:
           path: ${{ inputs.terraform-path }}
           tool: stf
