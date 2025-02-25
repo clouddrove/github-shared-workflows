@@ -21,4 +21,5 @@ jobs:
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB }}
           assignees: ${{ inputs.assignees }}
+          reviewers: ${{ inputs.reviewers }}
 ...
