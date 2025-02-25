@@ -214,20 +214,20 @@ jobs:
           role-to-assume: ${{ inputs.aws-role }}
           aws-region: ${{ inputs.aws-region }}
           
-      - name: Configure AWS credentials with access keys
-        if: needs.setup-aws-auth.outputs.aws_auth_method == 'keys'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: ${{ inputs.aws-region }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-          fi
-          aws configure set region $AWS_REGION
+      # - name: Configure AWS credentials with access keys
+      #   if: needs.setup-aws-auth.outputs.aws_auth_method == 'keys'
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      #     AWS_REGION: ${{ inputs.aws-region }}
+      #   run: |
+      #     aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+      #     aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+      #     if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+      #       aws configure set aws_session_token $AWS_SESSION_TOKEN
+      #     fi
+      #     aws configure set region $AWS_REGION
           
       - name: Set environment variables
         run: |
@@ -265,23 +265,22 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.aws-role }}
-          role-session-name: aws-auth
           aws-region: ${{ inputs.aws-region }}
 
-      - name: Configure AWS credentials with access keys
-        if: needs.setup-aws-auth.outputs.aws_auth_method == 'keys' && inputs.registry-type == 'ecr'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: ${{ inputs.aws-region }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-          fi
-          aws configure set region $AWS_REGION
+      # - name: Configure AWS credentials with access keys
+      #   if: needs.setup-aws-auth.outputs.aws_auth_method == 'keys' && inputs.registry-type == 'ecr'
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+      #     AWS_REGION: ${{ inputs.aws-region }}
+      #   run: |
+      #     aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+      #     aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+      #     if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+      #       aws configure set aws_session_token $AWS_SESSION_TOKEN
+      #     fi
+      #     aws configure set region $AWS_REGION
 
       - name: Set environment variables
         run: |
