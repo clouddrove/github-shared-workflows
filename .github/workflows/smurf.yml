@@ -170,6 +170,11 @@ on:
         type: string
         required: false
         default: 'true'
+      use-gcp-credentials:
+        description: 'Set to true if GCP credentials are provided'
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   setup-aws-auth:
@@ -355,7 +360,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: GCP Authentication
-        if: inputs.provider == 'gcp' && secrets.GCP_CREDENTIALS
+        if: inputs.provider == 'gcp' && inputs.use-gcp-credentials
         uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
