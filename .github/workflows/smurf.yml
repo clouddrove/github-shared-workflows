@@ -283,6 +283,11 @@ jobs:
           fi
           aws configure set region $AWS_REGION
 
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV      
+
       - name: Login to Amazon ECR
         if: inputs.registry-type == 'ecr'
         id: login-ecr
