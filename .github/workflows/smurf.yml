@@ -248,11 +248,11 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    env:
-      AWS_REGION: ${{ inputs.aws-region }}
-      IMAGE_NAME: ${{ inputs.image-name }}
-      IMAGE_TAG: ${{ inputs.image-tag }}
-      REGISTRY_TYPE: ${{ inputs.registry-type }}
+    # env:
+    #   AWS_REGION: ${{ inputs.aws-region }}
+    #   IMAGE_NAME: ${{ inputs.image-name }}
+    #   IMAGE_TAG: ${{ inputs.image-tag }}
+    #   REGISTRY_TYPE: ${{ inputs.registry-type }}
     
     steps:
       - name: Checkout code
@@ -261,7 +261,6 @@ jobs:
           ref: ${{ inputs.branch }}
         
       - name: Configure AWS credentials with OIDC
-        if: needs.setup-aws-auth.outputs.aws_auth_method == 'oidc' && inputs.registry-type == 'ecr'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.aws-role }}
@@ -297,7 +296,7 @@ jobs:
       #   run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
 
       - name: Build Docker Image
-        uses: clouddrove/smurf@feat/docs_format
+        uses: clouddrove/smurf@v1.0.0
         with:
           tool: sdkr
           command: ${{ inputs.command }}
