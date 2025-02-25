@@ -119,15 +119,29 @@ jobs:
           role-to-assume: ${{ inputs.aws-role }}
           role-session-name: aws-auth
           aws-region: ${{ inputs.aws-region }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
           
       - name: Smurf sdkr build
         uses: clouddrove/smurf@feat/docs_format
+        env:
+          ## For ECR env variable
+          ecr-registry: ${{ steps.login-ecr.outputs.registry }}
+          ecr-repository: ${{ inputs.ecr-repository }}
+          image-tag: ${{ inputs.image-tag }}
         with:
           tool: sdkr
-          command: build ${{ inputs.image-name }}:${{ inputs.image-tag }}
+          command: build -t $ecr-registry/$ecr-repository:$image-tag
           
       - name: Smurf sdkr push image
         uses: clouddrove/smurf@feat/docs_format
+        env:
+          ## For ECR env variable
+          ecr-registry: ${{ steps.login-ecr.outputs.registry }}
+          ecr-repository: ${{ inputs.ecr-repository }}
+          image-tag: ${{ inputs.image-tag }}
         with:
           tool: sdkr
-          command: push hub ${{ secrets.docker-username }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
+          command: push $ecr-registry/$ecr-repository:$image-tag
