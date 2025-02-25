@@ -301,8 +301,7 @@ jobs:
         uses: clouddrove/smurf@feat/docs_format
         with:
           tool: sdkr
-          command: build ${{ (inputs.registry-type == 'ecr' && secrets.ecr-registry || secrets.docker-username) }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
-          path: ${{ inputs.build-path }}
+          command: ${{ inputs.command }}
 
       - name: Push Image to Docker Hub
         if: inputs.registry-type == 'docker'
