@@ -177,7 +177,7 @@ on:
         default: false
 
 jobs:
-  setup-aws-auth:
+  aws-auth-check:
     if: inputs.provider == 'aws' || contains(fromJSON('["selm", "sdkr"]'), inputs.tool) || inputs.registry-type == 'ecr'
     runs-on: ubuntu-latest
     outputs:
@@ -197,7 +197,7 @@ jobs:
   smurf-helm:
     if: inputs.tool == 'selm'
     runs-on: ubuntu-latest
-    needs: setup-aws-auth
+    needs: aws-auth-check
     permissions:
       id-token: write
       contents: read
@@ -234,7 +234,7 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
       
-      - name: Smurf SELM
+      - name: Smurf Helm
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: ${{ inputs.tool }}
@@ -243,7 +243,7 @@ jobs:
   smurf-docker:
     if: inputs.tool == 'sdkr'
     runs-on: ubuntu-latest
-    needs: setup-aws-auth
+    needs: aws-auth-check
     permissions:
       id-token: write
       contents: read
@@ -290,7 +290,7 @@ jobs:
         if: inputs.registry-type == 'docker'
         run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
 
-      - name: Smurf SDKR
+      - name: Smurf Docker
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: ${{ inputs.tool }}
@@ -299,7 +299,7 @@ jobs:
   smurf-terraform:
     if: inputs.tool == 'stf'
     runs-on: ubuntu-latest
-    needs: setup-aws-auth
+    needs: aws-auth-check
     permissions:
       id-token: write
       contents: read
@@ -356,7 +356,7 @@ jobs:
         run: |
           gcloud config set project ${{ inputs.gcp-project-id }}
 
-      - name: Smurf STF
+      - name: Smurf Terraform
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: ${{ inputs.tool }}
