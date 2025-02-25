@@ -178,7 +178,7 @@ on:
 
 jobs:
   setup-aws-auth:
-    if: inputs.provider == 'aws' || contains(fromJSON('["selm", "sdkr"]'), inputs.tools) || inputs.registry-type == 'ecr'
+    if: inputs.provider == 'aws' || contains(fromJSON('["selm", "sdkr"]'), inputs.tool) || inputs.registry-type == 'ecr'
     runs-on: ubuntu-latest
     outputs:
       aws_auth_method: ${{ steps.check-auth.outputs.auth_method }}
@@ -195,7 +195,7 @@ jobs:
           fi
 
   smurf-helm:
-    if: inputs.tools == 'selm'
+    if: inputs.tool == 'selm'
     runs-on: ubuntu-latest
     needs: setup-aws-auth
     permissions:
@@ -242,7 +242,7 @@ jobs:
           path: ${{ inputs.working-directory }}
           
   smurf-docker:
-    if: inputs.tools == 'sdkr'
+    if: inputs.tool == 'sdkr'
     runs-on: ubuntu-latest
     needs: setup-aws-auth
     permissions:
@@ -319,7 +319,7 @@ jobs:
           path: ${{ inputs.working-directory }}
 
   smurf-terraform:
-    if: inputs.tools == 'stf'
+    if: inputs.tool == 'stf'
     runs-on: ubuntu-latest
     needs: setup-aws-auth
     permissions:
