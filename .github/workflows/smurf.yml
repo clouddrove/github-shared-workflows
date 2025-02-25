@@ -50,6 +50,10 @@ on:
         description: 'Kubernetes namespace'
         type: string
         default: 'testing-smurf'
+      release-name:
+        description: 'Kubernetes release name'
+        type: string
+        default: 'testing-smurf-release-name'
       timeout:
         description: 'Helm timeout in seconds'
         type: number
@@ -95,7 +99,7 @@ jobs:
         uses: clouddrove/smurf@feat/docs_format
         with:
           tool: selm
-          command: upgrade smurf --install --atomic --set image.tag=${{ github.run_id }} -f ${{ inputs.helm-values-path }} ${{ inputs.helm-chart-path }} -n ${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
+          command: upgrade smurf --install ${{ inputs.release-name }} --atomic --set image.tag=${{ github.run_id }} -f ${{ inputs.helm-values-path }} ${{ inputs.helm-chart-path }} -n ${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
 
   smurf-docker:
     if: inputs.tools == 'docker'
