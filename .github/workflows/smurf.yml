@@ -287,14 +287,14 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV      
 
-      - name: Login to Amazon ECR
-        if: inputs.registry-type == 'ecr'
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+      # - name: Login to Amazon ECR
+      #   if: inputs.registry-type == 'ecr'
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Login to Docker Hub
-        if: inputs.registry-type == 'docker'
-        run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
+      # - name: Login to Docker Hub
+      #   if: inputs.registry-type == 'docker'
+      #   run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
 
       - name: Build Docker Image
         uses: clouddrove/smurf@feat/docs_format
@@ -302,21 +302,20 @@ jobs:
           tool: sdkr
           command: ${{ inputs.command }}
 
-      - name: Push Image to Docker Hub
-        if: inputs.registry-type == 'docker'
-        uses: clouddrove/smurf@feat/docs_format
-        with:
-          tool: sdkr
-          command: push hub ${{ secrets.docker-username }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
-          path: ${{ inputs.working-directory }}
+      # - name: Push Image to Docker Hub
+      #   if: inputs.registry-type == 'docker'
+      #   uses: clouddrove/smurf@feat/docs_format
+      #   with:
+      #     tool: sdkr
+      #     command: push hub ${{ secrets.docker-username }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
 
-      - name: Push Image to Amazon ECR
-        if: inputs.registry-type == 'ecr'
-        uses: clouddrove/smurf@feat/docs_format
-        with:
-          tool: sdkr
-          command: push ecr ${{ secrets.ecr-registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
-          path: ${{ inputs.working-directory }}
+      # - name: Push Image to Amazon ECR
+      #   if: inputs.registry-type == 'ecr'
+      #   uses: clouddrove/smurf@feat/docs_format
+      #   with:
+      #     tool: sdkr
+      #     command: push ecr ${{ secrets.ecr-registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
+      #     path: ${{ inputs.working-directory }}
 
   smurf-terraform:
     if: inputs.tool == 'stf'
