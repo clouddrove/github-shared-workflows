@@ -39,7 +39,7 @@ on:
         required: false
         description: 'Additional environment variables in JSON format'
     inputs:
-      tools:
+      tool:
         description: 'Tool to run (selm, stf or sdkr)'
         type: string
         required: true
