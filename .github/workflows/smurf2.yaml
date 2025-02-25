@@ -1,0 +1,53 @@
+name: Smurf Reusable Workflow
+on:
+  workflow_call:
+    inputs:
+      tool:
+        description: 'Tool to run (helm or docker)'
+        type: string
+        required: false
+      command:
+        description: 'Command to run with tool'
+        type: string
+        required: false
+      aws-role:
+        description: 'AWS IAM role ARN to assume'
+        type: string
+        required: false
+      aws-region:
+        description: 'AWS region'
+        type: string
+        default: 'us-east-1'
+      eks-cluster:
+        description: 'EKS cluster name'
+        type: string
+        required: false
+
+jobs:
+  smurf-helm:
+    if: inputs.tool == 'helm'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4.1.7
+        
+      - name: Configure AWS credentials with OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws-role }}
+          aws-region: ${{ inputs.aws-region }}
+          
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
+      
+      - name: Smurf Step
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: ${{ inputs.tool }}
+          command: ${{ inputs.command }}
