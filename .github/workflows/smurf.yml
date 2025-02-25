@@ -177,23 +177,6 @@ on:
         default: false
 
 jobs:
-  setup-aws-auth:
-    if: inputs.provider == 'aws' || contains(fromJSON('["selm", "sdkr"]'), inputs.tool) || inputs.registry-type == 'ecr'
-    runs-on: ubuntu-latest
-    outputs:
-      aws_auth_method: ${{ steps.check-auth.outputs.auth_method }}
-    steps:
-      - name: Check AWS authentication method
-        id: check-auth
-        run: |
-          if [[ -n "${{ secrets.AWS_ACCESS_KEY_ID }}" && -n "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]]; then
-            echo "auth_method=keys" >> $GITHUB_OUTPUT
-          elif [[ -n "${{ inputs.aws-role }}" ]]; then
-            echo "auth_method=oidc" >> $GITHUB_OUTPUT
-          else
-            echo "auth_method=none" >> $GITHUB_OUTPUT
-          fi
-
   smurf-helm:
     if: inputs.tool == 'selm'
     runs-on: ubuntu-latest
@@ -201,6 +184,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+
     steps:
       - name: Check out repo
         uses: actions/checkout@v4.1.7
@@ -214,32 +198,31 @@ jobs:
           role-to-assume: ${{ inputs.aws-role }}
           aws-region: ${{ inputs.aws-region }}
           
-      # - name: Configure AWS credentials with access keys
-      #   if: needs.setup-aws-auth.outputs.aws_auth_method == 'keys'
-      #   env:
-      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      #     AWS_REGION: ${{ inputs.aws-region }}
-      #   run: |
-      #     aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-      #     aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-      #     if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-      #       aws configure set aws_session_token $AWS_SESSION_TOKEN
-      #     fi
-      #     aws configure set region $AWS_REGION
+      - name: Configure AWS credentials with access keys
+        if: needs.setup-aws-auth.outputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ inputs.aws-region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
           
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
       
-      - name: Smurf SELM Run
-        uses: clouddrove/smurf@feat/docs_format
+      - name: Smurf SELM
+        uses: clouddrove/smurf@v1.0.0
         with:
-          tool: selm
+          tool: ${{ inputs.tool }}
           command: ${{ inputs.command }}
-          path: ${{ inputs.working-directory }}
           
   smurf-docker:
     if: inputs.tool == 'sdkr'
@@ -248,11 +231,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    env:
-      AWS_REGION: ${{ inputs.aws-region }}
-      IMAGE_NAME: ${{ inputs.image-name }}
-      IMAGE_TAG: ${{ inputs.image-tag }}
-      REGISTRY_TYPE: ${{ inputs.registry-type }}
     
     steps:
       - name: Checkout code
@@ -296,26 +274,11 @@ jobs:
         if: inputs.registry-type == 'docker'
         run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
 
-      - name: Smurf Docker
+      - name: Smurf SDKR
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: ${{ inputs.tool }}
           command: ${{ inputs.command }}
-
-      # - name: Push Image to Docker Hub
-      #   if: inputs.registry-type == 'docker'
-      #   uses: clouddrove/smurf@feat/docs_format
-      #   with:
-      #     tool: sdkr
-      #     command: push hub ${{ secrets.docker-username }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
-
-      # - name: Push Image to Amazon ECR
-      #   if: inputs.registry-type == 'ecr'
-      #   uses: clouddrove/smurf@feat/docs_format
-      #   with:
-      #     tool: sdkr
-      #     command: push ecr ${{ secrets.ecr-registry }}/${{ inputs.image-name }}:${{ inputs.image-tag }}
-      #     path: ${{ inputs.working-directory }}
 
   smurf-terraform:
     if: inputs.tool == 'stf'
@@ -377,12 +340,8 @@ jobs:
         run: |
           gcloud config set project ${{ inputs.gcp-project-id }}
 
-      - name: Smurf STF Execute
-        uses: clouddrove/smurf@feat/docs_format
+      - name: Smurf STF
+        uses: clouddrove/smurf@v1.0.0
         with:
-          tool: stf
-          command: ${{ inputs.command }} ${{ inputs.var-file && format('-var-file={0}', inputs.var-file) || '' }} ${{ inputs.destroy && '-destroy' || '' }}
-          path: ${{ inputs.working-directory }}
-        env:
-          TF_VAR_region: ${{ inputs.provider == 'aws' && inputs.aws-region || inputs.provider == 'gcp' && inputs.gcp-region || '' }}
-          DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          tool: ${{ inputs.tool }}
+          command: ${{ inputs.command }}
