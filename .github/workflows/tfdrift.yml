@@ -161,6 +161,37 @@ jobs:
           else
           terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
           fi
+  
+      - name: Create Drift Report
+        if: steps.tf-plan.outputs.exitcode == 2
+        id: drift-report
+        run: |
+          cd ${{ inputs.working_directory }}
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+          TERRAFORM_PLAN=$(terraform show -no-color tfplan)
+          echo "## Terraform Configuration Drift Detected" > drift_report.md
+          echo "**Changed Files:**" >> drift_report.md
+          echo "$CHANGED_FILES" >> drift_report.md
+          echo '```terraform' >> drift_report.md
+          echo "$TERRAFORM_PLAN" >> drift_report.md
+          echo '```' >> drift_report.md
+
+      - name: Create GitHub Issue for Drift
+        if: steps.tf-plan.outputs.exitcode == 2
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB }}
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('drift_report.md', 'utf8');
+            const title = 'Terraform Configuration Drift Detected';
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body
+            });
+
 
       # Save plan to artifacts
       - name: Publish Terraform Plan
@@ -276,3 +307,12 @@ jobs:
         if: steps.tf-plan.outputs.exitcode == 2
         run: exit 1
 ...
+
+
+
+      
+
+
+
+
+      -
