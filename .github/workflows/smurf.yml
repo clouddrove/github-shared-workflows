@@ -9,7 +9,7 @@ on:
         description: 'Docker Hub token'
         required: false
     inputs:
-      tools:
+      tool:
         description: 'Tool to run (helm or docker)'
         type: string
         required: true
@@ -70,7 +70,7 @@ on:
 
 jobs:
   smurf-helm:
-    if: inputs.tools == 'helm'
+    if: inputs.tool == 'helm'
     runs-on: ubuntu-latest
     permissions: write-all
     
@@ -102,7 +102,7 @@ jobs:
           command: upgrade smurf --install ${{ inputs.release-name }} --atomic --set image.tag=${{ github.run_id }} -f ${{ inputs.helm-values-path }} ${{ inputs.helm-chart-path }} -n ${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
 
   smurf-docker:
-    if: inputs.tools == 'docker'
+    if: inputs.tool == 'docker'
     runs-on: ubuntu-latest
     permissions: write-all
     env:
