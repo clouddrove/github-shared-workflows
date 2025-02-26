@@ -377,10 +377,10 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV    
 
-      - name: Install Docker Scout
-        run: |
-          curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
-          docker scout --help
+      # - name: Install Docker Scout
+      #   run: |
+      #     curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
+      #     docker scout --help
 
       - name: Smurf Docker Scan
         uses: clouddrove/smurf@feat/docker_scout_in_dockerfile
