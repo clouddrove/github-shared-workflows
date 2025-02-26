@@ -293,6 +293,15 @@ jobs:
         with:
           name: ${{ inputs.image-name }}
           path: ${{ inputs.image-tar }}
+        
+      - name: Download Docker Image Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.image-name }}
+
+      - name: Load Docker Image
+        run: |
+          docker load -i ${{ inputs.image-tar }}
 
   smurf-terraform:
     if: inputs.tool == 'stf'
