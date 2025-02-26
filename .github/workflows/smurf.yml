@@ -367,7 +367,7 @@ jobs:
       - name: Smurf Docker Scan
         uses: clouddrove/smurf@v1.0.0
         with:
-          tool: scan
+          tool: ${{ inputs.tool }}
           command: ${{ inputs.command }}
 
   smurf-terraform:
