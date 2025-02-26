@@ -67,7 +67,7 @@ on:
       aws_auth_method:
         description: 'AWS Auth method to use'
         type: string
-        required: true
+        required: false
       
       # Common workspace inputs
       working-directory:
