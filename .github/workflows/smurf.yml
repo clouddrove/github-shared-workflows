@@ -323,7 +323,7 @@ jobs:
   smurf-docker-scan-push:
     if: inputs.tool == 'sdkr' && inputs.docker_scanner == 'true'
     runs-on: ubuntu-latest
-    needs: smurf-docker
+    needs: smurf-docker-build
     permissions:
       id-token: write
       contents: read
