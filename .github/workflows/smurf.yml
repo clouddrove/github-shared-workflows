@@ -129,6 +129,14 @@ on:
         type: string
         required: false
         default: '.'
+      username:
+        description: 'Dockerhub username for scout'
+        type: string
+        required: false
+      password:
+        description: 'Password of Dockerhub'
+        type: string
+        required: false
       
       # Terraform-specific inputs
       var-file:
@@ -316,6 +324,13 @@ jobs:
       - name: Load Docker Image
         run: |
           docker load -i ${{ inputs.image-tar }}
+
+      - name: Log into registry ${{ inputs.registry-type }}
+        uses: docker/login-action@v2.1.0
+        with:
+          registry: ${{ inputs.registry-type }}
+          username: ${{ inputs.username }}
+          password: ${{ inputs.password }}
 
       - name: Scan Docker Image
         uses: docker/scout-action@v1
