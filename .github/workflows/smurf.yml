@@ -120,7 +120,6 @@ on:
         description: 'Container registry type (docker or ecr)'
         type: string
         required: false
-        default: 'docker'
       build-path:
         description: 'Path to build context'
         type: string
