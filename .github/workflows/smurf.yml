@@ -377,6 +377,11 @@ jobs:
           echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> $GITHUB_ENV
           echo "DOCKERHUB_PASSWORD=${{ secrets.DOCKERHUB_PASSWORD }}" >> $GITHUB_ENV
 
+      - name: Verify environment variables
+        run: |
+          echo "Username: $DOCKERHUB_USERNAME"
+          echo "Password: $DOCKERHUB_PASSWORD"
+
       - name: Smurf Docker Tag
         uses: clouddrove/smurf@v1.0.0
         with:
