@@ -74,7 +74,7 @@ on:
         description: 'AWS Auth method to use'
         type: string
         required: false
-      docker_scanner:
+      docker_scan:
         description: 'Set true for docker scan'
         type: string
         required: false
@@ -295,14 +295,14 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV      
 
-      - name: Login to Amazon ECR
-        if: inputs.registry-type == 'ecr'
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+      # - name: Login to Amazon ECR
+      #   if: inputs.registry-type == 'ecr'
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Login to Docker Hub
-        if: inputs.registry-type == 'docker'
-        run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
+      # - name: Login to Docker Hub
+      #   if: inputs.registry-type == 'docker'
+      #   run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
 
       - name: Smurf Docker
         uses: clouddrove/smurf@v1.0.0
@@ -321,7 +321,7 @@ jobs:
           path: ${{ inputs.image-tar }}
     
   smurf-docker-scan-push:
-    if: inputs.tool == 'sdkr' && inputs.docker_scanner == 'true'
+    if: inputs.tool == 'sdkr' && inputs.docker_push == 'true'
     runs-on: ubuntu-latest
     needs: smurf-docker-build
     permissions:
@@ -377,22 +377,17 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV    
 
-      # - name: Install Docker Scout
-      #   run: |
-      #     curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
-      #     docker scout --help
-
       - name: Smurf Docker Scan
         uses: clouddrove/smurf@feat/docker_scout_in_dockerfile
         with:
           tool: ${{ inputs.tool }}
           command: ${{ inputs.docker_scan_command }}
 
-      # - name: Smurf Docker Push
-      #   uses: clouddrove/smurf@v1.0.0
-      #   with:
-      #     tool: ${{ inputs.tool }}
-      #     command: ${{ inputs.docker_push_command }}
+      - name: Smurf Docker Push
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: ${{ inputs.tool }}
+          command: ${{ inputs.docker_push_command }}
 
   # smurf-terraform:
   #   if: inputs.tool == 'stf'
