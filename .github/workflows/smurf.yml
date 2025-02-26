@@ -209,7 +209,7 @@ on:
         required: false
         default: false
 
-# jobs:
+jobs:
 #   smurf-helm:
 #     if: inputs.tool == 'selm'
 #     runs-on: ubuntu-latest
