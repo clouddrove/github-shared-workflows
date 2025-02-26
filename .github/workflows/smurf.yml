@@ -318,8 +318,10 @@ jobs:
           docker load -i ${{ inputs.image-tar }}
 
       - name: Scan Docker Image
-        run: |
-          docker scout quickview ${{ inputs.image-name }}:${{ inputs.image-tag }}
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: ${{ inputs.image-name }}
 
   smurf-terraform:
     if: inputs.tool == 'stf'
