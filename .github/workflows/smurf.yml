@@ -325,50 +325,17 @@ jobs:
         run: |
           docker load -i ${{ inputs.image-tar }}
 
-      - name: Configure AWS credentials with OIDC
-        if: inputs.aws_auth_method == 'oidc'
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
-          role-to-assume: ${{ inputs.aws-role }}
-          aws-region: ${{ inputs.aws-region }}
+          username: ${{ inputs.username }}
+          password: ${{ inputs.password }}
 
-      - name: Configure AWS credentials with access keys
-        if: inputs.aws_auth_method == 'keys'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: ${{ inputs.aws-region }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-          fi
-          aws configure set region $AWS_REGION
-
-      - name: Set environment variables
-        run: |
-          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v3
-      #   with:
-      #     username: ${{ inputs.username }}
-      #     password: ${{ inputs.password }}
-
-      # - name: Scan Docker Image
-      #   uses: docker/scout-action@v1
-      #   with:
-      #     command: cves
-      #     image: ${{ inputs.image-name }}
-
-      - name: Smurf Docker Scan
-        uses: clouddrove/smurf@v1.0.0
+      - name: Scan Docker Image
+        uses: docker/scout-action@v1
         with:
-          tool: ${{ inputs.tool }}
-          command: ${{ inputs.command }}
+          command: cves
+          image: ${{ inputs.image-name }}
 
   smurf-terraform:
     if: inputs.tool == 'stf'
