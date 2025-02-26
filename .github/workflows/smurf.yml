@@ -319,8 +319,8 @@ jobs:
           docker load -i ${{ inputs.image-tar }}
 
       - name: Login to Docker Hub
-        if: inputs.registry-type == 'docker'
-        run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
+        run: |
+          echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
 
       - name: Scan Docker Image
         uses: docker/scout-action@v1
