@@ -37,10 +37,10 @@ on:
         description: 'GCP Service Account to use'
       DOCKERHUB_USERNAME:
         description: 'dockerhub username'
-        required: true
+        required: false
       DOCKERHUB_PASSWORD:
         description: 'dockerhub password'
-        required: true
+        required: false
         
       env-vars:
         required: false
