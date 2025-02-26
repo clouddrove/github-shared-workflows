@@ -297,6 +297,7 @@ jobs:
   smurf-docker-scan:
     if: inputs.tool == 'sdkr'
     runs-on: ubuntu-latest
+    needs: smurf-docker
     permissions:
       id-token: write
       contents: read
