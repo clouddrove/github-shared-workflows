@@ -35,6 +35,13 @@ on:
       SERVICE_ACCOUNT:
         required: false
         description: 'GCP Service Account to use'
+      USERNAME:
+        required: false
+        description: 'Dockerhub Username'
+      DOCKER_HUB_TOKEN:
+        required: false
+        description: 'Dockerhub Password'
+        
       env-vars:
         required: false
         description: 'Additional environment variables in JSON format'
@@ -129,14 +136,6 @@ on:
         type: string
         required: false
         default: '.'
-      username:
-        description: 'Dockerhub username for scout'
-        type: string
-        required: false
-      password:
-        description: 'Password of Dockerhub'
-        type: string
-        required: false
       
       # Terraform-specific inputs
       var-file:
