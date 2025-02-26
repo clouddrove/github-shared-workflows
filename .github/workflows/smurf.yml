@@ -35,7 +35,16 @@ on:
       SERVICE_ACCOUNT:
         required: false
         description: 'GCP Service Account to use'
-        
+      DOCKERHUB_USERNAME:
+        required: false
+        description: 'Dockerhub Username'
+      DOCKERHUB_USERNAME:
+        required: false
+        description: 'Dockerhub Username'
+      DOCKERHUB_PASSWORD:
+        required: false
+        description: 'Dockerhub Password'
+
       env-vars:
         required: false
         description: 'Additional environment variables in JSON format'
@@ -318,9 +327,12 @@ jobs:
         run: |
           docker load -i ${{ inputs.image-tar }}
 
-      - name: Login to Docker Hub
-        run: |
-          echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
+      - name: Log into Dockerhub
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_USERNAME }}
 
       - name: Scan Docker Image
         uses: docker/scout-action@v1
