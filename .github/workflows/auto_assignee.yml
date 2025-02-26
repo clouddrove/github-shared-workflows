@@ -22,4 +22,5 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB }}
           assignees: ${{ inputs.assignees }}
           reviewers: ${{ inputs.reviewers }}
+          skipKeywords: wip, draft
 ...
