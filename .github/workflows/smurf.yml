@@ -64,6 +64,10 @@ on:
         type: string
         required: false
         default: 'aws'
+      aws_auth_method:
+        description: 'AWS Auth method to use'
+        type: string
+        required: true
       
       # Common workspace inputs
       working-directory:
@@ -208,14 +212,14 @@ jobs:
           ref: ${{ inputs.branch }}
         
       - name: Configure AWS credentials with OIDC
-        if: needs.setup-aws-auth.outputs.aws_auth_method == 'oidc'
+        if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.aws-role }}
           aws-region: ${{ inputs.aws-region }}
-          
+         
       - name: Configure AWS credentials with access keys
-        if: needs.setup-aws-auth.outputs.aws_auth_method == 'keys'
+        if: inputs.aws_auth_method == 'keys'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -242,7 +246,7 @@ jobs:
           
   smurf-docker:
     if: inputs.tool == 'sdkr'
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     # needs: aws-auth-check
     permissions:
       id-token: write
@@ -255,14 +259,14 @@ jobs:
           ref: ${{ inputs.branch }}
         
       - name: Configure AWS credentials with OIDC
-        if: needs.setup-aws-auth.outputs.aws_auth_method == 'oidc' && inputs.registry-type == 'ecr'
+        if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.aws-role }}
           aws-region: ${{ inputs.aws-region }}
 
       - name: Configure AWS credentials with access keys
-        if: needs.setup-aws-auth.outputs.aws_auth_method == 'keys' && inputs.registry-type == 'ecr'
+        if: inputs.aws_auth_method == 'keys'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -286,9 +290,9 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # - name: Login to Docker Hub
-      #   if: inputs.registry-type == 'docker'
-      #   run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
+      - name: Login to Docker Hub
+        if: inputs.registry-type == 'docker'
+        run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
 
       - name: Smurf Docker
         uses: clouddrove/smurf@v1.0.0
@@ -312,14 +316,14 @@ jobs:
 
       # Configure cloud provider authentication based on provider type
       - name: Configure AWS credentials with OIDC
-        if: inputs.provider == 'aws' && needs.setup-aws-auth.outputs.aws_auth_method == 'oidc'
+        if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.aws-role }}
           aws-region: ${{ inputs.aws-region }}
           
       - name: Configure AWS credentials with access keys
-        if: inputs.provider == 'aws' && needs.setup-aws-auth.outputs.aws_auth_method == 'keys'
+        if: inputs.aws_auth_method == 'keys'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
