@@ -367,9 +367,8 @@ jobs:
 
       - name: Install Docker Scout
         run: |
-            curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
-            docker scout --version  # Verify installation
-
+          curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
+          docker scout --help
 
       - name: Smurf Docker
         uses: clouddrove/smurf@v1.0.0
