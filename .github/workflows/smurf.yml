@@ -44,7 +44,6 @@ on:
       DOCKERHUB_PASSWORD:
         required: false
         description: 'Dockerhub Password'
-
       env-vars:
         required: false
         description: 'Additional environment variables in JSON format'
