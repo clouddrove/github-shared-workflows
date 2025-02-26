@@ -332,7 +332,7 @@ jobs:
         with:
           registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Scan Docker Image
         uses: docker/scout-action@v1
