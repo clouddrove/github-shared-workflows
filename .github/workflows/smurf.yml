@@ -304,7 +304,7 @@ jobs:
       #   if: inputs.registry-type == 'docker'
       #   run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
 
-      - name: Smurf Docker
+      - name: Smurf Docker Build
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: ${{ inputs.tool }}
@@ -377,11 +377,11 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV    
 
-      - name: Smurf Docker Scan
-        uses: clouddrove/smurf@feat/docker_scout_in_dockerfile
-        with:
-          tool: ${{ inputs.tool }}
-          command: ${{ inputs.docker_scan_command }}
+      # - name: Smurf Docker Scan
+      #   uses: clouddrove/smurf@feat/docker_scout_in_dockerfile
+      #   with:
+      #     tool: ${{ inputs.tool }}
+      #     command: ${{ inputs.docker_scan_command }}
 
       - name: Smurf Docker Push
         uses: clouddrove/smurf@v1.0.0
