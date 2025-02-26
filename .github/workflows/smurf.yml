@@ -94,6 +94,10 @@ on:
         description: 'Command for docker build'
         type: string
         required: false
+      docker_tag_command:
+        description: 'Command for docker tag'
+        type: string
+        required: false
       
       # Common workspace inputs
       working-directory:
@@ -373,6 +377,17 @@ jobs:
       #   with:
       #     tool: ${{ inputs.tool }}
       #     command: ${{ inputs.docker_scan_command }}
+
+      - name: Set environment variables
+        run: |
+          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> $GITHUB_ENV
+          echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Smurf Docker Tag
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: ${{ inputs.tool }}
+          command: ${{ inputs.docker_tag_command }}
 
       - name: Smurf Docker Push
         uses: clouddrove/smurf@v1.0.0
