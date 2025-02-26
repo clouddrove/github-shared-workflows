@@ -319,7 +319,7 @@ jobs:
 
       - name: Scan Docker Image
         run: |
-          docker scan ${{ inputs.image-name }}:${{ inputs.image-tag }}
+          docker scout quickview ${{ inputs.image-name }}:${{ inputs.image-tag }}
 
   smurf-terraform:
     if: inputs.tool == 'stf'
