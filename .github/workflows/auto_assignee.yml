@@ -8,6 +8,10 @@ on:
         description: 'A list of assignees(GitHub user name) to be added to PR'
         required: true
         type: string
+      reviewers:
+        description: 'A list of reviewers(GitHub user name) to be added to PRs'
+        required: false
+        type: string
     secrets:
       GITHUB:
         description: 'Your GitHub token for authentication.'
