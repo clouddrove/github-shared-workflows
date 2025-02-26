@@ -38,9 +38,6 @@ on:
       DOCKERHUB_USERNAME:
         required: false
         description: 'Dockerhub Username'
-      DOCKERHUB_USERNAME:
-        required: false
-        description: 'Dockerhub Username'
       DOCKERHUB_PASSWORD:
         required: false
         description: 'Dockerhub Password'
