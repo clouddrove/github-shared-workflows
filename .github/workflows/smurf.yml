@@ -286,9 +286,9 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Login to Docker Hub
-        if: inputs.registry-type == 'docker'
-        run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
+      # - name: Login to Docker Hub
+      #   if: inputs.registry-type == 'docker'
+      #   run: echo "${{ secrets.docker-password }}" | docker login -u "${{ secrets.docker-username }}" --password-stdin
 
       - name: Smurf Docker
         uses: clouddrove/smurf@v1.0.0
