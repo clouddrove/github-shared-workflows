@@ -74,6 +74,14 @@ on:
         description: 'AWS Auth method to use'
         type: string
         required: false
+      docker_scanner:
+        description: 'Set true for Docker Scan'
+        type: string
+        required: false
+      docker_scan_command: 
+        description: 'Command for docker scan'
+        type: string
+        required: false
       
       # Common workspace inputs
       working-directory:
@@ -301,7 +309,7 @@ jobs:
           path: ${{ inputs.image-tar }}
     
   smurf-docker-scan:
-    if: inputs.tool == 'sdkr'
+    if: inputs.tool == 'sdkr' && inputs.docker_scanner == 'true'
     runs-on: ubuntu-latest
     needs: smurf-docker
     permissions:
@@ -330,11 +338,11 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Scan Docker Image
-        uses: docker/scout-action@v1
+      - name: Smurf Docker
+        uses: clouddrove/smurf@v1.0.0
         with:
-          command: cves
-          image: ${{ inputs.image-name }}
+          tool: ${{ inputs.tool }}
+          command: ${{ inputs.docker_scan_command }}
 
   smurf-terraform:
     if: inputs.tool == 'stf'
