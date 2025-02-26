@@ -75,11 +75,23 @@ on:
         type: string
         required: false
       docker_scanner:
-        description: 'Set true for Docker Scan'
+        description: 'Set true for docker scan'
         type: string
         required: false
       docker_scan_command: 
         description: 'Command for docker scan'
+        type: string
+        required: false
+      docker_push:
+        description: 'Set true for docker push'
+        type: string
+        required: false
+      docker_push_command: 
+        description: 'Command for docker push'
+        type: string
+        required: false
+      docker_build_command:
+        description: 'Command for docker build'
         type: string
         required: false
       
@@ -197,53 +209,53 @@ on:
         required: false
         default: false
 
-jobs:
-  smurf-helm:
-    if: inputs.tool == 'selm'
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v4.1.7
-        with:
-          ref: ${{ inputs.branch }}
+# jobs:
+#   smurf-helm:
+#     if: inputs.tool == 'selm'
+#     runs-on: ubuntu-latest
+#     permissions:
+#       id-token: write
+#       contents: read
+#     steps:
+#       - name: Check out repo
+#         uses: actions/checkout@v4.1.7
+#         with:
+#           ref: ${{ inputs.branch }}
         
-      - name: Configure AWS credentials with OIDC
-        if: inputs.aws_auth_method == 'oidc'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ inputs.aws-role }}
-          aws-region: ${{ inputs.aws-region }}
+#       - name: Configure AWS credentials with OIDC
+#         if: inputs.aws_auth_method == 'oidc'
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           role-to-assume: ${{ inputs.aws-role }}
+#           aws-region: ${{ inputs.aws-region }}
          
-      - name: Configure AWS credentials with access keys
-        if: inputs.aws_auth_method == 'keys'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: ${{ inputs.aws-region }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-          fi
-          aws configure set region $AWS_REGION
+#       - name: Configure AWS credentials with access keys
+#         if: inputs.aws_auth_method == 'keys'
+#         env:
+#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+#           AWS_REGION: ${{ inputs.aws-region }}
+#         run: |
+#           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+#           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+#           if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+#             aws configure set aws_session_token $AWS_SESSION_TOKEN
+#           fi
+#           aws configure set region $AWS_REGION
           
-      - name: Set environment variables
-        run: |
-          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
+#       - name: Set environment variables
+#         run: |
+#           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
+#           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
       
-      - name: Smurf Helm
-        uses: clouddrove/smurf@v1.0.0
-        with:
-          tool: ${{ inputs.tool }}
-          command: ${{ inputs.command }}
+#       - name: Smurf Helm
+#         uses: clouddrove/smurf@v1.0.0
+#         with:
+#           tool: ${{ inputs.tool }}
+#           command: ${{ inputs.command }}
           
-  smurf-docker:
+  smurf-docker-build:
     if: inputs.tool == 'sdkr'
     runs-on: ubuntu-latest
     permissions:
@@ -296,7 +308,7 @@ jobs:
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: ${{ inputs.tool }}
-          command: ${{ inputs.command }}
+          command: ${{ inputs.docker_build_command }}
 
       - name: Save Docker Image as Artifact
         run: |
@@ -308,7 +320,7 @@ jobs:
           name: ${{ inputs.image-name }}
           path: ${{ inputs.image-tar }}
     
-  smurf-docker-scan:
+  smurf-docker-scan-push:
     if: inputs.tool == 'sdkr' && inputs.docker_scanner == 'true'
     runs-on: ubuntu-latest
     needs: smurf-docker
@@ -370,73 +382,79 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh
           docker scout --help
 
-      - name: Smurf Docker
-        uses: clouddrove/smurf@v1.0.0
+      - name: Smurf Docker Scan
+        uses: clouddrove/smurf@feat/docker_scout_in_dockerfile
         with:
           tool: ${{ inputs.tool }}
           command: ${{ inputs.docker_scan_command }}
 
-  smurf-terraform:
-    if: inputs.tool == 'stf'
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-      pull-requests: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.7
-        with:
-          ref: ${{ inputs.branch }}
+      # - name: Smurf Docker Push
+      #   uses: clouddrove/smurf@v1.0.0
+      #   with:
+      #     tool: ${{ inputs.tool }}
+      #     command: ${{ inputs.docker_push_command }}
 
-      # Configure cloud provider authentication based on provider type
-      - name: Configure AWS credentials with OIDC
-        if: inputs.aws_auth_method == 'oidc'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ inputs.aws-role }}
-          aws-region: ${{ inputs.aws-region }}
+  # smurf-terraform:
+  #   if: inputs.tool == 'stf'
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #     pull-requests: write
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4.1.7
+  #       with:
+  #         ref: ${{ inputs.branch }}
+
+  #     # Configure cloud provider authentication based on provider type
+  #     - name: Configure AWS credentials with OIDC
+  #       if: inputs.aws_auth_method == 'oidc'
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ inputs.aws-role }}
+  #         aws-region: ${{ inputs.aws-region }}
           
-      - name: Configure AWS credentials with access keys
-        if: inputs.aws_auth_method == 'keys'
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: ${{ inputs.aws-region }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-          fi
-          aws configure set region $AWS_REGION
-          echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
+  #     - name: Configure AWS credentials with access keys
+  #       if: inputs.aws_auth_method == 'keys'
+  #       env:
+  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+  #         AWS_REGION: ${{ inputs.aws-region }}
+  #       run: |
+  #         aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+  #         aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+  #         if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+  #           aws configure set aws_session_token $AWS_SESSION_TOKEN
+  #         fi
+  #         aws configure set region $AWS_REGION
+  #         echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
 
-      - name: Azure Login
-        if: inputs.provider == 'azure'
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #     - name: Azure Login
+  #       if: inputs.provider == 'azure'
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: GCP Authentication
-        if: inputs.provider == 'gcp' && inputs.use-gcp-credentials
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-          service_account: ${{ inputs.SERVICE_ACCOUNT }}
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          token_format: ${{ inputs.token-format }}
-          access_token_lifetime: ${{ inputs.access-token-lifetime }}
-          create_credentials_file: ${{ inputs.create-credentials-file == 'true' }}
+  #     - name: GCP Authentication
+  #       if: inputs.provider == 'gcp' && inputs.use-gcp-credentials
+  #       uses: google-github-actions/auth@v1
+  #       with:
+  #         credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+  #         service_account: ${{ inputs.SERVICE_ACCOUNT }}
+  #         workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+  #         token_format: ${{ inputs.token-format }}
+  #         access_token_lifetime: ${{ inputs.access-token-lifetime }}
+  #         create_credentials_file: ${{ inputs.create-credentials-file == 'true' }}
           
-      - name: Set GCP Project
-        if: inputs.provider == 'gcp' && inputs.gcp-project-id
-        run: |
-          gcloud config set project ${{ inputs.gcp-project-id }}
+  #     - name: Set GCP Project
+  #       if: inputs.provider == 'gcp' && inputs.gcp-project-id
+  #       run: |
+  #         gcloud config set project ${{ inputs.gcp-project-id }}
 
-      - name: Smurf Terraform
-        uses: clouddrove/smurf@v1.0.0
-        with:
-          tool: ${{ inputs.tool }}
-          command: ${{ inputs.command }}
+  #     - name: Smurf Terraform
+  #       uses: clouddrove/smurf@v1.0.0
+  #       with:
+  #         tool: ${{ inputs.tool }}
+  #         command: ${{ inputs.command }}
