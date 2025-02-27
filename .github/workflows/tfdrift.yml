@@ -1,3 +1,4 @@
+---
 name: 'Terraform Configuration Drift Detection'
 on:
   workflow_call:
@@ -275,3 +276,4 @@ jobs:
       - name: Error on Failure
         if: steps.tf-plan.outputs.exitcode == 2
         run: exit 1
+...
