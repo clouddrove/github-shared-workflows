@@ -26,7 +26,7 @@ on:
       terraform_version:
         type: string
         default: 1.3.6
-        description: 'Required erraform version'
+        description: 'Required terraform version'
       token_format:
         required: false
         type: string
@@ -147,8 +147,8 @@ jobs:
 
       - name: terraform init
         run: |
-           cd ${{ inputs.working_directory }}
-           terraform init
+          cd ${{ inputs.working_directory }}
+          terraform init
 
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
@@ -157,9 +157,9 @@ jobs:
         run: |
           cd ${{ inputs.working_directory }}
           if [ -n "${{ inputs.var_file }}" ]; then
-          terraform plan -detailed-exitcode -no-color -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
+            terraform plan -detailed-exitcode -no-color -out tfplan --var-file=${{ inputs.var_file }} || export exitcode=$?
           else
-          terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
+            terraform plan -detailed-exitcode -no-color -out tfplan || export exitcode=$?
           fi
 
       # Save plan to artifacts
@@ -178,6 +178,7 @@ jobs:
           delimiter="$(openssl rand -hex 8)"
           echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
           echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
+          echo "### Working Directory: \`${{ inputs.working_directory }}\`" >> $GITHUB_OUTPUT
           echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo '```terraform' >> $GITHUB_OUTPUT
@@ -202,44 +203,44 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB }}
           script: |
-              const body = `${process.env.SUMMARY}`;
-              const title = 'Terraform Configuration Drift Detected';
-              const creator = 'github-actions[bot]'
+            const body = `${process.env.SUMMARY}`;
+            const title = 'Terraform Configuration Drift Detected';
+            const creator = 'github-actions[bot]'
 
-              // Look to see if there is an existing drift issue
-              const issues = await github.rest.issues.listForRepo({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                state: 'open',
-                creator: creator,
-                title: title
-              })
+            // Look to see if there is an existing drift issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              creator: creator,
+              title: title
+            })
 
-              if( issues.data.length > 0 ) {
-                // We assume there shouldn't be more than 1 open issue, since we update any issue we find
-                const issue = issues.data[0]
+            if( issues.data.length > 0 ) {
+              // We assume there shouldn't be more than 1 open issue, since we update any issue we find
+              const issue = issues.data[0]
 
-                if ( issue.body == body ) {
-                  console.log('Drift Detected: Found matching issue with duplicate content')
-                } else {
-                  console.log('Drift Detected: Found matching issue, updating body')
-                  github.rest.issues.update({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: issue.number,
-                    body: body
-                  })
-                }
+              if ( issue.body == body ) {
+                console.log('Drift Detected: Found matching issue with duplicate content')
               } else {
-                console.log('Drift Detected: Creating new issue')
-
-                github.rest.issues.create({
+                console.log('Drift Detected: Found matching issue, updating body')
+                github.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  title: title,
+                  issue_number: issue.number,
                   body: body
-               })
+                })
               }
+            } else {
+              console.log('Drift Detected: Creating new issue')
+
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body
+              })
+            }
 
       # If changes aren't detected, close any open drift issues
       - name: Publish Drift Report
@@ -248,28 +249,28 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB }}
           script: |
-              const title = 'Terraform Configuration Drift Detected';
-              const creator = 'github-actions[bot]'
+            const title = 'Terraform Configuration Drift Detected';
+            const creator = 'github-actions[bot]'
 
-              // Look to see if there is an existing drift issue
-              const issues = await github.rest.issues.listForRepo({
+            // Look to see if there is an existing drift issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              creator: creator,
+              title: title
+            })
+
+            if( issues.data.length > 0 ) {
+              const issue = issues.data[0]
+
+              github.rest.issues.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                state: 'open',
-                creator: creator,
-                title: title
+                issue_number: issue.number,
+                state: 'closed'
               })
-
-              if( issues.data.length > 0 ) {
-                const issue = issues.data[0]
-
-                github.rest.issues.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issue.number,
-                  state: 'closed'
-                })
-              }
+            }
 
       # Mark the workflow as failed if drift detected
       - name: Error on Failure
