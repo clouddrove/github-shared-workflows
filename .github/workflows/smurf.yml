@@ -366,17 +366,17 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV 
 
-      - name: Docker Tag
-        uses: clouddrove/smurf@v1.0.0
-        with:
-          tool: ${{ inputs.tool }}
-          command: ${{ inputs.docker_tag_command }}
+      # - name: Docker Tag
+      #   uses: clouddrove/smurf@v1.0.0
+      #   with:
+      #     tool: ${{ inputs.tool }}
+      #     command: ${{ inputs.docker_tag_command }}
 
-      - name: Docker Push
-        uses: clouddrove/smurf@v1.0.0
-        with:
-          tool: ${{ inputs.tool }}
-          command: ${{ inputs.docker_push_command }}
+      # - name: Docker Push
+      #   uses: clouddrove/smurf@v1.0.0
+      #   with:
+      #     tool: ${{ inputs.tool }}
+      #     command: ${{ inputs.docker_push_command }}
 
       - name: Docker Scan
         uses: clouddrove/smurf@fix/scan
