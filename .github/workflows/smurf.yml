@@ -323,9 +323,9 @@ jobs:
           path: ${{ inputs.image-tar }}
     
   docker-scan-push:
-    if: inputs.tool == 'sdkr' && inputs.docker_scan == 'true'
+    if: inputs.tool == 'sdkr' && inputs.docker_scan == 'true' && inputs.docker_push == 'true'
     runs-on: ubuntu-latest
-    # needs: docker-build
+    needs: docker-build
     permissions:
       id-token: write
       contents: read
@@ -336,14 +336,14 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
 
-      # - name: Download Docker Image Artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: ${{ inputs.image-name }}
+      - name: Download Docker Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.image-name }}
 
-      # - name: Load Docker Image
-      #   run: |
-      #     docker load -i ${{ inputs.image-tar }}
+      - name: Load Docker Image
+        run: |
+          docker load -i ${{ inputs.image-tar }}
 
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
@@ -380,17 +380,19 @@ jobs:
           format: 'table'
           severity: ${{ inputs.severity}}
 
-      # - name: Docker Tag
-      #   uses: clouddrove/smurf@v1.0.0
-      #   with:
-      #     tool: ${{ inputs.tool }}
-      #     command: ${{ inputs.docker_tag_command }}
+      - name: Docker Tag
+        if: inputs.docker_push == 'true'
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: ${{ inputs.tool }}
+          command: ${{ inputs.docker_tag_command }}
 
-      # - name: Docker Push
-      #   uses: clouddrove/smurf@v1.0.0
-      #   with:
-      #     tool: ${{ inputs.tool }}
-      #     command: ${{ inputs.docker_push_command }}
+      - name: Docker Push
+        if: inputs.docker_push == 'true'
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: ${{ inputs.tool }}
+          command: ${{ inputs.docker_push_command }}
 
   # smurf-terraform:
   #   if: inputs.tool == 'stf'
