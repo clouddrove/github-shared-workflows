@@ -374,14 +374,14 @@ jobs:
           format: 'table'
 
       - name: Run Trivy vulnerability scanner
-            uses: aquasecurity/trivy-action@0.28.0
-            with:
-              image-ref: ${{ inputs.image-name }}
-              format: 'table'
-              exit-code: '1'
-              ignore-unfixed: true
-              vuln-type: 'os,library'
-              severity: 'CRITICAL,HIGH'
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ inputs.image-name }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
       # - name: Docker Tag
       #   uses: clouddrove/smurf@v1.0.0
       #   with:
