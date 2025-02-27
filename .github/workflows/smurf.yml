@@ -379,7 +379,7 @@ jobs:
           command: ${{ inputs.docker_push_command }}
 
       - name: Docker Scan
-        uses: clouddrove/smurf@feat/docker_scout_in_dockerfile
+        uses: clouddrove/smurf@fix/scan
         with:
           tool: ${{ inputs.tool }}
           command: ${{ inputs.docker_scan_command }}
