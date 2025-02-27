@@ -99,6 +99,11 @@ on:
         description: 'Command for docker tag'
         type: string
         required: false
+      severity:
+        description: 'severities of vulnerabilities to be displayed'
+        required: false
+        default: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+
       
       # Common workspace inputs
       working-directory:
@@ -213,6 +218,7 @@ on:
         type: boolean
         required: false
         default: false
+
 
 jobs:
 #   smurf-helm:
@@ -372,16 +378,8 @@ jobs:
           image-ref: ${{ inputs.image-name }}
           exit-code: '1'
           format: 'table'
+          severity: ${{ inputs.severity}}
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          image-ref: ${{ inputs.image-name }}
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
       # - name: Docker Tag
       #   uses: clouddrove/smurf@v1.0.0
       #   with:
