@@ -371,7 +371,7 @@ jobs:
         with:
           image-ref: ${{ inputs.image-name }}
           exit-code: 0
-          format: 'sarif'
+          format: 'table'
           output: 'trivy-results.sarif'
 
       # - name: Docker Tag
