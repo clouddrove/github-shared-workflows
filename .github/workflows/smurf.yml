@@ -317,7 +317,7 @@ jobs:
           path: ${{ inputs.image-tar }}
     
   docker-scan-push:
-    if: inputs.tool == 'sdkr' && inputs.docker_push == 'true' && inputs.docker_scan == 'true'
+    if: inputs.tool == 'sdkr' && inputs.docker_scan == 'true'
     runs-on: ubuntu-latest
     needs: smurf-docker-build
     permissions:
