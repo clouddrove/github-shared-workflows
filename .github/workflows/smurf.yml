@@ -367,12 +367,11 @@ jobs:
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV 
 
       - name: Docker Scan with trivy (non-blocking)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ inputs.image-name }}
           exit-code: '1'
           format: 'table'
-          output: 'trivy-results.sarif'
 
       - name: Run Trivy vulnerability scanner
             uses: aquasecurity/trivy-action@0.28.0
