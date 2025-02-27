@@ -375,7 +375,7 @@ jobs:
       - name: Docker Scan with trivy (non-blocking)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ inputs.image-name }}
+          image-ref: ${{ inputs.image-name }}:${{ inputs.image-tag }}
           exit-code: '1'
           format: 'table'
           severity: ${{ inputs.severity}}
