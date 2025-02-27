@@ -366,6 +366,14 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV 
 
+      - name: Docker Scan with trivy (non-blocking)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ inputs.image-name }}
+          exit-code: 0
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
       # - name: Docker Tag
       #   uses: clouddrove/smurf@v1.0.0
       #   with:
@@ -377,12 +385,6 @@ jobs:
       #   with:
       #     tool: ${{ inputs.tool }}
       #     command: ${{ inputs.docker_push_command }}
-
-      - name: Docker Scan
-        uses: clouddrove/smurf@fix/scan
-        with:
-          tool: ${{ inputs.tool }}
-          command: ${{ inputs.docker_scan_command }}
 
   # smurf-terraform:
   #   if: inputs.tool == 'stf'
