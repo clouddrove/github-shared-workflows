@@ -318,11 +318,17 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
       
-      - name: Helm Scan (Lint + Template)
+      - name: Helm Lint
         uses: clouddrove/smurf@v1.0.0
         with:
-          tool: selm
-          command: ${{ inputs.helm_scan_command }}
+         tool: selm
+         command: lint ${{ inputs.helm-chart-path }}
+
+      - name: Helm Template
+        uses: clouddrove/smurf@v1.0.0
+        with:
+         tool: selm
+         command: template ${{ inputs.helm-chart-path }} --values ${{ inputs.helm-values-path }}
 
   helm-deploy:
     runs-on: ubuntu-latest
