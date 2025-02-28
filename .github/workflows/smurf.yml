@@ -221,13 +221,20 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV 
 
-      - name: Docker Scan with trivy
-        uses: aquasecurity/trivy-action@master
+      # - name: Docker Scan with trivy
+      #   uses: aquasecurity/trivy-action@master
+      #   with:
+      #     image-ref: ${{ inputs.image-name }}:${{ inputs.image-tag }}
+      #     exit-code: '1'
+      #     format: 'table'
+      #     severity: ${{ inputs.severity}}
+
+      - name: Docker Scan
+        if: inputs.docker_scan == 'true'
+        uses: clouddrove/smurf@feat/trivy 
         with:
-          image-ref: ${{ inputs.image-name }}:${{ inputs.image-tag }}
-          exit-code: '1'
-          format: 'table'
-          severity: ${{ inputs.severity}}
+          tool: sdkr
+          command: ${{ inputs.docker_scan_command }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
