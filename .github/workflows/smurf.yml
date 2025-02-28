@@ -383,5 +383,5 @@ jobs:
       - name: Helm Deploy
         uses: clouddrove/smurf@v1.0.0
         with:
-          tool: ${{ inputs.helm_tool }}
+          tool: selm
           command: ${{ inputs.helm_deploy_command }}
