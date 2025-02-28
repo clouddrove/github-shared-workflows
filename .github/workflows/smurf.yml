@@ -96,11 +96,15 @@ on:
         description: 'Command for docker tag'
         type: string
         required: false
-      severity:
-        description: 'severities of vulnerabilities to be displayed'
-        required: false
+      # severity:
+      #   description: 'severities of vulnerabilities to be displayed'
+      #   required: false
+      #   type: string
+      #   default: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+      eks-cluster:
+        description: 'EKS cluster name'
         type: string
-        default: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+        required: false
       
       # Docker-specific inputs
       image-name:
