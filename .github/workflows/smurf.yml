@@ -383,7 +383,5 @@ jobs:
       - name: Helm Deploy
         uses: clouddrove/smurf@v1.0.0
         with:
-          tool: selm
-          command: upgrade
-          path: --install my-app ./helm/my-app
-          args: --namespace dev --values ./helm/my-app/values-dev.yaml --set image.tag=${{ inputs.image_tag }} --atomic --timeout 300s
+          tool: ${{ inputs.helm_tool }}
+          command: ${{ inputs.helm_deploy_command }}
