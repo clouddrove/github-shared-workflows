@@ -161,9 +161,9 @@ jobs:
 
       - name: Set environment variables
         run: |
+          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
 
       - name: Docker Image Build
         uses: clouddrove/smurf@feat/trivy
