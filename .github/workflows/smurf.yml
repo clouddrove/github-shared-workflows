@@ -272,7 +272,13 @@ jobs:
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: ${{ inputs.tool }}
-          command: template my-release ./mychart-test          
+          command: template my-release ./mychart-test  
+          
+      - name: Smurf selm install
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: ${{ inputs.tool }}
+          command: install my-release ./mychart-test   
           
   docker-build:
     if: inputs.tool == 'sdkr'
