@@ -105,6 +105,10 @@ on:
         description: 'EKS cluster name'
         type: string
         required: false
+      branch:
+        description: 'Branch to checkout'
+        type: string
+        default: 'master'
       
       # Docker-specific inputs
       image-name:
@@ -131,6 +135,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.7
+        with:
+          ref: ${{ inputs.branch }}
         
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
