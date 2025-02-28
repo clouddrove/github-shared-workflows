@@ -471,14 +471,14 @@ jobs:
         with:
           tool: ${{ inputs.tool }}
           command: init
-          working-directory: ${{ inputs.working-directory }}
+          path: ${{ inputs.working-directory }}
           
       - name: Smurf Terraform plan
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: ${{ inputs.tool }}
           command: plan
-          working-directory: ${{ inputs.working-directory }}
+          path: ${{ inputs.working-directory }}
           
       # - name: Smurf format
       #   uses: clouddrove/smurf@v1.0.0
@@ -492,4 +492,4 @@ jobs:
         with:
           tool: ${{ inputs.tool }}
           command: apply  
-          working-directory: ${{ inputs.working-directory }}
+          path: ${{ inputs.working-directory }}
