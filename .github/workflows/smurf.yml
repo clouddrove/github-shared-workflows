@@ -182,7 +182,7 @@ jobs:
           path: ${{ inputs.image-tar }}
     
   docker-scan-push:
-    if: inputs.docker_enable == 'true' && inputs.docker_scan == 'true'
+    if: inputs.docker_enable == 'true' && inputs.docker_scan == 'true' && inputs.docker_push == 'true'
     runs-on: ubuntu-latest
     needs: docker-build
     permissions:
@@ -231,31 +231,23 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV 
 
-      # - name: Docker Scan with trivy
-      #   uses: aquasecurity/trivy-action@master
-      #   with:
-      #     image-ref: ${{ inputs.image-name }}:${{ inputs.image-tag }}
-      #     exit-code: '1'
-      #     format: 'table'
-      #     severity: ${{ inputs.severity}}
-
-      - name: Docker Scan
+      - name: Docker Image Scan
         if: inputs.docker_scan == 'true'
         uses: clouddrove/smurf@feat/trivy 
         with:
           tool: sdkr
           command: ${{ inputs.docker_scan_command }}
 
-      # - name: Docker Image Tag
-      #   if: inputs.docker_push == 'true'
-      #   uses: clouddrove/smurf@v1.0.0
-      #   with:
-      #     tool: sdkr
-      #     command: ${{ inputs.docker_tag_command }}
+      - name: Docker Image Tag
+        if: inputs.docker_push == 'true'
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: sdkr
+          command: ${{ inputs.docker_tag_command }}
 
-      # - name: Docker Image Push
-      #   if: inputs.docker_push == 'true'
-      #   uses: clouddrove/smurf@v1.0.0
-      #   with:
-      #     tool: sdkr
-      #     command: ${{ inputs.docker_push_command }}
+      - name: Docker Image Push
+        if: inputs.docker_push == 'true'
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: sdkr
+          command: ${{ inputs.docker_push_command }}
