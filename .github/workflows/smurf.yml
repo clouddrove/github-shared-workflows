@@ -328,7 +328,8 @@ jobs:
         uses: clouddrove/smurf@v1.0.0
         with:
          tool: selm
-         command: template my-app ${{ inputs.helm-chart-path || './helm/my-app' }} -f ${{ inputs.helm-values-path || './helm/my-app/values-dev.yaml' }} --namespace dev
+         command: "template my-app ./helm/my-app"
+         args: "-f ./helm/my-app/values-dev.yaml --namespace dev"
 
   helm-deploy:
     runs-on: ubuntu-latest
