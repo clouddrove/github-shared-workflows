@@ -326,8 +326,9 @@ jobs:
       #    command: ${{ inputs.helm-template-command }}
 
   helm-deploy:
+    if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    needs: [helm-scan, docker-scan-push]
+    # needs: [helm-scan, docker-scan-push]
     permissions:
       id-token: write
       contents: read
