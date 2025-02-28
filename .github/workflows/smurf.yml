@@ -414,7 +414,7 @@ jobs:
         uses: actions/checkout@v4.1.7
         with:
           ref: ${{ inputs.branch }}
-
+    
       # Configure cloud provider authentication based on provider type
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
@@ -422,7 +422,7 @@ jobs:
         with:
           role-to-assume: ${{ inputs.aws-role }}
           aws-region: ${{ inputs.aws-region }}
-          
+        
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
@@ -438,13 +438,13 @@ jobs:
           fi
           aws configure set region $AWS_REGION
           echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
-
+    
       - name: Azure Login
         if: inputs.provider == 'azure'
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
+    
       - name: GCP Authentication
         if: inputs.provider == 'gcp' && inputs.use-gcp-credentials
         uses: google-github-actions/auth@v1
@@ -455,41 +455,54 @@ jobs:
           token_format: ${{ inputs.token-format }}
           access_token_lifetime: ${{ inputs.access-token-lifetime }}
           create_credentials_file: ${{ inputs.create-credentials-file == 'true' }}
-          
+        
       - name: Set GCP Project
         if: inputs.provider == 'gcp' && inputs.gcp-project-id
         run: |
           gcloud config set project ${{ inputs.gcp-project-id }}
-    
+  
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-          
-      - name: Smurf Terraform init 
+        
+      - name: Navigate to working directory and check for Terraform files
+        run: |
+          # Ensure the working directory exists
+          mkdir -p ${{ inputs.working-directory }}
+          cd ${{ inputs.working-directory }}
+          echo "Current directory: $(pwd)"
+          # Check for Terraform files
+          ls -la
+          if [ $(find . -name "*.tf" | wc -l) -eq 0 ]; then
+            echo "WARNING: No .tf files found in the working directory!"
+          fi
+    
+      - name: Smurf Terraform init
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: ${{ inputs.tool }}
           command: init
           path: ${{ inputs.working-directory }}
-          
+        
       - name: Smurf Terraform plan
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: ${{ inputs.tool }}
           command: plan
           path: ${{ inputs.working-directory }}
-          
+        
       # - name: Smurf format
       #   uses: clouddrove/smurf@v1.0.0
       #   with:
       #     tool: ${{ inputs.tool }}
       #     command: fmt
-          
+      #     path: ${{ inputs.working-directory }}
+        
       - name: Smurf Terraform Apply
         uses: clouddrove/smurf@v1.0.0
         if: ${{ inputs.terraform_apply == 'true' }}
         with:
           tool: ${{ inputs.tool }}
-          command: apply  
+          command: apply
           path: ${{ inputs.working-directory }}
