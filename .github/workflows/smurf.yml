@@ -104,6 +104,11 @@ on:
         required: false
         type: string
         default: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+      terraform_apply:
+        description: 'confirmation for terrafrom apply'
+        required: false
+        type: string
+        default: 'false'
       
       # Common workspace inputs
       working-directory:
@@ -267,18 +272,6 @@ jobs:
         with:
           tool: ${{ inputs.tool }}
           command: ${{ inputs.command }}
-          
-      - name: Smurf selm Template
-        uses: clouddrove/smurf@v1.0.0
-        with:
-          tool: ${{ inputs.tool }}
-          command: template my-release ./mychart-test  
-          
-      - name: Smurf selm install
-        uses: clouddrove/smurf@v1.0.0
-        with:
-          tool: ${{ inputs.tool }}
-          command: install my-release ./mychart-test -n test
 
           
   docker-build:
@@ -409,67 +402,94 @@ jobs:
           tool: ${{ inputs.tool }}
           command: ${{ inputs.docker_push_command }}
 
-  # smurf-terraform:
-  #   if: inputs.tool == 'stf'
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #     pull-requests: write
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4.1.7
-  #       with:
-  #         ref: ${{ inputs.branch }}
+  smurf-terraform:
+    if: inputs.tool == 'stf'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.7
+        with:
+          ref: ${{ inputs.branch }}
 
-  #     # Configure cloud provider authentication based on provider type
-  #     - name: Configure AWS credentials with OIDC
-  #       if: inputs.aws_auth_method == 'oidc'
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: ${{ inputs.aws-role }}
-  #         aws-region: ${{ inputs.aws-region }}
+      # Configure cloud provider authentication based on provider type
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws-role }}
+          aws-region: ${{ inputs.aws-region }}
           
-  #     - name: Configure AWS credentials with access keys
-  #       if: inputs.aws_auth_method == 'keys'
-  #       env:
-  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-  #         AWS_REGION: ${{ inputs.aws-region }}
-  #       run: |
-  #         aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-  #         aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-  #         if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-  #           aws configure set aws_session_token $AWS_SESSION_TOKEN
-  #         fi
-  #         aws configure set region $AWS_REGION
-  #         echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ inputs.aws-region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
+          echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
 
-  #     - name: Azure Login
-  #       if: inputs.provider == 'azure'
-  #       uses: azure/login@v1
-  #       with:
-  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Azure Login
+        if: inputs.provider == 'azure'
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-  #     - name: GCP Authentication
-  #       if: inputs.provider == 'gcp' && inputs.use-gcp-credentials
-  #       uses: google-github-actions/auth@v1
-  #       with:
-  #         credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-  #         service_account: ${{ inputs.SERVICE_ACCOUNT }}
-  #         workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-  #         token_format: ${{ inputs.token-format }}
-  #         access_token_lifetime: ${{ inputs.access-token-lifetime }}
-  #         create_credentials_file: ${{ inputs.create-credentials-file == 'true' }}
+      - name: GCP Authentication
+        if: inputs.provider == 'gcp' && inputs.use-gcp-credentials
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          service_account: ${{ inputs.SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          token_format: ${{ inputs.token-format }}
+          access_token_lifetime: ${{ inputs.access-token-lifetime }}
+          create_credentials_file: ${{ inputs.create-credentials-file == 'true' }}
           
-  #     - name: Set GCP Project
-  #       if: inputs.provider == 'gcp' && inputs.gcp-project-id
-  #       run: |
-  #         gcloud config set project ${{ inputs.gcp-project-id }}
-
-  #     - name: Smurf Terraform
-  #       uses: clouddrove/smurf@v1.0.0
-  #       with:
-  #         tool: ${{ inputs.tool }}
-  #         command: ${{ inputs.command }}
+      - name: Set GCP Project
+        if: inputs.provider == 'gcp' && inputs.gcp-project-id
+        run: |
+          gcloud config set project ${{ inputs.gcp-project-id }}
+    
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
+          
+      - name: Smurf Terraform init 
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: ${{ inputs.tool }}
+          command: init
+          working-directory: ${{ inputs.working-directory }}
+          
+      - name: Smurf Terraform plan
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: ${{ inputs.tool }}
+          command: plan
+          working-directory: ${{ inputs.working-directory }}
+          
+      # - name: Smurf format
+      #   uses: clouddrove/smurf@v1.0.0
+      #   with:
+      #     tool: ${{ inputs.tool }}
+      #     command: fmt
+          
+      - name: Smurf Terraform Apply
+        uses: clouddrove/smurf@v1.0.0
+        if: ${{ inputs.terraform_apply == 'true' }}
+        with:
+          tool: ${{ inputs.tool }}
+          command: apply  
+          working-directory: ${{ inputs.working-directory }}
