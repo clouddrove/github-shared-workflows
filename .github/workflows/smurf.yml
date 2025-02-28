@@ -46,18 +46,15 @@ on:
         description: 'Additional environment variables in JSON format'
         
     inputs:
-      tool:
-        description: 'Tool to run (selm, stf or sdkr)'
-        type: string
-        required: true
       command:
         description: 'Command to run with tool'
         type: string
         required: false
-      branch:
-        description: 'Branch to checkout'
+      docker_enable:
+        description: 'Set to true to run docker commands'
         type: string
-        default: 'master'
+        required: false
+        default: 'true'
       aws-role:
         description: 'AWS IAM role ARN to assume'
         type: string
@@ -105,44 +102,6 @@ on:
         type: string
         default: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
       
-      # Common workspace inputs
-      working-directory:
-        description: 'Working directory for command execution'
-        type: string
-        required: false
-        default: '.'
-      
-      # Helm-specific inputs
-      eks-cluster:
-        description: 'EKS cluster name'
-        type: string
-        required: false
-      ecr-repository:
-        description: 'ECR repository URL'
-        type: string
-        required: false
-      dockerfile-path:
-        description: 'Path to Dockerfile'
-        type: string
-        required: false
-      helm-values-path:
-        description: 'Path to Helm values file'
-        type: string
-        required: false
-      helm-chart-path:
-        description: 'Path to Helm chart'
-        type: string
-        required: false
-      namespace:
-        description: 'Kubernetes namespace'
-        type: string
-        required: false
-        default: 'testing-smurf'
-      timeout:
-        description: 'Timeout in seconds'
-        type: number
-        default: 30
-      
       # Docker-specific inputs
       image-name:
         description: 'Docker image name'
@@ -156,118 +115,10 @@ on:
         description: 'Docker image tar'
         type: string
         required: false
-      registry-type:
-        description: 'Container registry type (docker or ecr)'
-        type: string
-        required: false
-      build-path:
-        description: 'Path to build context'
-        type: string
-        required: false
-        default: '.'
-      
-      # Terraform-specific inputs
-      var-file:
-        description: 'Terraform var file path'
-        type: string
-        required: false
-      destroy:
-        description: 'Set to true to destroy infrastructure'
-        type: boolean
-        required: false
-        default: false
-      approvers:
-        description: 'Comma-separated list of approvers'
-        type: string
-        required: false
-      terraform-version:
-        description: 'Terraform version to use'
-        type: string
-        required: false
-        default: '1.3.6'
-      minimum-approvals:
-        description: 'Minimum approvals required'
-        type: string
-        required: false
-        default: '1'
-      token-format:
-        description: 'Token format (access_token or id_token)'
-        type: string
-        required: false
-        default: 'access_token'
-      access-token-lifetime:
-        description: 'Access token lifetime in seconds'
-        type: string
-        required: false
-        default: '300s'
-      gcp-project-id:
-        description: 'GCP Project ID'
-        type: string
-        required: false
-      gcp-region:
-        description: 'GCP region'
-        type: string
-        required: false
-      create-credentials-file:
-        description: 'Create GCP credentials file'
-        type: string
-        required: false
-        default: 'true'
-      use-gcp-credentials:
-        description: 'Set to true if GCP credentials are provided'
-        type: boolean
-        required: false
-        default: false
 
-
-jobs:
-#   smurf-helm:
-#     if: inputs.tool == 'selm'
-#     runs-on: ubuntu-latest
-#     permissions:
-#       id-token: write
-#       contents: read
-#     steps:
-#       - name: Check out repo
-#         uses: actions/checkout@v4.1.7
-#         with:
-#           ref: ${{ inputs.branch }}
-        
-#       - name: Configure AWS credentials with OIDC
-#         if: inputs.aws_auth_method == 'oidc'
-#         uses: aws-actions/configure-aws-credentials@v4
-#         with:
-#           role-to-assume: ${{ inputs.aws-role }}
-#           aws-region: ${{ inputs.aws-region }}
-         
-#       - name: Configure AWS credentials with access keys
-#         if: inputs.aws_auth_method == 'keys'
-#         env:
-#           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#           AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-#           AWS_REGION: ${{ inputs.aws-region }}
-#         run: |
-#           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-#           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-#           if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-#             aws configure set aws_session_token $AWS_SESSION_TOKEN
-#           fi
-#           aws configure set region $AWS_REGION
-          
-#       - name: Set environment variables
-#         run: |
-#           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-#           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-      
-#       - name: Smurf Helm
-#         uses: clouddrove/smurf@v1.0.0
-#         with:
-#           tool: ${{ inputs.tool }}
-#           command: ${{ inputs.command }}
-          
+jobs:     
   docker-build:
-    if: inputs.tool == 'sdkr'
+    if: inputs.docker_enable == 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -276,8 +127,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.1.7
-        with:
-          ref: ${{ inputs.branch }}
         
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
@@ -309,7 +158,7 @@ jobs:
       - name: Docker Image Build
         uses: clouddrove/smurf@v1.0.0
         with:
-          tool: ${{ inputs.tool }}
+          tool: sdkr
           command: ${{ inputs.docker_build_command }}
 
       - name: Save Docker Image as Artifact
@@ -323,7 +172,7 @@ jobs:
           path: ${{ inputs.image-tar }}
     
   docker-scan-push:
-    if: inputs.tool == 'sdkr' && inputs.docker_scan == 'true' && inputs.docker_push == 'true'
+    if: inputs.docker_enable == 'true' && inputs.docker_scan == 'true' && inputs.docker_push == 'true'
     runs-on: ubuntu-latest
     needs: docker-build
     permissions:
@@ -384,77 +233,12 @@ jobs:
         if: inputs.docker_push == 'true'
         uses: clouddrove/smurf@v1.0.0
         with:
-          tool: ${{ inputs.tool }}
+          tool: sdkr
           command: ${{ inputs.docker_tag_command }}
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
         uses: clouddrove/smurf@v1.0.0
         with:
-          tool: ${{ inputs.tool }}
+          tool: sdkr
           command: ${{ inputs.docker_push_command }}
-
-  # smurf-terraform:
-  #   if: inputs.tool == 'stf'
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #     pull-requests: write
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4.1.7
-  #       with:
-  #         ref: ${{ inputs.branch }}
-
-  #     # Configure cloud provider authentication based on provider type
-  #     - name: Configure AWS credentials with OIDC
-  #       if: inputs.aws_auth_method == 'oidc'
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: ${{ inputs.aws-role }}
-  #         aws-region: ${{ inputs.aws-region }}
-          
-  #     - name: Configure AWS credentials with access keys
-  #       if: inputs.aws_auth_method == 'keys'
-  #       env:
-  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-  #         AWS_REGION: ${{ inputs.aws-region }}
-  #       run: |
-  #         aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-  #         aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-  #         if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-  #           aws configure set aws_session_token $AWS_SESSION_TOKEN
-  #         fi
-  #         aws configure set region $AWS_REGION
-  #         echo "AWS_REGION=$AWS_REGION" >> $GITHUB_ENV
-
-  #     - name: Azure Login
-  #       if: inputs.provider == 'azure'
-  #       uses: azure/login@v1
-  #       with:
-  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-  #     - name: GCP Authentication
-  #       if: inputs.provider == 'gcp' && inputs.use-gcp-credentials
-  #       uses: google-github-actions/auth@v1
-  #       with:
-  #         credentials_json: ${{ secrets.GCP_CREDENTIALS }}
-  #         service_account: ${{ inputs.SERVICE_ACCOUNT }}
-  #         workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-  #         token_format: ${{ inputs.token-format }}
-  #         access_token_lifetime: ${{ inputs.access-token-lifetime }}
-  #         create_credentials_file: ${{ inputs.create-credentials-file == 'true' }}
-          
-  #     - name: Set GCP Project
-  #       if: inputs.provider == 'gcp' && inputs.gcp-project-id
-  #       run: |
-  #         gcloud config set project ${{ inputs.gcp-project-id }}
-
-  #     - name: Smurf Terraform
-  #       uses: clouddrove/smurf@v1.0.0
-  #       with:
-  #         tool: ${{ inputs.tool }}
-  #         command: ${{ inputs.command }}
