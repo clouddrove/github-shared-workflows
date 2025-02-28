@@ -314,13 +314,13 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
       - name: Helm Lint
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@feat/trivy
         with:
          tool: selm
          command: ${{ inputs.helm-lint-command }}
 
       - name: Helm Template
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@feat/trivy
         with:
          tool: selm
          command: ${{ inputs.helm-template-command }}
