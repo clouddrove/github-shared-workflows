@@ -98,7 +98,7 @@ on:
         description: 'Docker image tar'
         type: string
         required: false
-       docker_scan:
+      docker_scan:
         description: 'Set true for docker scan'
         type: string
         required: false
