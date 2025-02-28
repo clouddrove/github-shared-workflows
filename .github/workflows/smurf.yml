@@ -72,30 +72,6 @@ on:
         description: 'AWS Auth method to use'
         type: string
         required: false
-      docker_scan:
-        description: 'Set true for docker scan'
-        type: string
-        required: false
-      docker_scan_command: 
-        description: 'Command for docker scan'
-        type: string
-        required: false
-      docker_push:
-        description: 'Set true for docker push'
-        type: string
-        required: false
-      docker_push_command: 
-        description: 'Command for docker push'
-        type: string
-        required: false
-      docker_build_command:
-        description: 'Command for docker build'
-        type: string
-        required: false
-      docker_tag_command:
-        description: 'Command for docker tag'
-        type: string
-        required: false
       eks-cluster:
         description: 'EKS cluster name'
         type: string
@@ -120,6 +96,49 @@ on:
         required: false
       image-tar:
         description: 'Docker image tar'
+        type: string
+        required: false
+       docker_scan:
+        description: 'Set true for docker scan'
+        type: string
+        required: false
+      docker_scan_command: 
+        description: 'Command for docker scan'
+        type: string
+        required: false
+      docker_push:
+        description: 'Set true for docker push'
+        type: string
+        required: false
+      docker_push_command: 
+        description: 'Command for docker push'
+        type: string
+        required: false
+      docker_build_command:
+        description: 'Command for docker build'
+        type: string
+        required: false
+      docker_tag_command:
+        description: 'Command for docker tag'
+        type: string
+        required: false
+
+      # Helm-specific inputs
+      helm-lint-command:
+        description: 'Helm Lint Command'
+        type: string
+        required: false
+      helm_enable:
+        description: 'Set to true to run helm commands'
+        type: string
+        required: false
+        default: 'false'      
+      helm-template-command:
+        description: 'Helm Template Command'
+        type: string
+        required: false
+      helm_deploy_command:
+        description: 'Helm Deploy Command'
         type: string
         required: false
 
@@ -181,74 +200,174 @@ jobs:
           name: ${{ inputs.image-name }}
           path: ${{ inputs.image-tar }}
     
-  # docker-scan-push:
-  #   if: inputs.docker_enable == 'true' && inputs.docker_scan == 'true' && inputs.docker_push == 'true'
-  #   runs-on: ubuntu-latest
-  #   needs: docker-build
-  #   permissions:
-  #     id-token: write
-  #     contents: read
+  docker-scan-push:
+    if: inputs.docker_enable == 'true' && inputs.docker_scan == 'true' && inputs.docker_push == 'true'
+    runs-on: ubuntu-latest
+    needs: docker-build
+    permissions:
+      id-token: write
+      contents: read
     
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4.1.7
-  #       with:
-  #         ref: ${{ inputs.branch }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.1.7
+        with:
+          ref: ${{ inputs.branch }}
 
-  #     - name: Download Docker Image Artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: ${{ inputs.image-name }}
+      - name: Download Docker Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.image-name }}
 
-  #     - name: Load Docker Image
-  #       run: |
-  #         docker load -i ${{ inputs.image-tar }}
+      - name: Load Docker Image
+        run: |
+          docker load -i ${{ inputs.image-tar }}
 
-  #     - name: Configure AWS credentials with OIDC
-  #       if: inputs.aws_auth_method == 'oidc'
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: ${{ inputs.aws-role }}
-  #         aws-region: ${{ inputs.aws-region }}
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws-role }}
+          aws-region: ${{ inputs.aws-region }}
 
-  #     - name: Configure AWS credentials with access keys
-  #       if: inputs.aws_auth_method == 'keys'
-  #       env:
-  #         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-  #         AWS_REGION: ${{ inputs.aws-region }}
-  #       run: |
-  #         aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-  #         aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-  #         if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-  #           aws configure set aws_session_token $AWS_SESSION_TOKEN
-  #         fi
-  #         aws configure set region $AWS_REGION
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ inputs.aws-region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
 
-  #     - name: Set environment variables
-  #       run: |
-  #         echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-  #         echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-  #         echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
+          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
 
-  #     - name: Docker Image Scan
-  #       if: inputs.docker_scan == 'true'
-  #       uses: clouddrove/smurf@feat/trivy 
-  #       with:
-  #         tool: sdkr
-  #         command: ${{ inputs.docker_scan_command }}
+      - name: Docker Image Scan
+        if: inputs.docker_scan == 'true'
+        uses: clouddrove/smurf@feat/trivy 
+        with:
+          tool: sdkr
+          command: ${{ inputs.docker_scan_command }}
 
-  #     - name: Docker Image Tag
-  #       if: inputs.docker_push == 'true'
-  #       uses: clouddrove/smurf@v1.0.0
-  #       with:
-  #         tool: sdkr
-  #         command: ${{ inputs.docker_tag_command }}
+      - name: Docker Image Tag
+        if: inputs.docker_push == 'true'
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: sdkr
+          command: ${{ inputs.docker_tag_command }}
 
-  #     - name: Docker Image Push
-  #       if: inputs.docker_push == 'true'
-  #       uses: clouddrove/smurf@v1.0.0
-  #       with:
-  #         tool: sdkr
-  #         command: ${{ inputs.docker_push_command }}
+      - name: Docker Image Push
+        if: inputs.docker_push == 'true'
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: sdkr
+          command: ${{ inputs.docker_push_command }}
+
+  helm-scan:
+    if: inputs.helm_enable == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4.1.7
+        with:
+          ref: ${{ inputs.branch }}
+        
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws-role }}
+          aws-region: ${{ inputs.aws-region }}
+         
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ inputs.aws-region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
+          
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
+          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+      
+      - name: Helm Lint
+        uses: clouddrove/smurf@v1.0.0
+        with:
+         tool: selm
+         command: ${{ inputs.helm-lint-command }}
+
+      - name: Helm Template
+        uses: clouddrove/smurf@v1.0.0
+        with:
+         tool: selm
+         command: ${{ inputs.helm-template-command }}
+
+  helm-deploy:
+    runs-on: ubuntu-latest
+    needs: [helm-scan, docker-scan-push]
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4.1.7
+        with:
+          ref: ${{ inputs.branch }}
+        
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws-role }}
+          aws-region: ${{ inputs.aws-region }}
+         
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ inputs.aws-region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
+          
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
+          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+      
+      - name: Helm Deploy
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: selm
+          command: ${{ inputs.helm_deploy_command }}
