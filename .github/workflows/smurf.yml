@@ -2,15 +2,6 @@ name: Smurf
 on:
   workflow_call:
     secrets:
-      docker-username:
-        description: 'Docker Hub username'
-        required: false
-      docker-password:
-        description: 'Docker Hub token'
-        required: false
-      ecr-registry:
-        description: 'ECR registry URL'
-        required: false
       AWS_ACCESS_KEY_ID:
         required: false
         description: 'AWS Access Key ID for direct authentication'
@@ -20,30 +11,6 @@ on:
       AWS_SESSION_TOKEN:
         required: false
         description: 'AWS Session Token for direct authentication'
-      AZURE_CREDENTIALS:
-        required: false
-        description: 'Azure credentials for authentication'
-      GCP_CREDENTIALS:
-        required: false
-        description: 'GCP credentials JSON for authentication'
-      DIGITALOCEAN_ACCESS_TOKEN:
-        required: false
-        description: 'DigitalOcean Personal Access Token'
-      WORKLOAD_IDENTITY_PROVIDER:
-        required: false
-        description: 'GCP Workload Identity Provider identifier'
-      SERVICE_ACCOUNT:
-        required: false
-        description: 'GCP Service Account to use'
-      DOCKERHUB_USERNAME:
-        required: false
-        description: 'Dockerhub Username'
-      DOCKERHUB_PASSWORD:
-        required: false
-        description: 'Dockerhub Password'
-      env-vars:
-        required: false
-        description: 'Additional environment variables in JSON format'
         
     inputs:
       command:
@@ -225,21 +192,21 @@ jobs:
 
       - name: Docker Image Scan
         if: inputs.docker_scan == 'true'
-        uses: clouddrove/smurf@feat/trivy
+        uses: clouddrove/smurf@v1.0.0
         with:
           tool: sdkr
           command: ${{ inputs.docker_scan_command }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@feat/trivy
+        uses: clouddrove/smurf@v1.0.0
         with:
           tool: sdkr
           command: ${{ inputs.docker_tag_command }}
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@feat/trivy
+        uses: clouddrove/smurf@v1.0.0
         with:
           tool: sdkr
           command: ${{ inputs.docker_push_command }}
@@ -286,13 +253,13 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
       - name: Helm Lint
-        uses: clouddrove/smurf@feat/trivy
+        uses: clouddrove/smurf@v1.0.0
         with:
          tool: selm
          command: ${{ inputs.helm-lint-command }}
 
       - name: Helm Template
-        uses: clouddrove/smurf@feat/trivy
+        uses: clouddrove/smurf@v1.0.0
         with:
          tool: selm
          command: ${{ inputs.helm-template-command }}
@@ -340,7 +307,7 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
       - name: Helm Deploy
-        uses: clouddrove/smurf@feat/trivy
+        uses: clouddrove/smurf@v1.0.0
         with:
           tool: selm
           command: ${{ inputs.helm_deploy_command }}
