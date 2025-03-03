@@ -124,7 +124,7 @@ jobs:
           ref: ${{ inputs.branch }}
 
       - name: Docker Image Build
-        uses: clouddrove/smurf@feat/trivy
+        uses: clouddrove/smurf@v1.0.0
         with:
           tool: sdkr
           command: ${{ inputs.docker_build_command }}
@@ -214,6 +214,7 @@ jobs:
   helm-lint-template:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
+    needs: [docker-build, docker-scan-push]
     permissions:
       id-token: write
       contents: read
