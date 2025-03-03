@@ -108,6 +108,15 @@ on:
         description: 'Helm Deploy Command'
         type: string
         required: false
+      helm_rollback_enable:
+        description: 'Set to true for helm rollback'
+        type: string
+        required: false
+        default: 'false'
+      helm_rollback_command:
+        description: 'Helm Rollback Command'
+        type: string
+        required: false
 
 jobs:     
   docker-build:
@@ -312,3 +321,45 @@ jobs:
         with:
           tool: selm
           command: ${{ inputs.helm_deploy_command }}
+
+  helm-rollback:
+    if: inputs.helm_rollback_enable == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws-role }}
+          aws-region: ${{ inputs.aws-region }}
+         
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ inputs.aws-region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
+          
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
+          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+      
+      - name: Helm Rollback
+        uses: clouddrove/smurf@v1.0.0
+        with:
+          tool: selm
+          command: ${{ inputs.helm_rollback_command }}
