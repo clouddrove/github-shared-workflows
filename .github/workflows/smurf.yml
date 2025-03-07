@@ -11,6 +11,9 @@ on:
       AWS_SESSION_TOKEN:
         required: false
         description: 'AWS Session Token for direct authentication'
+      set-parameters:
+        required: false
+        description: 'Overriding the default values using --set flag'
         
     inputs:
       command:
