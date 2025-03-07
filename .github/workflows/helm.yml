@@ -78,6 +78,11 @@
           required: false
           type: string
           description: 'Approvals list to approve deploy'
+        approve_time:
+          required: false
+          type: number
+          default: 10
+          description: 'Timeout for approval step'
       secrets:
         AWS_ACCESS_KEY_ID:
           description: 'AWS Access Key ID'
@@ -145,7 +150,7 @@
 
         - name: "Accept plan or deny"
           uses: trstringer/manual-approval@v1
-          timeout-minutes: ${{ inputs.timeout }}
+          timeout-minutes: ${{ inputs.approve_time }}
           with:
             secret: ${{ github.TOKEN }}
             approvers: ${{ inputs.approvers }}
