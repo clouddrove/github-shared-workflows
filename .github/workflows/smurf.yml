@@ -60,10 +60,10 @@ on:
         description: 'Docker image name'
         type: string
         required: false
-      image-tag:
-        description: 'Docker image tag'
-        type: string
-        required: false
+      # image-tag:
+      #   description: 'Docker image tag'
+      #   type: string
+      #   required: false
       image-tar:
         description: 'Docker image tar'
         type: string
@@ -143,7 +143,7 @@ jobs:
 
       - name: Save Docker Image as Artifact
         run: |
-          docker save ${{ inputs.image-name }}:${{ inputs.image-tag }} -o ${{ inputs.image-tar }}
+          docker save ${{ inputs.image-name }}:${{ secrets.set-parameters }} -o ${{ inputs.image-tar }}
           
       - name: Upload Docker Image Artifact
         uses: actions/upload-artifact@v4
