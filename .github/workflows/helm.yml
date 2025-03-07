@@ -1,171 +1,176 @@
 ---
-name: HELM
+  name: HELM
+  
+  on:
+    workflow_call:
+      inputs:
+        provider:
+          required: true
+          type: string
+          description: 'Cloud provider to run the workflow. e.g. azure or aws'
+        eks-cluster-name:
+          required: false
+          type: string
+          description: 'EKS cluster name'
+        aws_region:
+          required: false
+          type: string
+          default: us-east-1
+        azure-cluster-name:
+          required: false
+          type: string
+          description: 'Azure cluster name'
+        resource-group:
+          required: false
+          type: string
+          description: 'Container for managing Azure resources'
+        helm-chart-directory:
+          required: true
+          type: string
+          description: 'Kubernetes deployment configurations files'
+        release-name:
+          required: false
+          type: string
+          description: 'Unique ID for installed chart'
+        timeout:
+          required: true
+          type: string
+          description: 'Timeout for helm install step in seconds'
+        values-file-path:
+          required: false
+          type: string
+          description: 'Values file path from helm chart directory'
+        history-max:
+          required: true
+          type: number
+          description: 'number of revisions stored in the revision history.'
+        namespace:
+          required: false
+          type: string
+          description: 'Boundary for Kubernetes resources'
+        rollback:
+          required: false
+          type: boolean
+          description: 'Environment name for rollback'
+        revision:
+          required: false
+          type: number
+          description: 'If this argument is omitted or set to 0, it will roll back to the previous release.'
+        uninstall:
+          required: false
+          type: boolean
+          default: false
+          description: 'Set true to uninstall helmchart'
+        role-duration-seconds:
+          required: false
+          type: number
+          default: 900
+          description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour.'
+        assume_role_arn:
+          required: false
+          type: string  # ARN for the role to assume with STS
+        minimum-approvals:
+          required: false
+          type: number
+          default: 1
+          description: 'Minimum approvals required to accept the deploy'
+        approvers:
+          required: false
+          type: string
+          description: 'Approvals list to approve deploy'
+      secrets:
+        AWS_ACCESS_KEY_ID:
+          description: 'AWS Access Key ID'
+          required: false
+        AWS_SECRET_ACCESS_KEY:
+          required: false
+          description: 'AWS Secret Access Key'
+        AWS_SESSION_TOKEN:
+          required: false
+          description: 'AWS Session Token'
+        BUILD_ROLE:
+          required: false
+          description: 'AWS OIDC role for aws authentication'
+        AZURE_CREDENTIALS:
+          description: 'Azure Credentilas'
+          required: false
+        set-parameters:
+          required: false
+          description: 'Overriding the default values using --set flag'
+  jobs:
+    helm-action:
+      runs-on: ubuntu-latest
+  
+      steps:
+        - name: Checkout git repo
+          uses: actions/checkout@v4
+  
+        - name: Configure aws credentials
+          uses: aws-actions/configure-aws-credentials@v1.7.0
+          with:
+            role-to-assume: ${{ inputs.assume_role_arn }}
+            role-session-name: github
+            aws-region: ${{ inputs.aws_region }}
+  
+        - name: Install Azure CLI
+          if: ${{ inputs.provider == 'azure' }}
+          uses: azure/login@v2
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+  
+        - name: Update Kubeconfig
+          run: |
+            if [ "${{ inputs.provider }}" = "azure" ]; then
+              az aks get-credentials --resource-group ${{ inputs.resource-group }} --name ${{ inputs.azure-cluster-name }}
+            else
+              aws eks update-kubeconfig --name ${{ inputs.eks-cluster-name }} --region ${{ inputs.aws_region }}
+            fi
+  
+        - name: helm lint
+          if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+          run: |
+            helm lint ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
+          
+        - name: helm dependency build
+          if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+          run: |
+            helm repo add bitnami https://charts.bitnami.com/bitnami
+            helm repo update
+            helm dependency build ${{ inputs.helm-chart-directory }}
+  
+        - name: helm template
+          if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+          run: |
+            helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
-on:
-  workflow_call:
-    inputs:
-      provider:
-        required: true
-        type: string
-        description: 'Cloud provider to run the workflow. e.g. azure or aws'
-      eks-cluster-name:
-        required: false
-        type: string
-        description: 'EKS cluster name'
-      aws_region:
-        required: false
-        type: string
-        default: us-east-1
-      azure-cluster-name:
-        required: false
-        type: string
-        description: 'Azure cluster name'
-      resource-group:
-        required: false
-        type: string
-        description: 'Container for managing Azure resources'
-      helm-chart-directory:
-        required: true
-        type: string
-        description: 'Kubernetes deployment configurations files'
-      release-name:
-        required: false
-        type: string
-        description: 'Unique ID for installed chart'
-      timeout:
-        required: true
-        type: string
-        description: 'Timeout for helm install step in seconds'
-      values-file-path:
-        required: false
-        type: string
-        description: 'Values file path from helm chart directory'
-      history-max:
-        required: true
-        type: number
-        description: 'number of revisions stored in the revision history.'
-      namespace:
-        required: false
-        type: string
-        description: 'Boundary for Kubernetes resources'
-      rollback:
-        required: false
-        type: boolean
-        description: 'Environment name for rollback'
-      revision:
-        required: false
-        type: number
-        description: 'If this argument is omitted or set to 0, it will roll back to the previous release.'
-      uninstall:
-        required: false
-        type: boolean
-        default: false
-        description: 'Set true to uninstall helmchart'
-      role-duration-seconds:
-        required: false
-        type: number
-        default: 900
-        description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour.'
-      minimum-approvals:
-        required: false
-        type: number
-        default: 1
-        description: 'Minimum approvals required to accept the plan'
-      approvers:
-        required: false
-        type: string
-        description: 'Approvals list to approve apply or destroy'
-    secrets:
-      AWS_ACCESS_KEY_ID:
-        description: 'AWS Access Key ID'
-        required: false
-      AWS_SECRET_ACCESS_KEY:
-        required: false
-        description: 'AWS Secret Access Key'
-      AWS_SESSION_TOKEN:
-        required: false
-        description: 'AWS Session Token'
-      BUILD_ROLE:
-        required: false
-        description: 'AWS OIDC role for aws authentication'
-      AZURE_CREDENTIALS:
-        description: 'Azure Credentilas'
-        required: false
-      set-parameters:
-        required: false
-        description: 'Overriding the default values using --set flag'
-jobs:
-  helm-action:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout git repo
-        uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          role-to-assume: ${{ secrets.BUILD_ROLE }}
-          aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: ${{ inputs.role-duration-seconds }}
-          role-skip-session-tagging: true
-
-      - name: Install Azure CLI
-        if: ${{ inputs.provider == 'azure' }}
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Update Kubeconfig
-        run: |
-          if [ "${{ inputs.provider }}" = "azure" ]; then
-            az aks get-credentials --resource-group ${{ inputs.resource-group }} --name ${{ inputs.azure-cluster-name }}
-          else
-            aws eks update-kubeconfig --name ${{ inputs.eks-cluster-name }} --region ${{ inputs.aws_region }}
-          fi
-
-      - name: helm lint
-        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
-        run: |
-          helm lint ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
-
-      - name: helm template
-        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
-        run: |
-          helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
-
-      - name: "Accept plan or deny"
-        uses: trstringer/manual-approval@v1
-        timeout-minutes: ${{ inputs.timeout }}
-        with:
-          secret: ${{ github.TOKEN }}
-          approvers: ${{ inputs.approvers }}
-          minimum-approvals: ${{ inputs.minimum-approvals }}
-          issue-title: "Helm Deploy"
-
-      - name: helm install and upgrade2
-        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
-        run: |
-          if [ -n "${{ secrets.set-parameters }}" ]; then
-            helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace ${{ secrets.set-parameters }} \
-              --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
-          else
-            helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace \
-              --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
-          fi
-
-      - name: Rollback Helm Release
-        if: ${{ inputs.rollback == true && inputs.uninstall != true }}
-        run: |
-          export HISTORY_COUNT=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | head -2 | tail -1 | awk '{print $1}')
-          helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} ${{ inputs.revision }} --debug || ( echo "Valid revision values can be greater than or equal to $HISTORY_COUNT" && exit 1 )
-
-      - name: Uninstall Helm Release
-        if: ${{ inputs.uninstall == true }}
-        run: |
-          helm uninstall ${{ inputs.release-name }} -n ${{ inputs.namespace }}
+        - name: "Accept plan or deny"
+          uses: trstringer/manual-approval@v1
+          timeout-minutes: ${{ inputs.timeout }}
+          with:
+            secret: ${{ github.TOKEN }}
+            approvers: ${{ inputs.approvers }}
+            minimum-approvals: ${{ inputs.minimum-approvals }}
+            issue-title: "Helm Deploy"
+  
+        - name: helm install and upgrade2
+          if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+          run: |
+            if [ -n "${{ secrets.set-parameters }}" ]; then
+              helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace ${{ secrets.set-parameters }} \
+                --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
+            else
+              helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace \
+                --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
+            fi
+            
+        - name: Rollback Helm Release
+          if: ${{ inputs.rollback == true && inputs.uninstall != true }}
+          run: |
+            export HISTORY_COUNT=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | head -2 | tail -1 | awk '{print $1}')
+            helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} ${{ inputs.revision }} --debug || ( echo "Valid revision values can be greater than or equal to $HISTORY_COUNT" && exit 1 )
+  
+        - name: Uninstall Helm Release
+          if: ${{ inputs.uninstall == true }}
+          run: |
+            helm uninstall ${{ inputs.release-name }} -n ${{ inputs.namespace }}
 ...
