@@ -132,6 +132,13 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
 
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws-role }}
+          aws-region: ${{ inputs.aws-region }}
+
       - name: Docker Image Build
         uses: clouddrove/smurf@v1.0.0
         with:
