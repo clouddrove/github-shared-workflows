@@ -121,7 +121,7 @@ jobs:
       
       - name: Change directory and run commands
         run: |
-          cd ${{ inputs.terraform_directory }}
+          cd ${{ github.event.inputs.terraform_directory }}
           ls -la
 
       - name: Terraform Format
