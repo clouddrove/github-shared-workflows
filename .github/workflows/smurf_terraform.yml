@@ -143,7 +143,9 @@ jobs:
           command: ${{ inputs.terraform_validate_command }}
       
       - name: Check Current Directory
-        run: pwd
+        run: |
+          cd terraform
+          pwd  
 
       - name: Terraform Plan
         uses: clouddrove/smurf@v1.0.0
