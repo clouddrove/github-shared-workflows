@@ -216,15 +216,15 @@ jobs:
       #     fi
 
 
-      - name: Terraform destroy
-        if: ${{ inputs.destroy == true }}
-        id: destroy
-        run: |
-          if [ -n "${{ inputs.var_file }}" ]; then
-           cd ${{ inputs.working_directory }}
-           terraform destroy -var-file="${{ inputs.var_file }}" -auto-approve
-          else
-           cd ${{ inputs.working_directory }}
-           terraform destroy -auto-approve
-          fi
+      # - name: Terraform destroy
+      #   if: ${{ inputs.destroy == true }}
+      #   id: destroy
+      #   run: |
+      #     if [ -n "${{ inputs.var_file }}" ]; then
+      #      cd ${{ inputs.working_directory }}
+      #      terraform destroy -var-file="${{ inputs.var_file }}" -auto-approve
+      #     else
+      #      cd ${{ inputs.working_directory }}
+      #      terraform destroy -auto-approve
+      #     fi
 ...
