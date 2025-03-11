@@ -204,16 +204,16 @@ jobs:
           echo "${delimiter}" >> $GITHUB_OUTPUT
 
 
-      - name: terraform apply
-        if: ${{ inputs.destroy != true }}
-        run: |
-          if [ -n "${{ inputs.var_file }}" ]; then
-           cd ${{ inputs.working_directory }}
-           terraform apply -var-file="${{ inputs.var_file }}" -auto-approve
-          else
-           cd ${{ inputs.working_directory }}
-           terraform apply -auto-approve
-          fi
+      # - name: terraform apply
+      #   if: ${{ inputs.destroy != true }}
+      #   run: |
+      #     if [ -n "${{ inputs.var_file }}" ]; then
+      #      cd ${{ inputs.working_directory }}
+      #      terraform apply -var-file="${{ inputs.var_file }}" -auto-approve
+      #     else
+      #      cd ${{ inputs.working_directory }}
+      #      terraform apply -auto-approve
+      #     fi
 
 
       - name: Terraform destroy
