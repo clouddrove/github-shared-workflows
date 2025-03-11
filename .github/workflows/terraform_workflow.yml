@@ -204,6 +204,7 @@ jobs:
           echo "${delimiter}" >> $GITHUB_OUTPUT
 
       - name: "Accept plan or deny"
+        if: ${{ inputs.destroy == true }}
         uses: trstringer/manual-approval@v1
         timeout-minutes: ${{ inputs.timeout }}
         with:
