@@ -56,7 +56,7 @@ on:
       terraform_directory:
         description: 'Terraform Directory'
         type: string
-        required: true
+        required: false
       terraform_format_command:
         description: 'Terraform Format Command'
         type: string
