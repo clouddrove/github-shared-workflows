@@ -118,11 +118,6 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
-      
-      - name: Change directory for Terraform
-        run: |
-          cd ${{ inputs.terraform_directory }}
-          ls -la
 
       - name: Terraform Format
         uses: clouddrove/smurf@v1.0.0
@@ -142,21 +137,13 @@ jobs:
           tool: stf
           command: ${{ inputs.terraform_validate_command }}
       
-      # - name: Check Current Directory
-      #   run: |
-      #     cd terraform
-      #     pwd  
+      - name: Check Current Directory
+        run: |
+          cd terraform
+          pwd  
 
       - name: Terraform Plan
         uses: clouddrove/smurf@v1.0.0
         with:
           tool: stf
-          command: cd terraform && ${{ inputs.terraform_plan_command }}
-
-      # - name: Terraform Apply
-      #   uses: clouddrove/smurf@v1.0.0
-      #   with:
-      #     tool: stf
-      #     command: ${{ inputs.terraform_apply_command }}
-
-      
+          command: ${{ inputs.terraform_plan_command }}
