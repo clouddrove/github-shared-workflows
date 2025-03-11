@@ -119,9 +119,9 @@ jobs:
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
-      - name: Change directory
+      - name: Change directory for Terraform
         run: |
-          cd ${{ github.event.inputs.terraform_directory }}
+          cd ${{ inputs.terraform_directory }}
           ls -la
 
       - name: Terraform Format
