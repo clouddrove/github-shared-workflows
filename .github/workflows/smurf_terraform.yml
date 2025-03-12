@@ -120,30 +120,25 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
 
       - name: Terraform Format
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@feat/terraform_dir
         with:
           tool: stf
           command: ${{ inputs.terraform_format_command }}
       
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@feat/terraform_dir
         with:
           tool: stf
           command: ${{ inputs.terraform_init_command }}
 
       - name: Terraform Validate
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@feat/terraform_dir
         with:
           tool: stf
           command: ${{ inputs.terraform_validate_command }}
       
-      # - name: Check Current Directory
-      #   run: |
-      #     cd terraform
-      #     pwd  
-
       - name: Terraform Plan
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@feat/terraform_dir
         with:
           tool: stf
           command: ${{ inputs.terraform_plan_command }}
