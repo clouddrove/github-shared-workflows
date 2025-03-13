@@ -136,9 +136,15 @@ jobs:
         with:
           tool: stf
           command: ${{ inputs.terraform_validate_command }}
-      
+
       - name: Terraform Plan
         uses: clouddrove/smurf@feat/terraform_dir
         with:
           tool: stf
           command: ${{ inputs.terraform_plan_command }}
+
+      - name: Terraform Apply
+        uses: clouddrove/smurf@feat/terraform_dir
+        with:
+          tool: stf
+          command: ${{ inputs.terraform_apply_command }}
