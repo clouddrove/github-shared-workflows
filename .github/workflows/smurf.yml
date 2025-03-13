@@ -21,7 +21,7 @@ on:
         description: 'Set to true to run docker commands'
         type: string
         required: false
-        default: 'true'
+        default: 'false'
       aws-role:
         description: 'AWS IAM role ARN to assume'
         type: string
