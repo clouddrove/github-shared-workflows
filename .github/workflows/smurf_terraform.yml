@@ -178,6 +178,12 @@ jobs:
           echo "TOOL=terraform" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
 
+      - name: Terraform Init
+        uses: clouddrove/smurf@feat/terraform_auto_approve
+        with:
+          tool: stf
+          command: init --dir=${{ inputs.terraform_directory }}
+
       - name: Terraform Destroy
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with:
