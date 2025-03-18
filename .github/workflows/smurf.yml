@@ -133,7 +133,7 @@ jobs:
           ref: ${{ inputs.branch }}
 
       - name: Docker Image Build
-        uses: clouddrove/smurf@v1.0.1
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
           command: ${{ inputs.docker_build_command }}
@@ -201,21 +201,21 @@ jobs:
 
       - name: Docker Image Scan
         if: inputs.docker_scan == 'true'
-        uses: clouddrove/smurf@v1.0.1
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
           command: ${{ inputs.docker_scan_command }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.0.1
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
           command: ${{ inputs.docker_tag_command }}
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.0.1
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
           command: ${{ inputs.docker_push_command }}
@@ -263,13 +263,13 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
       - name: Helm Lint
-        uses: clouddrove/smurf@v1.0.1
+        uses: clouddrove/smurf@v1.0.3
         with:
          tool: selm
          command: ${{ inputs.helm-lint-command }}
 
       - name: Helm Template
-        uses: clouddrove/smurf@v1.0.1
+        uses: clouddrove/smurf@v1.0.3
         with:
          tool: selm
          command: ${{ inputs.helm-template-command }}
@@ -317,7 +317,7 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
       - name: Helm Deploy
-        uses: clouddrove/smurf@v1.0.1
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: selm
           command: ${{ inputs.helm_deploy_command }}
@@ -359,7 +359,7 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
       - name: Helm Rollback
-        uses: clouddrove/smurf@v1.0.1
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: selm
           command: ${{ inputs.helm_rollback_command }}
