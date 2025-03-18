@@ -86,10 +86,8 @@ jobs:
       contents: read
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4.1.7
-        with:
-          ref: ${{ inputs.branch }}
+      - name: Checkout
+        uses: actions/checkout@v4
         
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'

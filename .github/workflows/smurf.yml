@@ -127,10 +127,8 @@ jobs:
       contents: read
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.7
-        with:
-          ref: ${{ inputs.branch }}
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Docker Image Build
         uses: clouddrove/smurf@v1.0.3
@@ -157,10 +155,8 @@ jobs:
       contents: read
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.1.7
-        with:
-          ref: ${{ inputs.branch }}
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Download Docker Image Artifact
         uses: actions/download-artifact@v4
@@ -229,10 +225,8 @@ jobs:
       contents: read
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4.1.7
-        with:
-          ref: ${{ inputs.branch }}
+      - name: Checkout
+        uses: actions/checkout@v4
         
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
@@ -283,10 +277,8 @@ jobs:
       contents: read
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4.1.7
-        with:
-          ref: ${{ inputs.branch }}
+      - name: Checkout
+        uses: actions/checkout@v4
         
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
