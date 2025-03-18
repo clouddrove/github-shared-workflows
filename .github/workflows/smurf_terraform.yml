@@ -45,9 +45,15 @@ on:
         type: string
         required: false
         default: 'false'
+      terraform_enable:
+        description: 'Terraform Enable'
+        type: string
+        required: false
+        default: 'false'
 
 jobs:
   terraform-format-init-validate:
+    if: inputs.terraform_enable == 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -76,6 +82,7 @@ jobs:
           command: validate --dir=${{ inputs.terraform_directory }}
 
   terraform-execution:
+    if: inputs.terraform_enable == 'true'
     runs-on: ubuntu-latest
     needs: terraform-format-init-validate
     permissions:
