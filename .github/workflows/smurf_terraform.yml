@@ -143,9 +143,8 @@ jobs:
           tool: stf
           command: plan ${{ inputs.terraform_plan_command }}
 
-
       - name: Terraform Apply
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with:
           tool: stf
-          command: apply ${{ inputs.terraform_apply_command }} --auto-aprove
+          command: apply --auto-aprove ${{ inputs.terraform_apply_command }}
