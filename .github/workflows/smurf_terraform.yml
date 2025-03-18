@@ -39,30 +39,11 @@ on:
         description: 'AWS Auth method to use'
         type: string
         required: false
+        default: 'oidc'
 
       ## Terraform Inputs
       terraform_directory:
         description: 'Terraform Directory'
-        type: string
-        required: false
-      terraform_format_command:
-        description: 'Terraform Format Command'
-        type: string
-        required: false
-      terraform_init_command:
-        description: 'Terraform Init Command'
-        type: string
-        required: false
-      terraform_validate_command:
-        description: 'Terraform Validate Command'
-        type: string
-        required: false
-      terraform_plan_command:
-        description: 'Terraform Plan Command'
-        type: string
-        required: false
-      terraform_apply_command:
-        description: 'Terraform Apply Command'
         type: string
         required: false
 
@@ -115,22 +96,28 @@ jobs:
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with:
           tool: stf
-          command: init ${{ inputs.terraform_init_command }} --dir=${{ inputs.terraform_directory }}
+          command: init --dir=${{ inputs.terraform_directory }}
 
       - name: Terraform Validate
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with:
           tool: stf
-          command: validate ${{ inputs.terraform_validate_command }} --dir=${{ inputs.terraform_directory }}
+          command: validate --dir=${{ inputs.terraform_directory }}
 
       - name: Terraform Plan
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with: 
           tool: stf
-          command: plan ${{ inputs.terraform_plan_command }} --dir=${{ inputs.terraform_directory }}
+          command: plan --dir=${{ inputs.terraform_directory }}
 
       - name: Terraform Apply
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with:
           tool: stf
-          command: apply --auto-approve ${{ inputs.terraform_apply_command }} --dir=${{ inputs.terraform_directory }}
+          command: apply --auto-approve --dir=${{ inputs.terraform_directory }}
+
+      - name: Terraform Destroy
+        uses: clouddrove/smurf@feat/terraform_auto_approve
+        with:
+          tool: stf
+          command: destroy --auto-approve --dir=${{ inputs.terraform_directory }}
