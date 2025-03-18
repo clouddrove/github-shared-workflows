@@ -39,10 +39,6 @@ on:
         description: 'AWS Auth method to use'
         type: string
         required: false
-      provider:
-        description: 'Cloud Provider'
-        type: string
-        default: 'false'
 
       ## Terraform Inputs
       terraform_directory:
