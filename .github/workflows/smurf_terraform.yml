@@ -147,4 +147,4 @@ jobs:
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with:
           tool: stf
-          command: apply --auto-aprove ${{ inputs.terraform_apply_command }}
+          command: apply --auto-approve ${{ inputs.terraform_apply_command }}
