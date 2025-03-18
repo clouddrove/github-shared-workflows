@@ -11,19 +11,13 @@ on:
       AWS_SESSION_TOKEN:
         required: false
         description: 'AWS Session Token for direct authentication'
+      AWS_ROLE_TO_ASSUME:
+        required: false
+        description: 'AWS Role ARN defined'
         
     inputs:
       command:
         description: 'Command to run with tool'
-        type: string
-        required: false
-      docker_enable:
-        description: 'Set to true to run docker commands'
-        type: string
-        required: false
-        default: 'true'
-      aws-role:
-        description: 'AWS IAM role ARN to assume'
         type: string
         required: false
       aws-region:
@@ -40,6 +34,7 @@ on:
         type: string
         required: false
         default: 'oidc'
+
 
       ## Terraform Inputs
       terraform_directory:
@@ -62,7 +57,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-role }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ inputs.aws-region }}
          
       - name: Configure AWS credentials with access keys
