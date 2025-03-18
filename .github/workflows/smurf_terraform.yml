@@ -129,7 +129,7 @@ jobs:
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with:
           tool: stf
-          command: init ${{ inputs.terraform_init_command }}
+          command: init ${{ inputs.terraform_init_command }} --dir=${{ inputs.terraform_directory }}
 
       - name: Terraform Validate
         uses: clouddrove/smurf@feat/terraform_auto_approve
@@ -139,9 +139,9 @@ jobs:
 
       - name: Terraform Plan
         uses: clouddrove/smurf@feat/terraform_auto_approve
-        with:
+        with: 
           tool: stf
-          command: plan ${{ inputs.terraform_plan_command }}
+          command: plan ${{ inputs.terraform_plan_command }} --dir 
 
       - name: Terraform Apply
         uses: clouddrove/smurf@feat/terraform_auto_approve
