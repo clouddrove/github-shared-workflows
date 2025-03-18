@@ -35,12 +35,16 @@ on:
         required: false
         default: 'oidc'
 
-
       ## Terraform Inputs
       terraform_directory:
         description: 'Terraform Directory'
         type: string
         required: false
+      terraform_destroy:
+        description: 'Terraform Destroy'
+        type: string
+        required: false
+        default: 'false'
 
 jobs:
   terraform-format-init:
@@ -67,7 +71,7 @@ jobs:
 
   terraform-execution:
     runs-on: ubuntu-latest
-    needs: terraform format and init
+    needs: terraform-format-init
     permissions:
       id-token: write
       contents: read
@@ -123,6 +127,7 @@ jobs:
           command: apply --auto-approve --dir=${{ inputs.terraform_directory }}
 
   terraform-destroy:
+    if: inputs.terraform_destroy == 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
