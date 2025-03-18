@@ -39,16 +39,8 @@ on:
         description: 'AWS Auth method to use'
         type: string
         required: false
-      eks-cluster:
-        description: 'EKS cluster name'
-        type: string
-        required: false
-      branch:
-        description: 'Branch to checkout'
-        type: string
-        default: 'master'
-      aws_auth:
-        description: 'Set to true for AWS Auth'
+      provider:
+        description: 'Cloud Provider'
         type: string
         default: 'false'
 
@@ -114,8 +106,8 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+          echo "TOOL=terraform" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
 
       - name: Terraform Format
         uses: clouddrove/smurf@feat/terraform_auto_approve
