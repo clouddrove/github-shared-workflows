@@ -135,16 +135,16 @@ jobs:
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with:
           tool: stf
-          command: validate ${{ inputs.terraform_validate_command }}
+          command: validate ${{ inputs.terraform_validate_command }} --dir=${{ inputs.terraform_directory }}
 
       - name: Terraform Plan
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with: 
           tool: stf
-          command: plan ${{ inputs.terraform_plan_command }} --dir 
+          command: plan ${{ inputs.terraform_plan_command }} --dir=${{ inputs.terraform_directory }}
 
       - name: Terraform Apply
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with:
           tool: stf
-          command: apply --auto-approve ${{ inputs.terraform_apply_command }}
+          command: apply --auto-approve ${{ inputs.terraform_apply_command }} --dir=${{ inputs.terraform_directory }}
