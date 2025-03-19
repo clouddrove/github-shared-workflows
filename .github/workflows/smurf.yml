@@ -42,10 +42,6 @@ on:
         description: 'EKS cluster name'
         type: string
         required: false
-      branch:
-        description: 'Branch to checkout'
-        type: string
-        default: 'master'
       aws_auth:
         description: 'Set to true for AWS Auth'
         type: string
