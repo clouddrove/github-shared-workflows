@@ -127,6 +127,14 @@ jobs:
           tool: stf
           command: init --dir=${{ inputs.terraform_directory }}
 
+      - name: Set environment variables
+        run: |
+          (
+          cat <<'_EOT'
+          ${{ secrets.env-vars }}
+          _EOT
+          ) >> "$GITHUB_ENV"
+
       - name: Terraform Plan
         uses: clouddrove/smurf@feat/terraform_auto_approve
         with: 
