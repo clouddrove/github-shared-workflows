@@ -309,7 +309,7 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
       - name: Helm Deploy
-        uses: clouddrove/smurf@fix/--set-literal
+        uses: clouddrove/smurf@master
         with:
           tool: selm
           command: ${{ inputs.helm_deploy_command }}
@@ -351,7 +351,7 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
       - name: Helm Rollback
-        uses: clouddrove/smurf@v1.0.3
+        uses: clouddrove/smurf@master
         with:
           tool: selm
           command: ${{ inputs.helm_rollback_command }}
