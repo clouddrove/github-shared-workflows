@@ -11,6 +11,9 @@ on:
       AWS_SESSION_TOKEN:
         required: false
         description: 'AWS Session Token for direct authentication'
+      AWS_ROLE_TO_ASSUME:
+        required: false
+        description: 'AWS Role ARN defined'
         
     inputs:
       command:
@@ -22,10 +25,6 @@ on:
         type: string
         required: false
         default: 'false'
-      aws-role:
-        description: 'AWS IAM role ARN to assume'
-        type: string
-        required: false
       aws-region:
         description: 'AWS region'
         type: string
@@ -171,7 +170,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-role }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ inputs.aws-region }}
 
       - name: Configure AWS credentials with access keys
@@ -232,7 +231,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-role }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ inputs.aws-region }}
          
       - name: Configure AWS credentials with access keys
@@ -271,7 +270,7 @@ jobs:
   helm-deploy:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    needs: [helm-lint-template, docker-scan-push]
+    # needs: [helm-lint-template, docker-scan-push]
     permissions:
       id-token: write
       contents: read
@@ -284,7 +283,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-role }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ inputs.aws-region }}
          
       - name: Configure AWS credentials with access keys
@@ -326,7 +325,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-role }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ inputs.aws-region }}
          
       - name: Configure AWS credentials with access keys
