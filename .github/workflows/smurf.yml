@@ -335,7 +335,7 @@ jobs:
         uses: clouddrove/smurf@master
         with:
           tool: selm
-          command: upgrade --install --atomic ${{ secrets.set-parameters }} ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --n=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
+          command: upgrade --install --atomic ${{ secrets.set-parameters }} ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} -n=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
 
   helm-rollback:
     if: inputs.helm_rollback_enable == 'true'
