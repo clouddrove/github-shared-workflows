@@ -11,9 +11,6 @@ on:
       AWS_SESSION_TOKEN:
         required: false
         description: 'AWS Session Token for direct authentication'
-      AWS_ROLE_TO_ASSUME:
-        required: false
-        description: 'AWS Role ARN defined'
       set-parameters:
         required: false
         description: 'Overriding the default values using --set flag'
@@ -51,6 +48,10 @@ on:
         default: 'master'
       aws_auth:
         description: 'Set to true for AWS Auth'
+        type: string
+        default: 'false'
+      aws-role:
+        description: 'AWS Role'
         type: string
         default: 'false'
       
@@ -193,7 +194,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ inputs.aws-role }}
           aws-region: ${{ inputs.aws-region }}
 
       - name: Configure AWS credentials with access keys
@@ -306,7 +307,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ inputs.aws-role }}
           aws-region: ${{ inputs.aws-region }}
          
       - name: Configure AWS credentials with access keys
@@ -331,7 +332,7 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
       - name: Helm Deploy
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@fix/secrets
         with:
           tool: selm
           command: upgrade --install --atomic ${{ secrets.set-parameters }} ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --n=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
