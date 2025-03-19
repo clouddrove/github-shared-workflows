@@ -146,3 +146,60 @@ jobs:
         with:
           tool: stf
           command: apply --auto-approve --dir=${{ inputs.terraform_directory }}
+
+  terraform-destroy:
+    if: inputs.terraform_destroy == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ inputs.aws-region }}
+         
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          AWS_REGION: ${{ inputs.aws-region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
+          
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
+          echo "TOOL=terraform" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
+
+      - name: Terraform Init
+        uses: clouddrove/smurf@feat/terraform_auto_approve
+        with:
+          tool: stf
+          command: init --dir=${{ inputs.terraform_directory }}
+
+      - name: Terraform Plan
+        uses: clouddrove/smurf@feat/terraform_auto_approve
+        with: 
+          tool: stf
+          command: plan --dir=${{ inputs.terraform_directory }}
+
+      - name: Terraform Destroy
+        uses: clouddrove/smurf@feat/terraform_auto_approve
+        with:
+          tool: stf
+          command: destroy --auto-approve --dir=${{ inputs.terraform_directory }}
