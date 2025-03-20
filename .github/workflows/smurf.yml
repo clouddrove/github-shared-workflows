@@ -132,6 +132,10 @@ on:
         required: false
         type: string
         description: 'Boundary for Kubernetes resources'
+      revision:
+        required: false
+        type: string
+        description: 'Revison for Helm Rollback '
       timeout:
         required: false
         type: string
@@ -279,13 +283,13 @@ jobs:
         uses: clouddrove/smurf@v1.0.3
         with:
          tool: selm
-         command: ${{ inputs.helm-lint-command }}
+         command: lint -f ${{ inputs.values-file-path }} ${{ inputs.helm-chart-directory }}
 
       - name: Helm Template
         uses: clouddrove/smurf@v1.0.3
         with:
          tool: selm
-         command: ${{ inputs.helm-template-command }}
+         command: template -f ${{ inputs.values-file-path }} ${{ inputs.helm-chart-directory }}
 
   helm-deploy:
     if: inputs.helm_enable == 'true'
@@ -373,4 +377,4 @@ jobs:
         uses: clouddrove/smurf@master
         with:
           tool: selm
-          command: ${{ inputs.helm_rollback_command }}
+          command: rollback ${{ inputs.release-name }} ${{ inputs.revision }} -n=${{ inputs.namespace }}
