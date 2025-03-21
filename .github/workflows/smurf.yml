@@ -298,7 +298,7 @@ jobs:
         uses: clouddrove/smurf@v1.0.3
         with:
          tool: selm
-         command: template ${{ inputs.release-name }} -f ${{ inputs.values-file-path }} ${{ inputs.helm-chart-directory }}
+         command: template ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
   helm-deploy:
     if: inputs.helm_enable == 'true'
