@@ -154,7 +154,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Docker Image Build
-        uses: clouddrove/smurf@v1.0.3
+        uses: clouddrove/smurf@feat/buildkit
         with:
           tool: sdkr
           command: ${{ inputs.docker_build_command }}
@@ -332,7 +332,7 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
       
       - name: Helm Deploy
-        uses: clouddrove/smurf@feat/buildkit
+        uses: clouddrove/smurf@master
         with:
           tool: selm
           command: upgrade --install --atomic ${{ secrets.set-parameters }} ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} -n=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
