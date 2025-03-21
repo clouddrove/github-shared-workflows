@@ -277,7 +277,8 @@ jobs:
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+          echo "TOOL=helm" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
       
       - name: Helm Lint
         uses: clouddrove/smurf@v1.0.3
