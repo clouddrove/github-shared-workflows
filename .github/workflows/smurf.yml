@@ -284,7 +284,6 @@ jobs:
         run: |
           helm repo remove bitnami || true  # Remove if exists
           helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo add airbyte https://airbytehq.github.io/helm-charts
           helm repo update
           helm dependency build ${{ inputs.helm-chart-directory }}
       
