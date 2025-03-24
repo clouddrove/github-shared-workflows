@@ -215,8 +215,8 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+          echo "TOOL=helm" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
 
       - name: Docker Image Scan
         if: inputs.docker_scan == 'true'
@@ -276,7 +276,6 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
           echo "TOOL=helm" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
       
@@ -329,8 +328,8 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+          echo "TOOL=helm" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
       
       - name: Helm Deploy
         uses: clouddrove/smurf@v1.0.4
@@ -371,8 +370,8 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+          echo "TOOL=helm" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
       
       - name: Helm Rollback
         uses: clouddrove/smurf@v1.0.4
