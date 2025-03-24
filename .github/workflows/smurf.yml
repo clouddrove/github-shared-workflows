@@ -540,7 +540,7 @@ on:
       assume_role_arn:
         description: 'AWS assume role'
         required: false
-        default: false
+        default: 'false'
       
 jobs:     
   docker_build:
