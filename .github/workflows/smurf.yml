@@ -333,7 +333,7 @@ jobs:
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
      
       - name: Helm Deploy
-        uses: clouddrove/smurf@fix/entrypoint.sh
+        uses: clouddrove/smurf@v1.0.4
         with:
           tool: selm
           command: upgrade --install --atomic ${{ secrets.set-parameters }} ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} -n=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
