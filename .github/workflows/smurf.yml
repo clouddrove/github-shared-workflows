@@ -242,7 +242,7 @@ jobs:
   helm-lint-template:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    # needs: [docker-build, docker-scan-push]
+    needs: [docker-build, docker-scan-push]
     permissions:
       id-token: write
       contents: read
@@ -294,7 +294,7 @@ jobs:
   helm-deploy:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    needs: [helm-lint-template, docker-scan-push]
+    # needs: [helm-lint-template, docker-scan-push]
     permissions:
       id-token: write
       contents: read
