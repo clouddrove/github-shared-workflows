@@ -518,12 +518,15 @@ on:
         type: string
         required: false
         default: 'false'
-
       flags:
         description: 'Helm command flags'
         type: string
         required: false
         default: '--atomic --debug'
+      aws_region:
+        required: false
+        type: string
+        description: 'AWS Region'
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
