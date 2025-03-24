@@ -486,11 +486,11 @@ on:
         type: string
         required: false
       release_name:
-        required: true
+        required: false
         type: string
         description: 'Unique ID for installed chart'
       helm_chart_directory:
-        required: true
+        required: false
         type: string
         description: 'Kubernetes deployment configurations files'
       values_file_path:
@@ -498,7 +498,7 @@ on:
         type: string
         description: 'Values file path from helm chart directory'
       namespace:
-        required: true
+        required: false
         type: string
         description: 'Boundary for Kubernetes resources'
       revision:
