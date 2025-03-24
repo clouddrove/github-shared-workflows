@@ -335,7 +335,9 @@ jobs:
           echo "TOOL=helm" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks-cluster }}" >> $GITHUB_ENV
-      
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
+     
       - name: Helm Deploy
         uses: clouddrove/smurf@v1.0.4
         with:
