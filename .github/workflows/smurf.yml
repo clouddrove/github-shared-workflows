@@ -50,6 +50,10 @@ on:
         description: 'AWS Role'
         type: string
         default: 'false'
+      aws_region:
+        description: 'AWS Region'
+        type: string
+        default: 'us-east-1'
       
       # Docker-specific inputs
       image-name:
