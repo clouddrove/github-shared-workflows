@@ -461,6 +461,8 @@ on:
       build_args:
         description: 'Docker Build Arguments'
         type: string
+        required: false
+        default: ''
       platform:
         description: 'Image Build Platform'
         type: string
