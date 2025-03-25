@@ -413,6 +413,11 @@ on:
         description: 'AWS role'
         type: string
         default: 'false'
+      provider:
+        description: 'Cloud provider (aws, azure, gcp, digitalocean)'
+        type: string
+        required: false
+        default: 'aws'
       
       # Docker-specific inputs
       image_name:
@@ -437,14 +442,6 @@ on:
         required: false
       docker_push:
         description: 'Set true for docker push'
-        type: string
-        required: false
-      docker_push_command: 
-        description: 'Command for docker push'
-        type: string
-        required: false
-      docker_tag_command:
-        description: 'Command for docker tag'
         type: string
         required: false
       registry:
