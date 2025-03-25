@@ -9,15 +9,8 @@ The following workflow can work with Docker and Helm Using Smurf tool. It can Bu
 
 ```yaml
 name: Smurf-Docker-Helm
-permissions: 
-  id-token: write
-  contents: read
-  pull-requests: write
-
 on:
   push:
-    branches:
-      - master
 
 jobs:
   dev:

@@ -9,15 +9,8 @@ The following workflow can work with Terraform Using Smurf. It can Format, Init,
 
 ```yaml
 name: Smurf Terraform
-permissions: 
-  id-token: write
-  contents: read
-  pull-requests: write
-
 on:
   push:
-    branches:
-      - master
 
 jobs:
   dev:
