@@ -562,7 +562,7 @@ jobs:
         uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
-          command: build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{ inputs.dockerfile_path }} --build-arg ${{ inputs.build_args }} --platform ${{ inputs.platform }} 
+          command: build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{ inputs.dockerfile_path }} --platform ${{ inputs.platform }} --build-arg ${{ inputs.build_args }}
 
       - name: Save Docker Image as Artifact
         run: |
