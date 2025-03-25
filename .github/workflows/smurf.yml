@@ -1,187 +1,182 @@
----
 name: Smurf-Docker-Helm
-on:
+'on':
   workflow_call:
     inputs:
       command:
-        description: 'Command to run with tool'
+        description: Command to run with tool
         type: string
         required: false
       docker_enable:
-        description: 'Set to true to run docker commands'
+        description: Set to true to run docker commands
         type: string
         required: false
         default: 'true'
       region:
-        description: 'AWS region'
+        description: AWS region
         type: string
-        default: 'us-east-1'
+        default: us-east-1
       aws_auth_method:
-        description: 'AWS auth method to use'
+        description: AWS auth method to use
         type: string
         required: false
       eks_cluster_name:
-        description: 'AWS eks cluster name'
+        description: AWS eks cluster name
         type: string
         required: false
       aws_auth:
-        description: 'Set to true for AWS auth'
+        description: Set to true for AWS auth
         type: string
         default: 'false'
       aws_role:
-        description: 'AWS role'
+        description: AWS role
         type: string
         default: 'false'
       provider:
         description: 'Cloud provider (aws, azure, gcp, digitalocean)'
         type: string
         required: false
-        default: 'aws'
-      # Docker-specific inputs
+        default: aws
       image_name:
-        description: 'Docker image name'
+        description: Docker image name
         type: string
         required: false
       image_tag:
-        description: 'Docker image tag'
+        description: Docker image tag
         type: string
         default: '${{ github.run_id }}'
       image_tar:
-        description: 'Docker image tar'
+        description: Docker image tar
         type: string
         required: false
-        default: 'image'
+        default: image
       docker_push:
-        description: 'Set true for docker push'
+        description: Set true for docker push
         type: string
         required: false
         default: 'true'
       registry:
         description: 'The registry to Push Docker Image (aws, az, gcp, hub)'
         type: string
-        default: 'aws'
+        default: aws
       registry-url:
         description: 'The URL of the container registry (e.g., Docker Hub, ECR, GCR, ACR).'
         type: string
       dockerfile_path:
-        description: 'Docker file directory'
+        description: Docker file directory
         type: string
-        default: 'Dockerfile'
+        default: Dockerfile
       build_args:
-        description: 'Docker Build Arguments'
+        description: Docker Build Arguments
         type: string
         required: false
-        default: 'key1=val1'
+        default: key1=val1
       platform:
-        description: 'Image Build Platform'
+        description: Image Build Platform
         type: string
-        default: 'linux/amd64'
-      # Helm-specific inputs
+        default: linux/amd64
       helm_enable:
-        description: 'Set to true to run helm commands'
+        description: Set to true to run helm commands
         type: string
         required: false
-        default: 'false'      
+        default: 'false'
       helm_deploy_command:
-        description: 'Helm deploy command'
+        description: Helm deploy command
         type: string
         required: false
       helm_rollback_enable:
-        description: 'Set to true for helm rollback'
+        description: Set to true for helm rollback
         type: string
         required: false
         default: 'false'
       helm_rollback_command:
-        description: 'Helm rollback command'
+        description: Helm rollback command
         type: string
         required: false
       release_name:
         required: false
         type: string
-        description: 'Unique ID for installed chart'
+        description: Unique ID for installed chart
       helm_chart_directory:
         required: false
         type: string
-        description: 'Kubernetes deployment configurations files'
+        description: Kubernetes deployment configurations files
       values_file_path:
         required: false
         type: string
-        description: 'Values file path from helm chart directory'
+        description: Values file path from helm chart directory
       namespace:
         required: false
         type: string
-        description: 'Boundary for Kubernetes resources'
+        description: Boundary for Kubernetes resources
       revision:
         required: false
         type: string
-        description: 'Revision for Helm rollback'
+        description: Revision for Helm rollback
       timeout:
         required: false
         type: string
-        description: 'Timeout for Helm'
+        description: Timeout for Helm
       helm_plugins:
-        description: 'List of Helm plugins to install'
+        description: List of Helm plugins to install
         type: string
         required: false
       helm_plugin_install:
-        description: 'Set to True for Helm Plugin install'
+        description: Set to True for Helm Plugin install
         type: string
         required: false
         default: 'false'
       flags:
-        description: 'Helm command flags'
+        description: Helm command flags
         type: string
         required: false
         default: '--atomic --debug'
       aws_region:
         required: false
         type: string
-        description: 'AWS Region'
+        description: AWS Region
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
-        description: 'AWS Access Key ID for direct authentication'
+        description: AWS Access Key ID for direct authentication
       AWS_SECRET_ACCESS_KEY_ID:
         required: false
-        description: 'AWS Secret Access Key for direct authentication'
+        description: AWS Secret Access Key for direct authentication
       AWS_SESSION_TOKEN:
         required: false
-        description: 'AWS Session Token for direct authentication'
+        description: AWS Session Token for direct authentication
       set-parameters:
         required: false
-        description: 'Overriding the default values using --set flag'
+        description: Overriding the default values using --set flag
       assume_role_arn:
-        description: 'AWS assume role'
+        description: AWS assume role
         required: false
-      
-jobs:     
+jobs:
   docker_build:
     if: inputs.docker_enable == 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Docker Image Build
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: sdkr
-          command: build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{ inputs.dockerfile_path }} --platform ${{ inputs.platform }} --build-arg ${{ inputs.build_args }}
-
+          command: >-
+            build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{
+            inputs.dockerfile_path }} --platform ${{ inputs.platform }}
+            --build-arg ${{ inputs.build_args }}
       - name: Save Docker Image as Artifact
-        run: |
-          docker save ${{ inputs.image_name }}:${{ inputs.image_tag }} -o ${{ inputs.image_tar }}
-          
+        run: >
+          docker save ${{ inputs.image_name }}:${{ inputs.image_tag }} -o ${{
+          inputs.image_tar }}
       - name: Upload Docker Image Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ inputs.image_name }}
-          path: ${{ inputs.image_tar }}
-
+          name: '${{ inputs.image_name }}'
+          path: '${{ inputs.image_tar }}'
   docker_scan_push:
     if: inputs.docker_enable == 'true' && inputs.docker_push == 'true'
     runs-on: ubuntu-latest
@@ -189,41 +184,35 @@ jobs:
     permissions:
       id-token: write
       contents: read
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Download Docker Image Artifact
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs.image_name }}
-
+          name: '${{ inputs.image_name }}'
       - name: Load Docker Image
         run: |
           docker load -i ${{ inputs.image_tar }}
-
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws_role }}
-          aws-region: ${{ inputs.aws_region }}
-
-      - name: Assume another IAM Role             
+          role-to-assume: '${{ inputs.aws_role }}'
+          aws-region: '${{ inputs.aws_region }}'
+      - name: Assume another IAM Role
         if: inputs.assume-role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.assume_role_arn }}
-          aws-region: ${{ inputs.aws_region }}    
-
+          role-to-assume: '${{ inputs.assume_role_arn }}'
+          aws-region: '${{ inputs.aws_region }}'
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: ${{ inputs.aws_region }}
+          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
+          AWS_REGION: '${{ inputs.aws_region }}'
         run: |
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
@@ -231,84 +220,80 @@ jobs:
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
           aws configure set region $AWS_REGION
-
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "TOOL=helm" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
-
       - name: Docker Image Scan
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: sdkr
-          command: scan ${{ inputs.image_name }}:${{ inputs.image_tag }}
-
+          command: 'scan ${{ inputs.image_name }}:${{ inputs.image_tag }}'
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: sdkr
-          command: tag ${{ inputs.image_name }}:${{ inputs.image_tag }} ${{ inputs.registry-url }}:${{ inputs.image_tag }}
-
+          command: >-
+            tag ${{ inputs.image_name }}:${{ inputs.image_tag }} ${{
+            inputs.registry-url }}:${{ inputs.image_tag }}
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: sdkr
-          command: push ${{ inputs.registry }} ${{ inputs.registry-url }}:${{ inputs.image_tag }}
-
+          command: >-
+            push ${{ inputs.registry }} ${{ inputs.registry-url }}:${{
+            inputs.image_tag }}
   helm_lint_template:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    needs: [docker_build, docker_scan_push]
-
+    needs:
+      - docker_build
+      - docker_scan_push
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
       - name: Helm Lint
         uses: clouddrove/smurf@v1.0.4
         with:
-         tool: selm
-         command: lint ${{ inputs.helm-chart-directory }}
-
+          tool: selm
+          command: 'lint ${{ inputs.helm-chart-directory }}'
       - name: Helm Template
         uses: clouddrove/smurf@v1.0.4
         with:
-         tool: selm
-         command: template ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }}
-
+          tool: selm
+          command: >-
+            template ${{ inputs.release-name }} ${{ inputs.helm-chart-directory
+            }}
   helm-deploy:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    needs: [docker_scan_push]
-
+    needs:
+      - docker_scan_push
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws_role }}
-          aws-region: ${{ inputs.aws_region }}
-     
-      - name: Assume another IAM Role             
-        if: inputs.assume_role == 'true' 
+          role-to-assume: '${{ inputs.aws_role }}'
+          aws-region: '${{ inputs.aws_region }}'
+      - name: Assume another IAM Role
+        if: inputs.assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.assume_role_arn }}
-          aws-region: ${{ inputs.aws_region }}
-         
+          role-to-assume: '${{ inputs.assume_role_arn }}'
+          aws-region: '${{ inputs.aws_region }}'
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: ${{ inputs.aws_region }}
+          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
+          AWS_REGION: '${{ inputs.aws_region }}'
         run: |
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
@@ -316,58 +301,54 @@ jobs:
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
           aws configure set region $AWS_REGION
-      
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "TOOL=helm" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV    
-      
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: selm
-          command: plugin ${{ inputs.helm_plugins }}
-
+          command: 'plugin ${{ inputs.helm_plugins }}'
       - name: Helm Deploy
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: selm
-          command: upgrade --install ${{ inputs.flags }} ${{ secrets.set-parameters }} ${{ inputs.release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.values_file_path }} -n=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
-
+          command: >-
+            upgrade --install ${{ inputs.flags }} ${{ secrets.set-parameters }}
+            ${{ inputs.release_name }} ${{ inputs.helm_chart_directory }} -f ${{
+            inputs.values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
+            inputs.timeout }}
   helm-rollback:
     if: inputs.helm_rollback_enable == 'true'
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ inputs.aws_region }}
-
-      - name: Assume another IAM Role             
+          role-to-assume: '${{ secrets.AWS_ROLE_TO_ASSUME }}'
+          aws-region: '${{ inputs.aws_region }}'
+      - name: Assume another IAM Role
         if: inputs.assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.assume_role_arn }}
-          aws-region: ${{ inputs.aws_region }}   
-          
+          role-to-assume: '${{ inputs.assume_role_arn }}'
+          aws-region: '${{ inputs.aws_region }}'
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-          AWS_REGION: ${{ inputs.aws_region }}
+          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
+          AWS_REGION: '${{ inputs.aws_region }}'
         run: |
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
@@ -375,15 +356,15 @@ jobs:
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
           aws configure set region $AWS_REGION
-          
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "TOOL=helm" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
-
       - name: Helm Rollback
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: selm
-          command: rollback ${{ inputs.release_name }} ${{ inputs.revision }} -n=${{ inputs.namespace }}
+          command: >-
+            rollback ${{ inputs.release_name }} ${{ inputs.revision }} -n=${{
+            inputs.namespace }}
