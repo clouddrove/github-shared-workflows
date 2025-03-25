@@ -35,7 +35,6 @@ on:
         type: string
         required: false
         default: 'oidc'
-
       ## Terraform Inputs
       terraform_directory:
         description: 'Terraform Directory'
