@@ -37,7 +37,6 @@ on:
         type: string
         required: false
         default: 'aws'
-      
       # Docker-specific inputs
       image_name:
         description: 'Docker image name'
@@ -77,7 +76,6 @@ on:
         description: 'Image Build Platform'
         type: string
         default: 'linux/amd64'
-
       # Helm-specific inputs
       helm_enable:
         description: 'Set to true to run helm commands'
