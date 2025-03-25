@@ -1,3 +1,4 @@
+---
 name: Smurf Terraform
 'on':
   workflow_call:
@@ -217,3 +218,4 @@ jobs:
         with:
           tool: stf
           command: 'destroy --auto-approve --dir=${{ inputs.terraform_directory }}'
+...

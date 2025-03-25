@@ -1,3 +1,4 @@
+---
 name: Smurf-Docker-Helm
 'on':
   workflow_call:
@@ -368,3 +369,4 @@ jobs:
           command: >-
             rollback ${{ inputs.release_name }} ${{ inputs.revision }} -n=${{
             inputs.namespace }}
+...
