@@ -649,7 +649,7 @@ jobs:
         uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
-          command: push ${{ inputs.registry }} ${{ inputs.registry-url }}
+          command: push ${{ inputs.registry }} ${{ inputs.registry-url }}:${{ inputs.image_tag }}
 
   helm_lint_template:
     if: inputs.helm_enable == 'true'
