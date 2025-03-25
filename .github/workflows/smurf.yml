@@ -433,11 +433,6 @@ on:
         type: string
         required: false
         default: 'image'
-      docker_scan:
-        description: 'Set true for docker scan'
-        type: string
-        required: false
-        default: 'true'
       docker_push:
         description: 'Set true for docker push'
         type: string
@@ -571,7 +566,7 @@ jobs:
           path: ${{ inputs.image_tar }}
 
   docker_scan_push:
-    if: inputs.docker_enable == 'true' && inputs.docker_scan == 'true' && inputs.docker_push == 'true'
+    if: inputs.docker_enable == 'true' && inputs.docker_push == 'true'
     runs-on: ubuntu-latest
     needs: docker_build
     permissions:
@@ -627,7 +622,6 @@ jobs:
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
 
       - name: Docker Image Scan
-        if: inputs.docker_scan == 'true'
         uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
