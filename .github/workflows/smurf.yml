@@ -238,14 +238,14 @@ jobs:
           echo "EKS_CLUSTER_NAME${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Docker Image Scan
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@fix/entrypoint.sh
         with:
           tool: sdkr
           command: scan ${{ inputs.image_name }}:${{ inputs.image_tag }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@fix/entrypoint.sh
         with:
           tool: sdkr
           command: >-
@@ -254,7 +254,7 @@ jobs:
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@fix/entrypoint.sh
         with:
           tool: sdkr
           command: >-
