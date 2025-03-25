@@ -161,6 +161,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Docker Image Build
         uses: clouddrove/smurf@v1.0.4
         with:
@@ -169,10 +170,12 @@ jobs:
             build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{
             inputs.dockerfile_path }} --platform ${{ inputs.platform }}
             --build-arg ${{ inputs.build_args }}
+
       - name: Save Docker Image as Artifact
         run: >
           docker save ${{ inputs.image_name }}:${{ inputs.image_tag }} -o ${{
           inputs.image_tar }}
+
       - name: Upload Docker Image Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -188,25 +191,30 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Download Docker Image Artifact
         uses: actions/download-artifact@v4
         with:
           name: '${{ inputs.image_name }}'
+
       - name: Load Docker Image
         run: |
           docker load -i ${{ inputs.image_tar }}
+
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_role }}'
           aws-region: '${{ inputs.aws_region }}'
+
       - name: Assume another IAM Role
         if: inputs.assume-role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.assume_role_arn }}'
           aws-region: '${{ inputs.aws_region }}'
+
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
@@ -221,16 +229,19 @@ jobs:
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
           aws configure set region $AWS_REGION
+
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "TOOL=helm" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
+
       - name: Docker Image Scan
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: sdkr
           command: 'scan ${{ inputs.image_name }}:${{ inputs.image_tag }}'
+
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
         uses: clouddrove/smurf@v1.0.4
@@ -239,6 +250,7 @@ jobs:
           command: >-
             tag ${{ inputs.image_name }}:${{ inputs.image_tag }} ${{
             inputs.registry-url }}:${{ inputs.image_tag }}
+
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
         uses: clouddrove/smurf@v1.0.4
@@ -247,6 +259,7 @@ jobs:
           command: >-
             push ${{ inputs.registry }} ${{ inputs.registry-url }}:${{
             inputs.image_tag }}
+
   helm_lint_template:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
@@ -256,11 +269,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Helm Lint
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: selm
           command: 'lint ${{ inputs.helm-chart-directory }}'
+
       - name: Helm Template
         uses: clouddrove/smurf@v1.0.4
         with:
@@ -268,6 +283,7 @@ jobs:
           command: >-
             template ${{ inputs.release-name }} ${{ inputs.helm-chart-directory
             }}
+        
   helm-deploy:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
@@ -276,18 +292,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_role }}'
           aws-region: '${{ inputs.aws_region }}'
+
       - name: Assume another IAM Role
         if: inputs.assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.assume_role_arn }}'
           aws-region: '${{ inputs.aws_region }}'
+
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
@@ -302,17 +321,20 @@ jobs:
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
           aws configure set region $AWS_REGION
+
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "TOOL=helm" >> $GITHUB_ENV
-          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV    
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV  
+
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: selm
           command: 'plugin ${{ inputs.helm_plugins }}'
+
       - name: Helm Deploy
         uses: clouddrove/smurf@v1.0.4
         with:
@@ -322,6 +344,7 @@ jobs:
             ${{ inputs.release_name }} ${{ inputs.helm_chart_directory }} -f ${{
             inputs.values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
             inputs.timeout }}
+
   helm-rollback:
     if: inputs.helm_rollback_enable == 'true'
     runs-on: ubuntu-latest
@@ -331,18 +354,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ secrets.AWS_ROLE_TO_ASSUME }}'
           aws-region: '${{ inputs.aws_region }}'
+          
       - name: Assume another IAM Role
         if: inputs.assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.assume_role_arn }}'
           aws-region: '${{ inputs.aws_region }}'
+
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
@@ -357,11 +383,13 @@ jobs:
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
           aws configure set region $AWS_REGION
+
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "TOOL=helm" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
+
       - name: Helm Rollback
         uses: clouddrove/smurf@v1.0.4
         with:
