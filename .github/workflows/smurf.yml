@@ -283,7 +283,7 @@ jobs:
           command: >-
             template ${{ inputs.release-name }} ${{ inputs.helm-chart-directory
             }}
-        
+
   helm-deploy:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
@@ -326,7 +326,7 @@ jobs:
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "TOOL=helm" >> $GITHUB_ENV
-          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV  
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
@@ -361,7 +361,7 @@ jobs:
         with:
           role-to-assume: '${{ secrets.AWS_ROLE_TO_ASSUME }}'
           aws-region: '${{ inputs.aws_region }}'
-          
+
       - name: Assume another IAM Role
         if: inputs.assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
@@ -379,7 +379,7 @@ jobs:
         run: |
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then 
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
           aws configure set region $AWS_REGION
