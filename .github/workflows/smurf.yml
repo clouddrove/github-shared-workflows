@@ -392,7 +392,7 @@ on:
         description: 'Set to true to run docker commands'
         type: string
         required: false
-        default: 'false'
+        default: 'true'
       region:
         description: 'AWS region'
         type: string
@@ -432,18 +432,17 @@ on:
         description: 'Docker image tar'
         type: string
         required: false
+        default: 'image'
       docker_scan:
         description: 'Set true for docker scan'
         type: string
         required: false
-      docker_scan_command: 
-        description: 'Command for docker scan'
-        type: string
-        required: false
+        default: 'true'
       docker_push:
         description: 'Set true for docker push'
         type: string
         required: false
+        default: 'true'
       registry:
         description: 'The registry to Push Docker Image (aws, az, gcp, hub)'
         type: string
