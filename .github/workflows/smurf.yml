@@ -163,7 +163,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Docker Image Build
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
           command: >-
@@ -238,14 +238,14 @@ jobs:
           echo "EKS_CLUSTER_NAME${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Docker Image Scan
-        uses: clouddrove/smurf@fix/entrypoint.sh
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
           command: scan ${{ inputs.image_name }}:${{ inputs.image_tag }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@fix/entrypoint.sh
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
           command: >-
@@ -254,7 +254,7 @@ jobs:
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@fix/entrypoint.sh
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
           command: >-
@@ -272,13 +272,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Helm Lint
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: selm
           command: 'lint ${{ inputs.helm-chart-directory }}'
 
       - name: Helm Template
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: selm
           command: >-
@@ -332,13 +332,13 @@ jobs:
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: selm
           command: plugin ${{ inputs.helm_plugins }}
 
       - name: Helm Deploy
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: selm
           command: >-
@@ -394,7 +394,7 @@ jobs:
           echo "EKS_CLUSTER_NAME${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Helm Rollback
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.3
         with:
           tool: selm
           command: >-
