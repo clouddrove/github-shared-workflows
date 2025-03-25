@@ -462,7 +462,6 @@ on:
         description: 'Docker Build Arguments'
         type: string
         required: false
-        default: 'key1=val1'
       platform:
         description: 'Image Build Platform'
         type: string
@@ -558,11 +557,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # - name: Docker Image Build
+      #   uses: clouddrove/smurf@v1.0.3
+      #   with:
+      #     tool: sdkr
+      #     command: build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{ inputs.dockerfile_path }} --platform ${{ inputs.platform }} --build-arg ${{ inputs.build_args }}
+
       - name: Docker Image Build
-        uses: clouddrove/smurf@v1.0.3
-        with:
-          tool: sdkr
-          command: build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{ inputs.dockerfile_path }} --platform ${{ inputs.platform }} --build-arg ${{ inputs.build_args }}
+        run: |
+          build_cmd="smurf sdkr build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{ inputs.dockerfile_path }} --platform ${{ inputs.platform }}"
+          
+          if [[ -n "${{ inputs.build_args }}" ]]; then
+            build_cmd+=" --build-arg ${{ inputs.build_args }}"
+          fi
+
+          eval "$build_cmd"
+        shell: bash
 
       - name: Save Docker Image as Artifact
         run: |
