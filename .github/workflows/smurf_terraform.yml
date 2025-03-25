@@ -1,3 +1,4 @@
+---
 name: Smurf Terraform
 on:
   workflow_call:

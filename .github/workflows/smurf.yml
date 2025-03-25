@@ -1,3 +1,4 @@
+---
 name: Smurf-Docker-Helm
 on:
   workflow_call:
