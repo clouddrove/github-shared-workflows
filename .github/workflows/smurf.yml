@@ -274,7 +274,7 @@ jobs:
         uses: clouddrove/smurf@v1.0.3
         with:
           tool: selm
-          command: 'lint ${{ inputs.helm-chart-directory }}'
+          command: lint ${{ inputs.helm-chart-directory }}
 
       - name: Helm Template
         uses: clouddrove/smurf@v1.0.3
@@ -327,6 +327,7 @@ jobs:
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "TOOL=helm" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
@@ -336,7 +337,7 @@ jobs:
           command: plugin ${{ inputs.helm_plugins }}
 
       - name: Helm Deploy
-        uses: clouddrove/smurf@v1.0.3
+        uses: clouddrove/smurf@fix/entrypoint.sh
         with:
           tool: selm
           command: >-
