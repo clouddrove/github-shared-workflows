@@ -639,14 +639,14 @@ jobs:
         uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
-          command: tag ${{ inputs.image_name }}:${{ inputs.image_tag }} ${{ inputs.registry-url }}
+          command: tag ${{ inputs.image_name }}:${{ inputs.image_tag }} ${{ inputs.registry-url }}:${{ inputs.image_tag }}
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
         uses: clouddrove/smurf@v1.0.3
         with:
           tool: sdkr
-          command: push ${{ inputs.registry }} ${{ inputs.registry-url }}
+          command: push ${{ inputs.registry }} ${{ inputs.registry-url }}:${{ inputs.image_tag }}
 
   helm_lint_template:
     if: inputs.helm_enable == 'true'
