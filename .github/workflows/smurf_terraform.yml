@@ -1,4 +1,4 @@
-name: Smurf
+name: Smurf Terraform
 on:
   workflow_call:
     secrets:
@@ -73,19 +73,19 @@ jobs:
           terraform_version: ${{ inputs.terraform_version }}
 
       - name: Terraform Format
-        uses: clouddrove/smurf@feat/terraform_auto_approve
+        uses: clouddrove/smurf@v1.0.4
         with:
           tool: stf
           command: format -r
       
       - name: Terraform Init
-        uses: clouddrove/smurf@feat/terraform_auto_approve
+        uses: clouddrove/smurf@v1.0.4
         with:
           tool: stf
           command: init --dir=${{ inputs.terraform_directory }}
 
       - name: Terraform Validate
-        uses: clouddrove/smurf@feat/terraform_auto_approve
+        uses: clouddrove/smurf@v1.0.4
         with:
           tool: stf
           command: validate --dir=${{ inputs.terraform_directory }}
@@ -136,7 +136,7 @@ jobs:
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
 
       - name: Terraform Init
-        uses: clouddrove/smurf@feat/terraform_auto_approve
+        uses: clouddrove/smurf@v1.0.4
         with:
           tool: stf
           command: init --dir=${{ inputs.terraform_directory }}
@@ -150,7 +150,7 @@ jobs:
           ) >> "$GITHUB_ENV"
 
       - name: Terraform Plan
-        uses: clouddrove/smurf@feat/terraform_auto_approve
+        uses: clouddrove/smurf@v1.0.4
         with: 
           tool: stf
           command: plan --dir=${{ inputs.terraform_directory }}
@@ -165,7 +165,7 @@ jobs:
           issue-title: "Terraform Plan for Infrastructure Update"
 
       - name: Terraform Apply
-        uses: clouddrove/smurf@feat/terraform_auto_approve
+        uses: clouddrove/smurf@v1.0.4
         with:
           tool: stf
           command: apply --auto-approve --dir=${{ inputs.terraform_directory }}
@@ -223,13 +223,13 @@ jobs:
           ) >> "$GITHUB_ENV"
 
       - name: Terraform Init
-        uses: clouddrove/smurf@feat/terraform_auto_approve
+        uses: clouddrove/smurf@v1.0.4
         with:
           tool: stf
           command: init --dir=${{ inputs.terraform_directory }}
 
       - name: Terraform Plan
-        uses: clouddrove/smurf@feat/terraform_auto_approve
+        uses: clouddrove/smurf@v1.0.4
         with: 
           tool: stf
           command: plan --dir=${{ inputs.terraform_directory }}
@@ -244,7 +244,7 @@ jobs:
           issue-title: "Terraform Plan for Infrastructure Update"
 
       - name: Terraform Destroy
-        uses: clouddrove/smurf@feat/terraform_auto_approve
+        uses: clouddrove/smurf@v1.0.4
         with:
           tool: stf
           command: destroy --auto-approve --dir=${{ inputs.terraform_directory }}
