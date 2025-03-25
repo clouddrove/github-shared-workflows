@@ -728,6 +728,7 @@ jobs:
   helm-rollback:
     if: inputs.helm_rollback_enable == 'true'
     runs-on: ubuntu-latest
+    needs: [docker_scan_push]
     permissions:
       id-token: write
       contents: read
