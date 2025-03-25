@@ -225,7 +225,7 @@ jobs:
           approvers: '${{ inputs.approvers }}'
           minimum-approvals: '${{ inputs.minimum-approvals }}'
           issue-title: Terraform Plan for Infrastructure Update
-       
+
       - name: Terraform Destroy
         uses: clouddrove/smurf@v1.0.4
         with:
