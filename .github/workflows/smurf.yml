@@ -563,10 +563,10 @@ jobs:
       #     tool: sdkr
       #     command: build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{ inputs.dockerfile_path }} --platform ${{ inputs.platform }} --build-arg ${{ inputs.build_args }}
 
-      - name: Docker Image Build
+      - name: Build Docker Image with sdkr
         run: |
-          build_cmd="smurf sdkr build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{ inputs.dockerfile_path }} --platform ${{ inputs.platform }}"
-          
+          build_cmd="sdkr build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{ inputs.dockerfile_path }} --platform ${{ inputs.platform }}"
+
           if [[ -n "${{ inputs.build_args }}" ]]; then
             build_cmd+=" --build-arg ${{ inputs.build_args }}"
           fi
