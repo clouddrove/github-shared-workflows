@@ -240,7 +240,7 @@ jobs:
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: sdkr
-          command: 'scan ${{ inputs.image_name }}:${{ inputs.image_tag }}'
+          command: scan ${{ inputs.image_name }}:${{ inputs.image_tag }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
@@ -333,7 +333,7 @@ jobs:
         uses: clouddrove/smurf@v1.0.4
         with:
           tool: selm
-          command: 'plugin ${{ inputs.helm_plugins }}'
+          command: plugin ${{ inputs.helm_plugins }}
 
       - name: Helm Deploy
         uses: clouddrove/smurf@v1.0.4
