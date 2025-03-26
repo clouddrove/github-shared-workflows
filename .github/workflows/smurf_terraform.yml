@@ -129,11 +129,10 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
+          echo "tool=terraform" >> $GITHUB_ENV
 
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@feat/entrypoint_terraform
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
@@ -147,7 +146,7 @@ jobs:
           ) >> "$GITHUB_ENV"
 
       - name: Terraform Plan
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@feat/entrypoint_terraform
         with:
           tool: stf
           command: 'plan --dir=${{ inputs.terraform_directory }}'
@@ -162,7 +161,7 @@ jobs:
           issue-title: Terraform Plan for Infrastructure Update
 
       - name: Terraform Apply
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@feat/entrypoint_terraform
         with:
           tool: stf
           command: 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
@@ -203,8 +202,7 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
+          echo "tool=terraform" >> $GITHUB_ENV
 
       - name: Set environment variables
         run: |
