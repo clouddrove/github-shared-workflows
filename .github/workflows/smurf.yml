@@ -336,7 +336,7 @@ jobs:
           command: plugin ${{ inputs.helm_plugins }}
 
       - name: Helm Deploy
-        uses: clouddrove/smurf@feat/commands
+        uses: clouddrove/smurf@feat/entrypoint
         with:
           tool: selm
           command: >-

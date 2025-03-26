@@ -143,7 +143,7 @@ jobs:
           ) >> "$GITHUB_ENV"
 
       - name: Terraform Plan
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@feat/entrypoint
         with:
           tool: stf
           command: 'plan --dir=${{ inputs.terraform_directory }}'
