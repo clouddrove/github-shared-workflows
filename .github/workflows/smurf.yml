@@ -131,7 +131,7 @@ name: Smurf-Docker-Helm
         type: string
         required: false
         default: '--atomic --debug'
-      aws_region:
+      aws-region:
         required: false
         type: string
         description: AWS Region
@@ -206,14 +206,14 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_role }}'
-          aws-region: '${{ inputs.aws_region }}'
+          aws_region: '${{ inputs.aws-region }}'
 
       - name: Assume another IAM Role
         if: inputs.assume-role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.assume_role_arn }}'
-          aws-region: '${{ inputs.aws_region }}'
+          aws-region: '${{ inputs.aws-region }}'
 
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
@@ -221,7 +221,7 @@ jobs:
           AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
           AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
           AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-          AWS_REGION: '${{ inputs.aws_region }}'
+          AWS_REGION: '${{ inputs.aws-region }}'
         run: |
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
@@ -297,15 +297,15 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.aws_role }}'
-          aws-region: '${{ inputs.aws_region }}'
+          role-to-assume: '${{ inputs.awsrole }}'
+          aws-region: '${{ inputs.aws-region }}'
 
       - name: Assume another IAM Role
         if: inputs.assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.assume_role_arn }}'
-          aws-region: '${{ inputs.aws_region }}'
+          aws-region: '${{ inputs.aws-region }}'
 
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
@@ -313,7 +313,7 @@ jobs:
           AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
           AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
           AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-          AWS_REGION: '${{ inputs.aws_region }}'
+          AWS_REGION: '${{ inputs.aws-region }}'
         run: |
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
