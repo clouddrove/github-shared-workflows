@@ -61,6 +61,20 @@ name: Smurf Terraform
         description: AWS eks cluster name
         type: string
         required: false
+      timeout:
+        required: false
+        type: number
+        default: 10
+        description: 'Timeout for approval step'
+      approvers:
+        required: false
+        type: string
+        description: 'Approvals list to approve apply or destroy'
+      minimum-approvals:
+        required: false
+        type: string
+        default: 1
+        description: 'Minimum approvals required to accept the plan'
 jobs:
   terraform-format-init-validate:
     if: inputs.terraform_enable == 'true'
