@@ -146,7 +146,7 @@ jobs:
           echo "tool=terraform" >> $GITHUB_ENV
 
       - name: Terraform Init
-        uses: clouddrove/smurf@feat/entrypoint_terraform
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
@@ -160,7 +160,7 @@ jobs:
           ) >> "$GITHUB_ENV"
 
       - name: Terraform Plan
-        uses: clouddrove/smurf@feat/entrypoint_terraform
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'plan --dir=${{ inputs.terraform_directory }}'
@@ -175,7 +175,7 @@ jobs:
       #     issue-title: Terraform Plan for Infrastructure Update
 
       - name: Terraform Apply
-        uses: clouddrove/smurf@feat/entrypoint_terraform
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
