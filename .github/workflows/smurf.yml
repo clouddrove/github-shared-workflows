@@ -205,7 +205,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.aws_role }}'
+          role-to-assume: '${{ inputs.aws-role }}'
           aws_region: '${{ inputs.aws-region }}'
 
       - name: Assume another IAM Role
@@ -366,7 +366,7 @@ jobs:
         if: inputs.assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.assume_role_arn }}'
+          role-to-assume: '${{ inputs.aws-role }}'
           aws-region: '${{ inputs.aws_region }}'
 
       - name: Configure AWS credentials with access keys
