@@ -132,7 +132,7 @@ jobs:
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
 
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@feat/entrypoint
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
@@ -161,7 +161,7 @@ jobs:
           issue-title: Terraform Plan for Infrastructure Update
 
       - name: Terraform Apply
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@vfeat/entrypoint
         with:
           tool: stf
           command: 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
