@@ -330,7 +330,7 @@ jobs:
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
-        uses: clouddrove/smurf@feat/commands
+        uses: clouddrove/smurf@feat/entrypoint
         with:
           tool: selm
           command: plugin ${{ inputs.helm_plugins }}
