@@ -28,7 +28,7 @@ name: Smurf-Docker-Helm
         description: Set to true for AWS auth
         type: string
         default: 'true'
-      aws_role:
+      aws-role:
         description: AWS role
         type: string
         default: 'false'
@@ -297,7 +297,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.awsrole }}'
+          role-to-assume: '${{ inputs.aws-role }}'
           aws-region: '${{ inputs.aws-region }}'
 
       - name: Assume another IAM Role
@@ -359,7 +359,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ secrets.AWS_ROLE_TO_ASSUME }}'
+          role-to-assume: '${{ secrets._TO_ASSUME }}'
           aws-region: '${{ inputs.aws_region }}'
 
       - name: Assume another IAM Role
