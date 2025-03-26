@@ -140,11 +140,6 @@ jobs:
           fi
           aws configure set region $AWS_REGION
 
-      - name: Set environment variables
-        run: |
-          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "tool=terraform" >> $GITHUB_ENV
-
       - name: Terraform Init
         uses: clouddrove/smurf@v1.0.5
         with:
@@ -212,11 +207,6 @@ jobs:
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
           aws configure set region $AWS_REGION
-
-      - name: Set environment variables
-        run: |
-          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "tool=terraform" >> $GITHUB_ENV
 
       - name: Set environment variables
         run: |
