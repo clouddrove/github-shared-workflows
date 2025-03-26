@@ -356,7 +356,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-       - name: Configure AWS credentials with OIDC
+      - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
