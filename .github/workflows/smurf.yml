@@ -275,14 +275,14 @@ jobs:
         uses: clouddrove/smurf@v1.0.5
         with:
           tool: selm
-          command: lint ${{ inputs.helm-chart-directory }}
+          command: lint ${{ inputs.helm_chart_directory }}
 
       - name: Helm Template
         uses: clouddrove/smurf@v1.0.5
         with:
           tool: selm
           command: >-
-            template ${{ inputs.release-name }} ${{ inputs.helm-chart-directory
+            template ${{ inputs.release_name }} ${{ inputs.helm_chart_directory
             }}
 
   helm-deploy:
