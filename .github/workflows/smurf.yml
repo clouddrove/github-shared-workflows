@@ -27,7 +27,6 @@ name: Smurf-Docker-Helm
       aws_auth:
         description: Set to true for AWS auth
         type: string
-        default: 'false'
         default: 'true'
       aws_role:
         description: AWS role
