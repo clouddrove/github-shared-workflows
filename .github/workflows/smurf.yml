@@ -28,6 +28,7 @@ name: Smurf-Docker-Helm
         description: Set to true for AWS auth
         type: string
         default: 'false'
+        default: 'true'
       aws_role:
         description: AWS role
         type: string
@@ -326,7 +327,7 @@ jobs:
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
