@@ -206,8 +206,8 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-role }}
-          aws_region: ${{ inputs.aws-region }}
+          role-to-assume: '${{ inputs.aws-role }}'
+          aws-region: '${{ inputs.aws-region }}'
 
       - name: Assume another IAM Role
         if: inputs.assume-role == 'true'
@@ -356,12 +356,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials with OIDC
+       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ secrets._TO_ASSUME }}'
-          aws-region: '${{ inputs.aws_region }}'
+          role-to-assume: '${{ inputs.aws-role }}'
+          aws-region: '${{ inputs.aws-region }}'
 
       - name: Assume another IAM Role
         if: inputs.assume_role == 'true'
