@@ -12,9 +12,6 @@ name: Smurf Terraform
       AWS_SESSION_TOKEN:
         required: false
         description: AWS Session Token for direct authentication
-      AWS_ROLE_TO_ASSUME:
-        required: false
-        description: AWS Role ARN defined
     inputs:
       command:
         description: Command to run with tool
