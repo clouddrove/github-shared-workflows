@@ -57,6 +57,10 @@ name: Smurf Terraform
         description: AWS role
         type: string
         default: 'false'
+      eks_cluster_name:
+        description: AWS eks cluster name
+        type: string
+        required: false
 jobs:
   terraform-format-init-validate:
     if: inputs.terraform_enable == 'true'
@@ -71,19 +75,19 @@ jobs:
           terraform_version: '${{ inputs.terraform_version }}'
 
       - name: Terraform Format
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: format -r
 
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
 
       - name: Terraform Validate
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'validate --dir=${{ inputs.terraform_directory }}'
@@ -125,11 +129,11 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Terraform Init
-        uses: clouddrove/smurf@feat/entrypoint
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
@@ -143,7 +147,7 @@ jobs:
           ) >> "$GITHUB_ENV"
 
       - name: Terraform Plan
-        uses: clouddrove/smurf@feat/entrypoint
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'plan --dir=${{ inputs.terraform_directory }}'
@@ -158,7 +162,7 @@ jobs:
           issue-title: Terraform Plan for Infrastructure Update
 
       - name: Terraform Apply
-        uses: clouddrove/smurf@feat/entrypoint
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
@@ -199,8 +203,8 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
           echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Set environment variables
         run: |
@@ -211,13 +215,13 @@ jobs:
           ) >> "$GITHUB_ENV"
 
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
 
       - name: Terraform Plan
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'plan --dir=${{ inputs.terraform_directory }}'
@@ -232,7 +236,7 @@ jobs:
           issue-title: Terraform Plan for Infrastructure Update
 
       - name: Terraform Destroy
-        uses: clouddrove/smurf@v1.0.4
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: stf
           command: 'destroy --auto-approve --dir=${{ inputs.terraform_directory }}'
