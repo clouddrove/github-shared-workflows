@@ -290,6 +290,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - docker_scan_push
+      - helm_lint_template
     steps:
       - name: Checkout
         uses: actions/checkout@v4
