@@ -79,10 +79,9 @@ name: Smurf-Docker-Helm
         required: false
         default: 'false'
       helm_release_name:
-        description: Set to true for helm rollback
+        description: Unique ID for installed chart
         required: false
         type: string
-        description: Unique ID for installed chart
       helm_chart_directory:
         required: false
         type: string
