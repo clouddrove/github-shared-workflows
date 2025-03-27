@@ -17,6 +17,4 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/smurf_terraform.yml@master
     with:
       terraform_directory: # Terraform Directory
-    secrets:
-      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 ```

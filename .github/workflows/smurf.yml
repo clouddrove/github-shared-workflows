@@ -4,7 +4,7 @@ name: Smurf-Docker-Helm
   workflow_call:
     inputs:
       command:
-        description: Command to run with tool
+        description: Command to run with Smurf
         type: string
         required: false
       docker_enable:
@@ -12,28 +12,21 @@ name: Smurf-Docker-Helm
         type: string
         required: false
         default: 'true'
-      region:
-        description: AWS region
-        type: string
-        default: us-east-1
       aws_auth_method:
-        description: AWS auth method to use
+        description: AWS auth method to use like oidc and keys
         type: string
         required: false
+        default: 'oidc'
       eks_cluster_name:
         description: AWS eks cluster name
         type: string
         required: false
-      aws_auth:
-        description: Set to true for AWS auth
-        type: string
-        default: 'true'
       aws-role:
-        description: AWS role
+        description: AWS OIDC role for aws authentication.
         type: string
         default: 'false'
       provider:
-        description: 'Cloud provider (aws, azure, gcp, digitalocean)'
+        description: Cloud provider (aws, azure, gcp, digitalocean)
         type: string
         required: false
         default: aws
@@ -80,20 +73,13 @@ name: Smurf-Docker-Helm
         type: string
         required: false
         default: 'false'
-      helm_deploy_command:
-        description: Helm deploy command
-        type: string
-        required: false
       helm_rollback_enable:
         description: Set to true for helm rollback
         type: string
         required: false
         default: 'false'
-      helm_rollback_command:
-        description: Helm rollback command
-        type: string
-        required: false
-      release_name:
+      helm_release_name:
+        description: Set to true for helm rollback
         required: false
         type: string
         description: Unique ID for installed chart
@@ -101,7 +87,7 @@ name: Smurf-Docker-Helm
         required: false
         type: string
         description: Kubernetes deployment configurations files
-      values_file_path:
+      helm_values_file_path:
         required: false
         type: string
         description: Values file path from helm chart directory
@@ -116,7 +102,7 @@ name: Smurf-Docker-Helm
       timeout:
         required: false
         type: string
-        description: Timeout for Helm
+        description: Timeout for helm install step in seconds
       helm_plugins:
         description: List of Helm plugins to install
         type: string
@@ -126,12 +112,12 @@ name: Smurf-Docker-Helm
         type: string
         required: false
         default: 'false'
-      flags:
-        description: Helm command flags
+      helm_flags:
+        description: Helm command helm_helm_flags
         type: string
         required: false
         default: '--atomic --debug'
-      aws-region:
+      aws_region:
         required: false
         type: string
         description: AWS Region
@@ -206,15 +192,15 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.aws-role }}'
-          aws-region: '${{ inputs.aws-region }}'
+          role-to-assume: ${{ inputs.aws-role }}
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
         if: inputs.assume-role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.assume_role_arn }}'
-          aws-region: '${{ inputs.aws-region }}'
+          role-to-assume: ${{ inputs.assume_role_arn }}
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
@@ -222,19 +208,19 @@ jobs:
           AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
           AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
           AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-          AWS_REGION: ${{ inputs.aws-region }}
+          aws-region: ${{ inputs.aws_region }}
         run: |
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
           if [[ -n "$AWS_SESSION_TOKEN" ]]; then
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
-          aws configure set region $AWS_REGION
+          aws configure set region $aws_region
 
       - name: Set environment variables
         run: |
-          echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
+          echo "AWS_AUTH=true" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Docker Image Scan
@@ -282,7 +268,7 @@ jobs:
         with:
           tool: selm
           command: >-
-            template ${{ inputs.release_name }} ${{ inputs.helm_chart_directory
+            template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory
             }}
 
   helm-deploy:
@@ -300,14 +286,14 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws-role }}'
-          aws-region: '${{ inputs.aws-region }}'
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
         if: inputs.assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.assume_role_arn }}'
-          aws-region: '${{ inputs.aws-region }}'
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
@@ -315,7 +301,7 @@ jobs:
           AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
           AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
           AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-          AWS_REGION: '${{ inputs.aws-region }}'
+          AWS_REGION: ${{ inputs.aws_region }}
         run: |
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
@@ -327,7 +313,7 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+          echo "AWS_AUTH=true" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Helm Plugin
@@ -342,8 +328,8 @@ jobs:
         with:
           tool: selm
           command: >-
-            upgrade --install ${{ inputs.flags }} ${{ secrets.set-parameters }}
-            ${{ inputs.release_name }} ${{ inputs.helm_chart_directory }} -f ${{
+            upgrade --install ${{ inputs.helm_helm_flags }} ${{ secrets.set-parameters }}
+            ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
             inputs.values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
             inputs.timeout }}
 
@@ -361,15 +347,15 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.aws-role }}'
-          aws-region: '${{ inputs.aws-region }}'
+          role-to-assume: ${{ inputs.aws-role }}
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
         if: inputs.assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws-role }}'
-          aws-region: '${{ inputs.aws_region }}'
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
@@ -377,19 +363,19 @@ jobs:
           AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
           AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
           AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-          AWS_REGION: '${{ inputs.aws_region }}'
+          aws-region: ${{ inputs.aws_region }}
         run: |
           aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
           aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
           if [[ -n "$AWS_SESSION_TOKEN" ]]; then
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
-          aws configure set region $AWS_REGION
+          aws configure set region $aws-region
 
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws-region }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=${{ inputs.aws_auth }}" >> $GITHUB_ENV
+          echo "AWS_AUTH=true" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Helm Rollback
@@ -397,6 +383,6 @@ jobs:
         with:
           tool: selm
           command: >-
-            rollback ${{ inputs.release_name }} ${{ inputs.revision }} -n=${{
+            rollback ${{ inputs.helm_release_name }} ${{ inputs.revision }} -n=${{
             inputs.namespace }}
 ...
