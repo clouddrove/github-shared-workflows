@@ -263,7 +263,7 @@
           uses: clouddrove/smurf@v1.0.5
           with:
             tool: selm
-            command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+            command: lint ${{ inputs.helm_chart_directory }}
   
         - name: Helm Template
           uses: clouddrove/smurf@v1.0.5
