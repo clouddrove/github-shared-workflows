@@ -216,12 +216,6 @@ jobs:
           fi
           aws configure set region $aws_region
 
-      # - name: Set environment variables
-      #   run: |
-      #     echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-      #     echo "AWS_AUTH=true" >> $GITHUB_ENV
-      #     echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
-
       - name: Docker Image Scan
         uses: clouddrove/smurf@v1.0.5
         with:
@@ -260,15 +254,14 @@ jobs:
         uses: clouddrove/smurf@v1.0.5
         with:
           tool: selm
-          command: lint ${{ inputs.helm_chart_directory }}
+          command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
       - name: Helm Template
         uses: clouddrove/smurf@v1.0.5
         with:
           tool: selm
           command: >-
-            template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory
-            }}
+            template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
   helm-deploy:
     if: inputs.helm_enable == 'true'
@@ -329,7 +322,7 @@ jobs:
           command: >-
             upgrade --install ${{ inputs.helm_helm_flags }} ${{ secrets.set-parameters }}
             ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
-            inputs.values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
+            inputs.helm_values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
             inputs.timeout }}
 
   helm-rollback:
