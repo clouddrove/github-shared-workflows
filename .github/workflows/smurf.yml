@@ -216,11 +216,11 @@ jobs:
           fi
           aws configure set region $aws_region
 
-      - name: Set environment variables
-        run: |
-          echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=true" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
+      # - name: Set environment variables
+      #   run: |
+      #     echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
+      #     echo "AWS_AUTH=true" >> $GITHUB_ENV
+      #     echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Docker Image Scan
         uses: clouddrove/smurf@v1.0.5
