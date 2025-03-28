@@ -322,15 +322,15 @@ jobs:
           tool: selm
           command: plugin ${{ inputs.helm_plugins }}
 
-      - name: Helm Deploy
-        uses: clouddrove/smurf@v1.0.5
-        with:
-          tool: selm
-          command: >-
-            upgrade --install ${{ inputs.helm_helm_flags }} ${{ secrets.set-parameters }}
-            ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
-            inputs.values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
-            inputs.timeout }}
+      # - name: Helm Deploy
+      #   uses: clouddrove/smurf@v1.0.5
+      #   with:
+      #     tool: selm
+      #     command: >-
+      #       upgrade --install ${{ inputs.helm_helm_flags }} ${{ secrets.set-parameters }}
+      #       ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
+      #       inputs.values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
+      #       inputs.timeout }}
 
   helm-rollback:
     if: inputs.helm_rollback_enable == 'true'
