@@ -112,7 +112,7 @@ name: Smurf-Docker-Helm
         required: false
         default: 'false'
       helm_flags:
-        description: Helm command helm_helm_flags
+        description: Helm flags
         type: string
         required: false
         default: '--atomic --debug'
@@ -243,12 +243,17 @@ jobs:
   helm_lint_template:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    needs:
-      - docker_build
-      - docker_scan_push
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Helm Dependency Build
+        run: |
+          helm repo remove bitnami || echo "Bitnami repo not found, skipping removal"
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm repo add airbyte https://airbytehq.github.io/helm-charts
+          helm repo update
+          helm dependency build "${{ inputs.helm_chart_directory }}"
 
       - name: Helm Lint
         uses: clouddrove/smurf@v1.0.5
@@ -266,9 +271,8 @@ jobs:
   helm-deploy:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    # needs:
-    #   - docker_scan_push
-    #   - helm_lint_template
+    needs:
+      - helm_lint_template
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -320,7 +324,7 @@ jobs:
         with:
           tool: selm
           command: >-
-            upgrade --install ${{ inputs.helm_helm_flags }} ${{ secrets.set-parameters }}
+            upgrade --install ${{ inputs.helm_flags }} ${{ secrets.set-parameters }}
             ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
             inputs.helm_values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
             inputs.timeout }}
