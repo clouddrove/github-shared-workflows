@@ -121,11 +121,16 @@ name: Smurf-Docker-Helm
         type: string
         description: AWS Region
         default: 'us-east-1'
+      assume_role:
+        description: Set to True to run Assume another IAM Role step
+        required: false
+        type: string
+        default: 'false'
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
         description: AWS Access Key ID for direct authentication
-      AWS_SECRET_ACCESS_KEY_ID:
+      AWS_SECRET_ACCESS_KEY:
         required: false
         description: AWS Secret Access Key for direct authentication
       AWS_SESSION_TOKEN:
@@ -195,7 +200,7 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
-        if: inputs.assume-role == 'true'
+        if: inputs.assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.assume_role_arn }}
@@ -214,7 +219,7 @@ jobs:
           if [[ -n "$AWS_SESSION_TOKEN" ]]; then
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
-          aws configure set region $aws_region
+          aws configure set region $AWS_REGION
 
       - name: Docker Image Scan
         uses: clouddrove/smurf@v1.0.5
@@ -358,7 +363,7 @@ jobs:
           if [[ -n "$AWS_SESSION_TOKEN" ]]; then
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
-          aws configure set region $aws_region
+          aws configure set region $AWS_REGION
 
       - name: Set environment variables
         run: |
