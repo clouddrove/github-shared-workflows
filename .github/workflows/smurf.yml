@@ -247,14 +247,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Helm Dependency Build
-        run: |
-          helm repo remove bitnami || echo "Bitnami repo not found, skipping removal"
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo add airbyte https://airbytehq.github.io/helm-charts
-          helm repo update
-          helm dependency build "${{ inputs.helm_chart_directory }}"
-
       - name: Helm Lint
         uses: clouddrove/smurf@v1.0.5
         with:
