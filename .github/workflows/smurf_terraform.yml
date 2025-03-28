@@ -39,7 +39,7 @@ name: Smurf Terraform
       terraform_version:
         type: string
         default: 1.3.6
-        description: Required erraform version
+        description: Required Terraform version
       aws-role:
         description: AWS OIDC role for aws authentication.
         type: string
