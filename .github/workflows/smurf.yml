@@ -222,14 +222,14 @@ jobs:
           aws configure set region $AWS_REGION
 
       - name: Docker Image Scan
-        uses: clouddrove/smurf@feat/logs
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: sdkr
           command: scan ${{ inputs.image_name }}:${{ inputs.image_tag }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@feat/logs
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: sdkr
           command: >-
@@ -238,7 +238,7 @@ jobs:
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@feat/logs
+        uses: clouddrove/smurf@v1.0.5
         with:
           tool: sdkr
           command: >-
