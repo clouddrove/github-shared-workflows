@@ -48,6 +48,11 @@ name: Smurf-Docker-Helm
         type: string
         required: false
         default: 'true'
+      docker_buildkit_enable:
+        description: Set true to enable docker buildkit
+        type: string
+        required: false
+        default: 'false'
       registry:
         description: 'The registry to Push Docker Image (aws, az, gcp, hub)'
         type: string
@@ -126,6 +131,10 @@ name: Smurf-Docker-Helm
         required: false
         type: string
         default: 'false'
+      assume_role_arn:
+        type: string
+        description: AWS assume role
+        required: false
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -139,9 +148,6 @@ name: Smurf-Docker-Helm
       set-parameters:
         required: false
         description: Overriding the default values using --set flag
-      assume_role_arn:
-        description: AWS assume role
-        required: false
 jobs:
   docker_build:
     if: inputs.docker_enable == 'true'
@@ -154,6 +160,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Docker Image Build
+        if: inputs.docker_buildkit_enable != 'true'
         uses: clouddrove/smurf@v1.0.5
         with:
           tool: sdkr
@@ -161,6 +168,16 @@ jobs:
             build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{
             inputs.dockerfile_path }} --platform ${{ inputs.platform }}
             --build-arg ${{ inputs.build_args }}
+
+      - name: Docker Image Build with Buildkit
+        if: inputs.docker_buildkit_enable == 'true'
+        uses: clouddrove/smurf@v1.0.5
+        with:
+          tool: sdkr
+          command: >-
+            build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{
+            inputs.dockerfile_path }} --platform ${{ inputs.platform }}
+            --build-arg ${{ inputs.build_args }} --buildkit
 
       - name: Save Docker Image as Artifact
         run: >

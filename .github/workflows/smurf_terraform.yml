@@ -59,7 +59,7 @@ name: Smurf Terraform
         description: 'Approvals list to approve apply or destroy'
       minimum-approvals:
         required: false
-        type: string
+        type: number
         default: 1
         description: 'Minimum approvals required to accept the plan'
     secrets:
