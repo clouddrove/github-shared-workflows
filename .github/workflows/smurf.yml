@@ -112,7 +112,7 @@
           required: false
           default: 'false'
         helm_flags:
-          description: Helm command helm_helm_flags
+          description: Helm flags
           type: string
           required: false
           default: '--atomic --debug'
@@ -121,11 +121,16 @@
           type: string
           description: AWS Region
           default: 'us-east-1'
+        assume_role:
+          description: Set to True to run Assume another IAM Role step
+          required: false
+          type: string
+          default: 'false'
       secrets:
         AWS_ACCESS_KEY_ID:
           required: false
           description: AWS Access Key ID for direct authentication
-        AWS_SECRET_ACCESS_KEY_ID:
+        AWS_SECRET_ACCESS_KEY:
           required: false
           description: AWS Secret Access Key for direct authentication
         AWS_SESSION_TOKEN:
@@ -195,7 +200,7 @@
             aws-region: ${{ inputs.aws_region }}
   
         - name: Assume another IAM Role
-          if: inputs.assume-role == 'true'
+          if: inputs.assume_role == 'true'
           uses: aws-actions/configure-aws-credentials@v4
           with:
             role-to-assume: ${{ inputs.assume_role_arn }}
@@ -214,13 +219,7 @@
             if [[ -n "$AWS_SESSION_TOKEN" ]]; then
               aws configure set aws_session_token $AWS_SESSION_TOKEN
             fi
-            aws configure set region $aws_region
-  
-        - name: Set environment variables
-          run: |
-            echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-            echo "AWS_AUTH=true" >> $GITHUB_ENV
-            echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
+            aws configure set region $AWS_REGION
   
         - name: Docker Image Scan
           uses: clouddrove/smurf@v1.0.5
@@ -249,42 +248,28 @@
     helm_lint_template:
       if: inputs.helm_enable == 'true'
       runs-on: ubuntu-latest
-      # needs:
-      #   - docker_build
-      #   - docker_scan_push
       steps:
         - name: Checkout
           uses: actions/checkout@v4
-
-        - name: helm dependency build
-          if: ${{ inputs.helm_rollback_enable!= true }}
-          run: |
-            helm repo remove bitnami || true  # Remove if exists
-            helm repo add bitnami https://charts.bitnami.com/bitnami
-            helm repo add airbyte https://airbytehq.github.io/helm-charts
-            helm repo update
-            helm dependency build ${{ inputs.helm_chart_directory }}
   
         - name: Helm Lint
           uses: clouddrove/smurf@v1.0.5
           with:
             tool: selm
-            command: lint ${{ inputs.helm_chart_directory }}
+            command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
   
         - name: Helm Template
           uses: clouddrove/smurf@v1.0.5
           with:
             tool: selm
             command: >-
-              template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }}
+              template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
   
     helm-deploy:
       if: inputs.helm_enable == 'true'
       runs-on: ubuntu-latest
       needs:
         - helm_lint_template
-      #   - docker_scan_push
-      #   - helm_lint_template
       steps:
         - name: Checkout
           uses: actions/checkout@v4
@@ -336,7 +321,10 @@
           with:
             tool: selm
             command: >-
-              upgrade --install ${{ inputs.helm_flags }} ${{ secrets.set-parameters }} ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }} -n=${{ inputs.namespace }} --timeout ${{ inputs.timeout }}
+              upgrade --install ${{ inputs.helm_flags }} ${{ secrets.set-parameters }}
+              ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
+              inputs.helm_values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
+              inputs.timeout }}
   
     helm-rollback:
       if: inputs.helm_rollback_enable == 'true'
@@ -375,7 +363,7 @@
             if [[ -n "$AWS_SESSION_TOKEN" ]]; then
               aws configure set aws_session_token $AWS_SESSION_TOKEN
             fi
-            aws configure set region $aws-region
+            aws configure set region $AWS_REGION
   
         - name: Set environment variables
           run: |
