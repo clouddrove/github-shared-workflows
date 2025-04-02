@@ -1,6 +1,6 @@
-## [Smurf-Docker-Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/smurf.yml)
+## [Smurf-Docker-Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/smurf_docker_helm.yml)
 
-This workflow is used to work with Docker and Helm using Smurf. It utilizes the workflows defined in `.github/workflows/smurf.yml`
+This workflow is used to work with Docker and Helm using Smurf. It utilizes the workflows defined in `.github/workflows/smurf_docker_helm.yml`
 
 #### Usage
 The following workflow can work with Docker and Helm Using Smurf tool. It can Build Images, Scan and Push. Talking about the Helm part it can Lint, Template, Deploy and also provides Rollback feature.
@@ -13,7 +13,7 @@ on:
 
 jobs:
   dev:
-    uses: clouddrove/github-shared-workflows/.github/workflows/smurf.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf_docker_helm.yml@master
     with:
       docker_image_name: # Image Name
       docker_image_tag: # Image Tag
@@ -25,7 +25,7 @@ jobs:
       helm_enable: # Set to True for Helm Work
       helm_values_file_path: # Helm Chart Values Path
       helm_namespace: # Namespace
-      helm_timeout: # Timeout
+      timeout: # Timeout
     secrets:
       set-parameters:
         --set image.tag=${{ github.run_id }}
