@@ -33,7 +33,7 @@ name: Smurf-Docker-Helm
       docker_image_tag:
         description: Docker image tag
         type: string
-        default: '${{ github.run_id }}'
+        default: 'latest'
       docker_image_tar:
         description: Docker image tar
         type: string
