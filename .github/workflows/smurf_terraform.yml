@@ -59,7 +59,7 @@
         AWS_SESSION_TOKEN:
           required: false
           description: AWS Session Token for direct authentication
-  
+
   jobs:
     terraform-format-init-validate:
       if: inputs.terraform_enable == 'true'
@@ -67,30 +67,30 @@
       steps:
         - name: Checkout
           uses: actions/checkout@v4
-  
+
         - name: Set up Terraform
           uses: hashicorp/setup-terraform@v3
           with:
             terraform_version: '${{ inputs.terraform_version }}'
-  
+
         - name: Terraform Format
           uses: clouddrove/smurf@v1.0.6
           with:
             tool: stf
             command: format -r
-  
+
         - name: Terraform Init
           uses: clouddrove/smurf@v1.0.6
           with:
             tool: stf
             command: 'init --dir=${{ inputs.terraform_directory }}'
-  
+
         - name: Terraform Validate
           uses: clouddrove/smurf@v1.0.6
           with:
             tool: stf
             command: 'validate --dir=${{ inputs.terraform_directory }}'
-  
+
     terraform-execution:
       if: inputs.terraform_enable == 'true'
       runs-on: ubuntu-latest
@@ -98,19 +98,19 @@
       steps:
         - name: Checkout
           uses: actions/checkout@v4
-  
+
         - name: Set up Terraform
           uses: hashicorp/setup-terraform@v3
           with:
             terraform_version: '${{ inputs.terraform_version }}'
-  
+
         - name: Configure AWS credentials with OIDC
           if: inputs.aws_auth_method == 'oidc'
           uses: aws-actions/configure-aws-credentials@v4
           with:
             role-to-assume: '${{ inputs.aws_role }}'
             aws-region: ${{ inputs.aws_region }}
-  
+
         - name: Configure AWS credentials with access keys
           if: inputs.aws_auth_method == 'keys'
           env:
@@ -125,13 +125,13 @@
               aws configure set aws_session_token $AWS_SESSION_TOKEN
             fi
             aws configure set region $AWS_REGION
-  
+
         - name: Terraform Init
           uses: clouddrove/smurf@v1.0.6
           with:
             tool: stf
             command: 'init --dir=${{ inputs.terraform_directory }}'
-  
+
         - name: Set environment variables
           run: |
             (
@@ -139,13 +139,13 @@
             ${{ secrets.env-vars }}
             _EOT
             ) >> "$GITHUB_ENV"
-  
+
         - name: Terraform Plan
           uses: clouddrove/smurf@v1.0.6
           with:
             tool: stf
             command: 'plan --dir=${{ inputs.terraform_directory }}'
-  
+
         - name: Accept plan or deny
           uses: trstringer/manual-approval@v1
           timeout-minutes: '${{ inputs.timeout }}'
@@ -154,32 +154,32 @@
             approvers: '${{ inputs.approvers }}'
             minimum-approvals: '${{ inputs.minimum-approvals }}'
             issue-title: Terraform Plan for Infrastructure Update
-  
+
         - name: Terraform Apply
           uses: clouddrove/smurf@v1.0.6
           with:
             tool: stf
             command: 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
-  
+
     terraform-destroy:
       if: inputs.terraform_destroy == 'true'
       runs-on: ubuntu-latest
       steps:
         - name: Checkout
           uses: actions/checkout@v4
-  
+
         - name: Set up Terraform
           uses: hashicorp/setup-terraform@v3
           with:
             terraform_version: '${{ inputs.terraform_version }}'
-  
+
         - name: Configure AWS credentials with OIDC
           if: inputs.aws_auth_method == 'oidc'
           uses: aws-actions/configure-aws-credentials@v4
           with:
             role-to-assume: '${{ inputs.aws_role }}'
             aws-region: ${{ inputs.aws_region }}
-  
+
         - name: Configure AWS credentials with access keys
           if: inputs.aws_auth_method == 'keys'
           env:
@@ -194,7 +194,7 @@
               aws configure set aws_session_token $AWS_SESSION_TOKEN
             fi
             aws configure set region $AWS_REGION
-  
+
         - name: Set environment variables
           run: |
             (
@@ -202,19 +202,19 @@
             ${{ secrets.env-vars }}
             _EOT
             ) >> "$GITHUB_ENV"
-  
+
         - name: Terraform Init
           uses: clouddrove/smurf@v1.0.6
           with:
             tool: stf
             command: 'init --dir=${{ inputs.terraform_directory }}'
-  
+
         - name: Terraform Plan
           uses: clouddrove/smurf@v1.0.6
           with:
             tool: stf
             command: 'plan --dir=${{ inputs.terraform_directory }}'
-  
+
         - name: Accept plan or deny
           uses: trstringer/manual-approval@v1
           timeout-minutes: '${{ inputs.timeout }}'
@@ -223,7 +223,7 @@
             approvers: '${{ inputs.approvers }}'
             minimum-approvals: '${{ inputs.minimum-approvals }}'
             issue-title: Terraform Plan for Infrastructure Update
-  
+
         - name: Terraform Destroy
           uses: clouddrove/smurf@v1.0.6
           with:
