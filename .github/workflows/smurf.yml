@@ -3,10 +3,6 @@ name: Smurf-Docker-Helm
 'on':
   workflow_call:
     inputs:
-      command:
-        description: Command to run with Smurf
-        type: string
-        required: false
       docker_enable:
         description: Set to true to run docker commands
         type: string
@@ -21,7 +17,7 @@ name: Smurf-Docker-Helm
         description: AWS eks cluster name
         type: string
         required: false
-      aws-role:
+      aws_role:
         description: AWS OIDC role for aws authentication.
         type: string
         default: 'false'
@@ -30,15 +26,15 @@ name: Smurf-Docker-Helm
         type: string
         required: false
         default: aws
-      image_name:
+      docker_image_name:
         description: Docker image name
         type: string
         required: false
-      image_tag:
+      docker_image_tag:
         description: Docker image tag
         type: string
         default: '${{ github.run_id }}'
-      image_tar:
+      docker_image_tar:
         description: Docker image tar
         type: string
         required: false
@@ -57,20 +53,20 @@ name: Smurf-Docker-Helm
         description: 'The registry to Push Docker Image (aws, az, gcp, hub)'
         type: string
         default: aws
-      registry-url:
+      docker_registry-url:
         description: 'The URL of the container registry (e.g., Docker Hub, ECR, GCR, ACR).'
         type: string
       dockerfile_path:
         description: Docker file directory
         type: string
         default: Dockerfile
-      build_args:
+      docker_build_args:
         description: Docker Build Arguments
         type: string
         required: false
         default: key1=val1
-      platform:
-        description: Image Build Platform
+      docker_build_platform:
+        description: Image Build docker_build_platform
         type: string
         default: linux/amd64
       helm_enable:
@@ -99,14 +95,14 @@ name: Smurf-Docker-Helm
         required: false
         type: string
         description: Boundary for Kubernetes resources
-      revision:
+      helm_revision:
         required: false
         type: string
-        description: Revision for Helm rollback
-      timeout:
+        description: helm_revision for Helm rollback
+      helm_timeout:
         required: false
         type: string
-        description: Timeout for helm install step in seconds
+        description: helm_timeout for helm install step in seconds
       helm_plugins:
         description: List of Helm plugins to install
         type: string
@@ -139,7 +135,7 @@ name: Smurf-Docker-Helm
         type: string
         description: AWS Region
         default: 'us-east-1'
-      assume_role:
+      aws_assume_role:
         description: Set to True to run Assume another IAM Role step
         required: false
         type: string
@@ -179,9 +175,9 @@ jobs:
         with:
           tool: sdkr
           command: >-
-            build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{
-            inputs.dockerfile_path }} --platform ${{ inputs.platform }}
-            --build-arg ${{ inputs.build_args }}
+            build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
+            inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
+            --build-arg ${{ inputs.docker_build_args }}
 
       - name: Docker Image Build with Buildkit
         if: inputs.docker_buildkit_enable == 'true'
@@ -189,21 +185,21 @@ jobs:
         with:
           tool: sdkr
           command: >-
-            build ${{ inputs.image_name }}:${{ inputs.image_tag }} -f ${{
-            inputs.dockerfile_path }} --platform ${{ inputs.platform }}
-            --build-arg ${{ inputs.build_args }} --buildkit
+            build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
+            inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
+            --build-arg ${{ inputs.docker_build_args }} --buildkit
 
       - name: Save Docker Image as Artifact
         run: >
-          docker save ${{ inputs.image_name }}:${{ inputs.image_tag }} -o ${{
-          inputs.image_tar }}
+          docker save ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -o ${{
+          inputs.docker_image_tar }}
 
       - name: Upload Docker Image Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: '${{ inputs.image_name }}'
-          path: '${{ inputs.image_tar }}'
-          
+          name: '${{ inputs.docker_image_name }}'
+          path: '${{ inputs.docker_image_tar }}'
+
   docker_scan_push:
     if: inputs.docker_enable == 'true' && inputs.docker_push == 'true'
     runs-on: ubuntu-latest
@@ -218,21 +214,21 @@ jobs:
       - name: Download Docker Image Artifact
         uses: actions/download-artifact@v4
         with:
-          name: '${{ inputs.image_name }}'
+          name: '${{ inputs.docker_image_name }}'
 
       - name: Load Docker Image
         run: |
-          docker load -i ${{ inputs.image_tar }}
+          docker load -i ${{ inputs.docker_image_tar }}
 
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-role }}
+          role-to-assume: ${{ inputs.aws_role }}
           aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
-        if: inputs.assume_role == 'true'
+        if: inputs.aws_assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.assume_role_arn }}
@@ -257,7 +253,7 @@ jobs:
         uses: clouddrove/smurf@v1.0.6
         with:
           tool: sdkr
-          command: scan ${{ inputs.image_name }}:${{ inputs.image_tag }}
+          command: scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
@@ -265,8 +261,8 @@ jobs:
         with:
           tool: sdkr
           command: >-
-            tag ${{ inputs.image_name }}:${{ inputs.image_tag }} ${{
-            inputs.registry-url }}:${{ inputs.image_tag }}
+            tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
+            inputs.docker_registry-url }}:${{ inputs.docker_image_tag }}
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
@@ -274,8 +270,8 @@ jobs:
         with:
           tool: sdkr
           command: >-
-            push ${{ inputs.registry }} ${{ inputs.registry-url }}:${{
-            inputs.image_tag }}
+            push ${{ inputs.registry }} ${{ inputs.docker_registry-url }}:${{
+            inputs.docker_image_tag }}
 
   helm_lint_template:
     if: inputs.helm_enable == 'true'
@@ -310,11 +306,11 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.aws-role }}'
+          role-to-assume: '${{ inputs.aws_role }}'
           aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
-        if: inputs.assume_role == 'true'
+        if: inputs.assume_role_arn == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.assume_role_arn }}'
@@ -370,7 +366,7 @@ jobs:
             upgrade --install ${{ inputs.helm_flags }} ${{ secrets.set-parameters }}
             ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
             inputs.helm_values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
-            inputs.timeout }}
+            inputs.helm_timeout }}
 
   helm-rollback:
     if: inputs.helm_rollback_enable == 'true'
@@ -386,14 +382,14 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws-role }}
+          role-to-assume: ${{ inputs.aws_role }}
           aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
-        if: inputs.assume_role == 'true'
+        if: inputs.assume_role_arn == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.aws-role }}'
+          role-to-assume: '${{ inputs.aws_role }}'
           aws-region: ${{ inputs.aws_region }}
 
       - name: Configure AWS credentials with access keys
@@ -422,6 +418,6 @@ jobs:
         with:
           tool: selm
           command: >-
-            rollback ${{ inputs.helm_release_name }} ${{ inputs.revision }} -n=${{
+            rollback ${{ inputs.helm_release_name }} ${{ inputs.helm_revision }} -n=${{
             inputs.namespace }}
 ...
