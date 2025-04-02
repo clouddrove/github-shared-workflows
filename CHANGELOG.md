@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-04-02
+### :sparkles: New Features
+- [`27ae321`](https://github.com/clouddrove/github-shared-workflows/commit/27ae32100da2496c5dec629db0be9e1b25a069c4) - Include working directory name in tfdrift issue *(PR [#171](https://github.com/clouddrove/github-shared-workflows/pull/171) by [@Kkhandale2024](https://github.com/Kkhandale2024))*
+
+### :construction_worker: Build System
+- [`e1b20d9`](https://github.com/clouddrove/github-shared-workflows/commit/e1b20d9a11452d37e4503a09aabb229f9843a8a4) - **deps**: bump appleboy/ssh-action from 1.2.0 to 1.2.1 *(PR [#168](https://github.com/clouddrove/github-shared-workflows/pull/168) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`644e8e8`](https://github.com/clouddrove/github-shared-workflows/commit/644e8e83ea3d2d60020a6c171331b98dce4ac38c) - **deps**: bump ncipollo/release-action from 1.15.0 to 1.16.0 *(PR [#169](https://github.com/clouddrove/github-shared-workflows/pull/169) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`26e408b`](https://github.com/clouddrove/github-shared-workflows/commit/26e408b0b3d4e0ef582322b9e8a30f82b155bf93) - **deps**: bump docker/setup-buildx-action from 3.9.0 to 3.10.0 *(PR [#172](https://github.com/clouddrove/github-shared-workflows/pull/172) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`989dcc3`](https://github.com/clouddrove/github-shared-workflows/commit/989dcc367444d74cb70766910901e25a0f216958) - **deps**: bump appleboy/ssh-action from 1.2.1 to 1.2.2 *(PR [#174](https://github.com/clouddrove/github-shared-workflows/pull/174) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`2a26a3b`](https://github.com/clouddrove/github-shared-workflows/commit/2a26a3b85f1344f68541ecdd279e044346530056) - update CHANGELOG.md for 1.2.9 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.2.9] - 2025-02-18
 ### :sparkles: New Features
 - [`8fae76f`](https://github.com/clouddrove/github-shared-workflows/commit/8fae76fb63eb1236c68f46e39bf61810d2842d2e) - Introduce Powerpipe shared workflow *(PR [#156](https://github.com/clouddrove/github-shared-workflows/pull/156) by [@nileshgadgi](https://github.com/nileshgadgi))*
@@ -215,3 +229,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.6...1.2.7
 [1.2.8]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.7...1.2.8
 [1.2.9]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.8...1.2.9
+[1.3.0]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.9...1.3.0
