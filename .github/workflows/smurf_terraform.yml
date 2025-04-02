@@ -59,6 +59,7 @@ name: Smurf Terraform
       AWS_SESSION_TOKEN:
         required: false
         description: AWS Session Token for direct authentication
+
 jobs:
   terraform-format-init-validate:
     if: inputs.terraform_enable == 'true'
@@ -85,6 +86,7 @@ jobs:
         with:
           tool: stf
           command: 'validate --dir=${{ inputs.terraform_directory }}'
+
   terraform-execution:
     if: inputs.terraform_enable == 'true'
     runs-on: ubuntu-latest
@@ -134,6 +136,7 @@ jobs:
         with:
           tool: stf
           command: 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
+
   terraform-destroy:
     if: inputs.terraform_destroy == 'true'
     runs-on: ubuntu-latest
