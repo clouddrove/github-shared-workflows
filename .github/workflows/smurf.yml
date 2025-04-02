@@ -112,16 +112,16 @@ name: Smurf-Docker-Helm
         type: string
         required: false
         default: 'false'
-      helm__repo_add:
+      helm_repo_add:
         description: Set to True for Adding Helm Repo
         type: string
         required: false
         default: 'false'
-      helm__repository:
+      helm_repository:
         description: Helm Repository to add
         type: string
         required: false
-      helm__repository_url:
+      helm_repository_url:
         description: Helm Repository URL to add
         type: string
         required: false
@@ -345,14 +345,14 @@ jobs:
           command: plugin ${{ inputs.helm_plugins }}
 
       - name: Add Helm Chart
-        if: inputs.helm__repo_add == 'true'
+        if: inputs.helm_repo_add == 'true'
         uses: clouddrove/smurf@v1.0.6
         with:
           tool: selm
-          command: repo add ${{ inputs.helm__repository }} ${{ inputs.helm__repository_url }}
+          command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
 
       - name: Update Helm Charts
-        if: inputs.helm__repo_add == 'true'
+        if: inputs.helm_repo_add == 'true'
         uses: clouddrove/smurf@v1.0.6
         with:
           tool: selm
