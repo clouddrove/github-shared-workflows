@@ -12,11 +12,6 @@ name: Smurf Terraform
         description: AWS region
         type: string
         default: us-east-1
-      provider:
-        description: 'Cloud provider (aws, azure, gcp, digitalocean)'
-        type: string
-        required: false
-        default: aws
       aws_auth_method:
         description: AWS auth method to use like oidc and keys
         type: string
@@ -40,14 +35,10 @@ name: Smurf Terraform
         type: string
         default: 1.3.6
         description: Required Terraform version
-      aws-role:
+      aws_role:
         description: AWS OIDC role for aws authentication.
         type: string
         default: 'false'
-      eks_cluster_name:
-        description: AWS eks cluster name
-        type: string
-        required: false
       timeout:
         required: false
         type: number
@@ -121,7 +112,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.aws-role }}'
+          role-to-assume: '${{ inputs.aws_role }}'
           aws-region: ${{ inputs.aws_region }}
 
       - name: Configure AWS credentials with access keys
@@ -190,7 +181,7 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.aws-role }}'
+          role-to-assume: '${{ inputs.aws_role }}'
           aws-region: ${{ inputs.aws_region }}
 
       - name: Configure AWS credentials with access keys

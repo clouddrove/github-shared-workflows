@@ -17,4 +17,12 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/smurf_terraform.yml@master
     with:
       terraform_directory: # Terraform Directory
+      aws_auth_method: # AWS auth method to use like oidc and keys
+      aws_role: # AWS role
+      aws_region: # AWS region
+      approvers: # Approvals list to approve apply or destroy
+    secrets:
+        AWS_ACCESS_KEY_ID:  # Specify AWS Access key ID
+        AWS_SECRET_ACCESS_KEY: # Specify AWS Secret Access key ID
+        AWS_SESSION_TOKEN:  # Specify Session ID
 ```

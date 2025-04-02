@@ -49,11 +49,11 @@ name: Smurf-Docker-Helm
         type: string
         required: false
         default: 'false'
-      registry:
+      docker_registry:
         description: 'The registry to Push Docker Image (aws, az, gcp, hub)'
         type: string
         default: aws
-      docker_registry-url:
+      docker_registry_url:
         description: 'The URL of the container registry (e.g., Docker Hub, ECR, GCR, ACR).'
         type: string
       dockerfile_path:
@@ -91,7 +91,7 @@ name: Smurf-Docker-Helm
         required: false
         type: string
         description: Values file path from helm chart directory
-      namespace:
+      helm_namespace:
         required: false
         type: string
         description: Boundary for Kubernetes resources
@@ -140,7 +140,7 @@ name: Smurf-Docker-Helm
         required: false
         type: string
         default: 'false'
-      assume_role_arn:
+      aws_assume_role_arn:
         type: string
         description: AWS assume role
         required: false
@@ -231,7 +231,7 @@ jobs:
         if: inputs.aws_assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.assume_role_arn }}
+          role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
 
       - name: Configure AWS credentials with access keys
@@ -262,7 +262,7 @@ jobs:
           tool: sdkr
           command: >-
             tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
-            inputs.docker_registry-url }}:${{ inputs.docker_image_tag }}
+            inputs.docker_registry_url }}:${{ inputs.docker_image_tag }}
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
@@ -270,7 +270,7 @@ jobs:
         with:
           tool: sdkr
           command: >-
-            push ${{ inputs.registry }} ${{ inputs.docker_registry-url }}:${{
+            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{
             inputs.docker_image_tag }}
 
   helm_lint_template:
@@ -310,10 +310,10 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
-        if: inputs.assume_role_arn == 'true'
+        if: inputs.aws_assume_role_arn == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.assume_role_arn }}'
+          role-to-assume: '${{ inputs.aws_assume_role_arn }}'
           aws-region: ${{ inputs.aws_region }}
 
       - name: Configure AWS credentials with access keys
@@ -365,7 +365,7 @@ jobs:
           command: >-
             upgrade --install ${{ inputs.helm_flags }} ${{ secrets.set-parameters }}
             ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
-            inputs.helm_values_file_path }} -n=${{ inputs.namespace }} --timeout ${{
+            inputs.helm_values_file_path }} -n=${{ inputs.helm_namespace }} --timeout ${{
             inputs.helm_timeout }}
 
   helm-rollback:
@@ -386,7 +386,7 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
-        if: inputs.assume_role_arn == 'true'
+        if: inputs.aws_assume_role_arn == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_role }}'
@@ -419,5 +419,5 @@ jobs:
           tool: selm
           command: >-
             rollback ${{ inputs.helm_release_name }} ${{ inputs.helm_revision }} -n=${{
-            inputs.namespace }}
+            inputs.helm_namespace }}
 ...
