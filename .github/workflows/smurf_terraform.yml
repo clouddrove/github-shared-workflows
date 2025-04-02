@@ -72,6 +72,7 @@ name: Smurf Terraform
       AWS_SESSION_TOKEN:
         required: false
         description: AWS Session Token for direct authentication
+
 jobs:
   terraform-format-init-validate:
     if: inputs.terraform_enable == 'true'
@@ -86,22 +87,23 @@ jobs:
           terraform_version: '${{ inputs.terraform_version }}'
 
       - name: Terraform Format
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: format -r
 
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
 
       - name: Terraform Validate
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'validate --dir=${{ inputs.terraform_directory }}'
+
   terraform-execution:
     if: inputs.terraform_enable == 'true'
     runs-on: ubuntu-latest
@@ -138,7 +140,7 @@ jobs:
           aws configure set region $AWS_REGION
 
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
@@ -152,7 +154,7 @@ jobs:
           ) >> "$GITHUB_ENV"
 
       - name: Terraform Plan
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'plan --dir=${{ inputs.terraform_directory }}'
@@ -167,10 +169,11 @@ jobs:
           issue-title: Terraform Plan for Infrastructure Update
 
       - name: Terraform Apply
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
+          
   terraform-destroy:
     if: inputs.terraform_destroy == 'true'
     runs-on: ubuntu-latest
@@ -214,13 +217,13 @@ jobs:
           ) >> "$GITHUB_ENV"
 
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
 
       - name: Terraform Plan
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'plan --dir=${{ inputs.terraform_directory }}'
@@ -235,7 +238,7 @@ jobs:
           issue-title: Terraform Plan for Infrastructure Update
 
       - name: Terraform Destroy
-        uses: clouddrove/smurf@v1.0.5
+        uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'destroy --auto-approve --dir=${{ inputs.terraform_directory }}'
