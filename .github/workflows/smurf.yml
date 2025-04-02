@@ -13,7 +13,7 @@ name: Smurf-Docker-Helm
         type: string
         required: false
         default: 'oidc'
-      eks_cluster_name:
+      aws_eks_cluster_name:
         description: AWS eks cluster name
         type: string
         required: false
@@ -154,7 +154,7 @@ name: Smurf-Docker-Helm
       AWS_SESSION_TOKEN:
         required: false
         description: AWS Session Token for direct authentication
-      set-parameters:
+      aws_set_parameters:
         required: false
         description: Overriding the default values using --set flag
 
@@ -335,7 +335,7 @@ jobs:
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
           echo "AWS_AUTH=true" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
@@ -363,7 +363,7 @@ jobs:
         with:
           tool: selm
           command: >-
-            upgrade --install ${{ inputs.helm_flags }} ${{ secrets.set-parameters }}
+            upgrade --install ${{ inputs.helm_flags }} ${{ secrets.aws_set_parameters }}
             ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
             inputs.helm_values_file_path }} -n=${{ inputs.helm_namespace }} --timeout ${{
             inputs.helm_timeout }}
@@ -411,7 +411,7 @@ jobs:
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
           echo "AWS_AUTH=true" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.eks_cluster_name }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Helm Rollback
         uses: clouddrove/smurf@v1.0.6

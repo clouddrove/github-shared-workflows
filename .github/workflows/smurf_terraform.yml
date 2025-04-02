@@ -3,10 +3,6 @@ name: Smurf Terraform
 'on':
   workflow_call:
     inputs:
-      command:
-        description: Command to run with tool
-        type: string
-        required: false
       aws_region:
         required: false
         description: AWS region
