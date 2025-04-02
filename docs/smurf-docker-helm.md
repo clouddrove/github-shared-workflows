@@ -4,7 +4,7 @@ This workflow is used to work with Docker and Helm using Smurf. It utilizes the 
 
 #### Usage
 The following workflow can work with Docker and Helm Using Smurf tool. It can Build Images, Scan and Push. Talking about the Helm part it can Lint, Template, Deploy and also provides Rollback feature.
-#### Example for  Smurf-Docker-Helm
+#### Example for Smurf-Docker-Helm
 
 ```yaml
 name: Smurf-Docker-Helm
