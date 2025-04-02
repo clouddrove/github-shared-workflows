@@ -15,17 +15,17 @@ jobs:
   dev:
     uses: clouddrove/github-shared-workflows/.github/workflows/smurf.yml@master
     with:
-      image_name: # Image Name
-      image_tag: # Image Tag
+      docker_image_name: # Image Name
+      docker_image_tag: # Image Tag
       dockerfile_path: # Dockerfile path
-      registry-url: # Registry URL
-      registry: # Registry
-      release-name: # Release name
-      helm-chart-directory: # Helm Chart Directory
+      docker_registry_url: # Registry URL
+      docker_registry: # Registry
+      helm_release_name: # Release name
+      helm_chart_directory: # Helm Chart Directory
       helm_enable: # Set to True for Helm Work
-      values_file_path: # Helm Chart Values Path
-      namespace: # Namespace
-      timeout: # Timeout
+      helm_values_file_path: # Helm Chart Values Path
+      helm_namespace: # Namespace
+      helm_timeout: # Timeout
     secrets:
       set-parameters:
         --set image.tag=${{ github.run_id }}
