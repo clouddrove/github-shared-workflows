@@ -364,10 +364,10 @@
           with:
             tool: selm
             command: >-
-              upgrade --install ${{ inputs.helm_flags }} ${{ secrets.aws_set_parameters }}
-              ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
-              inputs.helm_values_file_path }} -n=${{ inputs.helm_namespace }} --timeout ${{
-              inputs.helm_timeout }}
+              upgrade --install ${{ inputs.helm_flags }} ${{ inputs.helm_release_name }}
+              ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+              ${{ secrets.aws_set_parameters }} -n=${{ inputs.helm_namespace }}
+              --timeout ${{ inputs.helm_timeout }}
   
     helm-rollback:
       if: inputs.helm_rollback_enable == 'true'
