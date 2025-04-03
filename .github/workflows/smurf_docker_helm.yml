@@ -12,7 +12,6 @@ name: Smurf-Docker-Helm
         description: AWS auth method to use like oidc and keys
         type: string
         required: false
-        default: 'oidc'
       aws_eks_cluster_name:
         description: AWS eks cluster name
         type: string
