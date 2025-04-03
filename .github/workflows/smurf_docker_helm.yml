@@ -273,35 +273,26 @@ jobs:
             push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{
             inputs.docker_image_tag }}
 
-  # helm_lint_template:
-  #   if: inputs.helm_enable == 'true'
-  #   runs-on: ubuntu-latest
-  #   needs: docker_scan_push
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-
-  #     - name: Helm Lint
-  #       uses: clouddrove/smurf@v1.0.6
-  #       with:
-  #         tool: selm
-  #         command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
-
-  #     - name: Helm Template
-  #       uses: clouddrove/smurf@v1.0.6
-  #       with:
-  #         tool: selm
-  #         command: >-
-  #           template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
-
   helm_lint_template:
+    if: inputs.helm_enable == 'true' && inputs.docker_enable == 'true'
     runs-on: ubuntu-latest
     needs: 
-      - docker_scan_push
-    if: inputs.helm_enable == 'true' && inputs.docker_enable == 'true'
+        - docker_scan_push
     steps:
-      - name: Helm Lint and Template with Docker Dependency
-        run: echo "Helm lint and template with Docker dependency."
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Helm Lint
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: selm
+          command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+      - name: Helm Template
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: selm
+          command: >-
+            template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
   helm_lint_template_without_docker:
     runs-on: ubuntu-latest
