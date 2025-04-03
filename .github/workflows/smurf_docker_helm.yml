@@ -7,7 +7,6 @@ name: Smurf-Docker-Helm
         description: Set to true to run docker commands
         type: string
         required: false
-        default: 'true'
       aws_auth_method:
         description: AWS auth method to use like oidc and keys
         type: string
@@ -42,7 +41,6 @@ name: Smurf-Docker-Helm
         description: Set true for docker push
         type: string
         required: false
-        default: 'true'
       docker_buildkit_enable:
         description: Set true to enable docker buildkit
         type: string
@@ -152,6 +150,11 @@ name: Smurf-Docker-Helm
         type: string
         required: false
         default: 'wip'
+      gcp_docker_push:
+        description: Set to True to Push Images in GCP
+        type: string
+        required: false
+        default: 'false'
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -298,13 +301,22 @@ jobs:
             inputs.docker_registry_url }}:${{ inputs.docker_image_tag }}
 
       - name: Docker Image Push
-        if: inputs.docker_push == 'true'
+        if: inputs.docker_push == 'true'  && inputs.gcp_docker_push != 'true'
         uses: clouddrove/smurf@v1.0.6
         with:
           tool: sdkr
           command: >-
             push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{
             inputs.docker_image_tag }}
+
+      - name: Docker Image Push in GCP
+        if: inputs.docker_push == 'true' && inputs.gcp_docker_push == 'true'
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: sdkr
+          command: >-
+            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{
+            inputs.docker_image_tag }} --project-id ${{ inputs.gcp_project_id }}
 
   helm_lint_template:
     if: inputs.helm_enable == 'true'
