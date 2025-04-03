@@ -298,8 +298,20 @@ jobs:
     runs-on: ubuntu-latest
     if: inputs.helm_enable == 'true' && inputs.docker_enable != 'true'
     steps:
-      - name: Helm Lint and Template without Docker Dependency
-        run: echo "Helm lint and template without Docker dependency."
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Helm Lint
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: selm
+          command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+      - name: Helm Template
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: selm
+          command: >-
+            template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
         
   helm-dependency-handler:
     if: inputs.helm_enable == 'true'
