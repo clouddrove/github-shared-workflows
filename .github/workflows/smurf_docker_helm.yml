@@ -323,6 +323,7 @@ jobs:
       inputs.helm_enable == 'true' && (
         (inputs.docker_enable == 'true' && needs.helm_lint_template.outputs.lint_completed == 'true') || 
         (inputs.docker_enable != 'true' && needs.helm_lint_template_without_docker.outputs.lint_completed == 'true')
+        )
     runs-on: ubuntu-latest
     steps:
       - run: echo "This job will always succeed as long as any of its dependencies succeed"
