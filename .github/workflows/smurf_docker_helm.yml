@@ -298,7 +298,7 @@ jobs:
           tool: sdkr
           command: >-
             tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
-            inputs.docker_registry_url }}:${{ inputs.docker_image_tag }}
+            inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'  && inputs.gcp_docker_push != 'true'
@@ -315,7 +315,7 @@ jobs:
         with:
           tool: sdkr
           command: >-
-            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{ inputs.docker_image_name }}:${{
+            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
             inputs.docker_image_tag }} --project-id ${{ inputs.gcp_project_id }}
 
   helm_lint_template:
