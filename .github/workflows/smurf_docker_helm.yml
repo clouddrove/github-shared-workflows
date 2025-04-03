@@ -301,20 +301,22 @@ jobs:
       - name: Helm Lint and Template without Docker Dependency
         run: echo "Helm lint and template without Docker dependency."
         
-  helm-lint-dummy:
-    runs-on: ubuntu-latest
+  helm-dependency-handler:
     if: inputs.helm_enable == 'true'
+    runs-on: ubuntu-latest
+    needs:
+      - helm_lint_template_without_docker
+      - helm_lint_template
     steps:
-      - name: Dummy Job
-        run: echo "Dummy job to unify dependencies."
+      - run: echo "This job will always succeed as long as any of its dependencies succeed"
+        shell: bash
+        continue-on-error: true
         
   helm-deploy:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
     needs:
-      - helm_lint_template
-      - helm_lint_template_without_docker
-      - helm-lint-dummy
+      - helm-dependency-handler
     steps:
       - name: Checkout
         uses: actions/checkout@v4
