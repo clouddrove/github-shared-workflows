@@ -315,7 +315,7 @@ jobs:
         with:
           tool: sdkr
           command: >-
-            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{
+            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{ inputs.docker_image_name }}:${{
             inputs.docker_image_tag }} --project-id ${{ inputs.gcp_project_id }}
 
   helm_lint_template:
