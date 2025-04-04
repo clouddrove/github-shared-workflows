@@ -390,7 +390,7 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=true" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
           {
             echo "GCP_SERVICE_ACCOUNT_KEY<<EOF"
