@@ -398,8 +398,6 @@ jobs:
           echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
           echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
 
-          - name: Setup GCP credentials
-
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
         uses: clouddrove/smurf@v1.0.6
