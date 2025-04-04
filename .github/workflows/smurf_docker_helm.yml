@@ -419,7 +419,7 @@ jobs:
           command: repo update
 
       - name: Helm Deploy
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@feat/gcp
         with:
           tool: selm
           command: >-
