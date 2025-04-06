@@ -72,17 +72,17 @@ jobs:
         with:
           terraform_version: '${{ inputs.terraform_version }}'
       - name: Terraform Format
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: stf
           command: format -r
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
       - name: Terraform Validate
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: stf
           command: 'validate --dir=${{ inputs.terraform_directory }}'
@@ -119,7 +119,7 @@ jobs:
           fi
           aws configure set region $AWS_REGION
       - name: Terraform Plan
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: stf
           command: 'plan --dir=${{ inputs.terraform_directory }}'
@@ -132,7 +132,7 @@ jobs:
           minimum-approvals: '${{ inputs.minimum-approvals }}'
           issue-title: Terraform Plan for Infrastructure Update
       - name: Terraform Apply
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: stf
           command: 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
@@ -148,7 +148,7 @@ jobs:
         with:
           terraform_version: '${{ inputs.terraform_version }}'
       - name: Terraform Destroy
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: stf
           command: 'destroy --auto-approve --dir=${{ inputs.terraform_directory }}'
