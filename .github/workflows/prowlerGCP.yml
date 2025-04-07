@@ -49,8 +49,6 @@ on:
         default: false
         description: 'Enable authentication using GCP_KEY (service account key JSON). If false, uses WIF.'
 
-
-
     secrets:
       WIP:
         required: true
@@ -70,7 +68,6 @@ on:
       GCP_KEY:
         required: false
         description: 'GCP Service Account Key JSON'
-
 
 jobs:
   prowler:
@@ -110,15 +107,15 @@ jobs:
         if: ${{ inputs.cloud_provider == 'gcp' }}
         id: prowler-gcp
         run: |
-           IFS=',' read -ra PROJECTS <<< "${{ inputs.gcp_project_ids }}"
-           echo "Projects parsed: ${PROJECTS[@]}"
-           mkdir -p ${{ github.workspace }}/report/
-    
-           for PROJECT in "${PROJECTS[@]}"; do
+          IFS=',' read -ra PROJECTS <<< "${{ inputs.gcp_project_ids }}"
+          echo "Projects parsed: ${PROJECTS[@]}"
+          mkdir -p ${{ github.workspace }}/report/
+
+          for PROJECT in "${PROJECTS[@]}"; do
             echo "Running Prowler scan for project: $PROJECT"
             mkdir -p ${{ github.workspace }}/report/$PROJECT/
             prowler gcp --project-ids "$PROJECT" -o ${{ github.workspace }}/report/$PROJECT/
-           done
+          done
         continue-on-error: true
 
       - name: Upload Artifact (If GCS Upload Disabled)
