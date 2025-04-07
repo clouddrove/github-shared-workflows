@@ -390,10 +390,10 @@ jobs:
             template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
   helm-deploy_without_docker:
-    if: inputs.helm_enable == 'true' && inputs.docker_enable == 'false'
+    if: inputs.helm_enable == 'true' && inputs.docker_enable =='true'
     runs-on: ubuntu-latest
     needs:
-      - helm_lint_template_without_docker
+      - helm_lint_template
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -402,28 +402,36 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ inputs.aws_role }}
+          role-to-assume: '${{ inputs.aws_role }}'
           aws-region: ${{ inputs.aws_region }}
-          mask-aws-account-id: false  # Crucial for EKS auth
 
-    # Add these NEW steps
-      - name: Update Kubeconfig with Role
+      - name: Assume another IAM Role
+        if: inputs.aws_assume_role_arn == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: '${{ inputs.aws_assume_role_arn }}'
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
+          AWS_REGION: ${{ inputs.aws_region }}
         run: |
-          aws eks update-kubeconfig \
-            --name ${{ inputs.aws_eks_cluster_name }} \
-            --region ${{ inputs.aws_region }} \
-            --role-arn ${{ inputs.aws_role }}
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
 
-      - name: Verify Cluster Access
-        run: kubectl get nodes
-
-      - name: Map IAM Role to EKS RBAC
+      - name: Set environment variables
         run: |
-          eksctl create iamidentitymapping \
-            --cluster ${{ inputs.aws_eks_cluster_name }} \
-            --arn ${{ inputs.aws_role }} \
-            --group system:masters \
-            --region ${{ inputs.aws_region }}
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
+          echo "AWS_AUTH=true" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
@@ -432,8 +440,22 @@ jobs:
           tool: selm
           command: plugin ${{ inputs.helm_plugins }}
 
+      - name: Add Helm Chart
+        if: inputs.helm_repo_add == 'true'
+        uses: clouddrove/smurf@v1.0.7
+        with:
+          tool: selm
+          command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
+
+      - name: Update Helm Charts
+        if: inputs.helm_repo_add == 'true'
+        uses: clouddrove/smurf@v1.0.7
+        with:
+          tool: selm
+          command: repo update
+
       # - name: Helm Deploy
-      #   uses: clouddrove/smurf@v1.0.6
+      #   uses: clouddrove/smurf@v1.0.7
       #   with:
       #     tool: selm
       #     command: >-
