@@ -1,3 +1,4 @@
+---
 name: Smurf-Docker-Helm
 'on':
   workflow_call:
@@ -170,7 +171,7 @@ jobs:
 
       - name: Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: sdkr
           command: >-
@@ -180,7 +181,7 @@ jobs:
 
       - name: Docker Image Build with Buildkit
         if: inputs.docker_buildkit_enable == 'true'
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: sdkr
           command: >-
@@ -249,14 +250,14 @@ jobs:
           aws configure set region $AWS_REGION
 
       - name: Docker Image Scan
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: sdkr
           command: scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: sdkr
           command: >-
@@ -265,45 +266,39 @@ jobs:
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: sdkr
           command: >-
             push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{
             inputs.docker_image_tag }}
 
-  # This job handles all Helm linting and templating
   helm_lint_template:
-    if: inputs.helm_enable == 'true'
+    if: inputs.helm_enable == 'true' && inputs.docker_enable =='true'
     runs-on: ubuntu-latest
-    needs: [docker_scan_push, docker_build]
-    # Make this job run even if the docker jobs are skipped
-    if: |
-      always() && 
-      inputs.helm_enable == 'true' && 
-      (needs.docker_scan_push.result == 'success' || needs.docker_scan_push.result == 'skipped') && 
-      (needs.docker_build.result == 'success' || needs.docker_build.result == 'skipped')
+    needs: docker_scan_push
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Helm Lint
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: selm
           command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
       - name: Helm Template
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: selm
           command: >-
             template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
   helm-deploy:
-    if: inputs.helm_enable == 'true'
+    if: inputs.helm_enable == 'true' && inputs.docker_enable =='true'
     runs-on: ubuntu-latest
-    needs: helm_lint_template
+    needs:
+      - helm_lint_template
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -316,7 +311,7 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
-        if: inputs.aws_assume_role == 'true'
+        if: inputs.aws_assume_role_arn == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_assume_role_arn }}'
@@ -345,27 +340,122 @@ jobs:
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: selm
           command: plugin ${{ inputs.helm_plugins }}
 
       - name: Add Helm Chart
         if: inputs.helm_repo_add == 'true'
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: selm
           command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
 
       - name: Update Helm Charts
         if: inputs.helm_repo_add == 'true'
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: selm
           command: repo update
 
       - name: Helm Deploy
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
+        with:
+          tool: selm
+          command: >-
+            upgrade --install ${{ inputs.helm_flags }} ${{ secrets.aws_set_parameters }}
+            ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
+            inputs.helm_values_file_path }} -n=${{ inputs.helm_namespace }} --timeout ${{
+            inputs.helm_timeout }}
+
+  helm_lint_template_without_docker:
+    if: inputs.helm_enable == 'true' && inputs.docker_enable == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Helm Lint
+        uses: clouddrove/smurf@v1.0.7
+        with:
+          tool: selm
+          command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+
+      - name: Helm Template
+        uses: clouddrove/smurf@v1.0.7
+        with:
+          tool: selm
+          command: >-
+            template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+
+  helm-deploy:
+    if: inputs.helm_enable == 'true' && inputs.docker_enable == 'false'
+    runs-on: ubuntu-latest
+    needs:
+      - helm_lint_template_without_docker
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: '${{ inputs.aws_role }}'
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Assume another IAM Role
+        if: inputs.aws_assume_role_arn == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: '${{ inputs.aws_assume_role_arn }}'
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
+          AWS_REGION: ${{ inputs.aws_region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
+
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
+          echo "AWS_AUTH=true" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
+
+      - name: Helm Plugin
+        if: inputs.helm_plugin_install == 'true'
+        uses: clouddrove/smurf@v1.0.7
+        with:
+          tool: selm
+          command: plugin ${{ inputs.helm_plugins }}
+
+      - name: Add Helm Chart
+        if: inputs.helm_repo_add == 'true'
+        uses: clouddrove/smurf@v1.0.7
+        with:
+          tool: selm
+          command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
+
+      - name: Update Helm Charts
+        if: inputs.helm_repo_add == 'true'
+        uses: clouddrove/smurf@v1.0.7
+        with:
+          tool: selm
+          command: repo update
+
+      - name: Helm Deploy
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: selm
           command: >-
@@ -392,7 +482,7 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
-        if: inputs.aws_assume_role == 'true'
+        if: inputs.aws_assume_role_arn == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_role }}'
@@ -420,9 +510,10 @@ jobs:
           echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
 
       - name: Helm Rollback
-        uses: clouddrove/smurf@v1.0.6
+        uses: clouddrove/smurf@v1.0.7
         with:
           tool: selm
           command: >-
             rollback ${{ inputs.helm_release_name }} ${{ inputs.helm_revision }} -n=${{
             inputs.helm_namespace }}
+...
