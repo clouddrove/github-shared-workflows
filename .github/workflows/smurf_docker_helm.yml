@@ -402,36 +402,28 @@ jobs:
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: '${{ inputs.aws_role }}'
+          role-to-assume: ${{ inputs.aws_role }}
           aws-region: ${{ inputs.aws_region }}
+          mask-aws-account-id: false  # Crucial for EKS auth
 
-      - name: Assume another IAM Role
-        if: inputs.aws_assume_role_arn == 'true'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: '${{ inputs.aws_assume_role_arn }}'
-          aws-region: ${{ inputs.aws_region }}
-
-      - name: Configure AWS credentials with access keys
-        if: inputs.aws_auth_method == 'keys'
-        env:
-          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-          AWS_REGION: ${{ inputs.aws_region }}
+    # Add these NEW steps
+      - name: Update Kubeconfig with Role
         run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-          fi
-          aws configure set region $AWS_REGION
+          aws eks update-kubeconfig \
+            --name ${{ inputs.aws_eks_cluster_name }} \
+            --region ${{ inputs.aws_region }} \
+            --role-arn ${{ inputs.aws_role }}
 
-      - name: Set environment variables
+      - name: Verify Cluster Access
+        run: kubectl get nodes
+
+      - name: Map IAM Role to EKS RBAC
         run: |
-          echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=true" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
+          eksctl create iamidentitymapping \
+            --cluster ${{ inputs.aws_eks_cluster_name }} \
+            --arn ${{ inputs.aws_role }} \
+            --group system:masters \
+            --region ${{ inputs.aws_region }}
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
@@ -440,29 +432,20 @@ jobs:
           tool: selm
           command: plugin ${{ inputs.helm_plugins }}
 
-      - name: Add Helm Chart
-        if: inputs.helm_repo_add == 'true'
+      - name: Helm Deploy (Fixed)
         uses: clouddrove/smurf@v1.0.7
         with:
           tool: selm
-          command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
-
-      - name: Update Helm Charts
-        if: inputs.helm_repo_add == 'true'
-        uses: clouddrove/smurf@v1.0.7
-        with:
-          tool: selm
-          command: repo update
-
-      - name: Helm Deploy
-        uses: clouddrove/smurf@v1.0.7
-        with:
-          tool: selm
-          command: >-
-            upgrade --install ${{ inputs.helm_flags }} ${{ secrets.aws_set_parameters }}
-            ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
-            inputs.helm_values_file_path }} -n=${{ inputs.helm_namespace }} --timeout ${{
-            inputs.helm_timeout }}
+          command: |
+            upgrade --install \
+            --atomic \
+            --debug \
+            ${{ inputs.helm_release_name }} \
+            ${{ inputs.helm_chart_directory }} \
+            -f ${{ inputs.helm_values_file_path }} \
+            -n ${{ inputs.helm_namespace }} \
+            --timeout ${{ inputs.helm_timeout }} \
+            ${{ secrets.aws_set_parameters }}
 
   helm-rollback:
     if: inputs.helm_rollback_enable == 'true'
