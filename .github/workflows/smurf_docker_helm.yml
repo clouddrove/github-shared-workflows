@@ -1,4 +1,3 @@
----
 name: Smurf-Docker-Helm
 'on':
   workflow_call:
@@ -273,52 +272,17 @@ jobs:
             push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{
             inputs.docker_image_tag }}
 
-  # Separate jobs for different dependency scenarios
-  helm_lint_template_with_docker_build:
-    if: inputs.helm_enable == 'true' && inputs.docker_enable == 'true' && inputs.docker_push != 'true'
+  # This job handles all Helm linting and templating
+  helm_lint_template:
+    if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    needs: docker_build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Helm Lint
-        uses: clouddrove/smurf@v1.0.6
-        with:
-          tool: selm
-          command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
-
-      - name: Helm Template
-        uses: clouddrove/smurf@v1.0.6
-        with:
-          tool: selm
-          command: >-
-            template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
-
-  helm_lint_template_with_docker_push:
-    if: inputs.helm_enable == 'true' && inputs.docker_enable == 'true' && inputs.docker_push == 'true'
-    runs-on: ubuntu-latest
-    needs: docker_scan_push
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Helm Lint
-        uses: clouddrove/smurf@v1.0.6
-        with:
-          tool: selm
-          command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
-
-      - name: Helm Template
-        uses: clouddrove/smurf@v1.0.6
-        with:
-          tool: selm
-          command: >-
-            template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
-
-  helm_lint_template_no_docker:
-    if: inputs.helm_enable == 'true' && inputs.docker_enable != 'true'
-    runs-on: ubuntu-latest
+    needs: [docker_scan_push, docker_build]
+    # Make this job run even if the docker jobs are skipped
+    if: |
+      always() && 
+      inputs.helm_enable == 'true' && 
+      (needs.docker_scan_push.result == 'success' || needs.docker_scan_push.result == 'skipped') && 
+      (needs.docker_build.result == 'success' || needs.docker_build.result == 'skipped')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -339,10 +303,7 @@ jobs:
   helm-deploy:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    needs:
-      - helm_lint_template_with_docker_build
-      - helm_lint_template_with_docker_push
-      - helm_lint_template_no_docker
+    needs: helm_lint_template
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -355,7 +316,7 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
-        if: inputs.aws_assume_role_arn == 'true'
+        if: inputs.aws_assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_assume_role_arn }}'
@@ -431,7 +392,7 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: Assume another IAM Role
-        if: inputs.aws_assume_role_arn == 'true'
+        if: inputs.aws_assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_role }}'
