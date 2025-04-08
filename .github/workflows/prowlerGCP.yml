@@ -51,7 +51,7 @@ on:
 
     secrets:
       WIP:
-        required: true
+        required: false
         description: 'Workload Identity Provider'
       SERVICE_ACCOUNT:
         required: true
