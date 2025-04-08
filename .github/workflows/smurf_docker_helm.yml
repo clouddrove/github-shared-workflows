@@ -184,9 +184,6 @@ name: Smurf-Docker-Helm
       GOOGLE_CREDENTIALS:
         required: false
         description: 'GCP service account JSON Key'
-      GCP_KEY_BASE64:
-        required: false
-        description: 'GCP service account JSON Key base64 encoded'
       aws_set_parameters:
         required: false
         description: Overriding the default values using --set flag
@@ -400,7 +397,7 @@ jobs:
             echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
         
             echo "GCP_SERVICE_ACCOUNT_KEY<<EOF" >> $GITHUB_ENV
-            echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | sed 's/^/  /' >> $GITHUB_ENV
+            echo "${{ secrets.GOOGLE_CREDENTIALS }}" | sed 's/^/  /' >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
 
       - name: Helm Plugin
