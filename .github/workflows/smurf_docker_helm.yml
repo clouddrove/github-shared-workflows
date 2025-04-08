@@ -392,13 +392,15 @@ jobs:
 
       - name: Set environment variables
         run: |
-            echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-            echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
-            echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
-            echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
-            echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
-            echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
-            echo "GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" >> $GITHUB_ENV
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
+          echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
+          echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
+          echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV 
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > /tmp/gcp-key.json
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
+        shell: bash
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
