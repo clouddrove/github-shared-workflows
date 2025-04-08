@@ -395,7 +395,7 @@ jobs:
             echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
             echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
             echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
-            echo "GCP_SERVICE_ACCOUNT_KEY=${{ secrets.GOOGLE_CREDENTIALS }}" >> $GITHUB_ENV
+            echo 'GCP_SERVICE_ACCOUNT_KEY=${{ secrets.GOOGLE_CREDENTIALS }}' >> $GITHUB_ENV
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
