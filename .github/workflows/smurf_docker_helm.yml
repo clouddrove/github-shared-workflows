@@ -187,6 +187,9 @@ name: Smurf-Docker-Helm
       GCP_SERVICE_ACCOUNT_KEY:
         required: false
         description: 'GCP service account JSON Key'
+      GCP_WIP_CREDENTIALS_FILE:
+        required: false
+        description: 'GCP WIP JSON Key'
       aws_set_parameters:
         required: false
         description: Overriding the default values using --set flag
@@ -398,8 +401,12 @@ jobs:
           echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
           echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
           echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
+
           echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
           echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
+
+          echo "${{ secrets.GCP_WIP_CREDENTIALS_FILE }}" > /tmp/wip-creds.json
+          echo "WIP_CREDENTIALS_FILE=/tmp/wip-creds.json" >> $GITHUB_ENV
         shell: bash
     
       - name: Helm Plugin
