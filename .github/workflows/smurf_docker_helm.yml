@@ -496,5 +496,5 @@
             command: >-
               rollback ${{ inputs.helm_release_name }} ${{ inputs.helm_revision }} -n=${{
               inputs.helm_namespace }}
-  ...
+...
   
