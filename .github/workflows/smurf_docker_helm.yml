@@ -401,9 +401,8 @@ jobs:
           echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
           echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
           if [[ "${{ inputs.gcp_auth_method }}" == "wip" ]]; then
-            echo "🔹 Setting up Workload Identity Federation credentials..."
-            echo "WIP_CREDS_B64=$(echo '${{ secrets.GCP_WIP_CREDENTIALS_FILE }}' | base64 -w0)" >> $GITHUB_ENV
-            echo "WIP_CREDENTIALS_FILE=/tmp/wip-creds.json" >> $GITHUB_ENV
+            echo "WIP_PROVIDER=${{ secrets.GCP_WIP }}" >> $GITHUB_ENV
+            echo "WIP_SERVICE_ACCOUNT=${{ secrets.GCP_SERVICE_ACCOUNT }}" >> $GITHUB_ENV
           else
             echo "🔹 Setting up service account key credentials..."
             echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
