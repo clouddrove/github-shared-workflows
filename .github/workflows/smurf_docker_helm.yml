@@ -1,506 +1,503 @@
 ---
-  name: Smurf-Docker-Helm
-  'on':
-    workflow_call:
-      inputs:
-        docker_enable:
-          description: Set to true to run docker commands
-          type: string
-          required: false
-        aws_auth_method:
-          description: AWS auth method to use like oidc and keys
-          type: string
-          required: false
-        aws_eks_cluster_name:
-          description: AWS eks cluster name
-          type: string
-          required: false
-        aws_role:
-          description: AWS OIDC role for aws authentication.
-          type: string
-          default: 'false'
-        provider:
-          description: Cloud provider (aws, azure, gcp, digitalocean)
-          type: string
-          required: false
-          default: aws
-        docker_image_name:
-          description: Docker image name
-          type: string
-          required: false
-        docker_image_tag:
-          description: Docker image tag
-          type: string
-          default: 'latest'
-        docker_image_tar:
-          description: Docker image tar
-          type: string
-          required: false
-          default: image
-        docker_push:
-          description: Set true for docker push
-          type: string
-          required: false
-        docker_buildkit_enable:
-          description: Set true to enable docker buildkit
-          type: string
-          required: false
-          default: 'false'
-        docker_registry:
-          description: 'The registry to Push Docker Image (aws, az, gcp, hub)'
-          type: string
-          default: aws
-        docker_registry_url:
-          description: 'The URL of the container registry (e.g., Docker Hub, ECR, GCR, ACR).'
-          type: string
-        dockerfile_path:
-          description: Docker file directory
-          type: string
-          default: Dockerfile
-        docker_build_args:
-          description: Docker Build Arguments
-          type: string
-          required: false
-          default: key1=val1
-        docker_build_platform:
-          description: Docker Image Build Platform
-          type: string
-          default: linux/amd64
-        helm_enable:
-          description: Set to true to run helm commands
-          type: string
-          required: false
-          default: 'false'
-        helm_rollback_enable:
-          description: Set to true for helm rollback
-          type: string
-          required: false
-          default: 'false'
-        helm_release_name:
-          description: Unique ID for installed chart
-          required: false
-          type: string
-        helm_chart_directory:
-          required: false
-          type: string
-          description: Kubernetes deployment configurations files
-        helm_values_file_path:
-          required: false
-          type: string
-          description: Values file path from helm chart directory
-        helm_namespace:
-          required: false
-          type: string
-          description: Boundary for Kubernetes resources
-        helm_revision:
-          required: false
-          type: string
-          description: helm_revision for Helm rollback
-        helm_timeout:
-          required: false
-          type: string
-          description: helm_timeout for helm install step in seconds
-        helm_plugins:
-          description: List of Helm plugins to install
-          type: string
-          required: false
-        helm_plugin_install:
-          description: Set to True for Helm Plugin install
-          type: string
-          required: false
-          default: 'false'
-        helm_repo_add:
-          description: Set to True for Adding Helm Repo
-          type: string
-          required: false
-          default: 'false'
-        helm_repository:
-          description: Helm Repository to add
-          type: string
-          required: false
-        helm_repository_url:
-          description: Helm Repository URL to add
-          type: string
-          required: false
-        helm_flags:
-          description: Helm flags
-          type: string
-          required: false
-          default: '--atomic --debug'
-        aws_region:
-          required: false
-          type: string
-          description: AWS Region
-          default: 'us-east-1'
-        aws_assume_role:
-          description: Set to True to run Assume another IAM Role step
-          required: false
-          type: string
-          default: 'false'
-        aws_assume_role_arn:
-          type: string
-          description: AWS assume role
-          required: false
-        gcp_project_id:
-          required: false
-          type: string
-          description: 'ID of the default project to use for future API calls and invocations.'
-        gcp_auth_method:
-          description: GCP auth method to use like wip and json
-          type: string
-          required: false
-          default: 'wip'
-        gcp_docker_push:
-          description: Set to True to Push Images in GCP
-          type: string
-          required: false
-          default: 'false'
-        gcp_region:
-          required: false
-          type: string
-          description: GCP Region
-          default: 'us-central1'
-        gcp_gke_cluster_name:
-          description: GCP gke cluster name
-          type: string
-          required: false
-  
-      secrets:
-        AWS_ACCESS_KEY_ID:
-          required: false
-          description: AWS Access Key ID for direct authentication
-        AWS_SECRET_ACCESS_KEY:
-          required: false
-          description: AWS Secret Access Key for direct authentication
-        AWS_SESSION_TOKEN:
-          required: false
-          description: AWS Session Token for direct authentication
-        GCP_WIP:
-          required: false
-          description: 'WIP Connected with Service Account'
-        GCP_SERVICE_ACCOUNT:
-          required: false
-          description: 'GCP service account'
-        GOOGLE_CREDENTIALS:
-          required: false
-          description: 'GCP service account JSON Key'
-        GCP_SERVICE_ACCOUNT_KEY:
-          required: false
-          description: 'GCP service account JSON Key'
-        GCP_WIP_CREDENTIALS_FILE:
-          required: false
-          description: 'GCP WIP JSON Key'
-        aws_set_parameters:
-          required: false
-          description: Overriding the default values using --set flag
-  
-  jobs:
-    docker_build:
-      if: inputs.docker_enable == 'true'
-      runs-on: ubuntu-latest
-      permissions:
-        id-token: write
-        contents: read
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-  
-        - name: Docker Image Build
-          if: inputs.docker_buildkit_enable != 'true'
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: sdkr
-            command: >-
-              build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
-              inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
-              --build-arg ${{ inputs.docker_build_args }}
-  
-        - name: Docker Image Build with Buildkit
-          if: inputs.docker_buildkit_enable == 'true'
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: sdkr
-            command: >-
-              build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
-              inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
-              --build-arg ${{ inputs.docker_build_args }} --buildkit
-  
-        - name: Save Docker Image as Artifact
-          run: >
-            docker save ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -o ${{
-            inputs.docker_image_tar }}
-  
-        - name: Upload Docker Image Artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: '${{ inputs.docker_image_name }}'
-            path: '${{ inputs.docker_image_tar }}'
-  
-    docker_scan_push:
-      if: inputs.docker_enable == 'true' && inputs.docker_push == 'true'
-      runs-on: ubuntu-latest
-      needs: docker_build
-      permissions:
-        id-token: write
-        contents: read
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-  
-        - name: Download Docker Image Artifact
-          uses: actions/download-artifact@v4
-          with:
-            name: '${{ inputs.docker_image_name }}'
-  
-        - name: Load Docker Image
-          run: |
-            docker load -i ${{ inputs.docker_image_tar }}
-  
-        - name: Configure AWS credentials with OIDC
-          if: inputs.aws_auth_method == 'oidc'
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            role-to-assume: ${{ inputs.aws_role }}
-            aws-region: ${{ inputs.aws_region }}
-  
-        - name: Assume another IAM Role
-          if: inputs.aws_assume_role == 'true'
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            role-to-assume: ${{ inputs.aws_assume_role_arn }}
-            aws-region: ${{ inputs.aws_region }}
-  
-        - name: Configure AWS credentials with access keys
-          if: inputs.aws_auth_method == 'keys'
-          env:
-            AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-            AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-            AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-            aws-region: ${{ inputs.aws_region }}
-          run: |
-            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-            if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-              aws configure set aws_session_token $AWS_SESSION_TOKEN
-            fi
-            aws configure set region $AWS_REGION
-  
-        - name: Authenticate Google Cloud with WIP and Service Account
-          if: inputs.gcp_auth_method == 'wip'
-          uses: google-github-actions/auth@v2
-          with:
-            token_format: access_token
-            workload_identity_provider: ${{ secrets.GCP_WIP }}
-            service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-            access_token_lifetime: 300s
-            project_id: ${{ inputs.gcp_project_id }}
-        
-        - name: Authenticate Google Cloud with Service Account JSON Key
-          if: inputs.gcp_auth_method == 'json'
-          uses: 'google-github-actions/auth@v2'
-          with:
-            credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
-              
-        - name: Docker Image Scan
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: sdkr
-            command: scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
-  
-        - name: Docker Image Tag
-          if: inputs.docker_push == 'true'
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: sdkr
-            command: >-
-              tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
-              inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
-  
-        - name: Docker Image Push
-          if: inputs.docker_push == 'true'  && inputs.gcp_docker_push != 'true'
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: sdkr
-            command: >-
-              push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{
-              inputs.docker_image_tag }}
-  
-        - name: Docker Image Push in GCP
-          if: inputs.docker_push == 'true' && inputs.gcp_docker_push == 'true'
-          uses: clouddrove/smurf@feat/gcp
-          with:
-            tool: sdkr
-            command: >-
-              push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
-              inputs.docker_image_tag }} --project-id ${{ inputs.gcp_project_id }}
-  
-    helm_lint_template:
-      if: inputs.helm_enable == 'true'
-      runs-on: ubuntu-latest
-      # needs: docker_scan_push
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-  
-        - name: Helm Lint
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: selm
-            command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
-  
-        - name: Helm Template
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: selm
-            command: >-
-              template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
-  
-    helm-deploy:
-      if: inputs.helm_enable == 'true'
-      runs-on: ubuntu-latest
-      needs:
-        - helm_lint_template
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-  
-        - name: Configure AWS credentials with OIDC
-          if: inputs.aws_auth_method == 'oidc'
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            role-to-assume: '${{ inputs.aws_role }}'
-            aws-region: ${{ inputs.aws_region }}
-  
-        - name: Assume another IAM Role
-          if: inputs.aws_assume_role_arn == 'true'
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            role-to-assume: '${{ inputs.aws_assume_role_arn }}'
-            aws-region: ${{ inputs.aws_region }}
-  
-        - name: Configure AWS credentials with access keys
-          if: inputs.aws_auth_method == 'keys'
-          env:
-            AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-            AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-            AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-            AWS_REGION: ${{ inputs.aws_region }}
-          run: |
-            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-            if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-              aws configure set aws_session_token $AWS_SESSION_TOKEN
-            fi
-            aws configure set region $AWS_REGION
-  
-        - name: Set environment variables
-          run: |
-            echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-            echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
-            echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
-            echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
-            echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
-            echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
+name: Smurf-Docker-Helm
+'on':
+  workflow_call:
+    inputs:
+      docker_enable:
+        description: Set to true to run docker commands
+        type: string
+        required: false
+      aws_auth_method:
+        description: AWS auth method to use like oidc and keys
+        type: string
+        required: false
+      aws_eks_cluster_name:
+        description: AWS eks cluster name
+        type: string
+        required: false
+      aws_role:
+        description: AWS OIDC role for aws authentication.
+        type: string
+        default: 'false'
+      provider:
+        description: Cloud provider (aws, azure, gcp, digitalocean)
+        type: string
+        required: false
+        default: aws
+      docker_image_name:
+        description: Docker image name
+        type: string
+        required: false
+      docker_image_tag:
+        description: Docker image tag
+        type: string
+        default: 'latest'
+      docker_image_tar:
+        description: Docker image tar
+        type: string
+        required: false
+        default: image
+      docker_push:
+        description: Set true for docker push
+        type: string
+        required: false
+      docker_buildkit_enable:
+        description: Set true to enable docker buildkit
+        type: string
+        required: false
+        default: 'false'
+      docker_registry:
+        description: 'The registry to Push Docker Image (aws, az, gcp, hub)'
+        type: string
+        default: aws
+      docker_registry_url:
+        description: 'The URL of the container registry (e.g., Docker Hub, ECR, GCR, ACR).'
+        type: string
+      dockerfile_path:
+        description: Docker file directory
+        type: string
+        default: Dockerfile
+      docker_build_args:
+        description: Docker Build Arguments
+        type: string
+        required: false
+        default: key1=val1
+      docker_build_platform:
+        description: Docker Image Build Platform
+        type: string
+        default: linux/amd64
+      helm_enable:
+        description: Set to true to run helm commands
+        type: string
+        required: false
+        default: 'false'
+      helm_rollback_enable:
+        description: Set to true for helm rollback
+        type: string
+        required: false
+        default: 'false'
+      helm_release_name:
+        description: Unique ID for installed chart
+        required: false
+        type: string
+      helm_chart_directory:
+        required: false
+        type: string
+        description: Kubernetes deployment configurations files
+      helm_values_file_path:
+        required: false
+        type: string
+        description: Values file path from helm chart directory
+      helm_namespace:
+        required: false
+        type: string
+        description: Boundary for Kubernetes resources
+      helm_revision:
+        required: false
+        type: string
+        description: helm_revision for Helm rollback
+      helm_timeout:
+        required: false
+        type: string
+        description: helm_timeout for helm install step in seconds
+      helm_plugins:
+        description: List of Helm plugins to install
+        type: string
+        required: false
+      helm_plugin_install:
+        description: Set to True for Helm Plugin install
+        type: string
+        required: false
+        default: 'false'
+      helm_repo_add:
+        description: Set to True for Adding Helm Repo
+        type: string
+        required: false
+        default: 'false'
+      helm_repository:
+        description: Helm Repository to add
+        type: string
+        required: false
+      helm_repository_url:
+        description: Helm Repository URL to add
+        type: string
+        required: false
+      helm_flags:
+        description: Helm flags
+        type: string
+        required: false
+        default: '--atomic --debug'
+      aws_region:
+        required: false
+        type: string
+        description: AWS Region
+        default: 'us-east-1'
+      aws_assume_role:
+        description: Set to True to run Assume another IAM Role step
+        required: false
+        type: string
+        default: 'false'
+      aws_assume_role_arn:
+        type: string
+        description: AWS assume role
+        required: false
+      gcp_project_id:
+        required: false
+        type: string
+        description: 'ID of the default project to use for future API calls and invocations.'
+      gcp_auth_method:
+        description: GCP auth method to use like wip and json
+        type: string
+        required: false
+        default: 'wip'
+      gcp_docker_push:
+        description: Set to True to Push Images in GCP
+        type: string
+        required: false
+        default: 'false'
+      gcp_region:
+        required: false
+        type: string
+        description: GCP Region
+        default: 'us-central1'
+      gcp_gke_cluster_name:
+        description: GCP gke cluster name
+        type: string
+        required: false
 
-            if [[ "${{ inputs.gcp_auth_method }}" == "wip" ]]; then
-              echo "🔹 Setting up Workload Identity Federation credentials..."
-              echo "${{ secrets.GCP_WIP_CREDENTIALS_FILE }}" > /tmp/wip-creds.json
-              echo "WIP_CREDENTIALS_FILE=/tmp/wip-creds.json" >> $GITHUB_ENV
-            else
-              echo "🔹 Setting up service account key credentials..."
-              echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
-              echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
-            fi
-          shell: bash
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: AWS Access Key ID for direct authentication
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: AWS Secret Access Key for direct authentication
+      AWS_SESSION_TOKEN:
+        required: false
+        description: AWS Session Token for direct authentication
+      GCP_WIP:
+        required: false
+        description: 'WIP Connected with Service Account'
+      GCP_SERVICE_ACCOUNT:
+        required: false
+        description: 'GCP service account'
+      GOOGLE_CREDENTIALS:
+        required: false
+        description: 'GCP service account JSON Key'
+      GCP_SERVICE_ACCOUNT_KEY:
+        required: false
+        description: 'GCP service account JSON Key'
+      GCP_WIP_CREDENTIALS_FILE:
+        
+      aws_set_parameters:
+        required: false
+        description: Overriding the default values using --set flag
+
+jobs:
+  docker_build:
+    if: inputs.docker_enable == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Docker Image Build
+        if: inputs.docker_buildkit_enable != 'true'
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: sdkr
+          command: >-
+            build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
+            inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
+            --build-arg ${{ inputs.docker_build_args }}
+
+      - name: Docker Image Build with Buildkit
+        if: inputs.docker_buildkit_enable == 'true'
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: sdkr
+          command: >-
+            build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
+            inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
+            --build-arg ${{ inputs.docker_build_args }} --buildkit
+
+      - name: Save Docker Image as Artifact
+        run: >
+          docker save ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -o ${{
+          inputs.docker_image_tar }}
+
+      - name: Upload Docker Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: '${{ inputs.docker_image_name }}'
+          path: '${{ inputs.docker_image_tar }}'
+
+  docker_scan_push:
+    if: inputs.docker_enable == 'true' && inputs.docker_push == 'true'
+    runs-on: ubuntu-latest
+    needs: docker_build
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Docker Image Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: '${{ inputs.docker_image_name }}'
+
+      - name: Load Docker Image
+        run: |
+          docker load -i ${{ inputs.docker_image_tar }}
+
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws_role }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Assume another IAM Role
+        if: inputs.aws_assume_role == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws_assume_role_arn }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
+          aws-region: ${{ inputs.aws_region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
+
+      - name: Authenticate Google Cloud with WIP and Service Account
+        if: inputs.gcp_auth_method == 'wip'
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ secrets.GCP_WIP }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          access_token_lifetime: 300s
+          project_id: ${{ inputs.gcp_project_id }}
       
-        - name: Helm Plugin
-          if: inputs.helm_plugin_install == 'true'
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: selm
-            command: plugin ${{ inputs.helm_plugins }}
-  
-        - name: Add Helm Chart
-          if: inputs.helm_repo_add == 'true'
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: selm
-            command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
-  
-        - name: Update Helm Charts
-          if: inputs.helm_repo_add == 'true'
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: selm
-            command: repo update
-  
-        - name: Helm Deploy
-          uses: clouddrove/smurf@feat/gcp
-          with:
-            tool: selm
-            command: >-
-              upgrade --install ${{ inputs.helm_flags }} ${{ secrets.aws_set_parameters }}
-              ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
-              inputs.helm_values_file_path }} -n=${{ inputs.helm_namespace }} --timeout ${{
-              inputs.helm_timeout }}
-  
-    helm-rollback:
-      if: inputs.helm_rollback_enable == 'true'
-      runs-on: ubuntu-latest
-      permissions:
-        id-token: write
-        contents: read
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-  
-        - name: Configure AWS credentials with OIDC
-          if: inputs.aws_auth_method == 'oidc'
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            role-to-assume: ${{ inputs.aws_role }}
-            aws-region: ${{ inputs.aws_region }}
-  
-        - name: Assume another IAM Role
-          if: inputs.aws_assume_role_arn == 'true'
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            role-to-assume: '${{ inputs.aws_role }}'
-            aws-region: ${{ inputs.aws_region }}
-  
-        - name: Configure AWS credentials with access keys
-          if: inputs.aws_auth_method == 'keys'
-          env:
-            AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-            AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-            AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-            aws-region: ${{ inputs.aws_region }}
-          run: |
-            aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-            if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-              aws configure set aws_session_token $AWS_SESSION_TOKEN
-            fi
-            aws configure set region $AWS_REGION
-  
-        - name: Set environment variables
-          run: |
-            echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-            echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
-            echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
-            echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
-            echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
-            echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
+      - name: Authenticate Google Cloud with Service Account JSON Key
+        if: inputs.gcp_auth_method == 'json'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+            
+      - name: Docker Image Scan
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: sdkr
+          command: scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
+
+      - name: Docker Image Tag
+        if: inputs.docker_push == 'true'
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: sdkr
+          command: >-
+            tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
+            inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
+
+      - name: Docker Image Push
+        if: inputs.docker_push == 'true'  && inputs.gcp_docker_push != 'true'
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: sdkr
+          command: >-
+            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{
+            inputs.docker_image_tag }}
+
+      - name: Docker Image Push in GCP
+        if: inputs.docker_push == 'true' && inputs.gcp_docker_push == 'true'
+        uses: clouddrove/smurf@feat/gcp
+        with:
+          tool: sdkr
+          command: >-
+            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
+            inputs.docker_image_tag }} --project-id ${{ inputs.gcp_project_id }}
+
+  helm_lint_template:
+    if: inputs.helm_enable == 'true'
+    runs-on: ubuntu-latest
+    # needs: docker_scan_push
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Helm Lint
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: selm
+          command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+
+      - name: Helm Template
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: selm
+          command: >-
+            template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+
+  helm-deploy:
+    if: inputs.helm_enable == 'true'
+    runs-on: ubuntu-latest
+    needs:
+      - helm_lint_template
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: '${{ inputs.aws_role }}'
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Assume another IAM Role
+        if: inputs.aws_assume_role_arn == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: '${{ inputs.aws_assume_role_arn }}'
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
+          AWS_REGION: ${{ inputs.aws_region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
+
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
+          echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
+          echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
+          echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
+          if [[ "${{ inputs.gcp_auth_method }}" == "wip" ]]; then
+            echo "🔹 Setting up Workload Identity Federation credentials..."
+            echo "WIP_CREDS_B64=$(echo '${{ secrets.GCP_WIP_CREDENTIALS_FILE }}' | base64 -w0)" >> $GITHUB_ENV
+            echo "WIP_CREDENTIALS_FILE=/tmp/wip-creds.json" >> $GITHUB_ENV
+          else
+            echo "🔹 Setting up service account key credentials..."
             echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
             echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
-          shell: bash
-  
-        - name: Helm Rollback
-          uses: clouddrove/smurf@v1.0.6
-          with:
-            tool: selm
-            command: >-
-              rollback ${{ inputs.helm_release_name }} ${{ inputs.helm_revision }} -n=${{
-              inputs.helm_namespace }}
+          fi
+        shell: bash
+
+      - name: Helm Plugin
+        if: inputs.helm_plugin_install == 'true'
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: selm
+          command: plugin ${{ inputs.helm_plugins }}
+
+      - name: Add Helm Chart
+        if: inputs.helm_repo_add == 'true'
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: selm
+          command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
+
+      - name: Update Helm Charts
+        if: inputs.helm_repo_add == 'true'
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: selm
+          command: repo update
+
+      - name: Helm Deploy
+        uses: clouddrove/smurf@feat/gcp
+        with:
+          tool: selm
+          command: >-
+            upgrade --install ${{ inputs.helm_flags }} ${{ secrets.aws_set_parameters }}
+            ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
+            inputs.helm_values_file_path }} -n=${{ inputs.helm_namespace }} --timeout ${{
+            inputs.helm_timeout }}
+
+  helm-rollback:
+    if: inputs.helm_rollback_enable == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials with OIDC
+        if: inputs.aws_auth_method == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ inputs.aws_role }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Assume another IAM Role
+        if: inputs.aws_assume_role_arn == 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: '${{ inputs.aws_role }}'
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Configure AWS credentials with access keys
+        if: inputs.aws_auth_method == 'keys'
+        env:
+          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
+          aws-region: ${{ inputs.aws_region }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
+            aws configure set aws_session_token $AWS_SESSION_TOKEN
+          fi
+          aws configure set region $AWS_REGION
+
+      - name: Set environment variables
+        run: |
+          echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
+          echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
+          echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
+          echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
+          echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
+          echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Helm Rollback
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: selm
+          command: >-
+            rollback ${{ inputs.helm_release_name }} ${{ inputs.helm_revision }} -n=${{
+            inputs.helm_namespace }}
 ...
-  
