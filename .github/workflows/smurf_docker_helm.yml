@@ -334,7 +334,7 @@ jobs:
   helm_lint_template:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
-    # needs: docker_scan_push
+    needs: docker_scan_push
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -398,18 +398,9 @@ jobs:
           echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
           echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
           echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
-          if [[ "${{ inputs.gcp_auth_method }}" == "wip" ]]; then
-            echo "INPUT_GCP_AUTH_METHOD=wip" >> $GITHUB_ENV
-            echo "INPUT_WORKLOAD_IDENTITY_PROVIDER=${{ secrets.GCP_WIP }}" >> $GITHUB_ENV
-            echo "INPUT_SERVICE_ACCOUNT=${{ secrets.GCP_SERVICE_ACCOUNT }}" >> $GITHUB_ENV
-            echo "INPUT_GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
-            echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
-            echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
-            echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
-          else
-            echo "🔹 Setting up service account key credentials..."
-            echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
-            echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
+          echo "🔹 Setting up service account key credentials..."
+          echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
           fi
         shell: bash
 
