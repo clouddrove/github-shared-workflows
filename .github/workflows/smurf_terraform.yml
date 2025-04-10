@@ -49,6 +49,14 @@ name: Smurf Terraform
         type: number
         default: 1
         description: Minimum approvals required to accept the plan
+      gcp_auth_method:
+        description: GCP auth method to use like wip and json
+        type: string
+        required: false
+      gcp_project_id:
+        required: false
+        type: string
+        description: 'ID of the default project to use for future API calls and invocations.'
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -59,6 +67,15 @@ name: Smurf Terraform
       AWS_SESSION_TOKEN:
         required: false
         description: AWS Session Token for direct authentication
+      GCP_WIP:
+        required: false
+        description: 'WIP Connected with Service Account'
+      GCP_SERVICE_ACCOUNT:
+        required: false
+        description: 'GCP service account'
+      GOOGLE_CREDENTIALS:
+        required: false
+        description: 'GCP service account JSON Key'
 
 jobs:
   terraform-format-init-validate:
@@ -118,6 +135,21 @@ jobs:
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
           aws configure set region $AWS_REGION
+      - name: Authenticate Google Cloud with WIP and Service Account
+        if: inputs.gcp_auth_method == 'wip'
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ secrets.GCP_WIP }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          access_token_lifetime: 300s
+          project_id: ${{ inputs.gcp_project_id }}
+        
+      - name: Authenticate Google Cloud with Service Account JSON Key
+        if: inputs.gcp_auth_method == 'json'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
       - name: Terraform Plan
         uses: clouddrove/smurf@v1.0.6
         with:
