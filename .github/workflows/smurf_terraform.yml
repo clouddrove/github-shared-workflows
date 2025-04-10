@@ -149,6 +149,11 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+      - name: Terraform Init
+        uses: clouddrove/smurf@v1.0.6
+        with:
+          tool: stf
+          command: 'init --dir=${{ inputs.terraform_directory }}'
       - name: Terraform Plan
         uses: clouddrove/smurf@v1.0.6
         with:
