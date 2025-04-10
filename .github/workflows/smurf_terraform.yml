@@ -12,7 +12,6 @@ name: Smurf Terraform
         description: AWS auth method to use like oidc and keys
         type: string
         required: false
-        default: oidc
       terraform_directory:
         description: Terraform Directory
         type: string
