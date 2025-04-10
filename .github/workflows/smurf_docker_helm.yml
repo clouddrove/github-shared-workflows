@@ -401,7 +401,6 @@ jobs:
           echo "🔹 Setting up service account key credentials..."
           echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
           echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
-          fi
         shell: bash
 
       - name: Helm Plugin
