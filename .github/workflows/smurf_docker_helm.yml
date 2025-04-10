@@ -187,8 +187,6 @@ name: Smurf-Docker-Helm
       GCP_SERVICE_ACCOUNT_KEY:
         required: false
         description: 'GCP service account JSON Key'
-      GCP_WIP_CREDENTIALS_FILE:
-        
       aws_set_parameters:
         required: false
         description: Overriding the default values using --set flag
@@ -401,8 +399,13 @@ jobs:
           echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
           echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
           if [[ "${{ inputs.gcp_auth_method }}" == "wip" ]]; then
-            echo "WIP_PROVIDER=${{ secrets.GCP_WIP }}" >> $GITHUB_ENV
-            echo "WIP_SERVICE_ACCOUNT=${{ secrets.GCP_SERVICE_ACCOUNT }}" >> $GITHUB_ENV
+            echo "INPUT_GCP_AUTH_METHOD=wip" >> $GITHUB_ENV
+            echo "INPUT_WORKLOAD_IDENTITY_PROVIDER=${{ secrets.GCP_WIP }}" >> $GITHUB_ENV
+            echo "INPUT_SERVICE_ACCOUNT=${{ secrets.GCP_SERVICE_ACCOUNT }}" >> $GITHUB_ENV
+            echo "INPUT_GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
+            echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
+            echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
+            echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
           else
             echo "🔹 Setting up service account key credentials..."
             echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
