@@ -87,16 +87,19 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: '${{ inputs.terraform_version }}'
+
       - name: Terraform Format
         uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: format -r
+
       - name: Terraform Init
         uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
+
       - name: Terraform Validate
         uses: clouddrove/smurf@v1.0.6
         with:
@@ -114,12 +117,14 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: '${{ inputs.terraform_version }}'
+
       - name: Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_role }}'
-          aws-region: '${{ inputs.aws_region }}'''
+          aws-region: '${{ inputs.aws_region }}'
+
       - name: Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
@@ -134,6 +139,7 @@ jobs:
             aws configure set aws_session_token $AWS_SESSION_TOKEN
           fi
           aws configure set region $AWS_REGION
+
       - name: Authenticate Google Cloud with WIP and Service Account
         if: inputs.gcp_auth_method == 'wip'
         uses: google-github-actions/auth@v2
@@ -149,16 +155,19 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
       - name: Terraform Init
         uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
+
       - name: Terraform Plan
         uses: clouddrove/smurf@v1.0.6
         with:
           tool: stf
           command: 'plan --dir=${{ inputs.terraform_directory }}'
+
       - name: Accept plan or deny
         uses: trstringer/manual-approval@v1
         timeout-minutes: '${{ inputs.timeout }}'
@@ -167,6 +176,7 @@ jobs:
           approvers: '${{ inputs.approvers }}'
           minimum-approvals: '${{ inputs.minimum-approvals }}'
           issue-title: Terraform Plan for Infrastructure Update
+          
       - name: Terraform Apply
         uses: clouddrove/smurf@v1.0.6
         with:
