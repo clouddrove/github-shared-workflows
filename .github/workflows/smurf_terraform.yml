@@ -149,7 +149,7 @@ jobs:
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
           access_token_lifetime: 300s
           project_id: ${{ inputs.gcp_project_id }}
-        
+
       - name: Authenticate Google Cloud with Service Account JSON Key
         if: inputs.gcp_auth_method == 'json'
         uses: 'google-github-actions/auth@v2'
@@ -193,7 +193,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: '${{ inputs.terraform_version }}'
-          
+
       - name: Terraform Destroy
         uses: clouddrove/smurf@v1.0.8
         with:
