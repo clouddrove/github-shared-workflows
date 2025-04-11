@@ -1,0 +1,157 @@
+---
+name: Prowler Reusable Workflow for GCP
+
+on:
+  workflow_call:
+    inputs:
+      cloud_provider:
+        required: true
+        type: string
+        default: gcp
+        description: 'Cloud Provider'
+      gcp_project_ids:
+        required: true
+        type: string
+        description: 'Comma-separated GCP Project IDs (e.g., "project-1,project-2")'
+      access_token_lifetime:
+        required: false
+        type: number
+        default: 300
+        description: 'Duration for which an access token remains valid.'
+      retention_days:
+        required: false
+        type: number
+        default: 1
+        description: 'Duration of the reports retention period.'
+      enable_gcs_upload:
+        required: false
+        type: boolean
+        default: false
+        description: 'Enable this to upload the reports to Google Cloud Storage (GCS).'
+      enable_slack_notification:
+        required: false
+        type: boolean
+        default: false
+        description: 'Enable Slack notifications for workflow results.'
+      SLACK_MESSAGE:
+        required: false
+        type: string
+        default: 'Updated prowler workflow notification'
+        description: 'Message to display in Slack Notification'
+      SLACK_ENV:
+        required: false
+        type: string
+        default: ''
+        description: 'Workflow Environment to show in Slack Notification'
+      enable_gcp_key_auth:
+        required: false
+        type: boolean
+        default: false
+        description: 'Enable authentication using GCP_KEY (service account key JSON). If false, uses WIF.'
+
+    secrets:
+      WIP:
+        required: false
+        description: 'Workload Identity Provider'
+      SERVICE_ACCOUNT:
+        required: true
+        description: 'Google Cloud Service Account for authentication'
+      GCS_BUCKET_NAME:
+        required: false
+        description: 'GCS bucket to store the prowler reports.'
+      SLACK_WEBHOOK:
+        required: false
+        description: 'The slack channel webhook URL to send the notification'
+      SLACK_USERNAME:
+        required: false
+        description: 'The slack channel webhook URL to send the notification'
+      GCP_KEY:
+        required: false
+        description: 'GCP Service Account Key JSON'
+
+jobs:
+  prowler:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Install pip
+        run: |
+          sudo apt update
+          sudo apt install -y python3 python3-pip
+
+      - name: Install Prowler
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install prowler
+
+      - name: Authenticate with Google Cloud using GCP_KEY
+        if: ${{ inputs.cloud_provider == 'gcp' && inputs.enable_gcp_key_auth == true }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_KEY }}
+
+      - name: Authenticate with Google Cloud using WIF
+        if: ${{ inputs.cloud_provider == 'gcp' && inputs.enable_gcp_key_auth == false }}
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ secrets.WIP }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+
+
+      - name: Run Prowler for Multiple GCP Projects
+        if: ${{ inputs.cloud_provider == 'gcp' }}
+        id: prowler-gcp
+        run: |
+          IFS=',' read -ra PROJECTS <<< "${{ inputs.gcp_project_ids }}"
+          echo "Projects parsed: ${PROJECTS[@]}"
+          mkdir -p ${{ github.workspace }}/report/
+
+          for PROJECT in "${PROJECTS[@]}"; do
+            echo "Running Prowler scan for project: $PROJECT"
+            mkdir -p ${{ github.workspace }}/report/$PROJECT/
+            prowler gcp --project-ids "$PROJECT" -o ${{ github.workspace }}/report/$PROJECT/
+          done
+        continue-on-error: true
+
+      - name: Upload Artifact (If GCS Upload Disabled)
+        if: ${{ inputs.enable_gcs_upload == false }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: prowler-reports
+          path: ${{ github.workspace }}/report/
+          retention-days: ${{ inputs.retention_days }}
+
+      - name: Upload Prowler Results to GCS
+        if: ${{ inputs.enable_gcs_upload == true }}
+        run: |
+          IFS=',' read -ra PROJECTS <<< "${{ inputs.gcp_project_ids }}"
+          YEAR=$(date +'%Y')
+          MONTH=$(date +'%m')
+
+          for PROJECT in "${PROJECTS[@]}"; do
+            REPORT_PATH="${{ github.workspace }}/report/$PROJECT"
+            DEST_PATH="gs://${{ secrets.GCS_BUCKET_NAME }}/$PROJECT/$YEAR/$MONTH/"
+            echo "Uploading report for project: $PROJECT to $DEST_PATH"
+
+            if [ -d "$REPORT_PATH" ]; then
+              gcloud storage cp --recursive "$REPORT_PATH" "$DEST_PATH"
+            else
+              echo "⚠️  Report not found for project: $PROJECT. Skipping upload."
+            fi
+          done
+
+      - name: 'Notify Slack'
+        uses: clouddrove/action-slack-notify@1
+        if: ${{ inputs.enable_slack_notification == true }}
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_MESSAGE: ${{ inputs.SLACK_MESSAGE }}
+          SLACK_ENV: ${{ inputs.SLACK_ENV }}
+          SLACK_USERNAME: ${{ secrets.SLACK_USERNAME }}
+          SLACK_COLOR: ${{ job.status == 'success' && 'good' || job.status == 'failure' && 'danger' || 'warning' }}
+...
