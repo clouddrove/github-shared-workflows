@@ -291,13 +291,13 @@ jobs:
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
           access_token_lifetime: 300s
           project_id: ${{ inputs.gcp_project_id }}
-      
+
       - name: Authenticate Google Cloud with Service Account JSON Key
         if: inputs.gcp_auth_method == 'json'
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
-            
+
       - name: Docker Image Scan
         uses: clouddrove/smurf@v1.0.8
         with:
