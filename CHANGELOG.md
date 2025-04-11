@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] - 2025-04-11
+### :sparkles: New Features
+- [`e8ce9a2`](https://github.com/clouddrove/github-shared-workflows/commit/e8ce9a2818b816bad5d399775934975e89beebd5) - Shared Workflow to Run Prowler Security Scans on Multiple GCP Projects *(PR [#178](https://github.com/clouddrove/github-shared-workflows/pull/178) by [@Kkhandale2024](https://github.com/Kkhandale2024))*
+
+### :construction_worker: Build System
+- [`82b8ac6`](https://github.com/clouddrove/github-shared-workflows/commit/82b8ac69b3feab9a1a1734fb7d8b668403dc64ba) - **deps**: bump clouddrove/smurf from 1.0.6 to 1.0.7 *(PR [#177](https://github.com/clouddrove/github-shared-workflows/pull/177) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`6267b23`](https://github.com/clouddrove/github-shared-workflows/commit/6267b233f26033dd2a41d77e73e59edfd9dac8bb) - update CHANGELOG.md for 1.3.1 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.3.1] - 2025-04-03
 ### :bug: Bug Fixes
 - [`a4e71e1`](https://github.com/clouddrove/github-shared-workflows/commit/a4e71e150d762b728ef8e8bfba21baac3ff094f0) - added needs parameter in helm_lint_template job *(PR [#176](https://github.com/clouddrove/github-shared-workflows/pull/176) by [@Bharadwajshivam28](https://github.com/Bharadwajshivam28))*
@@ -239,3 +250,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.2.9]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.8...1.2.9
 [1.3.0]: https://github.com/clouddrove/github-shared-workflows/compare/1.2.9...1.3.0
 [1.3.1]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.0...1.3.1
+[1.3.2]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.1...1.3.2
