@@ -7,12 +7,10 @@ name: Smurf-Docker-Helm
         description: Set to true to run docker commands
         type: string
         required: false
-        default: 'true'
       aws_auth_method:
         description: AWS auth method to use like oidc and keys
         type: string
         required: false
-        default: 'oidc'
       aws_eks_cluster_name:
         description: AWS eks cluster name
         type: string
@@ -43,7 +41,6 @@ name: Smurf-Docker-Helm
         description: Set true for docker push
         type: string
         required: false
-        default: 'true'
       docker_buildkit_enable:
         description: Set true to enable docker buildkit
         type: string
@@ -144,6 +141,30 @@ name: Smurf-Docker-Helm
         type: string
         description: AWS assume role
         required: false
+      gcp_project_id:
+        required: false
+        type: string
+        description: 'ID of the default project to use for future API calls and invocations.'
+      gcp_auth_method:
+        description: GCP auth method to use like wip and json
+        type: string
+        required: false
+        default: 'wip'
+      gcp_docker_push:
+        description: Set to True to Push Images in GCP
+        type: string
+        required: false
+        default: 'false'
+      gcp_region:
+        required: false
+        type: string
+        description: GCP Region
+        default: 'us-central1'
+      gcp_gke_cluster_name:
+        description: GCP gke cluster name
+        type: string
+        required: false
+
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -154,6 +175,18 @@ name: Smurf-Docker-Helm
       AWS_SESSION_TOKEN:
         required: false
         description: AWS Session Token for direct authentication
+      GCP_WIP:
+        required: false
+        description: 'WIP Connected with Service Account'
+      GCP_SERVICE_ACCOUNT:
+        required: false
+        description: 'GCP service account'
+      GOOGLE_CREDENTIALS:
+        required: false
+        description: 'GCP service account JSON Key'
+      GCP_SERVICE_ACCOUNT_KEY:
+        required: false
+        description: 'GCP service account JSON Key'
       aws_set_parameters:
         required: false
         description: Overriding the default values using --set flag
@@ -171,7 +204,7 @@ jobs:
 
       - name: Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: sdkr
           command: >-
@@ -181,7 +214,7 @@ jobs:
 
       - name: Docker Image Build with Buildkit
         if: inputs.docker_buildkit_enable == 'true'
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: sdkr
           command: >-
@@ -249,29 +282,54 @@ jobs:
           fi
           aws configure set region $AWS_REGION
 
+      - name: Authenticate Google Cloud with WIP and Service Account
+        if: inputs.gcp_auth_method == 'wip'
+        uses: google-github-actions/auth@v2
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ secrets.GCP_WIP }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          access_token_lifetime: 300s
+          project_id: ${{ inputs.gcp_project_id }}
+
+      - name: Authenticate Google Cloud with Service Account JSON Key
+        if: inputs.gcp_auth_method == 'json'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+
       - name: Docker Image Scan
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: sdkr
           command: scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: sdkr
           command: >-
             tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
-            inputs.docker_registry_url }}:${{ inputs.docker_image_tag }}
+            inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
       - name: Docker Image Push
-        if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.0.7
+        if: inputs.docker_push == 'true'  && inputs.gcp_docker_push != 'true'
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: sdkr
           command: >-
             push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}:${{
             inputs.docker_image_tag }}
+
+      - name: Docker Image Push in GCP
+        if: inputs.docker_push == 'true' && inputs.gcp_docker_push == 'true'
+        uses: clouddrove/smurf@v1.0.8
+        with:
+          tool: sdkr
+          command: >-
+            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
+            inputs.docker_image_tag }} --project-id ${{ inputs.gcp_project_id }}
 
   helm_lint_template:
     if: inputs.helm_enable == 'true'
@@ -282,13 +340,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Helm Lint
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: selm
           command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
       - name: Helm Template
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: selm
           command: >-
@@ -335,32 +393,39 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=true" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
+          echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
+          echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
+          echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
+          echo "🔹 Setting up service account key credentials..."
+          echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
+        shell: bash
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: selm
           command: plugin ${{ inputs.helm_plugins }}
 
       - name: Add Helm Chart
         if: inputs.helm_repo_add == 'true'
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: selm
           command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
 
       - name: Update Helm Charts
         if: inputs.helm_repo_add == 'true'
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: selm
           command: repo update
 
       - name: Helm Deploy
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: selm
           command: >-
@@ -411,11 +476,17 @@ jobs:
       - name: Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-          echo "AWS_AUTH=true" >> $GITHUB_ENV
+          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
           echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
+          echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
+          echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
+          echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
+          echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
+        shell: bash
 
       - name: Helm Rollback
-        uses: clouddrove/smurf@v1.0.7
+        uses: clouddrove/smurf@v1.0.8
         with:
           tool: selm
           command: >-
