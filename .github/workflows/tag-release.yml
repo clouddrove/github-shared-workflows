@@ -1,4 +1,3 @@
----
 name: Release on PR Merge (Reusable)
 
 on:
@@ -101,4 +100,3 @@ jobs:
         else
           echo "✅ Released ${{ steps.calc_version.outputs.new_version }} successfully."
         fi
-...
