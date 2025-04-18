@@ -1,5 +1,6 @@
 ---
-"name": Release on PR Merge (Reusable)
+name: Release on PR Merge (Reusable)
+
 'on':
   workflow_call:
     inputs:
@@ -9,8 +10,10 @@
     secrets:
       GH_TOKEN:
         required: true
+
 permissions:
   contents: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -21,19 +24,19 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+
     - name: Set up Git
       run: >
-        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com" git config --global user.name "github-actions[bot]"
 
-        git config --global user.name "github-actions[bot]"
     - name: Install jq
       run: sudo apt-get update && sudo apt-get install -y jq
+
     - name: Get PR labels
       id: pr_labels
       run: >
-        LABELS=$(jq -r '.pull_request.labels | map(.name) | join(",")' "$GITHUB_EVENT_PATH")
+        LABELS=$(jq -r '.pull_request.labels | map(.name) | join(",")' "$GITHUB_EVENT_PATH") echo "labels=$LABELS" >> $GITHUB_OUTPUT
 
-        echo "labels=$LABELS" >> $GITHUB_OUTPUT
     - name: Check for no-tag label
       id: skip_tag
       run: |
@@ -42,6 +45,7 @@ jobs:
         else
           echo "skip=false" >> $GITHUB_OUTPUT
         fi
+
     - name: Get latest tag (or v0.0.0 if none)
       id: get_latest_tag
       run: |
@@ -51,6 +55,7 @@ jobs:
           LATEST_TAG="v0.0.0"
         fi
         echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
     - name: Calculate next version from latest tag and PR label
       id: calc_version
       if: steps.skip_tag.outputs.skip == 'false'
@@ -70,12 +75,12 @@ jobs:
         fi
         NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
         echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
     - name: Create GitHub tag for the new version
       if: steps.skip_tag.outputs.skip == 'false'
       run: >
-        git tag ${{ steps.calc_version.outputs.new_version }}
+        git tag ${{ steps.calc_version.outputs.new_version }} git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} ${{ steps.calc_version.outputs.new_version }}
 
-        git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} ${{ steps.calc_version.outputs.new_version }}
     - name: Create Release with Compare Link Only
       if: steps.skip_tag.outputs.skip == 'false'
       uses: ncipollo/release-action@v1
@@ -85,14 +90,11 @@ jobs:
         name: '${{ steps.calc_version.outputs.new_version }}'
         body: >
           https://github.com/${{ github.repository }}/compare/${{ steps.get_latest_tag.outputs.latest_tag }}...${{ steps.calc_version.outputs.new_version }}
+
     - name: Action Summary
-      run: "if [[ \"${{ steps.skip_tag.outputs.skip }}\" == \"true\" ]]; then
-
-        \  echo \"🚫 Release skipped due to 'no-tag' label.\"
-
+      run: |
+        if [[ "${{ steps.skip_tag.outputs.skip }}" == "true" ]]; then
+          echo "🚫 Release skipped due to 'no-tag' label."
         else
-
-        \  echo \"✅ Released ${{ steps.calc_version.outputs.new_version }} successfully.\"
-
-        fi\n"
+          echo "✅ Released ${{ steps.calc_version.outputs.new_version }} successfully."
 ...
