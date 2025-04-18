@@ -54,7 +54,7 @@ jobs:
         git fetch --tags
         LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
         if [ -z "$LATEST_TAG" ]; then
-        LATEST_TAG="v0.0.0"
+          LATEST_TAG="v0.0.0"
         fi
         echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
@@ -67,9 +67,9 @@ jobs:
         IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
         LABELS="${{ steps.pr_labels.outputs.labels }}"
         if [[ "$LABELS" == *"major"* ]]; then
-        MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0
+          MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0
         elif [[ "$LABELS" == *"minor"* ]]; then
-        MINOR=$((MINOR+1)); PATCH=0
+          MINOR=$((MINOR+1)); PATCH=0
         elif [[ "$LABELS" == *"patch"* ]]; then
           PATCH=$((PATCH+1))
         else
