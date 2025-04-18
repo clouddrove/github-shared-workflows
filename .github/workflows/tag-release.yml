@@ -14,12 +14,14 @@ on:
 permissions:
   contents: write
 
-  jobs:
-    release:
-      runs-on: ubuntu-latest
-      if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == inputs.target_branch }}
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: >
+      ${{ github.event.pull_request.merged == true &&
+          github.event.pull_request.base.ref == inputs.target_branch }}
 
-      steps:
+    steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
         with:
@@ -27,7 +29,8 @@ permissions:
 
       - name: Set up Git
         run: |
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
       - name: Install jq
@@ -36,7 +39,8 @@ permissions:
       - name: Get PR labels
         id: pr_labels
         run: |
-          LABELS=$(jq -r '.pull_request.labels | map(.name) | join(",")' "$GITHUB_EVENT_PATH")
+          LABELS=$(jq -r '.pull_request.labels |
+            map(.name) | join(",")' "$GITHUB_EVENT_PATH")
           echo "labels=$LABELS" >> $GITHUB_OUTPUT
 
       - name: Check for no-tag label
@@ -63,7 +67,7 @@ permissions:
         if: steps.skip_tag.outputs.skip == 'false'
         run: |
           BASE_VERSION="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          BASE_VERSION="${BASE_VERSION#v}" # Remove leading v
+          BASE_VERSION="${BASE_VERSION#v}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
           LABELS="${{ steps.pr_labels.outputs.labels }}"
           if [[ "$LABELS" == *"major"* ]]; then
@@ -82,7 +86,8 @@ permissions:
         if: steps.skip_tag.outputs.skip == 'false'
         run: |
           git tag ${{ steps.calc_version.outputs.new_version }}
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} ${{ steps.calc_version.outputs.new_version }}
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} \
+            ${{ steps.calc_version.outputs.new_version }}
 
       - name: Create Release with Compare Link Only
         if: steps.skip_tag.outputs.skip == 'false'
@@ -100,5 +105,5 @@ permissions:
             echo "🚫 Release skipped due to 'no-tag' label."
           else
             echo "✅ Released ${{ steps.calc_version.outputs.new_version }} successfully."
-          fi  
+
 ...
