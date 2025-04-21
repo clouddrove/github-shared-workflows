@@ -96,6 +96,7 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           tag: ${{ steps.calc_version.outputs.new_version }}
           name: ${{ steps.calc_version.outputs.new_version }}
+          makeLatest: true 
           body: |
             https://github.com/${{ github.repository }}/compare/${{ steps.get_latest_tag.outputs.latest_tag }}...${{ steps.calc_version.outputs.new_version }}
 
