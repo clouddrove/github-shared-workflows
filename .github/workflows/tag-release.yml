@@ -28,7 +28,9 @@ jobs:
           git config --global user.name "github-actions[bot]"
 
       - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
 
       - name: Get PR labels
         id: pr_labels
@@ -60,7 +62,7 @@ jobs:
         if: steps.skip_tag.outputs.skip == 'false'
         run: |
           BASE_VERSION="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          BASE_VERSION="${BASE_VERSION#v}" # Remove leading v
+          BASE_VERSION="${BASE_VERSION#v}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
           LABELS="${{ steps.pr_labels.outputs.labels }}"
           if [[ "$LABELS" == *"major"* ]]; then
@@ -107,7 +109,6 @@ jobs:
           makeLatest: true
           body: |
             ${{ steps.changelog.outputs.changes }}
-            
             [Compare changes](https://github.com/${{ github.repository }}/compare/${{ steps.get_latest_tag.outputs.latest_tag }}...${{ steps.calc_version.outputs.new_version }})
 
       - name: Commit CHANGELOG.md
@@ -117,7 +118,7 @@ jobs:
           branch: ${{ inputs.target_branch }}
           commit_user_name: clouddrove-ci
           commit_user_email: 84795582+clouddrove-ci@users.noreply.github.com
-          commit_author: CloudDrove CI <84795582+clouddrove-ci@users.noreply.github.com>
+          commit_author: "CloudDrove CI <84795582+clouddrove-ci@users.noreply.github.com>"
           commit_message: 'docs: update CHANGELOG.md for ${{ steps.calc_version.outputs.new_version }}'
           file_pattern: CHANGELOG.md
 
