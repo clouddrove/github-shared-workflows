@@ -26,12 +26,11 @@ Before merging a PR, apply one of the following labels to control the version bu
 ### Usage
 
 ```
-name: Release on PR Merge
+name: Tag Release
 
 on:
   pull_request:
     types: [closed]
-    branches: [main]
 
 jobs:
   release:
@@ -40,5 +39,4 @@ jobs:
       target_branch: master
     secrets:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 ```

@@ -1,4 +1,3 @@
----
 name: Release on PR Merge (Reusable)
 
 on:
@@ -11,15 +10,10 @@ on:
       GH_TOKEN:
         required: true
 
-permissions:
-  contents: write
-
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: >
-      ${{ github.event.pull_request.merged == true &&
-          github.event.pull_request.base.ref == inputs.target_branch }}
+    if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == inputs.target_branch }}
 
     steps:
       - name: Checkout the repository
@@ -29,8 +23,7 @@ jobs:
 
       - name: Set up Git
         run: |
-          git config --global user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
 
       - name: Install jq
@@ -39,8 +32,7 @@ jobs:
       - name: Get PR labels
         id: pr_labels
         run: |
-          LABELS=$(jq -r '.pull_request.labels |
-            map(.name) | join(",")' "$GITHUB_EVENT_PATH")
+          LABELS=$(jq -r '.pull_request.labels | map(.name) | join(",")' "$GITHUB_EVENT_PATH")
           echo "labels=$LABELS" >> $GITHUB_OUTPUT
 
       - name: Check for no-tag label
@@ -67,7 +59,7 @@ jobs:
         if: steps.skip_tag.outputs.skip == 'false'
         run: |
           BASE_VERSION="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          BASE_VERSION="${BASE_VERSION#v}"
+          BASE_VERSION="${BASE_VERSION#v}" # Remove leading v
           IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
           LABELS="${{ steps.pr_labels.outputs.labels }}"
           if [[ "$LABELS" == *"major"* ]]; then
@@ -86,19 +78,47 @@ jobs:
         if: steps.skip_tag.outputs.skip == 'false'
         run: |
           git tag ${{ steps.calc_version.outputs.new_version }}
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} \
-            ${{ steps.calc_version.outputs.new_version }}
+          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} ${{ steps.calc_version.outputs.new_version }}
 
-      - name: Create Release with Compare Link Only
+      - name: Generate Changelog
+        if: steps.skip_tag.outputs.skip == 'false'
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          tag: ${{ steps.calc_version.outputs.new_version }}
+          includeInvalidCommits: true
+          writeToFile: true
+          changelogFilePath: CHANGELOG.md
+          includeRefIssues: true
+          useGitmojis: true
+          reverseOrder: false
+
+      - name: Create Release
         if: steps.skip_tag.outputs.skip == 'false'
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.GH_TOKEN }}
           tag: ${{ steps.calc_version.outputs.new_version }}
           name: ${{ steps.calc_version.outputs.new_version }}
-          makeLatest: true 
+          allowUpdates: true
+          draft: false
+          makeLatest: true
           body: |
-            https://github.com/${{ github.repository }}/compare/${{ steps.get_latest_tag.outputs.latest_tag }}...${{ steps.calc_version.outputs.new_version }}
+            ${{ steps.changelog.outputs.changes }}
+            
+            [Compare changes](https://github.com/${{ github.repository }}/compare/${{ steps.get_latest_tag.outputs.latest_tag }}...${{ steps.calc_version.outputs.new_version }})
+
+      - name: Commit CHANGELOG.md
+        if: steps.skip_tag.outputs.skip == 'false'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          branch: ${{ inputs.target_branch }}
+          commit_user_name: clouddrove-ci
+          commit_user_email: 84795582+clouddrove-ci@users.noreply.github.com
+          commit_author: CloudDrove CI <84795582+clouddrove-ci@users.noreply.github.com>
+          commit_message: 'docs: update CHANGELOG.md for ${{ steps.calc_version.outputs.new_version }}'
+          file_pattern: CHANGELOG.md
 
       - name: Action Summary
         run: |
@@ -106,5 +126,5 @@ jobs:
             echo "🚫 Release skipped due to 'no-tag' label."
           else
             echo "✅ Released ${{ steps.calc_version.outputs.new_version }} successfully."
+          fi
 
-...
