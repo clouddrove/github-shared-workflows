@@ -129,4 +129,3 @@ jobs:
             echo "✅ Released ${{ steps.calc_version.outputs.new_version }} successfully."
           fi
 ...
-
