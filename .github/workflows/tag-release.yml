@@ -1,4 +1,5 @@
-name: Release on PR Merge (Reusable)
+---
+name: Tag-Release
 
 on:
   workflow_call:
@@ -127,4 +128,5 @@ jobs:
           else
             echo "✅ Released ${{ steps.calc_version.outputs.new_version }} successfully."
           fi
+...
 
