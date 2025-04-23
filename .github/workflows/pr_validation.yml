@@ -1,36 +1,74 @@
 name: 'PR Validation'
+
 on:
-  workflow_call:  # Required for reusable workflows
+  workflow_call:
     inputs:
-      allowed_types:
-        description: 'Optional comma-separated types (default: all standard types)'
+      pr-types:
+        description: 'Types allowed for PR titles'
+        required: false
         type: string
-        default: ''
-      require_scope:
-        description: 'Require scope in PR titles'
+        default: |
+          fix
+          feat
+          docs
+          ci
+          chore
+          test
+          refactor
+          style
+          perf
+          build
+          revert
+      commit-types:
+        description: 'Types allowed for commit messages'
+        required: false
+        type: string
+        default: |
+          feat
+          fix
+          docs
+          style
+          refactor
+          perf
+          test
+          chore
+          revert
+      require-scope:
+        description: 'Require scope in PR title'
+        required: false
         type: boolean
         default: false
-      allow_wip:
+      wip-allowed:
         description: 'Allow WIP PRs'
+        required: false
         type: boolean
         default: true
-
-  # Original trigger (kept if workflow needs to run standalone)
-  pull_request_target:
-    types: [opened, edited, synchronize, reopened]
+    secrets:
+      GITHUB_TOKEN:
+        required: true
 
 jobs:
-  validate-title:
+  validate-pr-title:
+    name: Validate PR title
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      statuses: write
     steps:
-      - uses: amannn/action-semantic-pull-request@v5
+      - uses: amannn/action-semantic-pull-request@v5.5.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          types: |
-            ${{ inputs.allowed_types != '' && fromJSON(format('["{0}"]', inputs.allowed_types)).join('\n') || 'feat\nfix\ndocs\nci\nchore\ntest\nrefactor\nstyle\nperf\nbuild\nrevert' }}
-          requireScope: ${{ inputs.require_scope }}
-          wip: ${{ inputs.allow_wip }}
+          types: ${{ inputs.pr-types }}
+          requireScope: ${{ inputs.require-scope }}
+          subjectPattern: ^[A-Z].+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}" didn't match the configured pattern.
+            Please ensure that the subject starts with an uppercase character.
+          wip: ${{ inputs.wip-allowed }}
+          validateSingleCommit: false
+          scopes: |
+            *
 
   validate-commits:
     runs-on: ubuntu-latest
@@ -38,8 +76,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: webiny/action-conventional-commits@v1.3.0
+      - name: Validate Commit Messages
+        uses: webiny/action-conventional-commits@v1.3.0
         with:
           subject_case: false
-          types: |
-            ${{ inputs.allowed_types != '' && fromJSON(format('["{0}"]', inputs.allowed_types)).join('\n') || 'feat\nfix\ndocs\nci\nchore\ntest\nrefactor\nstyle\nperf\nbuild\nrevert' }}
+          types: ${{ inputs.commit-types }}
