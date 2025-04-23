@@ -1,71 +1,36 @@
 name: 'PR Validation'
-
 on:
   workflow_call:
-    inputs:
-      pr-types:
-        description: 'Types allowed for PR titles'
-        required: false
-        type: string
-        default: |
-          fix
-          feat
-          docs
-          ci
-          chore
-          test
-          refactor
-          style
-          perf
-          build
-          revert
-      commit-types:
-        description: 'Types allowed for commit messages'
-        required: false
-        type: string
-        default: |
-          feat
-          fix
-          docs
-          style
-          refactor
-          perf
-          test
-          chore
-          revert
-      require-scope:
-        description: 'Require scope in PR title'
-        required: false
-        type: boolean
-        default: false
-      wip-allowed:
-        description: 'Allow WIP PRs'
-        required: false
-        type: boolean
-        default: true
-    secrets:
-      GITHUB_TOKEN:
-        required: true
+    # No inputs needed as this is a complete validation workflow
 
 jobs:
-  validate-pr-title:
+  validate-title:
     name: Validate PR title
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-      statuses: write
     steps:
       - uses: amannn/action-semantic-pull-request@v5.5.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          types: ${{ inputs.pr-types }}
-          requireScope: ${{ inputs.require-scope }}
+          types: |
+            fix
+            feat
+            docs
+            ci
+            chore
+            test
+            refactor
+            style
+            perf
+            build
+            revert
+          requireScope: false
           subjectPattern: ^[A-Z].+$
           subjectPatternError: |
-            The subject "{subject}" found in the pull request title "{title}" didn't match the configured pattern.
-            Please ensure that the subject starts with an uppercase character.
-          wip: ${{ inputs.wip-allowed }}
+            The subject "{subject}" found in the pull request title "{title}"
+            didn't match the configured pattern. Please ensure that the subject
+            starts with an uppercase character.
+          wip: true
           validateSingleCommit: false
           scopes: |
             *
@@ -76,8 +41,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Validate Commit Messages
         uses: webiny/action-conventional-commits@v1.3.0
         with:
           subject_case: false
-          types: ${{ inputs.commit-types }}
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            chore
+            revert
