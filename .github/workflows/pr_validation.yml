@@ -3,9 +3,9 @@ on:
   workflow_call:  # Required for reusable workflows
     inputs:
       allowed_types:
-        description: 'Allowed commit types'
+        description: 'Optional comma-separated types (default: all standard types)'
         type: string
-        default: 'fix,feat,docs,ci,chore,test,refactor,style,perf,build,revert'
+        default: ''
       require_scope:
         description: 'Require scope in PR titles'
         type: boolean
@@ -27,7 +27,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          types: ${{ inputs.allowed_types }}
+          types: |
+            ${{ inputs.allowed_types != '' && fromJSON(format('["{0}"]', inputs.allowed_types)).join('\n') || 'feat\nfix\ndocs\nci\nchore\ntest\nrefactor\nstyle\nperf\nbuild\nrevert' }}
           requireScope: ${{ inputs.require_scope }}
           wip: ${{ inputs.allow_wip }}
 
@@ -40,4 +41,5 @@ jobs:
       - uses: webiny/action-conventional-commits@v1.3.0
         with:
           subject_case: false
-          types: ${{ inputs.allowed_types }}
+          types: |
+          ${{ inputs.allowed_types != '' && fromJSON(format('["{0}"]', inputs.allowed_types)).join('\n') || 'feat\nfix\ndocs\nci\nchore\ntest\nrefactor\nstyle\nperf\nbuild\nrevert' }}
