@@ -1,23 +1,26 @@
 name: 'PR Validation'
 on:
-  workflow_call:
+  workflow_call:  # Required for reusable workflows
     inputs:
       allowed_types:
         description: 'Allowed commit types'
-        required: false
+        type: string
         default: 'fix,feat,docs,ci,chore,test,refactor,style,perf,build,revert'
       require_scope:
         description: 'Require scope in PR titles'
-        required: false
+        type: boolean
         default: false
       allow_wip:
         description: 'Allow WIP PRs'
-        required: false
+        type: boolean
         default: true
+
+  # Original trigger (kept if workflow needs to run standalone)
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
 
 jobs:
   validate-title:
-    name: Validate PR Title
     runs-on: ubuntu-latest
     steps:
       - uses: amannn/action-semantic-pull-request@v5
@@ -26,11 +29,9 @@ jobs:
         with:
           types: ${{ inputs.allowed_types }}
           requireScope: ${{ inputs.require_scope }}
-          subjectPattern: ^[A-Z].+$
           wip: ${{ inputs.allow_wip }}
 
   validate-commits:
-    name: Validate Commit Messages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
