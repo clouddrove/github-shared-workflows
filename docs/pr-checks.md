@@ -1,9 +1,9 @@
 
 ---
 
-## [PR Validation Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/pr_validation.yml)
+## [PR Validation Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/pr_checks.yml)
 
-This workflow automatically validates pull request titles, commit messages, and labels against conventional commit standards. `.github/workflows/pr_validation.yml`
+This workflow automatically validates pull request titles, commit messages, and labels against conventional commit standards. `.github/workflows/pr_checks.yml`
 
 ### Overview
 Automatically validates:
@@ -37,7 +37,7 @@ on:
 
 jobs:
   pr-validation:
-    uses: clouddrove/github-shared-workflows/.github/workflows/pr_validation.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/pr_checks.yml@master
     secrets: inherit
     with:
       types: |
