@@ -17,21 +17,22 @@ on:
           perf
           build
           revert
-
       requireScope:
         required: false
         type: boolean
         default: false
-
       subjectPattern:
         required: false
         type: string
         default: '^[A-Z].+$'
-
       validateSingleCommit:
         required: false
         type: boolean
         default: false
+      checkLabels:
+        required: false
+        type: boolean
+        default: true  # Enabled by default
 
 jobs:
   validate-title:
@@ -53,6 +54,19 @@ jobs:
           validateSingleCommit: ${{ inputs.validateSingleCommit }}
           scopes: |
             *
+
+      # Add label check step
+      - name: Check PR labels
+        if: ${{ inputs.checkLabels }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -z "$(gh api repos/$GITHUB_REPOSITORY/issues/${{ github.event.pull_request.number }}/labels --jq '.[].name')" ]; then
+            echo "::error::No labels found on this PR. Please add at least one label."
+            exit 1
+          else
+            echo "PR has labels, validation passed."
+          fi
 
   validate-commits:
     runs-on: ubuntu-latest
