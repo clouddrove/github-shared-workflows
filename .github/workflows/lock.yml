@@ -33,15 +33,15 @@ jobs:
         with:
           github-token: ${{ secrets.github-token }}
           issue-comment: >
-            I'm going to lock this issue because it has been closed for *30 days* ⏳. This helps our maintainers find and focus on the active issues.
+            I'm going to lock this issue because it has been closed for *${{ inputs.issue-inactive-days }} days* ⏳. This helps our maintainers find and focus on the active issues.
             If you have found a problem that seems similar to this, please open a new issue and complete the issue template so we can capture all the details necessary to investigate further.
           issue-inactive-days: ${{ inputs.issue-inactive-days }}
           pr-comment: >
-            I'm going to lock this pull request because it has been closed for *30 days* ⏳. This helps our maintainers find and focus on the active issues.
+            I'm going to lock this pull request because it has been closed for *${{ inputs.pr-inactive-days }} days* ⏳. This helps our maintainers find and focus on the active issues.
             If you have found a problem that seems related to this change, please open a new issue and complete the issue template so we can capture all the details necessary to investigate further.
           pr-inactive-days: ${{ inputs.pr-inactive-days }}
           discussion-comment: >
-            I'm going to lock this pull request because it has been closed for *30 days* ⏳. This helps our maintainers find and focus on the active issues.
+            I'm going to lock this pull request because it has been closed for *${{ inputs.discussion-inactive-days }} days* ⏳. This helps our maintainers find and focus on the active issues.
             If you have found a problem that seems related to this change, please open a new issue and complete the issue template so we can capture all the details necessary to investigate further.
           discussion-inactive-days: ${{ inputs.discussion-inactive-days }}
 ...
