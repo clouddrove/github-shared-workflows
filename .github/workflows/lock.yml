@@ -11,7 +11,7 @@ on:
         description: 'Number of days of inactivity before a closed pull request is locked'
         type: number
         default: '30'
-      discussion-inactive-days: 
+      discussion-inactive-days:
         description: 'Number of days of inactivity before a closed discussion is locked'
         type: number
         default: '30'
@@ -19,8 +19,6 @@ on:
     secrets:
       github-token:
         required: true
-
-
 
 permissions:
   issues: write
