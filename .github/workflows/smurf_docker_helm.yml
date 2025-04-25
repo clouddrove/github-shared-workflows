@@ -149,7 +149,6 @@ name: Smurf-Docker-Helm
         description: GCP auth method to use like wip and json
         type: string
         required: false
-        default: 'wip'
       gcp_docker_push:
         description: Set to True to Push Images in GCP
         type: string
