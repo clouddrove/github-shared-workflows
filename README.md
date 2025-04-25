@@ -73,6 +73,9 @@ Above example is just a simple example to call workflow from github shared workf
 14. [ AWS SSM Send Command workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/AWSSSMSendCommand.md)
 15. [ Remote SSH Command workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/RemoteSSHCommand.md)
 16. [ Prowler workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/prowler.md)
+17. [Stale PR workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/stale-pr.md)
+18. [PR Checks workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/pr-checks.md)
+19. [Tag Release workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/tag-release.md)
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
