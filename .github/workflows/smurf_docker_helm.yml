@@ -423,6 +423,12 @@ jobs:
           tool: selm
           command: repo update
 
+      - name: 'Application Deployment Using Helm'
+        env:
+          IMAGE_TAG: ${{ github.run_id }}
+        run: |
+          aws eks --region ${{ inputs.aws_region }}  update-kubeconfig --name ${{ inputs.aws_eks_cluster_name }}
+
       - name: Helm Deploy
         uses: clouddrove/smurf@v1.0.8
         with:
