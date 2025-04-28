@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.4] - 2025-04-28
+### :sparkles: New Features
+- [`6a0b100`](https://github.com/clouddrove/github-shared-workflows/commit/6a0b1005bd7a4223686d61eda89cf221dd15abbb) - Added shared workflow for stale pr *(commit by [@NotMaharshi](https://github.com/NotMaharshi))*
+- [`a135a00`](https://github.com/clouddrove/github-shared-workflows/commit/a135a009cedcee1fa974148dc29b48692d8a6597) - Added pr-validation workflow *(PR [#183](https://github.com/clouddrove/github-shared-workflows/pull/183) by [@NotMaharshi](https://github.com/NotMaharshi))*
+- [`0a11835`](https://github.com/clouddrove/github-shared-workflows/commit/0a1183577f26708afa14924753f04ecd201efe5b) - Addend pr-lock workflow *(PR [#184](https://github.com/clouddrove/github-shared-workflows/pull/184) by [@ruchit-sharma09](https://github.com/ruchit-sharma09))*
+
+### :bug: Bug Fixes
+- [`8642463`](https://github.com/clouddrove/github-shared-workflows/commit/8642463d3707fe58114fb5f05c2d4102a1e59221) - removed secret *(commit by [@NotMaharshi](https://github.com/NotMaharshi))*
+- [`af03010`](https://github.com/clouddrove/github-shared-workflows/commit/af0301085d72ea072fb4defa27ad550fca74b095) - yaml syntax to pass yaml lint workflow *(commit by [@NotMaharshi](https://github.com/NotMaharshi))*
+- [`7751365`](https://github.com/clouddrove/github-shared-workflows/commit/7751365b06ec3c42e5de4e42efadd67fda4ec703) - Added readme for stale-pr *(commit by [@NotMaharshi](https://github.com/NotMaharshi))*
+- [`39fc043`](https://github.com/clouddrove/github-shared-workflows/commit/39fc043f6ab4744463156710c76141c0aadae0e2) - Removed the default attribute that was causing issues in AWS and added the required argument for Docker push *(PR [#186](https://github.com/clouddrove/github-shared-workflows/pull/186) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+
+### :memo: Documentation Changes
+- [`6000f0b`](https://github.com/clouddrove/github-shared-workflows/commit/6000f0ba3f55bbaf5349eaeb42851588f8e37093) - update CHANGELOG.md for 1.3.3 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+- [`dedb80c`](https://github.com/clouddrove/github-shared-workflows/commit/dedb80cf6c1855e013a47f3c0c68faf7de3fae1d) - Updated README *(commit by [@NotMaharshi](https://github.com/NotMaharshi))*
+
+
 ## [1.3.3] - 2025-04-11
 ### :memo: Documentation Changes
 - [`4f30c9a`](https://github.com/clouddrove/github-shared-workflows/commit/4f30c9add46ddfe734a5fa09d7127baaef71d756) - update CHANGELOG.md for 1.3.2 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
@@ -257,3 +274,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.1]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.0...1.3.1
 [1.3.2]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.1...1.3.2
 [1.3.3]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.2...1.3.3
+[1.3.4]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.3...1.3.4
