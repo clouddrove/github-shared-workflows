@@ -104,8 +104,8 @@ on:
         required: false
         description: 'The service account to be used'
       SSH_PRIVATE_KEY:
-          required: false
-          description: 'Private SSH key to register in the SSH agent'
+        required: false
+        description: 'Private SSH key to register in the SSH agent'
 
 jobs:
   terraform-workflow:
