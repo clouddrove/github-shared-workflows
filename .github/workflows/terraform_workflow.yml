@@ -107,7 +107,7 @@ jobs:
   terraform-workflow:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target_environment }}
-    
+
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
