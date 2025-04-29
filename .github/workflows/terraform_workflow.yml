@@ -120,7 +120,7 @@ jobs:
       - uses: webfactory/ssh-agent@v0.9.0
         if: ${{ inputs.git_ssh_key_setup == true }}
         with:
-            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Set environment variables
         run: |
