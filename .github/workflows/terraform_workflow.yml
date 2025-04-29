@@ -66,6 +66,12 @@ on:
         type: string
         default: true
         description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+      git_ssh_key_setup:
+        required: false
+        type: bool
+        default: false
+        description: 'If true, sets up SSH keys for Git access to clone private repositories.'
+
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -97,6 +103,9 @@ on:
       SERVICE_ACCOUNT:
         required: false
         description: 'The service account to be used'
+      SSH_PRIVATE_KEY:
+          required: false
+          description: 'Private SSH key to register in the SSH agent'
 
 jobs:
   terraform-workflow:
@@ -107,6 +116,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - uses: webfactory/ssh-agent@v0.9.0
+        if: ${{ inputs.git_ssh_key_setup == true }}
+        with:
+            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Set environment variables
         run: |
