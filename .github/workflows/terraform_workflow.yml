@@ -66,6 +66,11 @@ on:
         type: string
         default: true
         description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+      target_environment:
+        description: "Name of the deployment environment (e.g., dev, staging, prod). Leave empty if no environment-specific context is needed."
+        required: false
+        type: string
+        default: ""
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -101,6 +106,8 @@ on:
 jobs:
   terraform-workflow:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
