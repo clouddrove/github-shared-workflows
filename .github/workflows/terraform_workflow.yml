@@ -71,7 +71,6 @@ on:
         type: bool
         default: false
         description: 'If true, sets up SSH keys for Git access to clone private repositories.'
-
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -110,6 +109,8 @@ on:
 jobs:
   terraform-workflow:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+
     outputs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
