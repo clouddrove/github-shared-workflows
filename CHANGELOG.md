@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.5] - 2025-04-30
+### :sparkles: New Features
+- [`770b422`](https://github.com/clouddrove/github-shared-workflows/commit/770b422758d4f99292c2db4cca45365a33d35431) - called v1.0.9 smurf tag *(PR [#190](https://github.com/clouddrove/github-shared-workflows/pull/190) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+- [`e6a9756`](https://github.com/clouddrove/github-shared-workflows/commit/e6a9756f3a8ba0eb6ea02c8f8b13c99e58caa7a5) - add functionality to conditionally create environment  If no environment is passed, no environment will be created. *(PR [#188](https://github.com/clouddrove/github-shared-workflows/pull/188) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+
+### :memo: Documentation Changes
+- [`ac8cce2`](https://github.com/clouddrove/github-shared-workflows/commit/ac8cce295c3a8d3c897bc86a1bc59164ecda5788) - update CHANGELOG.md for 1.3.4 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.3.4] - 2025-04-28
 ### :sparkles: New Features
 - [`6a0b100`](https://github.com/clouddrove/github-shared-workflows/commit/6a0b1005bd7a4223686d61eda89cf221dd15abbb) - Added shared workflow for stale pr *(commit by [@NotMaharshi](https://github.com/NotMaharshi))*
@@ -275,3 +284,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.2]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.1...1.3.2
 [1.3.3]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.2...1.3.3
 [1.3.4]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.3...1.3.4
+[1.3.5]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.4...1.3.5
