@@ -102,6 +102,11 @@ on:
       SERVICE_ACCOUNT:
         required: false
         description: 'The service account to be used'
+      target_environment:
+        description: "Name of the deployment environment (e.g., dev, staging, prod). Leave empty if no environment-specific context is needed."
+        required: false
+        type: string
+        default: ""
       SSH_PRIVATE_KEY:
         required: false
         description: 'Private SSH key to register in the SSH agent'
