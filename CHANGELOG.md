@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.6] - 2025-04-30
+### :sparkles: New Features
+- [`37c6447`](https://github.com/clouddrove/github-shared-workflows/commit/37c6447da54e0b9c5fea3abe0c3fcaa93269ebe4) - added functionality to clone private repos in terraform source *(PR [#187](https://github.com/clouddrove/github-shared-workflows/pull/187) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+
+### :memo: Documentation Changes
+- [`9afe2a7`](https://github.com/clouddrove/github-shared-workflows/commit/9afe2a76fb8a5fa1d2d130db9fac6f0a54769afa) - update CHANGELOG.md for 1.3.5 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.3.5] - 2025-04-30
 ### :sparkles: New Features
 - [`770b422`](https://github.com/clouddrove/github-shared-workflows/commit/770b422758d4f99292c2db4cca45365a33d35431) - called v1.0.9 smurf tag *(PR [#190](https://github.com/clouddrove/github-shared-workflows/pull/190) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
@@ -285,3 +293,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.3]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.2...1.3.3
 [1.3.4]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.3...1.3.4
 [1.3.5]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.4...1.3.5
+[1.3.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.5...1.3.6
