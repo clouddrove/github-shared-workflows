@@ -66,5 +66,5 @@ jobs:
           base: ${{ inputs.terraform_directory }}/plan-target.txt
           head: ${{ inputs.terraform_directory }}/plan-pr.txt
           label: Terraform Plan Changes
-          token: ${{ secrets.GITHUB_TOKEN }}      
+          token: ${{ secrets.GITHUB_TOKEN }}
 ---
