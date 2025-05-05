@@ -24,9 +24,9 @@ on:
 
 jobs:
   terraform-plan-diff:
-      runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-      steps:
+    steps:
       - name: Checkout PR branch
         uses: actions/checkout@v3
         with:
