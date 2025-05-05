@@ -30,47 +30,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Cleanup Old SARIF
-      run: rm -f results.sarif || true
+      - name: Cleanup Old SARIF
+        run: rm -f results.sarif || true
 
-    - name: Run Checkov (Docker-based)
-      id: checkov
-      continue-on-error: true
-      uses: bridgecrewio/checkov-action@v12
-      with:
-        directory: ${{ inputs.directory }}
-        framework: terraform
-        soft_fail: ${{ inputs.continue_on_error == 'true' }}
-        var_file: ${{ inputs.var_file }}
-        download_external_modules: false
-        skip_check: ${{ inputs.skip_check }}
-        output_format: cli,sarif
-        output_file_path: console,results.sarif
+      - name: Run Checkov (Docker-based)
+        id: checkov
+        continue-on-error: true
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: ${{ inputs.directory }}
+          framework: terraform
+          soft_fail: ${{ inputs.continue_on_error == 'true' }}
+          var_file: ${{ inputs.var_file }}
+          download_external_modules: false
+          skip_check: ${{ inputs.skip_check }}
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
 
-    - name: Upload SARIF to GitHub Security
-      if: always() && !cancelled()
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: results.sarif
-        category: checkov
+      - name: Upload SARIF to GitHub Security
+        if: always() && !cancelled()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+          category: checkov
 
-    - name: Comment on PR with Checkov results
-      if: github.event_name == 'pull_request'
-      uses: vedkops/checckov-commter@v1.2
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        sarif_file: results.sarif
+      - name: Comment on PR with Checkov results
+        if: github.event_name == 'pull_request'
+        uses: vedkops/checckov-commter@v1.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sarif_file: results.sarif
 
-    - name: Fail if Issues Found
-      if: always() && github.event_name == 'pull_request'
-      run: |
-        ISSUE_COUNT=$(jq '.runs[0].results | length' results.sarif)
-        echo "Checkov Issue Count: $ISSUE_COUNT"
-        if [ "$ISSUE_COUNT" -gt 0 ]; then
-          echo "::error::Checkov found $ISSUE_COUNT security issues. Failing the workflow."
-          exit 1
-        fi
+      - name: Fail if Issues Found
+        if: always() && github.event_name == 'pull_request'
+        run: |
+          ISSUE_COUNT=$(jq '.runs[0].results | length' results.sarif)
+          echo "Checkov Issue Count: $ISSUE_COUNT"
+          if [ "$ISSUE_COUNT" -gt 0 ]; then
+            echo "::error::Checkov found $ISSUE_COUNT security issues. Failing the workflow."
+            exit 1
 ...
+
