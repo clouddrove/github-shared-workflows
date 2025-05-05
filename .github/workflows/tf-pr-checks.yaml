@@ -67,4 +67,3 @@ jobs:
           head: ${{ inputs.terraform_directory }}/plan-pr.txt
           label: Terraform Plan Changes
           token: ${{ secrets.GITHUB_TOKEN }}
-...
