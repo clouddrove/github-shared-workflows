@@ -76,6 +76,7 @@ Above example is just a simple example to call workflow from github shared workf
 17. [Stale PR workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/stale-pr.md)
 18. [PR Checks workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/pr-checks.md)
 19. [Tag Release workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/tag-release.md)
+20. [Terraform PR plan Diff workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/tf-pr-checks.md)
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
