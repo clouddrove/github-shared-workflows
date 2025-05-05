@@ -72,5 +72,5 @@ jobs:
           if [ "$ISSUE_COUNT" -gt 0 ]; then
             echo "::error::Checkov found $ISSUE_COUNT security issues. Failing the workflow."
             exit 1
+          fi
 ...
-
