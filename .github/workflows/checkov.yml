@@ -18,15 +18,14 @@ on:
         required: false
         type: string
         default: ''
-      output_format:               
+      output_format:
         required: false
         type: string
         default: 'cli,sarif'
-      output_file_path:       
+      output_file_path:
         required: false
         type: string
         default: 'console,results.sarif'
-
 
 permissions:
   contents: read
