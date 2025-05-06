@@ -27,6 +27,7 @@ jobs:
   complete-example:
     uses: clouddrove/github-shared-workflows/.github/workflows/tf-pr-checks.yaml@tf-master
     with:
+      provider: 'azurerm'
       terraform_directory: 'examples/complete'
       target_branch: 'master'
     secrets:
