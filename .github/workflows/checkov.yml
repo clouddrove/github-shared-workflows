@@ -18,6 +18,14 @@ on:
         required: false
         type: string
         default: ''
+       output_format:
+        required: false
+        type: string
+        default: 'cli,sarif'  
+       output_file_path:
+        required: false
+        type: string
+        default: 'console,results.sarif' 
 
 permissions:
   contents: read
@@ -47,8 +55,8 @@ jobs:
           var_file: ${{ inputs.var_file }}
           download_external_modules: false
           skip_check: ${{ inputs.skip_check }}
-          output_format: cli,sarif
-          output_file_path: console,results.sarif
+          output_format: ${{ inputs.output_format }}
+          output_file_path: ${{ inputs.output_file_path }}
 
       - name: Upload SARIF to GitHub Security
         if: always() && !cancelled()
@@ -59,7 +67,7 @@ jobs:
 
       - name: Comment on PR with Checkov results
         if: github.event_name == 'pull_request'
-        uses: vedkops/checckov-commter@v1.2
+        uses: clouddrove/checkov-sarif-view@v0.0.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sarif_file: results.sarif
