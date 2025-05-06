@@ -68,7 +68,7 @@ on:
         description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
       git_ssh_key_setup:
         required: false
-        type: bool
+        type: string
         default: false
         description: 'If true, sets up SSH keys for Git access to clone private repositories.'
       target_environment:
