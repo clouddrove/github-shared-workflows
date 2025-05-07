@@ -137,7 +137,7 @@ jobs:
           # Split the input strings into arrays using ',' as delimiter
           IFS=',' read -ra REPO_NAMES <<< "${{ inputs.dependency_repo_name }}"
           IFS=',' read -ra REPO_URLS <<< "${{ inputs.dependency_repo_url }}"
-          
+
           # Loop through the arrays and add each Helm repo
           for i in "${!REPO_NAMES[@]}"; do
             echo "Adding repo ${REPO_NAMES[$i]} -> ${REPO_URLS[$i]}"
