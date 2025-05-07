@@ -131,17 +131,17 @@ jobs:
             aws eks update-kubeconfig --name ${{ inputs.eks-cluster-name }} --region ${{ inputs.aws_region }}
           fi
 
-      - name: helm lint
-        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
-        run: |
-          helm lint ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
-
       - name: helm dependency build
         if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true}}
         run: |
           helm repo add ${{ inputs.dependency_repo_name }} ${{ inputs.dependency_repo_url }}
           helm repo update
           helm dependency build ${{ inputs.helm-chart-directory }}
+
+      - name: helm lint
+        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+        run: |
+          helm lint ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
       - name: helm template
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
