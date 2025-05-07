@@ -48,10 +48,22 @@ on:
         required: false
         type: string
         description: 'Boundary for Kubernetes resources'
+      dependency_repo_name:
+        required: false
+        type: string
+        description: 'Dependency Repo Name'
+      dependency_repo_url:
+        required: false
+        type: string
+        description: 'Dependency Repo URL'
       rollback:
         required: false
         type: boolean
         description: 'Environment name for rollback'
+      dependencies:
+        required: false
+        type: boolean
+        description: 'Install chart dependencies or not'
       revision:
         required: false
         type: number
@@ -123,6 +135,13 @@ jobs:
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
           helm lint ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
+
+      - name: helm dependency build
+        if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true}}
+        run: |
+          helm repo add ${{ inputs.dependency_repo_name }} ${{ inputs.dependency_repo_url }}
+          helm repo update
+          helm dependency build ${{ inputs.helm-chart-directory }}
 
       - name: helm template
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
