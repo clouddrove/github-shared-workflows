@@ -5,7 +5,7 @@ on:
   workflow_call:
     inputs:
       provider:
-        required: false
+        required: true
         type: string
         description: 'Cloud provider to run the workflow. e.g. azure or aws'
       eks-cluster-name:
@@ -33,7 +33,7 @@ on:
         type: string
         description: 'Unique ID for installed chart'
       timeout:
-        required: false
+        required: true
         type: string
         description: 'Timeout for helm install step in seconds'
       values-file-path:
@@ -41,7 +41,7 @@ on:
         type: string
         description: 'Values file path from helm chart directory'
       history-max:
-        required: false
+        required: true
         type: number
         description: 'number of revisions stored in the revision history.'
       namespace:
@@ -105,41 +105,34 @@ jobs:
       - name: Checkout git repo
         uses: actions/checkout@v4
 
-      # - name: Configure AWS credentials
-      #   if: ${{ inputs.provider == 'aws' }}
-      #   uses: aws-actions/configure-aws-credentials@v4
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-      #     role-to-assume: ${{ secrets.BUILD_ROLE }}
-      #     aws-region: ${{ inputs.aws_region }}
-      #     role-duration-seconds: ${{ inputs.role-duration-seconds }}
-      #     role-skip-session-tagging: true
+      - name: Configure AWS credentials
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: ${{ inputs.role-duration-seconds }}
+          role-skip-session-tagging: true
 
-      # - name: Install Azure CLI
-      #   if: ${{ inputs.provider == 'azure' }}
-      #   uses: azure/login@v2
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Install Azure CLI
+        if: ${{ inputs.provider == 'azure' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # - name: Update Kubeconfig
-      #   run: |
-      #     if [ "${{ inputs.provider }}" = "azure" ]; then
-      #       az aks get-credentials --resource-group ${{ inputs.resource-group }} --name ${{ inputs.azure-cluster-name }}
-      #     else
-      #       aws eks update-kubeconfig --name ${{ inputs.eks-cluster-name }} --region ${{ inputs.aws_region }}
-      #     fi
-
-      # - name: helm dependency build
-      #   if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true}}
-      #   run: |
-      #     helm repo add ${{ inputs.dependency_repo_name }} ${{ inputs.dependency_repo_url }}
-      #     helm repo update
-      #     helm dependency build ${{ inputs.helm-chart-directory }}
+      - name: Update Kubeconfig
+        run: |
+          if [ "${{ inputs.provider }}" = "azure" ]; then
+            az aks get-credentials --resource-group ${{ inputs.resource-group }} --name ${{ inputs.azure-cluster-name }}
+          else
+            aws eks update-kubeconfig --name ${{ inputs.eks-cluster-name }} --region ${{ inputs.aws_region }}
+          fi
 
       - name: helm dependency build
-        # if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true }}
+        if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true }}
         run: |
           # Split the input strings into arrays using ',' as delimiter
           IFS=',' read -ra REPO_NAMES <<< "${{ inputs.dependency_repo_name }}"
@@ -154,36 +147,35 @@ jobs:
           helm repo update
           helm dependency build "${{ inputs.helm-chart-directory }}"
 
+      - name: helm lint
+        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+        run: |
+          helm lint ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
-      # - name: helm lint
-      #   if: ${{ inputs.rollback != true && inputs.uninstall != true }}
-      #   run: |
-      #     helm lint ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
+      - name: helm template
+        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+        run: |
+          helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
-      # - name: helm template
-      #   if: ${{ inputs.rollback != true && inputs.uninstall != true }}
-      #   run: |
-      #     helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
+      - name: helm install and upgrade2
+        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+        run: |
+          if [ -n "${{ secrets.set-parameters }}" ]; then
+            helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace ${{ secrets.set-parameters }} \
+              --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
+          else
+            helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace \
+              --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
+          fi
 
-      # - name: helm install and upgrade2
-      #   if: ${{ inputs.rollback != true && inputs.uninstall != true }}
-      #   run: |
-      #     if [ -n "${{ secrets.set-parameters }}" ]; then
-      #       helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace ${{ secrets.set-parameters }} \
-      #         --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
-      #     else
-      #       helm upgrade --install ${{ inputs.release-name }} ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }} --namespace=${{ inputs.namespace }} --create-namespace \
-      #         --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
-      #     fi
+      - name: Rollback Helm Release
+        if: ${{ inputs.rollback == true && inputs.uninstall != true }}
+        run: |
+          export HISTORY_COUNT=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | head -2 | tail -1 | awk '{print $1}')
+          helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} ${{ inputs.revision }} --debug || ( echo "Valid revision values can be greater than or equal to $HISTORY_COUNT" && exit 1 )
 
-      # - name: Rollback Helm Release
-      #   if: ${{ inputs.rollback == true && inputs.uninstall != true }}
-      #   run: |
-      #     export HISTORY_COUNT=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | head -2 | tail -1 | awk '{print $1}')
-      #     helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} ${{ inputs.revision }} --debug || ( echo "Valid revision values can be greater than or equal to $HISTORY_COUNT" && exit 1 )
-
-      # - name: Uninstall Helm Release
-      #   if: ${{ inputs.uninstall == true }}
-      #   run: |
-      #     helm uninstall ${{ inputs.release-name }} -n ${{ inputs.namespace }}
+      - name: Uninstall Helm Release
+        if: ${{ inputs.uninstall == true }}
+        run: |
+          helm uninstall ${{ inputs.release-name }} -n ${{ inputs.namespace }}
 ...
