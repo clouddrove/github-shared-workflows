@@ -131,12 +131,29 @@ jobs:
             aws eks update-kubeconfig --name ${{ inputs.eks-cluster-name }} --region ${{ inputs.aws_region }}
           fi
 
+      # - name: helm dependency build
+      #   if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true}}
+      #   run: |
+      #     helm repo add ${{ inputs.dependency_repo_name }} ${{ inputs.dependency_repo_url }}
+      #     helm repo update
+      #     helm dependency build ${{ inputs.helm-chart-directory }}
+
       - name: helm dependency build
-        if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true}}
+        if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true }}
         run: |
-          helm repo add ${{ inputs.dependency_repo_name }} ${{ inputs.dependency_repo_url }}
+          # Split the input strings into arrays using ',' as delimiter
+          IFS=',' read -ra REPO_NAMES <<< "${{ inputs.dependency_repo_name }}"
+          IFS=',' read -ra REPO_URLS <<< "${{ inputs.dependency_repo_url }}"
+          
+          # Loop through the arrays and add each Helm repo
+          for i in "${!REPO_NAMES[@]}"; do
+            echo "Adding repo ${REPO_NAMES[$i]} -> ${REPO_URLS[$i]}"
+            helm repo add "${REPO_NAMES[$i]}" "${REPO_URLS[$i]}"
+          done
+
           helm repo update
-          helm dependency build ${{ inputs.helm-chart-directory }}
+          helm dependency build "${{ inputs.helm-chart-directory }}"
+
 
       - name: helm lint
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
