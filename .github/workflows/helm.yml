@@ -48,10 +48,22 @@ on:
         required: false
         type: string
         description: 'Boundary for Kubernetes resources'
+      dependency_repo_name:
+        required: false
+        type: string
+        description: 'Dependency Repo Name'
+      dependency_repo_url:
+        required: false
+        type: string
+        description: 'Dependency Repo URL'
       rollback:
         required: false
         type: boolean
         description: 'Environment name for rollback'
+      dependencies:
+        required: false
+        type: boolean
+        description: 'Install chart dependencies or not'
       revision:
         required: false
         type: number
@@ -119,6 +131,22 @@ jobs:
             aws eks update-kubeconfig --name ${{ inputs.eks-cluster-name }} --region ${{ inputs.aws_region }}
           fi
 
+      - name: helm dependency build
+        if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true }}
+        run: |
+          # Split the input strings into arrays using ',' as delimiter
+          IFS=',' read -ra REPO_NAMES <<< "${{ inputs.dependency_repo_name }}"
+          IFS=',' read -ra REPO_URLS <<< "${{ inputs.dependency_repo_url }}"
+
+          # Loop through the arrays and add each Helm repo
+          for i in "${!REPO_NAMES[@]}"; do
+            echo "Adding repo ${REPO_NAMES[$i]} -> ${REPO_URLS[$i]}"
+            helm repo add "${REPO_NAMES[$i]}" "${REPO_URLS[$i]}"
+          done
+
+          helm repo update
+          helm dependency build "${{ inputs.helm-chart-directory }}"
+
       - name: helm lint
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
@@ -129,7 +157,7 @@ jobs:
         run: |
           helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
-      - name: helm install and upgrade2
+      - name: helm install and upgrade
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
           if [ -n "${{ secrets.set-parameters }}" ]; then
