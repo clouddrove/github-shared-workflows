@@ -157,7 +157,7 @@ jobs:
         run: |
           helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
-      - name: helm install and upgrade2
+      - name: helm install and upgrade
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
           if [ -n "${{ secrets.set-parameters }}" ]; then
