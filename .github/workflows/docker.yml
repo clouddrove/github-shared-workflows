@@ -8,7 +8,7 @@ on:
         required: false
         type: string
       images:
-        required: true
+        required: false
         type: string
       aws_region:
         required: false
