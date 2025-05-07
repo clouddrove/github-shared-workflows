@@ -139,7 +139,7 @@ jobs:
       #     helm dependency build ${{ inputs.helm-chart-directory }}
 
       - name: helm dependency build
-        if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true }}
+        # if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true }}
         run: |
           # Split the input strings into arrays using ',' as delimiter
           IFS=',' read -ra REPO_NAMES <<< "${{ inputs.dependency_repo_name }}"
