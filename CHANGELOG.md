@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.7] - 2025-05-07
+### :sparkles: New Features
+- [`b954a4f`](https://github.com/clouddrove/github-shared-workflows/commit/b954a4f1dde6dd52575ea05a09ea0ffac0f88167) - passed target environment from inputs *(PR [#195](https://github.com/clouddrove/github-shared-workflows/pull/195) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+- [`00011b8`](https://github.com/clouddrove/github-shared-workflows/commit/00011b8cc7777d0016126c43b0af1c0d5c4bd500) - changes variable type *(PR [#196](https://github.com/clouddrove/github-shared-workflows/pull/196) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+- [`c1b854b`](https://github.com/clouddrove/github-shared-workflows/commit/c1b854babfcc979452c3462c00a2b29724138116) - added looping logic for helm dependency *(PR [#199](https://github.com/clouddrove/github-shared-workflows/pull/199) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+
+### :construction_worker: Build System
+- [`49ee794`](https://github.com/clouddrove/github-shared-workflows/commit/49ee7943dda1282462f2d118d46a38f46d95fa8b) - **deps**: bump webfactory/ssh-agent from 0.9.0 to 0.9.1 *(PR [#191](https://github.com/clouddrove/github-shared-workflows/pull/191) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`6445dad`](https://github.com/clouddrove/github-shared-workflows/commit/6445dada4a1ab38b6178548508c44268705c5fb0) - update CHANGELOG.md for 1.3.6 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.3.6] - 2025-04-30
 ### :sparkles: New Features
 - [`37c6447`](https://github.com/clouddrove/github-shared-workflows/commit/37c6447da54e0b9c5fea3abe0c3fcaa93269ebe4) - added functionality to clone private repos in terraform source *(PR [#187](https://github.com/clouddrove/github-shared-workflows/pull/187) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
@@ -294,3 +307,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.4]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.3...1.3.4
 [1.3.5]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.4...1.3.5
 [1.3.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.5...1.3.6
+[1.3.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.6...1.3.7
