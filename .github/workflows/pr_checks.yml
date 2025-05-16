@@ -34,6 +34,10 @@ on:
         required: false
         type: boolean
         default: true
+    secrets:
+      GITHUB_TOKEN:
+        required: false
+        description: 'GitHub token to access the repository'
 
 jobs:
   validate-title:
@@ -80,4 +84,16 @@ jobs:
         with:
           subject_case: false
           types: ${{ inputs.types }}
+          
+  assign-author:
+    name: Assign PR to author
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto Assign PR to Author
+        uses: wow-actions/auto-assign@v3
+        with:
+          assignees: ${{ github.event.pull_request.user.login }}
+          addReviewers: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ...
