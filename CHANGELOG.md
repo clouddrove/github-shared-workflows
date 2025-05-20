@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.8] - 2025-05-20
+### :sparkles: New Features
+- [`99a0037`](https://github.com/clouddrove/github-shared-workflows/commit/99a003718ac89d82aa95e9e124073721b1ca9f53) - changed smurf tag to 1.1.0 *(PR [#201](https://github.com/clouddrove/github-shared-workflows/pull/201) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
+
+### :construction_worker: Build System
+- [`993a391`](https://github.com/clouddrove/github-shared-workflows/commit/993a391fa7be540f9b370783cfcfd7488b19c69b) - **deps**: bump hashicorp/setup-terraform from 2 to 3 *(PR [#200](https://github.com/clouddrove/github-shared-workflows/pull/200) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`4aad8de`](https://github.com/clouddrove/github-shared-workflows/commit/4aad8de151eacf4313bbb2bd217ad4506f6e059f) - update CHANGELOG.md for 1.3.7 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.3.7] - 2025-05-07
 ### :sparkles: New Features
 - [`b954a4f`](https://github.com/clouddrove/github-shared-workflows/commit/b954a4f1dde6dd52575ea05a09ea0ffac0f88167) - passed target environment from inputs *(PR [#195](https://github.com/clouddrove/github-shared-workflows/pull/195) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
@@ -308,3 +319,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.5]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.4...1.3.5
 [1.3.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.5...1.3.6
 [1.3.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.6...1.3.7
+[1.3.8]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.7...1.3.8
