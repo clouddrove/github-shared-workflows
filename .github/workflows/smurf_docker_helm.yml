@@ -203,7 +203,7 @@ jobs:
 
       - name: Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: sdkr
           command: >-
@@ -213,7 +213,7 @@ jobs:
 
       - name: Docker Image Build with Buildkit
         if: inputs.docker_buildkit_enable == 'true'
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: sdkr
           command: >-
@@ -298,14 +298,14 @@ jobs:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
       - name: Docker Image Scan
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: sdkr
           command: scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
       - name: Docker Image Tag
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: sdkr
           command: >-
@@ -314,7 +314,7 @@ jobs:
 
       - name: Docker Image Push
         if: inputs.docker_push == 'true'  && inputs.gcp_docker_push != 'true'
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: sdkr
           command: >-
@@ -323,7 +323,7 @@ jobs:
 
       - name: Docker Image Push in GCP
         if: inputs.docker_push == 'true' && inputs.gcp_docker_push == 'true'
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: sdkr
           command: >-
@@ -339,13 +339,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Helm Lint
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: selm
           command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
       - name: Helm Template
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: selm
           command: >-
@@ -404,27 +404,27 @@ jobs:
 
       - name: Helm Plugin
         if: inputs.helm_plugin_install == 'true'
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: selm
           command: plugin ${{ inputs.helm_plugins }}
 
       - name: Add Helm Chart
         if: inputs.helm_repo_add == 'true'
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: selm
           command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
 
       - name: Update Helm Charts
         if: inputs.helm_repo_add == 'true'
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: selm
           command: repo update
 
       - name: Helm Deploy
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: selm
           command: >-
@@ -485,7 +485,7 @@ jobs:
         shell: bash
 
       - name: Helm Rollback
-        uses: clouddrove/smurf@v1.1.0
+        uses: clouddrove/smurf@tree/dependabot/go_modules/errors-test
         with:
           tool: selm
           command: >-
