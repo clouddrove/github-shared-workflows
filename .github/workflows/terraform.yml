@@ -93,7 +93,7 @@ jobs:
 
       # The terraform fmt command is used to format your configuration files into a canonical format and style
       - name: 'Terraform Format'
-        uses: 'dflook/terraform-fmt-check@v1'
+        uses: 'dflook/terraform-fmt-check@v2'
         with:
           actions_subcommand: 'fmt'
 
