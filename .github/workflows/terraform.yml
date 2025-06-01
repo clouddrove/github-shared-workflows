@@ -110,7 +110,7 @@ jobs:
 
       # The terraform validate command validates the configuration files in a directory, referring only to the configuration
       - name: 'Terraform validate'
-        uses: dflook/terraform-validate@v1
+        uses: dflook/terraform-validate@v2
         with:
           tf_actions_working_dir: ${{ inputs.working_directory }}
 
