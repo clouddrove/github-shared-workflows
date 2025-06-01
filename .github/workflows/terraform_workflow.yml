@@ -193,7 +193,7 @@ jobs:
       - name: 'Terraform validate'
         if: ${{ inputs.destroy != true }}
         id: validate
-        uses: dflook/terraform-validate@v1
+        uses: dflook/terraform-validate@v2
         with:
           path: ${{ inputs.working_directory }}
 
