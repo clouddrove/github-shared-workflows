@@ -89,19 +89,19 @@ jobs:
           terraform_version: '${{ inputs.terraform_version }}'
 
       - name: Terraform Format
-        uses: clouddrove/smurf@v1.1.1
+        uses: clouddrove/smurf@v1.1.2
         with:
           tool: stf
           command: format -r
 
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.1.1
+        uses: clouddrove/smurf@v1.1.2
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
 
       - name: Terraform Validate
-        uses: clouddrove/smurf@v1.1.1
+        uses: clouddrove/smurf@v1.1.2
         with:
           tool: stf
           command: 'validate --dir=${{ inputs.terraform_directory }}'
@@ -157,13 +157,13 @@ jobs:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
       - name: Terraform Init
-        uses: clouddrove/smurf@v1.1.1
+        uses: clouddrove/smurf@v1.1.2
         with:
           tool: stf
           command: 'init --dir=${{ inputs.terraform_directory }}'
 
       - name: Terraform Plan
-        uses: clouddrove/smurf@v1.1.1
+        uses: clouddrove/smurf@v1.1.2
         with:
           tool: stf
           command: 'plan --dir=${{ inputs.terraform_directory }}'
@@ -178,7 +178,7 @@ jobs:
           issue-title: Terraform Plan for Infrastructure Update
 
       - name: Terraform Apply
-        uses: clouddrove/smurf@v1.1.1
+        uses: clouddrove/smurf@v1.1.2
         with:
           tool: stf
           command: 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
@@ -195,7 +195,7 @@ jobs:
           terraform_version: '${{ inputs.terraform_version }}'
 
       - name: Terraform Destroy
-        uses: clouddrove/smurf@v1.1.1
+        uses: clouddrove/smurf@v1.1.2
         with:
           tool: stf
           command: 'destroy --auto-approve --dir=${{ inputs.terraform_directory }}'
