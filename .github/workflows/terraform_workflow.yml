@@ -180,7 +180,7 @@ jobs:
       - name: 'Terraform Format'
         if: ${{ inputs.destroy != true }}
         id: fmt
-        uses: 'dflook/terraform-fmt-check@v1'
+        uses: 'dflook/terraform-fmt-check@v2'
         with:
           actions_subcommand: 'fmt'
           path: ${{ inputs.working_directory }}
@@ -193,7 +193,7 @@ jobs:
       - name: 'Terraform validate'
         if: ${{ inputs.destroy != true }}
         id: validate
-        uses: dflook/terraform-validate@v1
+        uses: dflook/terraform-validate@v2
         with:
           path: ${{ inputs.working_directory }}
 
