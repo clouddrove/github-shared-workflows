@@ -47,7 +47,7 @@ jobs:
       rollback: <true|false>                  # <true|false> Trigger rollback to previous revision (true/false)
       revision: <revision number>             # Specific revision to roll back to
       diagram-file-name: <output file name>   # Optional: output file name for KubeDiagram PNG
-      install: <true|false>                   # Whether to perform install/upgrade (false disables)
+      generate-diagram : <true|false>         # <true|false> Set to true to generate a visual KubeDiagram from Helm templates
 
 ```
 

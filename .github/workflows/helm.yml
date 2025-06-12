@@ -81,12 +81,13 @@ on:
       diagram-file-name:
         required: false
         type: string
+        default: diagram.png
         description: 'Optional output diagram file name for kube-diagrams'
-      install:
+      generate-diagram:
         required: false
         type: boolean
-        default: true
-        description: 'Set to false to skip helm install and upgrade step'
+        default: false
+        description: 'Set to true to generate KubeDiagram from Helm templates'
 
     secrets:
       AWS_ACCESS_KEY_ID:
@@ -168,20 +169,20 @@ jobs:
           helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
       - name: Install Graphviz & KubeDiagrams
-        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+        if: ${{ inputs.generate-diagram == true }}
         run: |
           sudo apt-get update
           sudo apt-get install -y graphviz
           pip install git+https://github.com/philippemerle/KubeDiagrams.git
-
+  
       - name: Generate Helm template and KubeDiagram
-        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+        if: ${{ inputs.generate-diagram == true }}
         run: |
           helm template ${{ inputs.helm-chart-directory }} --namespace ${{ inputs.namespace }} -f ${{ inputs.values-file-path }} \
           | kube-diagrams -o "${{ inputs.diagram-file-name }}" -
-
+  
       - name: Upload Diagram Artifact
-        if: ${{ inputs.rollback != true && inputs.uninstall != true }}
+        if: ${{ inputs.generate-diagram == true }}
         uses: actions/upload-artifact@v4
         with:
           name: helm-diagram
@@ -202,22 +203,21 @@ jobs:
         if: ${{ inputs.rollback == true && inputs.uninstall != true }}
         run: |
           echo "⏪ Attempting rollback of release: ${{ inputs.release-name }} to revision ${{ inputs.revision }}"
-
-          # Get revision status (4th column of helm history)
-          REV_STATUS=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | awk '$1 == "${{ inputs.revision }}" {print $4}')
-
+  
+          REVISION=${{ inputs.revision }}
+          REV_STATUS=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | awk -v rev="$REVISION" '$1 == rev {print $4}')
+  
           if [ -z "$REV_STATUS" ]; then
-          echo "❌ Revision ${{ inputs.revision }} does not exist."
+          echo "❌ Revision $REVISION does not exist."
           exit 1
           fi
-
+  
           if [ "$REV_STATUS" = "failed" ] || [ "$REV_STATUS" = "pending" ]; then
-          echo "⚠️ Revision ${{ inputs.revision }} exists but has status '$REV_STATUS'. Cannot roll back to it."
+          echo "⚠️ Revision $REVISION exists but has status '$REV_STATUS'. Cannot roll back to it."
           exit 1
           fi
-
-          echo "✅ Valid revision with status: $REV_STATUS. Proceeding with rollback."
-          helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} ${{ inputs.revision }} --debug
+  
+          helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} $REVISION --debug
 
 
       - name: Uninstall Helm Release
