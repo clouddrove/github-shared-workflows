@@ -174,13 +174,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y graphviz
           pip install git+https://github.com/philippemerle/KubeDiagrams.git
-  
+
       - name: Generate Helm template and KubeDiagram
         if: ${{ inputs.generate-diagram == true }}
         run: |
           helm template ${{ inputs.helm-chart-directory }} --namespace ${{ inputs.namespace }} -f ${{ inputs.values-file-path }} \
           | kube-diagrams -o "${{ inputs.diagram-file-name }}" -
-  
+
       - name: Upload Diagram Artifact
         if: ${{ inputs.generate-diagram == true }}
         uses: actions/upload-artifact@v4
@@ -203,7 +203,7 @@ jobs:
         if: ${{ inputs.rollback == true && inputs.uninstall != true }}
         run: |
           echo "⏪ Attempting rollback of release: ${{ inputs.release-name }} to revision ${{ inputs.revision }}"
-  
+
           REVISION=${{ inputs.revision }}
           REV_STATUS=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | awk -v rev="$REVISION" '$1 == rev {print $4}')
   
@@ -211,7 +211,7 @@ jobs:
           echo "❌ Revision $REVISION does not exist."
           exit 1
           fi
-  
+
           if [ "$REV_STATUS" = "failed" ] || [ "$REV_STATUS" = "pending" ]; then
           echo "⚠️ Revision $REVISION exists but has status '$REV_STATUS'. Cannot roll back to it."
           exit 1
