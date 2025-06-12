@@ -206,7 +206,7 @@ jobs:
 
           REVISION=${{ inputs.revision }}
           REV_STATUS=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | awk -v rev="$REVISION" '$1 == rev {print $4}')
-  
+
           if [ -z "$REV_STATUS" ]; then
           echo "❌ Revision $REVISION does not exist."
           exit 1
@@ -216,7 +216,7 @@ jobs:
           echo "⚠️ Revision $REVISION exists but has status '$REV_STATUS'. Cannot roll back to it."
           exit 1
           fi
-  
+
           helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} $REVISION --debug
 
 
