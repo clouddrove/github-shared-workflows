@@ -78,6 +78,17 @@ on:
         type: number
         default: 900
         description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour.'
+      diagram-file-name:
+        required: false
+        type: string
+        default: diagram.png
+        description: 'Optional output diagram file name for kube-diagrams'
+      generate-diagram:
+        required: false
+        type: boolean
+        default: false
+        description: 'Set to true to generate KubeDiagram from Helm templates'
+
     secrets:
       AWS_ACCESS_KEY_ID:
         description: 'AWS Access Key ID'
@@ -157,6 +168,26 @@ jobs:
         run: |
           helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
+      - name: Install Graphviz & KubeDiagrams
+        if: ${{ inputs.generate-diagram == true }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+          pip install git+https://github.com/philippemerle/KubeDiagrams.git
+
+      - name: Generate Helm template and KubeDiagram
+        if: ${{ inputs.generate-diagram == true }}
+        run: |
+          helm template ${{ inputs.helm-chart-directory }} --namespace ${{ inputs.namespace }} -f ${{ inputs.values-file-path }} \
+          | kube-diagrams -o "${{ inputs.diagram-file-name }}" -
+
+      - name: Upload Diagram Artifact
+        if: ${{ inputs.generate-diagram == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: helm-diagram
+          path: ${{ inputs.diagram-file-name }}
+
       - name: helm install and upgrade
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
@@ -168,11 +199,26 @@ jobs:
               --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
           fi
 
-      - name: Rollback Helm Release
+      - name: Helm Rollback
         if: ${{ inputs.rollback == true && inputs.uninstall != true }}
         run: |
-          export HISTORY_COUNT=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | head -2 | tail -1 | awk '{print $1}')
-          helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} ${{ inputs.revision }} --debug || ( echo "Valid revision values can be greater than or equal to $HISTORY_COUNT" && exit 1 )
+          echo "⏪ Attempting rollback of release: ${{ inputs.release-name }} to revision ${{ inputs.revision }}"
+
+          REVISION=${{ inputs.revision }}
+          REV_STATUS=$(helm history ${{ inputs.release-name }} -n ${{ inputs.namespace }} | awk -v rev="$REVISION" '$1 == rev {print $4}')
+
+          if [ -z "$REV_STATUS" ]; then
+          echo "❌ Revision $REVISION does not exist."
+          exit 1
+          fi
+
+          if [ "$REV_STATUS" = "failed" ] || [ "$REV_STATUS" = "pending" ]; then
+          echo "⚠️ Revision $REVISION exists but has status '$REV_STATUS'. Cannot roll back to it."
+          exit 1
+          fi
+
+          helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} $REVISION --debug
+
 
       - name: Uninstall Helm Release
         if: ${{ inputs.uninstall == true }}
