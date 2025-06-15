@@ -114,7 +114,7 @@ jobs:
 
       - name: Commit CHANGELOG.md
         if: steps.skip_tag.outputs.skip == 'false'
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           branch: ${{ inputs.target_branch }}
           commit_user_name: clouddrove-ci
