@@ -80,6 +80,10 @@ on:
         required: false
         type: string
         description: 'Target specific Terraform resource (e.g., module.vpc_ec2). If not set, value will be read from target.txt.'
+      target_file:
+        required: false
+        type: string
+        description: 'Path to file with target resource (e.g., vars/target.txt)'
 
     secrets:
       AZURE_CREDENTIALS:
@@ -198,8 +202,13 @@ jobs:
 
           TARGET=""
           if [ -n "${{ inputs.target }}" ]; then
+            echo "Using direct input target"
             TARGET="${{ inputs.target }}"
-          elif [ -f target.txt ]; then
+          elif [ -n "${{ inputs.target_file }}" ] && [ -f "${{ inputs.target_file }}" ]; then
+            echo "Using absolute/relative path as-is: ${{ inputs.target_file }}"
+            TARGET=$(cat "${{ inputs.target_file }}" | tr -d '\n')
+          elif [ -f "target.txt" ]; then
+            echo "Using fallback target.txt"
             TARGET=$(cat target.txt | tr -d '\n')
           fi
 
@@ -213,7 +222,7 @@ jobs:
           fi
 
           if [ -n "$TARGET" ]; then
-            echo "Target specified: $TARGET"
+            echo "Target detected: $TARGET"
             PLAN_CMD="$PLAN_CMD --target=$TARGET"
           else
             echo "No target specified. Running full plan."
@@ -260,8 +269,13 @@ jobs:
 
           TARGET=""
           if [ -n "${{ inputs.target }}" ]; then
+            echo "Using direct input target"
             TARGET="${{ inputs.target }}"
-          elif [ -f target.txt ]; then
+          elif [ -n "${{ inputs.target_file }}" ] && [ -f "${{ inputs.target_file }}" ]; then
+            echo "Using absolute/relative path as-is: ${{ inputs.target_file }}"
+            TARGET=$(cat "${{ inputs.target_file }}" | tr -d '\n')
+          elif [ -f "target.txt" ]; then
+            echo "Using fallback target.txt"
             TARGET=$(cat target.txt | tr -d '\n')
           fi
 
