@@ -1,0 +1,304 @@
+---
+run-name: 'Terraform workflow'
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        required: true
+        type: string
+        description: 'Root directory of the terraform where all resources exist.'
+      provider:
+        required: true
+        type: string
+        description: 'Cloud provider to run the workflow. e.g. azurerm, aws, gcp or digitalocean'
+      aws_region:
+        required: false
+        type: string
+        default: us-east-2
+        description: 'AWS region of terraform deployment.'
+      gcp_region:
+        required: false
+        type: string
+        description: 'GCP region of terraform deployment.'
+      var_file:
+        required: false
+        type: string
+        description: 'Terraform var file directory. e.g. vars/dev.tfvars'
+      destroy:
+        required: false
+        type: boolean
+        default: false
+        description: 'Set true to destroy terraform infrastructure.'
+      approvers:
+        required: false
+        type: string
+        description: 'Approvals list to approve apply or destroy.'
+      terraform_version:
+        type: string
+        default: 1.3.6
+        description: 'Terraform version to use.'
+      timeout:
+        required: false
+        type: number
+        default: 10
+        description: 'Timeout for approval step.'
+      minimum-approvals:
+        required: false
+        type: string
+        default: 1
+        description: 'Minimum approvals required to accept the plan.'
+      token_format:
+        required: false
+        type: string
+        default: access_token
+        description: 'Token format for GCP authentication.'
+      access_token_lifetime:
+        required: false
+        type: string
+        default: 300s
+        description: 'Lifetime of access token for GCP.'
+      project_id:
+        required: false
+        type: string
+        description: 'GCP project ID.'
+      create_credentials_file:
+        required: false
+        type: string
+        default: true
+        description: 'Whether to create credentials file for GCP.'
+      git_ssh_key_setup:
+        required: false
+        type: string
+        default: false
+        description: 'Whether to setup SSH keys for Git access.'
+      target_environment:
+        required: false
+        type: string
+        default: ""
+        description: "Deployment environment (e.g., dev, prod)."
+      target:
+        required: false
+        type: string
+        description: 'Target specific Terraform resource (e.g., module.vpc_ec2). If not set, value will be read from target.txt.'
+
+    secrets:
+      AZURE_CREDENTIALS:
+        required: false
+      AWS_ACCESS_KEY_ID:
+        required: false
+      BUILD_ROLE:
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+      AWS_SESSION_TOKEN:
+        required: false
+      GCP_CREDENTIALS:
+        required: false
+      DIGITALOCEAN_ACCESS_TOKEN:
+        required: false
+      env-vars:
+        required: false
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: false
+      SERVICE_ACCOUNT:
+        required: false
+      SSH_PRIVATE_KEY:
+        required: false
+
+jobs:
+  terraform-workflow:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+
+    outputs:
+      tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: webfactory/ssh-agent@v0.9.1
+        if: ${{ inputs.git_ssh_key_setup == 'true' }}
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Set environment variables
+        run: |
+          (
+          cat <<'_EOT'
+          ${{ secrets.env-vars }}
+          _EOT
+          ) >> "$GITHUB_ENV"
+
+      - name: Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
+
+      - name: Install Azure CLI
+        if: ${{ inputs.provider == 'azurerm' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Authenticate to Google Cloud
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          create_credentials_file: ${{ inputs.create_credentials_file }}
+          token_format: ${{ inputs.token_format }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+          project_id: ${{ inputs.project_id }}
+
+      - name: Install doctl
+        if: ${{ inputs.provider == 'digitalocean' }}
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Terraform Format
+        if: ${{ inputs.destroy != true }}
+        id: fmt
+        uses: dflook/terraform-fmt-check@v2
+        with:
+          actions_subcommand: fmt
+          path: ${{ inputs.working_directory }}
+
+      - name: Terraform Init
+        run: |
+          cd ${{ inputs.working_directory }}
+          terraform init
+
+      - name: Terraform Validate
+        if: ${{ inputs.destroy != true }}
+        id: validate
+        uses: dflook/terraform-validate@v2
+        with:
+          path: ${{ inputs.working_directory }}
+
+      - name: Terraform Plan
+        id: tf-plan
+        run: |
+          cd ${{ inputs.working_directory }}
+
+          TARGET=""
+          if [ -n "${{ inputs.target }}" ]; then
+            TARGET="${{ inputs.target }}"
+          elif [ -f target.txt ]; then
+            TARGET=$(cat target.txt | tr -d '\n')
+          fi
+
+          PLAN_CMD="terraform plan -out=tfplan"
+          if [ "${{ inputs.destroy }}" = "true" ]; then
+            PLAN_CMD="terraform plan -destroy -out=tfplan"
+          fi
+
+          if [ -n "${{ inputs.var_file }}" ]; then
+            PLAN_CMD="$PLAN_CMD --var-file=${{ inputs.var_file }}"
+          fi
+
+          if [ -n "$TARGET" ]; then
+            echo "Target specified: $TARGET"
+            PLAN_CMD="$PLAN_CMD --target=$TARGET"
+          else
+            echo "No target specified. Running full plan."
+          fi
+
+          echo "Running: $PLAN_CMD"
+          eval "$PLAN_CMD"
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: ${{ inputs.working_directory }}/tfplan
+
+      - name: Create String Output
+        id: tf-plan-string
+        run: |
+          cd ${{ inputs.working_directory }}
+          TERRAFORM_PLAN=$(terraform show -no-color tfplan)
+          delimiter="$(openssl rand -hex 8)"
+          echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
+          echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
+          echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo '```terraform' >> $GITHUB_OUTPUT
+          echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
+          echo '```' >> $GITHUB_OUTPUT
+          echo "</details>" >> $GITHUB_OUTPUT
+          echo "${delimiter}" >> $GITHUB_OUTPUT
+
+      - name: Manual Approval
+        uses: trstringer/manual-approval@v1
+        timeout-minutes: ${{ inputs.timeout }}
+        with:
+          secret: ${{ github.TOKEN }}
+          approvers: ${{ inputs.approvers }}
+          minimum-approvals: ${{ inputs.minimum-approvals }}
+          issue-title: "Terraform Plan for Infrastructure Update"
+
+      - name: Terraform Apply
+        if: ${{ inputs.destroy != true }}
+        run: |
+          cd ${{ inputs.working_directory }}
+
+          TARGET=""
+          if [ -n "${{ inputs.target }}" ]; then
+            TARGET="${{ inputs.target }}"
+          elif [ -f target.txt ]; then
+            TARGET=$(cat target.txt | tr -d '\n')
+          fi
+
+          if [ -n "$TARGET" ]; then
+            echo "Target specified: $TARGET"
+          else
+            echo "No target specified. Applying full plan."
+          fi
+
+          if [ -n "${{ inputs.var_file }}" ]; then
+            terraform apply -var-file="${{ inputs.var_file }}" -auto-approve tfplan
+          else
+            terraform apply -auto-approve tfplan
+          fi
+
+      - name: Find Errored Terraform State
+        if: ${{ always() }}
+        run: |
+          cd ${{ inputs.working_directory }}
+          if [ -f "errored.tfstate" ]; then
+            echo "Errored state found."
+          fi
+
+      - name: Upload Errored Terraform State Artifact
+        if: ${{ always() }} && success() && steps.find_errored_tfstate.outputs['errored_found'] == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: errored_tfstate
+          path: ${{ inputs.working_directory }}/errored.tfstate
+
+      - name: Terraform Destroy
+        if: ${{ inputs.destroy == true }}
+        id: destroy
+        run: |
+          cd ${{ inputs.working_directory }}
+          if [ -n "${{ inputs.var_file }}" ]; then
+            terraform destroy -var-file="${{ inputs.var_file }}" -auto-approve
+          else
+            terraform destroy -auto-approve
+          fi
