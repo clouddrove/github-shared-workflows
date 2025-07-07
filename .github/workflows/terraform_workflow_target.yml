@@ -1,5 +1,5 @@
 ---
-run-name: 'Terraform workflow'
+run-name: 'Terraform workflow --target'
 on:
   workflow_call:
     inputs:
@@ -88,26 +88,37 @@ on:
     secrets:
       AZURE_CREDENTIALS:
         required: false
+        description: 'Azure Credentials to install Azure in github runner.'
       AWS_ACCESS_KEY_ID:
         required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
       BUILD_ROLE:
         required: false
+        description: 'AWS OIDC role for aws authentication.'
       AWS_SECRET_ACCESS_KEY:
         required: false
+        description: 'AWS Secret access key to install AWS CLI'
       AWS_SESSION_TOKEN:
         required: false
+        description: 'AWS Session Token to install AWS CLI'
       GCP_CREDENTIALS:
         required: false
+        description: 'The Google Cloud JSON service account key to use for authentication'
       DIGITALOCEAN_ACCESS_TOKEN:
         required: false
+        description: 'The DigitalOcean Personal Access Token for Application & API'
       env-vars:
         required: false
+        description: 'Pass required environment variables'
       WORKLOAD_IDENTITY_PROVIDER:
         required: false
+        description: 'The full identifier of the Workload Identity Provider'
       SERVICE_ACCOUNT:
         required: false
+        description: 'The service account to be used'
       SSH_PRIVATE_KEY:
         required: false
+        description: 'Private SSH key to register in the SSH agent'
 
 jobs:
   terraform-workflow:
