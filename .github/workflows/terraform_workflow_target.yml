@@ -28,63 +28,62 @@ on:
         required: false
         type: boolean
         default: false
-        description: 'Set true to destroy terraform infrastructure.'
+        description: 'Set true to to destroy terraform infrastructure.'
       approvers:
         required: false
         type: string
-        description: 'Approvals list to approve apply or destroy.'
+        description: 'Approvals list to approve apply or destroy'
       terraform_version:
         type: string
         default: 1.3.6
-        description: 'Terraform version to use.'
+        description: 'Required erraform version  '
       timeout:
         required: false
         type: number
         default: 10
-        description: 'Timeout for approval step.'
+        description: 'Timeout for approval step'
       minimum-approvals:
         required: false
         type: string
         default: 1
-        description: 'Minimum approvals required to accept the plan.'
+        description: 'Minimum approvals required to accept the plan'
       token_format:
         required: false
         type: string
         default: access_token
-        description: 'Token format for GCP authentication.'
+        description: 'Output format for the generated authentication token. For OAuth 2.0 access tokens, specify "access_token". For OIDC tokens, specify "id_token". To skip token generation, leave this value empty'
       access_token_lifetime:
         required: false
         type: string
         default: 300s
-        description: 'Lifetime of access token for GCP.'
+        description: 'Desired lifetime duration of the access token, in seconds'
       project_id:
         required: false
         type: string
-        description: 'GCP project ID.'
+        description: 'ID of the default project to use for future API calls and invocations.'
       create_credentials_file:
         required: false
         type: string
         default: true
-        description: 'Whether to create credentials file for GCP.'
+        description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
       git_ssh_key_setup:
         required: false
         type: string
         default: false
-        description: 'Whether to setup SSH keys for Git access.'
+        description: 'If true, sets up SSH keys for Git access to clone private repositories.'
       target_environment:
+        description: "Name of the deployment environment (e.g., dev, staging, prod). Leave empty if no environment-specific context is needed."
         required: false
         type: string
         default: ""
-        description: "Deployment environment (e.g., dev, prod)."
       target:
         required: false
         type: string
-        description: 'Target specific Terraform resource (e.g., module.vpc_ec2). If not set, value will be read from target.txt.'
+        description: 'Target specific Terraform resource (e.g., module.vpc_ec2). If not set, fallback to target_file or target.txt.'
       target_file:
         required: false
         type: string
         description: 'Path to file with target resource (e.g., vars/target.txt)'
-
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -133,7 +132,7 @@ jobs:
         uses: actions/checkout@v4
 
       - uses: webfactory/ssh-agent@v0.9.1
-        if: ${{ inputs.git_ssh_key_setup == 'true' }}
+        if: ${{ inputs.git_ssh_key_setup == true }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -163,9 +162,9 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Authenticate to Google Cloud
+      - name: 'Authenticate to Google Cloud'
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/auth@v2
+        uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           create_credentials_file: ${{ inputs.create_credentials_file }}
@@ -186,20 +185,20 @@ jobs:
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
-      - name: Terraform Format
+      - name: 'Terraform Format'
         if: ${{ inputs.destroy != true }}
         id: fmt
-        uses: dflook/terraform-fmt-check@v2
+        uses: 'dflook/terraform-fmt-check@v2'
         with:
-          actions_subcommand: fmt
+          actions_subcommand: 'fmt'
           path: ${{ inputs.working_directory }}
 
-      - name: Terraform Init
+      - name: terraform init
         run: |
           cd ${{ inputs.working_directory }}
           terraform init
 
-      - name: Terraform Validate
+      - name: 'Terraform validate'
         if: ${{ inputs.destroy != true }}
         id: validate
         uses: dflook/terraform-validate@v2
@@ -209,22 +208,24 @@ jobs:
       - name: Terraform Plan
         id: tf-plan
         run: |
+          export exitcode=0
           cd ${{ inputs.working_directory }}
 
           TARGET=""
+          TARGET_FILE_PATH="${{ github.workspace }}/${{ inputs.target_file }}"
+
           if [ -n "${{ inputs.target }}" ]; then
-            echo "Using direct input target"
             TARGET="${{ inputs.target }}"
-          elif [ -n "${{ inputs.target_file }}" ] && [ -f "${{ inputs.target_file }}" ]; then
-            echo "Using absolute/relative path as-is: ${{ inputs.target_file }}"
-            TARGET=$(cat "${{ inputs.target_file }}" | tr -d '\n')
+          elif [ -n "${{ inputs.target_file }}" ] && [ -f "$TARGET_FILE_PATH" ]; then
+            TARGET=$(cat "$TARGET_FILE_PATH" | tr -d '\n' | xargs)
           elif [ -f "target.txt" ]; then
-            echo "Using fallback target.txt"
-            TARGET=$(cat target.txt | tr -d '\n')
+            TARGET=$(cat target.txt | tr -d '\n' | xargs)
           fi
 
+          echo "Final Target Value: '$TARGET'"
+
           PLAN_CMD="terraform plan -out=tfplan"
-          if [ "${{ inputs.destroy }}" = "true" ]; then
+          if [ "${{ inputs.destroy }}" = true ]; then
             PLAN_CMD="terraform plan -destroy -out=tfplan"
           fi
 
@@ -233,16 +234,13 @@ jobs:
           fi
 
           if [ -n "$TARGET" ]; then
-            echo "Target detected: $TARGET"
             PLAN_CMD="$PLAN_CMD --target=$TARGET"
-          else
-            echo "No target specified. Running full plan."
           fi
 
           echo "Running: $PLAN_CMD"
           eval "$PLAN_CMD"
 
-      - name: Upload Terraform Plan
+      - name: Publish Terraform Plan
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
@@ -264,7 +262,7 @@ jobs:
           echo "</details>" >> $GITHUB_OUTPUT
           echo "${delimiter}" >> $GITHUB_OUTPUT
 
-      - name: Manual Approval
+      - name: "Accept plan or deny"
         uses: trstringer/manual-approval@v1
         timeout-minutes: ${{ inputs.timeout }}
         with:
@@ -273,41 +271,21 @@ jobs:
           minimum-approvals: ${{ inputs.minimum-approvals }}
           issue-title: "Terraform Plan for Infrastructure Update"
 
-      - name: Terraform Apply
+      - name: terraform apply
         if: ${{ inputs.destroy != true }}
         run: |
           cd ${{ inputs.working_directory }}
-
-          TARGET=""
-          if [ -n "${{ inputs.target }}" ]; then
-            echo "Using direct input target"
-            TARGET="${{ inputs.target }}"
-          elif [ -n "${{ inputs.target_file }}" ] && [ -f "${{ inputs.target_file }}" ]; then
-            echo "Using absolute/relative path as-is: ${{ inputs.target_file }}"
-            TARGET=$(cat "${{ inputs.target_file }}" | tr -d '\n')
-          elif [ -f "target.txt" ]; then
-            echo "Using fallback target.txt"
-            TARGET=$(cat target.txt | tr -d '\n')
-          fi
-
-          if [ -n "$TARGET" ]; then
-            echo "Target specified: $TARGET"
-          else
-            echo "No target specified. Applying full plan."
-          fi
-
-          if [ -n "${{ inputs.var_file }}" ]; then
-            terraform apply -var-file="${{ inputs.var_file }}" -auto-approve tfplan
-          else
-            terraform apply -auto-approve tfplan
-          fi
+          terraform apply -auto-approve tfplan
 
       - name: Find Errored Terraform State
         if: ${{ always() }}
         run: |
           cd ${{ inputs.working_directory }}
           if [ -f "errored.tfstate" ]; then
-            echo "Errored state found."
+            ls -la errored.tfstate
+            echo "Uploading errored.tfstate as artifact..."
+          else
+            echo "Errored Terraform state file not found."
           fi
 
       - name: Upload Errored Terraform State Artifact
@@ -317,12 +295,28 @@ jobs:
           name: errored_tfstate
           path: ${{ inputs.working_directory }}/errored.tfstate
 
-      - name: Terraform Destroy
+      - name: Terraform destroy
         if: ${{ inputs.destroy == true }}
         id: destroy
         run: |
           cd ${{ inputs.working_directory }}
-          if [ -n "${{ inputs.var_file }}" ]; then
+
+          TARGET=""
+          TARGET_FILE_PATH="${{ github.workspace }}/${{ inputs.target_file }}"
+
+          if [ -n "${{ inputs.target }}" ]; then
+            TARGET="${{ inputs.target }}"
+          elif [ -n "${{ inputs.target_file }}" ] && [ -f "$TARGET_FILE_PATH" ]; then
+            TARGET=$(cat "$TARGET_FILE_PATH" | tr -d '\n' | xargs)
+          elif [ -f "target.txt" ]; then
+            TARGET=$(cat target.txt | tr -d '\n' | xargs)
+          fi
+
+          echo "Final Target Value: '$TARGET'"
+
+          if [ -n "$TARGET" ]; then
+            terraform destroy --target="$TARGET" -auto-approve
+          elif [ -n "${{ inputs.var_file }}" ]; then
             terraform destroy -var-file="${{ inputs.var_file }}" -auto-approve
           else
             terraform destroy -auto-approve
