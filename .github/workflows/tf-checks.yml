@@ -18,11 +18,16 @@ on:
         description: 'Terraform version to use. Leave empty for the latest version.'
         required: false
         type: string
-      aws_credentials:
-        description: 'AWS credentials to use.'
+      aws_region:
         required: false
-        default: false
         type: string
+        default: us-east-1
+        description: 'AWS region of terraform deployment.'
+      role_duration_seconds:
+        required: false
+        type: number
+        default: 3600
+        description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour (3600 seconds). Acceptable values range from 15 minutes (900 seconds) to 12 hours (43200 seconds).'
       gcp_credentials:
         description: 'GCP credentials to use.'
         required: false
@@ -48,12 +53,21 @@ on:
         default: true
         description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
     secrets:
+      AZURE_CREDENTIALS:
+        required: false
+        description: 'Azure Credentials to install Azure in github runner.'
       AWS_ACCESS_KEY_ID:
         description: 'aws access keys'
         required: false
       AWS_SECRET_ACCESS_KEY:
         description: 'aws secret access keys'
         required: false
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
+      BUILD_ROLE:
+        required: false
+        description: 'AWS OIDC role for aws authentication.'
       GCP_CREDENTIALS:
         description: 'The Google Cloud JSON service account key to use for authentication'
         required: false
@@ -104,13 +118,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        if: ${{ inputs.aws_credentials == 'true' }}
+      - name: Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: true
+
+      - name: Install Azure CLI
+        if: ${{ inputs.provider == 'azurerm' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: 'Authenticate to Google Cloud'
         if: ${{ inputs.provider == 'gcp' }}
