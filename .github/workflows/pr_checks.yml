@@ -1,5 +1,5 @@
 ---
-name: 'PR Validation'
+name: '🔍 PR Validation'
 on:
   workflow_call:
     inputs:
@@ -37,7 +37,7 @@ on:
 
 jobs:
   validate-title:
-    name: Validate PR title
+    name: 📝 Validate PR title
     runs-on: ubuntu-latest
     steps:
       - uses: amannn/action-semantic-pull-request@v5.5.3
@@ -56,7 +56,7 @@ jobs:
           scopes: |
             *
 
-      - name: Check PR labels
+      - name: 🏷️ Check PR labels
         if: ${{ inputs.checkLabels }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,13 +69,14 @@ jobs:
           fi
 
   validate-commits:
+    name: 🧾 Validate Commit Messages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Validate Commit Messages
+      - name: 🧾 Validate Commit Messages
         uses: webiny/action-conventional-commits@v1.3.0
         with:
           subject_case: false

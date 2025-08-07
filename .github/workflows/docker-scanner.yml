@@ -1,5 +1,5 @@
 ---
-name: docker-scanner
+name: 🐳 docker-scanner
 
 on:
   workflow_call:
@@ -23,21 +23,21 @@ on:
 
 jobs:
   build-image:
-    name: Build Images
+    name: 🔧 Build Images
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Checkout git repo
+      - name: 📥 Checkout git repo
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
+      - name: 🛠️ Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
+      - name: 🛠️ Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.11.1
 
-      - name: Build and export to Docker
+      - name: 🏗️ Build and export to Docker
         id: build-id
         uses: docker/build-push-action@v6
         with:
@@ -47,7 +47,7 @@ jobs:
           platforms: linux/amd64
           file: ${{inputs.dockerfile-path}}
 
-      - name: Docker Scan with trivy (non-blocking)
+      - name: 🔍 Docker Scan with trivy (non-blocking)
         uses: aquasecurity/trivy-action@master
         env:
           tags: ${{ github.sha }}
@@ -57,13 +57,13 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
 
-      - name: Upload Trivy scan results to GitHub Security tab
+      - name: ☁️ Upload Trivy scan results to GitHub Security tab
         if: ${{ inputs.security-upload == 'true' }}
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
 
-      - name: Docker Scan with trivy (blocking)
+      - name: 🚨 Docker Scan with trivy (blocking)
         if: ${{ inputs.block_action == true }}
         uses: aquasecurity/trivy-action@master
         with:

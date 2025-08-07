@@ -1,5 +1,5 @@
 ---
-# Tflint workflow checks for possible errors, and best practices in your terraform code
+# 🧪 Tflint workflow checks for possible errors, and best practices in your terraform code
 name: tf-lint
 on:
   workflow_call:
@@ -13,37 +13,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-        name: Checkout source code
+      - name: 📥 Checkout source code
+        uses: actions/checkout@v4
 
-      - uses: actions/cache@v4
-        name: Cache plugin dir
+      - name: 💾 Cache plugin dir
+        uses: actions/cache@v4
         with:
           path: ~/.tflint.d/plugins
           key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
 
-      - uses: terraform-linters/setup-tflint@v4
-        name: Setup TFLint
+      - name: ⚙️ Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: v0.44.1
           github_token: ${{ secrets.GITHUB }}
 
-      - uses: terraform-linters/tflint-load-config-action@v2
-        name: Setup tflint-config
+      - name: 🛠️ Setup tflint-config
+        uses: terraform-linters/tflint-load-config-action@v2
         with:
           source-repo: clouddrove/github-shared-workflows
           source-path: .github/config/.tflint.hcl
           source-ref: master
 
-      - name: Show version
+      - name: 🔍 Show version
         run: tflint --version
 
-      - name: init lint
+      - name: 🚀 Init lint
         run: tflint --init
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Run lint
+      - name: ✅ Run lint
         run: tflint --recursive --color --force -f compact
         env:
           GITHUB_TOKEN: ${{ github.token }}

@@ -1,5 +1,5 @@
 ---
-name: 'Terraform Configuration Drift Detection'
+name: '📡 Terraform Configuration Drift Detection'
 on:
   workflow_call:
     inputs:
@@ -93,10 +93,10 @@ jobs:
 
     steps:
       # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
+      - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: Set environment variables
+      - name: 🔧 Set environment variables
         run: |
           (
           cat <<'_EOT'
@@ -104,7 +104,7 @@ jobs:
           _EOT
           ) >> "$GITHUB_ENV"
 
-      - name: Install AWS CLI
+      - name: ☁️ Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -117,7 +117,7 @@ jobs:
           role-skip-session-tagging: true
 
       # Authenticate to GCP
-      - name: 'Authenticate to Google Cloud'
+      - name: 🔐 Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
         uses: 'google-github-actions/auth@v2'
         with:
@@ -130,29 +130,29 @@ jobs:
           project_id: ${{ inputs.project_id }}
 
       # Install azure-cli
-      - name: Install Azure CLI
+      - name: 🔧 Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Set up Terraform
+      - name: ⚙️ Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
       # Run some scripts
-      - name: Run shell commands
+      - name: 🖥️ Run shell commands
         run: ls -la
 
-      - name: terraform init
+      - name: 🚀 terraform init
         run: |
           cd ${{ inputs.working_directory }}
           terraform init
 
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-      - name: Terraform Plan
+      - name: 📐 Terraform Plan
         id: tf-plan
         run: |
           cd ${{ inputs.working_directory }}
@@ -163,14 +163,14 @@ jobs:
           fi
 
       # Save plan to artifacts
-      - name: Publish Terraform Plan
+      - name: 💾 Publish Terraform Plan
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: tfplan
 
       # Create string output of Terraform Plan
-      - name: Create String Output
+      - name: 🧵 Create String Output
         id: tf-plan-string
         run: |
           cd ${{ inputs.working_directory }}
@@ -188,14 +188,14 @@ jobs:
           echo "${delimiter}" >> $GITHUB_OUTPUT
 
       # Publish Terraform Plan as task summary
-      - name: Publish Terraform Plan to Task Summary
+      - name: 📝 Publish Terraform Plan to Task Summary
         env:
           SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
         run: |
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
       # If changes are detected, create a new issue
-      - name: Publish Drift Report and create new issue
+      - name: 🚨 Publish Drift Report and create new issue
         if: steps.tf-plan.outputs.exitcode == 2
         uses: actions/github-script@v7
         env:
@@ -243,7 +243,7 @@ jobs:
             }
 
       # If changes aren't detected, close any open drift issues
-      - name: Publish Drift Report
+      - name: ✅ Publish Drift Report
         if: steps.tf-plan.outputs.exitcode == 0
         uses: actions/github-script@v7
         with:
@@ -273,7 +273,7 @@ jobs:
             }
 
       # Mark the workflow as failed if drift detected
-      - name: Error on Failure
+      - name: ❌ Error on Failure
         if: steps.tf-plan.outputs.exitcode == 2
         run: exit 1
 ...

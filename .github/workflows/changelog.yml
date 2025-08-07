@@ -17,12 +17,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: 📦 Checkout Code
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB }}
 
-      - name: Update CHANGELOG
+      - name: 📝 Update CHANGELOG
         id: changelog
         uses: requarks/changelog-action@v1
         with:
@@ -31,7 +31,7 @@ jobs:
           includeInvalidCommits: false
           tag: ${{ github.ref_name }}
 
-      - name: Create Release
+      - name: 🚀 Create Release
         uses: ncipollo/release-action@v1.16.0
         with:
           allowUpdates: true
@@ -42,7 +42,7 @@ jobs:
           body: ${{ steps.changelog.outputs.changes }}
           token: '${{ secrets.GITHUB }}'
 
-      - name: Commit CHANGELOG.md
+      - name: ✅ Commit CHANGELOG.md
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
           branch: ${{ inputs.branch}}

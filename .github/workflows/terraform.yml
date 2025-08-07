@@ -1,5 +1,5 @@
 ---
-name: Terraform Checks
+name: 🌎 Terraform Checks
 on:
   workflow_call:
     inputs:
@@ -48,7 +48,7 @@ on:
 
 jobs:
   terraform-checks:
-    name: 'Terraform Validate, Init and Plan'
+    name: '🌎 Terraform Validate, Init and Plan'
     runs-on: ubuntu-latest
     env:
       #  This is needed since we are running terraform with read-only permissions
@@ -58,11 +58,11 @@ jobs:
 
     steps:
       # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
+      - name: 📦 Checkout
         uses: actions/checkout@v4
 
       #  install AWS-cli
-      - name: Install AWS CLI
+      - name: 🟦 Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -72,33 +72,33 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       # Install azure-cli
-      - name: Install Azure CLI
+      - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # Install digitalocean-cli
-      - name: Install doctl
+      - name: 🟦 Install doctl
         if: ${{ inputs.provider == 'digitalocean' }}
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       # Install the latest version of the Terraform CLI
-      - name: Setup Terraform
+      - name: 🛠️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
 
       # The terraform fmt command is used to format your configuration files into a canonical format and style
-      - name: 'Terraform Format'
+      - name: 🧹 Terraform Format
         uses: 'dflook/terraform-fmt-check@v2'
         with:
           actions_subcommand: 'fmt'
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-      - name: "Terraform Init"
+      - name: 🏗️ Terraform Init
         uses: hashicorp/terraform-github-actions@master
         with:
           tf_actions_subcommand: "init"
@@ -109,14 +109,14 @@ jobs:
           TF_CLI_ARGS: "-backend-config=token=${{ secrets.TF_API_TOKEN }}"
 
       # The terraform validate command validates the configuration files in a directory, referring only to the configuration
-      - name: 'Terraform validate'
+      - name: 🔎 Terraform validate
         uses: dflook/terraform-validate@v2
         with:
           tf_actions_working_dir: ${{ inputs.working_directory }}
 
       # Generates an execution plan for Terraform
       # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
-      - name: Terraform Plan
+      - name: 📋 Terraform Plan
         id: tf-plan
         run: |
           export exitcode=0

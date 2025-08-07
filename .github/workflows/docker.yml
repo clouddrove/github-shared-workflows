@@ -1,5 +1,5 @@
 ---
-name: docker-build-push
+name: 🐳 docker-build-push
 
 on:
   workflow_call:
@@ -51,22 +51,22 @@ on:
 
 jobs:
   build-image:
-    name: Build Images
+    name: 🏗️ Build Images
     runs-on: ubuntu-latest
 
     steps:
 
-      - name: Checkout git repo
+      - name: 📦 Checkout git repo
         uses: actions/checkout@v4
 
-      - name: Login to Docker Hub
+      - name: 🔑 Login to Docker Hub
         if: ${{ inputs.provider == 'DOCKERHUB' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Push docker image to DOCKERHUB
+      - name: 🚀 Push docker image to DOCKERHUB
         if: ${{ inputs.provider == 'DOCKERHUB' }}
         env:
           IMAGE_TAG: ${{ inputs.IMAGE_TAG }}
@@ -76,7 +76,7 @@ jobs:
           docker build -t $images:$IMAGE_TAG $BUILD_PATH
           docker push $images:$IMAGE_TAG
 
-      - name: Configure AWS credentials
+      - name: 🔧 Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -88,18 +88,18 @@ jobs:
           role-duration-seconds: ${{ inputs.role-duration-seconds }}
           role-skip-session-tagging: true
 
-      - name: Verify awscli
+      - name: 🕵️ Verify awscli
         if: ${{ inputs.provider == 'aws' }}
         run: |
           aws sts get-caller-identity
 
 
-      - name: Login to Amazon ECR
+      - name: 🔑 Login to Amazon ECR
         if: ${{ inputs.provider == 'aws' }}
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Push docker image to Amazon ECR
+      - name: 🚢 Push docker image to Amazon ECR
         if: ${{ inputs.provider == 'aws' }}
         id: docker-build
         env:
@@ -112,7 +112,7 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $BUILD_PATH
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Push docker image to Amazon ECR and DOCKERHUB
+      - name: 🚀🚢 Push docker image to Amazon ECR and DOCKERHUB
         if: ${{ inputs.provider == 'DOCKERHUB,aws' }}
         env:
           ## For ECR env variable
