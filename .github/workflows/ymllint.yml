@@ -1,5 +1,5 @@
 ---
-name: YAML-LINTER
+name: 🧾 YAML-LINTER
 on:
   workflow_call:
 jobs:
@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: yaml-lint
+      - name: 🔍 yaml-lint
         uses: ibiqlik/action-yamllint@v3
         with:
           config_data: |

@@ -80,10 +80,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code from master branch
+      - name: 📦 Checkout code from master branch
         uses: actions/checkout@v4
 
-      - name: Checkout code from another Repo
+      - name: 📥 Checkout code from another Repo
         uses: actions/checkout@v4
         with:
           repository: ${{ inputs.organization-name }}/${{ inputs.GitHub-repo-name }}
@@ -91,7 +91,7 @@ jobs:
           token: ${{ secrets.GITHUB }}
           path: ${{ inputs.GitHub-repo-name }}
 
-      - name: Configure AWS Credentials
+      - name: 🔐 Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
@@ -100,14 +100,14 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
           role-to-assume: ${{ inputs.ROLE-TO-ASSUME }}
 
-      - name: Src folder code convert into zip and upload to S3
+      - name: 📦 Src folder code convert into zip and upload to S3
         run: |
             cd ${{ inputs.GitHub-repo-name }}/${{ inputs.code-folder }}
             find . -maxdepth 1 -type f -exec zip  ${{inputs.zip-file-name}} {} +
             run: |
             aws s3 cp  ${{inputs.zip-file-name}} s3://${{ inputs.s3-bucket }}/${{ inputs.bucket-prefix }}/
 
-      - name: Deploy cloudformation stack using template
+      - name: 🚀 Deploy cloudformation stack using template
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: ${{ inputs.stack-name }}

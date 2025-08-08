@@ -113,10 +113,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout git repo
+      - name: 📦 Checkout git repo
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
+      - name: 🔧 Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -128,13 +128,13 @@ jobs:
           role-duration-seconds: ${{ inputs.role-duration-seconds }}
           role-skip-session-tagging: true
 
-      - name: Install Azure CLI
+      - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azure' }}
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Update Kubeconfig
+      - name: 🔄 Update Kubeconfig
         run: |
           if [ "${{ inputs.provider }}" = "azure" ]; then
             az aks get-credentials --resource-group ${{ inputs.resource-group }} --name ${{ inputs.azure-cluster-name }}
@@ -142,7 +142,7 @@ jobs:
             aws eks update-kubeconfig --name ${{ inputs.eks-cluster-name }} --region ${{ inputs.aws_region }}
           fi
 
-      - name: helm dependency build
+      - name: 🧩 helm dependency build
         if: ${{ inputs.rollback != true && inputs.uninstall != true && inputs.dependencies == true }}
         run: |
           # Split the input strings into arrays using ',' as delimiter
@@ -158,37 +158,37 @@ jobs:
           helm repo update
           helm dependency build "${{ inputs.helm-chart-directory }}"
 
-      - name: helm lint
+      - name: 🧪 helm lint
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
           helm lint ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
-      - name: helm template
+      - name: 📝 helm template
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
           helm template ${{ inputs.helm-chart-directory }} -f ${{ inputs.values-file-path }}
 
-      - name: Install Graphviz & KubeDiagrams
+      - name: 🖼️ Install Graphviz & KubeDiagrams
         if: ${{ inputs.generate-diagram == true }}
         run: |
           sudo apt-get update
           sudo apt-get install -y graphviz
           pip install git+https://github.com/philippemerle/KubeDiagrams.git
 
-      - name: Generate Helm template and KubeDiagram
+      - name: 🗺️ Generate Helm template and KubeDiagram
         if: ${{ inputs.generate-diagram == true }}
         run: |
           helm template ${{ inputs.helm-chart-directory }} --namespace ${{ inputs.namespace }} -f ${{ inputs.values-file-path }} \
           | kube-diagrams -o "${{ inputs.diagram-file-name }}" -
 
-      - name: Upload Diagram Artifact
+      - name: 📤 Upload Diagram Artifact
         if: ${{ inputs.generate-diagram == true }}
         uses: actions/upload-artifact@v4
         with:
           name: helm-diagram
           path: ${{ inputs.diagram-file-name }}
 
-      - name: helm install and upgrade
+      - name: 🚀 helm install and upgrade
         if: ${{ inputs.rollback != true && inputs.uninstall != true }}
         run: |
           if [ -n "${{ secrets.set-parameters }}" ]; then
@@ -199,7 +199,7 @@ jobs:
               --history-max ${{ inputs.history-max }} --atomic --wait --debug --timeout ${{ inputs.timeout }}
           fi
 
-      - name: Helm Rollback
+      - name: ⏪ Helm Rollback
         if: ${{ inputs.rollback == true && inputs.uninstall != true }}
         run: |
           echo "⏪ Attempting rollback of release: ${{ inputs.release-name }} to revision ${{ inputs.revision }}"
@@ -219,8 +219,7 @@ jobs:
 
           helm rollback ${{ inputs.release-name }} -n ${{ inputs.namespace }} $REVISION --debug
 
-
-      - name: Uninstall Helm Release
+      - name: 🗑️ Uninstall Helm Release
         if: ${{ inputs.uninstall == true }}
         run: |
           helm uninstall ${{ inputs.release-name }} -n ${{ inputs.namespace }}

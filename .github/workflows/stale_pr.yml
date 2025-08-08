@@ -1,5 +1,5 @@
 ---
-name: 'Stale Issues and PRs Cleaner'
+name: '🧹 Stale Issues and PRs Cleaner'
 
 on:
   workflow_call:
@@ -23,9 +23,11 @@ on:
 
 jobs:
   stale:
+    name: 🧹 Clean Stale Issues and PRs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v9
+      - name: 🤖 Run Stale Action
+        uses: actions/stale@v9
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           days-before-issue-stale: ${{ inputs.days-before-issue-stale }}
@@ -33,12 +35,12 @@ jobs:
           stale-issue-label: stale
           stale-pr-label: stale
           stale-issue-message: |
-            This issue has been automatically marked as stale because it has been inactive
+            💤 This issue has been automatically marked as stale because it has been inactive
             for ${{ inputs.days-before-issue-stale }} days. Please remove the "stale" label
             or add a comment to keep it open. Otherwise, this issue will be closed in
             ${{ inputs.days-before-issue-close }} days.
           stale-pr-message: |
-            This PR has been automatically marked as stale because it has been inactive
+            💤 This PR has been automatically marked as stale because it has been inactive
             for ${{ inputs.days-before-pr-stale }} days. Please remove the "stale" label
             or add a comment to keep it open. Otherwise, this PR will be closed in
             ${{ inputs.days-before-pr-close }} days.
@@ -49,10 +51,10 @@ jobs:
           days-before-pr-close: ${{ inputs.days-before-pr-close }}
           delete-branch: true
           close-issue-message: >
-            This issue was automatically closed because of stale in
+            🗑️ This issue was automatically closed because of stale in
             ${{ inputs.days-before-issue-close }} days
           close-pr-message: >
-            This PR was automatically closed because of stale in
+            🗑️ This PR was automatically closed because of stale in
             ${{ inputs.days-before-pr-close }} days
           remove-stale-when-updated: true
 ...
