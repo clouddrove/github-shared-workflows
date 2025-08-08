@@ -1,4 +1,4 @@
-# 🚀 Terraform Module Release Workflow (Shared)
+# 🚀 Terraform Module Tag Release Workflow (Shared)
 
 This is a **shared GitHub Actions workflow** that automates semantic versioning, changelog updates, and tagging for Terraform modules. It's designed to be triggered on push to the `master` branch and is fully reusable across multiple repositories.
 
@@ -43,10 +43,10 @@ This is a **shared GitHub Actions workflow** that automates semantic versioning,
 
 ## 🛠️ Setup Instructions
 
-### 1. Create a `.github/workflows/release.yml` in your **module repo** and call the shared workflow:
+### 1. Create a `.github/workflows/terraform-module-tag-release.yml` in your **module repo** and call the shared workflow:
 
 ```yaml
-name: Release Terraform Module
+name: 🚀 Terraform Module Auto Tag Release
 
 on:
   push:
@@ -58,7 +58,7 @@ permissions:
 
 jobs:
   module-release:
-    uses: clouddrove/github-shared-workflows/.github/workflows/auto-tag-modules.yml@feat/auto-module-tagging
+    uses: clouddrove/github-shared-workflows/.github/workflows/terraform-module-tag-release.yml@master
 ```
 
 > 🔁 Replace `your-org/shared-workflows` with your GitHub org/repo and branch name.
@@ -72,12 +72,7 @@ In your shared workflow repo (example: `shared-workflows`):
 ```
 .github/
 └── workflows/
-    └── auto-tag-modules.yml  <-- shared workflow logic
-```
-
-### Suggested branch for shared workflow repo:
-```
-module-release-v1
+    └── terraform-module-tag-release.yml  <-- shared workflow logic
 ```
 
 ---

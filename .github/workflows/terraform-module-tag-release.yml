@@ -1,5 +1,5 @@
 ---
-name: Module Release on Merge
+name: 📦 Module Release on Merge
 
 on:
   workflow_call:
@@ -9,29 +9,29 @@ permissions:
 
 jobs:
   release:
-    name: Release Changed Module
+    name: 🚀 Release Changed Module
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Detect changed modules
+      - name: 🔍 Detect changed modules
         id: detect
         run: |
           git fetch --tags
           CHANGED_DIRS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^modules/' | cut -d '/' -f2 | sort -u | tr '\n' ' ')
           echo "changed=$CHANGED_DIRS" >> $GITHUB_OUTPUT
 
-      - name: Fail if no module changed
+      - name: ⚠️ Fail if no module changed
         if: steps.detect.outputs.changed == ''
         run: |
           echo "No module changes detected. Skipping release."
           exit 1
 
-      - name: Detect version bump from commit message
+      - name: 🏷️ Detect version bump from commit message
         id: version
         run: |
           LABEL=$(git log -1 --pretty=%B | grep -oE '(major|minor|patch|no-release)' || true)
@@ -41,13 +41,13 @@ jobs:
           fi
           echo "bump=$LABEL" >> $GITHUB_OUTPUT
 
-      - name: Extract PR title from merge commit
+      - name: 📝 Extract PR title from merge commit
         id: prinfo
         run: |
           TITLE=$(git log -1 --pretty=%B | tail -n 1)
           echo "pr_title=$TITLE" >> $GITHUB_OUTPUT
 
-      - name: Bump version and tag modules
+      - name: 🔖 Bump version and tag modules
         run: |
           for module in ${{ steps.detect.outputs.changed }}; do
             prefix="$module/"
@@ -69,10 +69,14 @@ jobs:
             git push origin "$new_tag"
           done
 
-      - name: Update CHANGELOG.md and push
+      - name: 🗒️ Update CHANGELOG.md and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          if [ ! -f CHANGELOG.md ]; then
+          touch CHANGELOG.md
+          fi
 
           for module in ${{ steps.detect.outputs.changed }}; do
             prefix="$module/"
