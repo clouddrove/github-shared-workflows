@@ -1,5 +1,5 @@
 ---
-name: 'Lock Threads'
+name: '🔒 Lock Threads'
 on:
   workflow_call:
     inputs:
@@ -28,7 +28,7 @@ jobs:
   lock:
     runs-on: ubuntu-latest
     steps:
-      - name: Lock issues
+      - name: 🔒 Lock issues, PRs & discussions
         uses: dessant/lock-threads@v5
         with:
           github-token: ${{ secrets.github-token }}

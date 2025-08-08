@@ -1,5 +1,5 @@
 ---
-name: Shared Workflow - SST Deploy
+name: 🚀 Shared Workflow - SST Deploy
 
 on:
   workflow_call:
@@ -47,14 +47,13 @@ on:
         description: 'Assume role arn'
         required: true
 
-
 jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
       runner: ${{ steps.step1.outputs.runner }}
     steps:
-      - name: Check branch
+      - name: 🕵️ Check branch
         id: step1
         run: |
           if [ ${{ inputs.self-hosted }} == 'true' ]; then
@@ -62,6 +61,7 @@ jobs:
           else
             echo "runner=ubuntu-latest" >> "$GITHUB_OUTPUT"
           fi
+
   sst-deploy:
     needs: [setup]
     runs-on: ${{ needs.setup.outputs.runner }}
@@ -72,18 +72,18 @@ jobs:
       run:
         working-directory: ${{ inputs.working-directory }}
 
-    name: Run sst-deploy
+    name: 🚀 Run sst-deploy
     steps:
-      - name: Checkout git repo
+      - name: 📦 Checkout git repo
         uses: actions/checkout@v4
 
-      - name: update environment variable in .env file
+      - name: 📝 Update environment variable in .env file
         run: |
           if [ -n "${{ secrets.env-vars }}" ]; then
            echo -e "${{ secrets.env-vars }}" > ./.env
           fi
 
-      - name: Configure AWS Creds via role
+      - name: 🔑 Configure AWS Creds via role
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-west-2
@@ -91,18 +91,18 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: Install yarn
+      - name: 📦 Install yarn
         run: sudo npm install -g yarn
 
-      - name: Install dependencies
+      - name: 📥 Install dependencies
         if: ${{ inputs.yarn-cache != 'true' }}
         run: yarn install --frozen-lockfile
 
-      - name: Install dependencies with yarn cache
+      - name: 📦 Install dependencies with yarn cache
         if: ${{ inputs.yarn-cache == 'true' }}
         uses: ./.github/actions/yarn-nm-install
 
-      - name: Set branch name
+      - name: 🌿 Set branch name
         run: |
           BRANCH_NAME=$(echo "${{ github.head_ref }}" | cut -d'|' -f2)
           echo "BRANCH_NAME=${BRANCH_NAME}"
@@ -110,11 +110,11 @@ jobs:
           echo "SLUG_BRANCH_NAME=${SLUG_BRANCH_NAME}"
           echo "GITHUB_HEAD_REF_SLUG=${SLUG_BRANCH_NAME}" >> $GITHUB_ENV
 
-      - name: check diffrence in deployed and local stacks
+      - name: 🔍 Check diffrence in deployed and local stacks
         if: ${{ inputs.deploy != 'true' }}
         run: yarn sst diff --stage ${{ inputs.app-env }}
 
-      - name: Deploy and get API endpoint
+      - name: 🚀 Deploy and get API endpoint
         if: ${{ inputs.deploy == 'true' && ((github.event.action == 'opened' && inputs.preview == 'true') || (github.event.action == 'synchronize' && inputs.preview == 'true') || (github.event.pull_request.merged == true && inputs.preview == 'false' && inputs.app-env == 'staging') || (inputs.app-env == 'production' && startsWith(github.ref, 'refs/tags/v'))) }}
         run: |
           if [[ ${{ inputs.preview }} == true ]]; then
@@ -134,11 +134,11 @@ jobs:
           echo "API endpoint: $api_endpoint"
           echo "API_ENDPOINT_URL=$api_endpoint" >> $GITHUB_ENV
 
-      - name: Destroy preview env
+      - name: 🗑️ Destroy preview env
         if: ${{ ( github.event.action == 'labeled' && github.event.label.name == 'destroy' && inputs.preview == 'true' ) || (github.event.action == 'closed' && inputs.preview == 'true' || github.event.pull_request.merged == true && inputs.preview == 'true' ) }}
         run: yarn sst remove --stage pr-${{ github.event.number }}-${{ env.GITHUB_HEAD_REF_SLUG }}
 
-      - name: Cleanup preview env deployment
+      - name: 🧹 Cleanup preview env deployment
         if: ${{ ( github.event.action == 'labeled' && github.event.label.name == 'destroy' && inputs.preview == 'true' ) || (github.event.action == 'closed' && inputs.preview == 'true' || github.event.pull_request.merged == true && inputs.preview == 'true' ) }}
         uses: strumwolf/delete-deployment-environment@v2.3.0
         with:

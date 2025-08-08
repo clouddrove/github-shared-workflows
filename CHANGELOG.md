@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.9] - 2025-08-08
+### :sparkles: New Features
+- [`242de46`](https://github.com/clouddrove/github-shared-workflows/commit/242de46a0db0c86706c5c35f61d8450428ab1ca5) - Release new tag v1.1.1 *(PR [#202](https://github.com/clouddrove/github-shared-workflows/pull/202) by [@AnketCloudDrove](https://github.com/AnketCloudDrove))*
+- [`3410da2`](https://github.com/clouddrove/github-shared-workflows/commit/3410da2114d05b5e08e44e28747fc7729c7cf4b8) - updated helm shared workflow for kubediagram *(PR [#208](https://github.com/clouddrove/github-shared-workflows/pull/208) by [@Kkhandale2024](https://github.com/Kkhandale2024))*
+- [`cc90004`](https://github.com/clouddrove/github-shared-workflows/commit/cc90004fe5cd6c3bbbf8993e62d19c698aee1f2c) - add Azure support and AWS OIDC role config to tf-checks workflow *(PR [#217](https://github.com/clouddrove/github-shared-workflows/pull/217) by [@h1manshu98](https://github.com/h1manshu98))*
+
+### :bug: Bug Fixes
+- [`a642d51`](https://github.com/clouddrove/github-shared-workflows/commit/a642d51c1a82b9cb29a221c3205ed7841737fb4e) - Added emoji's in all shared workflows *(PR [#219](https://github.com/clouddrove/github-shared-workflows/pull/219) by [@ruchit-sharma09](https://github.com/ruchit-sharma09))*
+
+### :construction_worker: Build System
+- [`16877a5`](https://github.com/clouddrove/github-shared-workflows/commit/16877a500e4e1b1b611f6fcc83859478483a374c) - **deps**: bump clouddrove/smurf from 1.1.1 to 1.1.2 *(PR [#204](https://github.com/clouddrove/github-shared-workflows/pull/204) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`77ac669`](https://github.com/clouddrove/github-shared-workflows/commit/77ac669ec939e51b9d1ff10dd0b544af22dc3cee) - **deps**: bump dflook/terraform-fmt-check from 1 to 2 *(PR [#205](https://github.com/clouddrove/github-shared-workflows/pull/205) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`3bb6f6b`](https://github.com/clouddrove/github-shared-workflows/commit/3bb6f6b4e5b9dee1bed9ea72730f321d65837ee8) - **deps**: bump dflook/terraform-validate from 1 to 2 *(PR [#206](https://github.com/clouddrove/github-shared-workflows/pull/206) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`8cd9037`](https://github.com/clouddrove/github-shared-workflows/commit/8cd90378e92b694232fc3900082a1453ee22ae36) - **deps**: bump stefanzweifel/git-auto-commit-action from 5 to 6 *(PR [#210](https://github.com/clouddrove/github-shared-workflows/pull/210) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`7a1abc0`](https://github.com/clouddrove/github-shared-workflows/commit/7a1abc068e173e911cd1b25117071dce0876f561) - **deps**: bump docker/setup-buildx-action from 3.10.0 to 3.11.1 *(PR [#211](https://github.com/clouddrove/github-shared-workflows/pull/211) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`e0108cf`](https://github.com/clouddrove/github-shared-workflows/commit/e0108cf149c6318c359d8789a05ec7cb85a7f55a) - **deps**: bump lewagon/wait-on-check-action from 1.3.4 to 1.4.0 *(PR [#212](https://github.com/clouddrove/github-shared-workflows/pull/212) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`aa0094f`](https://github.com/clouddrove/github-shared-workflows/commit/aa0094fee4da8632531540eccd8bdb1ce6338b22) - update CHANGELOG.md for 1.3.8 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.3.8] - 2025-05-20
 ### :sparkles: New Features
 - [`99a0037`](https://github.com/clouddrove/github-shared-workflows/commit/99a003718ac89d82aa95e9e124073721b1ca9f53) - changed smurf tag to 1.1.0 *(PR [#201](https://github.com/clouddrove/github-shared-workflows/pull/201) by [@VishwajitNagulkar](https://github.com/VishwajitNagulkar))*
@@ -320,3 +341,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.6]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.5...1.3.6
 [1.3.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.6...1.3.7
 [1.3.8]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.7...1.3.8
+[1.3.9]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.8...1.3.9

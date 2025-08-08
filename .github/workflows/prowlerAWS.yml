@@ -1,5 +1,5 @@
 ---
-name: Prowler Reusable Workflow
+name: 🕵️‍♂️ Prowler Reusable Workflow
 
 on:
   workflow_call:
@@ -88,20 +88,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
+      - name: 📦 Check out code
         uses: actions/checkout@v3
 
-      - name: Install pip
+      - name: 🐍 Install pip
         run: |
           sudo apt update
           sudo apt install -y python3 python3-pip
 
-      - name: Install Prowler
+      - name: 🐾 Install Prowler
         run: |
           python3 -m pip install --upgrade pip
           pip3 install prowler
 
-      - name: Install AWS CLI
+      - name: 🟦 Install AWS CLI
         if: ${{ inputs.cloud_provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -113,7 +113,7 @@ jobs:
           role-duration-seconds: ${{ inputs.role_duration_seconds }}
           role-skip-session-tagging: true
 
-      - name: Running Prowler for AWS
+      - name: 🔎 Running Prowler for AWS
         env:
           ACCOUNT_ID: ${{ secrets.TARGET_ACCOUNT_ID }}
         run: |
@@ -133,7 +133,7 @@ jobs:
           }
           done
 
-      - name: Upload Artifact
+      - name: 📤 Upload Artifact
         if: ${{ inputs.enable_s3_upload == false }}
         uses: actions/upload-artifact@v4
         with:
@@ -141,14 +141,14 @@ jobs:
           path: /home/runner/work/prowler/prowler/output/
           retention-days: ${{ inputs.retention_days }}
 
-      - name: Upload Prowler Results to AWS S3
+      - name: ☁️ Upload Prowler Results to AWS S3
         if: ${{ inputs.enable_s3_upload == true }}
         run: |
           YEAR=$(date +'%Y')
           MONTH=$(date +'%m')
           aws s3 cp /home/runner/work/prowler/prowler/output/ s3://${{ secrets.S3_BUCKET_NAME }}/$YEAR/$MONTH/ --recursive
 
-      - name: 'Notify Slack'
+      - name: 📣 Notify Slack
         uses: clouddrove/action-slack-notify@1
         if: ${{ inputs.enable_slack_notification == true }}
         env:

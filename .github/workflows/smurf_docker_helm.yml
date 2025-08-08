@@ -1,5 +1,5 @@
 ---
-name: Smurf-Docker-Helm
+name: 🦸‍♂️ Smurf-Docker-Helm
 'on':
   workflow_call:
     inputs:
@@ -198,10 +198,10 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Checkout
+      - name: 📦 Checkout
         uses: actions/checkout@v4
 
-      - name: Docker Image Build
+      - name: 🐳 Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
         uses: clouddrove/smurf@v1.1.4
         with:
@@ -211,7 +211,7 @@ jobs:
             inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
             --build-arg ${{ inputs.docker_build_args }}
 
-      - name: Docker Image Build with Buildkit
+      - name: 🐳 Docker Image Build with Buildkit
         if: inputs.docker_buildkit_enable == 'true'
         uses: clouddrove/smurf@v1.1.4
         with:
@@ -221,12 +221,12 @@ jobs:
             inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
             --build-arg ${{ inputs.docker_build_args }} --buildkit
 
-      - name: Save Docker Image as Artifact
+      - name: 💾 Save Docker Image as Artifact
         run: >
           docker save ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -o ${{
           inputs.docker_image_tar }}
 
-      - name: Upload Docker Image Artifact
+      - name: ⬆️ Upload Docker Image Artifact
         uses: actions/upload-artifact@v4
         with:
           name: '${{ inputs.docker_image_name }}'
@@ -240,33 +240,33 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Checkout
+      - name: 📦 Checkout
         uses: actions/checkout@v4
 
-      - name: Download Docker Image Artifact
+      - name: ⬇️ Download Docker Image Artifact
         uses: actions/download-artifact@v4
         with:
           name: '${{ inputs.docker_image_name }}'
 
-      - name: Load Docker Image
+      - name: 📥 Load Docker Image
         run: |
           docker load -i ${{ inputs.docker_image_tar }}
 
-      - name: Configure AWS credentials with OIDC
+      - name: 🔑 Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.aws_role }}
           aws-region: ${{ inputs.aws_region }}
 
-      - name: Assume another IAM Role
+      - name: 🔄 Assume another IAM Role
         if: inputs.aws_assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
 
-      - name: Configure AWS credentials with access keys
+      - name: 🔑 Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
           AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
@@ -281,7 +281,7 @@ jobs:
           fi
           aws configure set region $AWS_REGION
 
-      - name: Authenticate Google Cloud with WIP and Service Account
+      - name: ☁️ Authenticate Google Cloud with WIP and Service Account
         if: inputs.gcp_auth_method == 'wip'
         uses: google-github-actions/auth@v2
         with:
@@ -291,21 +291,20 @@ jobs:
           access_token_lifetime: 300s
           project_id: ${{ inputs.gcp_project_id }}
 
-      - name: Authenticate Google Cloud with Service Account JSON Key
+      - name: ☁️ Authenticate Google Cloud with Service Account JSON Key
         if: inputs.gcp_auth_method == 'json'
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
-      - name: Docker Image Scan
+      - name: 🛡️ Docker Image Scan
         uses: clouddrove/smurf@v1.1.4
         with:
           tool: sdkr
           command: scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
-      - name: Docker Image Tag
+      - name: 🏷️ Docker Image Tag
         if: inputs.docker_push == 'true'
-
         uses: clouddrove/smurf@v1.1.4
         with:
           tool: sdkr
@@ -313,7 +312,7 @@ jobs:
             tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
             inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
-      - name: Docker Image Push
+      - name: 🚀 Docker Image Push
         if: inputs.docker_push == 'true'  && inputs.gcp_docker_push != 'true'
         uses: clouddrove/smurf@v1.1.4
         with:
@@ -322,7 +321,7 @@ jobs:
             push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
             inputs.docker_image_tag }}
 
-      - name: Docker Image Push in GCP
+      - name: 🚀 Docker Image Push in GCP
         if: inputs.docker_push == 'true' && inputs.gcp_docker_push == 'true'
         uses: clouddrove/smurf@v1.1.4
         with:
@@ -336,16 +335,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker_scan_push
     steps:
-      - name: Checkout
+      - name: 📦 Checkout
         uses: actions/checkout@v4
 
-      - name: Helm Lint
+      - name: 🧪 Helm Lint
         uses: clouddrove/smurf@v1.1.4
         with:
           tool: selm
           command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
-      - name: Helm Template
+      - name: 📝 Helm Template
         uses: clouddrove/smurf@v1.1.4
         with:
           tool: selm
@@ -358,24 +357,24 @@ jobs:
     needs:
       - helm_lint_template
     steps:
-      - name: Checkout
+      - name: 📦 Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials with OIDC
+      - name: 🔑 Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_role }}'
           aws-region: ${{ inputs.aws_region }}
 
-      - name: Assume another IAM Role
+      - name: 🔄 Assume another IAM Role
         if: inputs.aws_assume_role_arn == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_assume_role_arn }}'
           aws-region: ${{ inputs.aws_region }}
 
-      - name: Configure AWS credentials with access keys
+      - name: 🔑 Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
           AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
@@ -390,7 +389,7 @@ jobs:
           fi
           aws configure set region $AWS_REGION
 
-      - name: Set environment variables
+      - name: 🌎 Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
@@ -403,29 +402,28 @@ jobs:
           echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
         shell: bash
 
-      - name: Helm Plugin
+      - name: 🔌 Helm Plugin
         if: inputs.helm_plugin_install == 'true'
-
         uses: clouddrove/smurf@v1.1.4
         with:
           tool: selm
           command: plugin ${{ inputs.helm_plugins }}
 
-      - name: Add Helm Chart
+      - name: ➕ Add Helm Chart
         if: inputs.helm_repo_add == 'true'
         uses: clouddrove/smurf@v1.1.4
         with:
           tool: selm
           command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
 
-      - name: Update Helm Charts
+      - name: ♻️ Update Helm Charts
         if: inputs.helm_repo_add == 'true'
         uses: clouddrove/smurf@v1.1.4
         with:
           tool: selm
           command: repo update
 
-      - name: Helm Deploy
+      - name: 🚀 Helm Deploy
         uses: clouddrove/smurf@v1.1.4
         with:
           tool: selm
@@ -442,24 +440,24 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: Checkout
+      - name: 📦 Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials with OIDC
+      - name: 🔑 Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ inputs.aws_role }}
           aws-region: ${{ inputs.aws_region }}
 
-      - name: Assume another IAM Role
+      - name: 🔄 Assume another IAM Role
         if: inputs.aws_assume_role_arn == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: '${{ inputs.aws_role }}'
           aws-region: ${{ inputs.aws_region }}
 
-      - name: Configure AWS credentials with access keys
+      - name: 🔑 Configure AWS credentials with access keys
         if: inputs.aws_auth_method == 'keys'
         env:
           AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
@@ -474,7 +472,7 @@ jobs:
           fi
           aws configure set region $AWS_REGION
 
-      - name: Set environment variables
+      - name: 🌎 Set environment variables
         run: |
           echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
           echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
@@ -486,9 +484,8 @@ jobs:
           echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
         shell: bash
 
-      - name: Helm Rollback
+      - name: ⏪ Helm Rollback
         uses: clouddrove/smurf@v1.1.4
-
         with:
           tool: selm
           command: >-

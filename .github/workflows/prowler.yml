@@ -1,5 +1,5 @@
 ---
-name: Prowler Reusable Workflow
+name: 🕵️‍♂️ Prowler Reusable Workflow
 
 on:
   workflow_call:
@@ -61,18 +61,18 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Check out code
+      - name: 📦 Check out code
         uses: actions/checkout@v3
 
-      - name: Install Homebrew
+      - name: 🍺 Install Homebrew
         run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-      - name: Install Prowler
+      - name: 🐾 Install Prowler
         run: |
           brew install prowler
 
-      - name: Authenticate with Google Cloud
+      - name: ☁️ Authenticate with Google Cloud
         if: ${{ inputs.cloud_provider == 'gcp' }}
         uses: google-github-actions/auth@v2
         with:
@@ -82,7 +82,7 @@ jobs:
           access_token_lifetime: ${{ inputs.access_token_lifetime }}
           project_id: ${{ inputs.project_id }}
 
-      - name: Install AWS CLI
+      - name: 🟦 Install AWS CLI
         if: ${{ inputs.cloud_provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -94,7 +94,7 @@ jobs:
           role-duration-seconds: ${{ inputs.role_duration_seconds }}
           role-skip-session-tagging: true
 
-      - name: Run Prowler for GCP
+      - name: 🔎 Run Prowler for GCP
         if: ${{ inputs.cloud_provider == 'gcp' }}
         id: prowler-gcp
         run: |
@@ -103,14 +103,14 @@ jobs:
           -o ${{ github.workspace }}/report/
         continue-on-error: true
 
-      - name: Run Prowler for AWS
+      - name: 🔎 Run Prowler for AWS
         if: ${{ inputs.cloud_provider == 'aws' }}
         id: prowler-aws
         run: |
           prowler aws -o ${{ github.workspace }}/report/
         continue-on-error: true
 
-      - name: Run Prowler for Azure
+      - name: 🔎 Run Prowler for Azure
         if: ${{ inputs.cloud_provider == 'azure' }}
         id: prowler-azure
         run: |
@@ -120,7 +120,7 @@ jobs:
           prowler azure --sp-env-auth -o ${{ github.workspace }}/report/
         continue-on-error: true
 
-      - name: Upload report directory
+      - name: 📤 Upload report directory
         uses: actions/upload-artifact@v4
         with:
           name: compliance-report

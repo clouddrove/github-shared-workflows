@@ -1,5 +1,5 @@
 ---
-run-name: 'Readme workflow'
+run-name: '📖 Readme workflow'
 on:
   workflow_call:
     secrets:
@@ -14,24 +14,24 @@ jobs:
   readme-workflow:
     runs-on: ubuntu-latest
     steps:
-      - name: Updating GitHub Token
+      - name: 🔑 Updating GitHub Token
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: echo "GH_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
 
-      - name: checkout
+      - name: 📦 Checkout
         uses: actions/checkout@master
         with:
           fetch-depth: 0
           ref: master
           token: ${{ env.GH_TOKEN }}
 
-      - name: 'Set up Python 3.7'
+      - name: 🐍 Set up Python 3.7
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
-      - name: 'create readme'
+      - name: 📝 Create readme
         uses: 'clouddrove/github-actions@9.0.3'
         with:
           actions_subcommand: 'readme'
@@ -39,22 +39,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN}}
 
-      - name: 'pre-commit check errors'
+      - name: ✅ Pre-commit check errors
         uses: pre-commit/action@v3.0.1
         continue-on-error: true
 
-      - name: 'pre-commit fix erros'
+      - name: 🛠️ Pre-commit fix errors
         uses: pre-commit/action@v3.0.1
         continue-on-error: true
 
-      - name: 'push readme'
+      - name: 🚀 Push readme
         uses: 'clouddrove/github-actions@9.0.3'
         with:
           actions_subcommand: 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN}}
 
-      - name: 'Slack Notification'
+      - name: 📣 Slack Notification
         uses: clouddrove/action-slack@v2
         with:
           status: ${{ job.status }}

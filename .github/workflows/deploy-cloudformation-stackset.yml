@@ -74,10 +74,10 @@ jobs:
   deploy-cf-stackset:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code from master branch
+      - name: 📦 Checkout code from master branch
         uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
+      - name: 🔐 Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
@@ -86,7 +86,7 @@ jobs:
           aws-region: ${{ inputs.aws-region }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
-      - name: Check if StackSet exists or not-exist then create/update stack-set
+      - name: 🔄 Check if StackSet exists or not-exist then create/update stack-set
         id: check-stackset
         run: |
           set +e
@@ -147,7 +147,7 @@ jobs:
             sleep 50s
           fi
 
-      - name: Create or Update StackSet-instance
+      - name: 🧱 Create or Update StackSet-instance
         run: |
           stack_instance_list=$(aws cloudformation list-stack-instances --region ${{ inputs.aws-region }} --stack-set-name ${{ inputs.stack-set-name }})
           if [ "${{ inputs.permission-model }}" == "SERVICE_MANAGED" ]; then
