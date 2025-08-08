@@ -1,0 +1,110 @@
+# 🚀 Terraform Module Tag Release Workflow (Shared)
+
+This is a **shared GitHub Actions workflow** that automates semantic versioning, changelog updates, and tagging for Terraform modules. It's designed to be triggered on push to the `master` branch and is fully reusable across multiple repositories.
+
+---
+
+## 📦 What It Does
+
+- Detects changed Terraform modules in `modules/` directory.
+- Extracts version bump label (`major`, `minor`, `patch`) from the latest merge commit message.
+- Automatically bumps semantic version per module and creates a new Git tag like:  
+  ```
+  module-name/1.2.3
+  ```
+- Prepends a changelog entry in `CHANGELOG.md` with the PR title and version info.
+- Pushes updated changelog and tags to the repository.
+
+---
+
+## ✨ Key Features
+
+- ✅ Multi-module support (detects and tags only changed modules)
+- 🔖 Auto version bump (based on labels in merge commit)
+- 📄 Automatic changelog updates per module
+- 🏷️ Git tagging in format: `module-name/x.y.z`
+- 📂 Directory-structured tag support (`vpc/1.0.1`, `s3/0.0.5`)
+- 📦 Easily reusable as a shared workflow across all module repos
+
+---
+
+## 🧩 How It Works
+
+### Example:
+1. You modify a file in `modules/vpc/` directory.
+2. Your PR title includes a version label like `minor` or `patch`.
+3. After merge to `master`, this workflow:
+   - Detects `vpc` module was changed.
+   - Reads last tag (e.g., `vpc/1.2.3`)
+   - Bumps version to `vpc/1.3.0` (if `minor`)
+   - Creates git tag and updates `CHANGELOG.md`
+
+---
+
+## 🛠️ Setup Instructions
+
+### 1. Create a `.github/workflows/terraform-module-tag-release.yml` in your **module repo** and call the shared workflow:
+
+```yaml
+name: 🚀 Terraform Module Auto Tag Release
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  module-release:
+    uses: clouddrove/github-shared-workflows/.github/workflows/terraform-module-tag-release.yml@master
+```
+
+> 🔁 Replace `your-org/shared-workflows` with your GitHub org/repo and branch name.
+
+---
+
+## 📂 Shared Workflow File Structure
+
+In your shared workflow repo (example: `shared-workflows`):
+
+```
+.github/
+└── workflows/
+    └── terraform-module-tag-release.yml  <-- shared workflow logic
+```
+
+---
+
+## 🏷️ How Version Bump is Determined
+
+This workflow looks at the **last commit message** (usually the merge commit) for any of the following labels:
+
+- `major`
+- `minor`
+- `patch`
+- `no-release` → skips tagging and changelog
+
+> ✅ Make sure your merge commit contains one of these labels!
+
+---
+
+## 📝 Changelog Format
+
+Each entry is prepended to `CHANGELOG.md` like this:
+
+```md
+## vpc/v1.3.0 - 2025-07-24
+
+### Changed
+- Add support for new VPC peering connection
+```
+
+---
+
+## 🔐 Git Permissions
+
+Make sure the workflow has `contents: write` permission to create tags and push `CHANGELOG.md` changes.
+
+---
