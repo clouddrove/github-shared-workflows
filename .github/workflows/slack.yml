@@ -1,22 +1,53 @@
+---
 name: Slack Notify (CloudDrove Style)
-
 on:
   workflow_call:
     inputs:
-      channel:         { type: string, required: true,  description: "Slack channel #name or ID" }
-      title:           { type: string, required: true,  description: "Short action title, e.g., EKS Cluster Spin-up" }
-      status:          { type: string, required: true,  description: "success|failed|cancelled|warning|info" }
-      fields_json:     { type: string, required: false, default: "[]", description: "JSON array of {label,value}" }
-      body_md:         { type: string, required: false, default: "",  description: "Optional Markdown body (e.g., commands/logs)" }
-      button_text:     { type: string, required: false, default: "Open Run" }
-      button_url:      { type: string, required: false, default: "" }
-      logo_url:        { type: string, required: false, default: "https://clouddrove.com/logo.png" }
-      brand:           { type: string, required: false, default: "CloudDrove" }
-      link_to_run:     { type: boolean, required: false, default: true }
+      channel:
+        type: string
+        required: true
+        description: 'Slack channel #name or ID'
+      title:
+        type: string
+        required: true
+        description: Short action title, e.g., EKS Cluster Spin-up
+      status:
+        type: string
+        required: true
+        description: success|failed|cancelled|warning|info
+      fields_json:
+        type: string
+        required: false
+        default: '[]'
+        description: JSON array of {label,value}
+      body_md:
+        type: string
+        required: false
+        default: ""
+        description: Optional Markdown body (e.g., commands/logs)
+      button_text:
+        type: string
+        required: false
+        default: Open Run
+      button_url:
+        type: string
+        required: false
+        default: ""
+      logo_url:
+        type: string
+        required: false
+        default: https://clouddrove.com/logo.png
+      brand:
+        type: string
+        required: false
+        default: CloudDrove
+      link_to_run:
+        type: boolean
+        required: false
+        default: true
     secrets:
       SLACK_BOT_TOKEN:
         required: true
-
 jobs:
   send:
     runs-on: ubuntu-latest
@@ -25,20 +56,20 @@ jobs:
         id: build
         shell: bash
         env:
-          CHANNEL:     ${{ inputs.channel }}
-          TITLE:       ${{ inputs.title }}
-          STATUS:      ${{ inputs.status }}
+          CHANNEL: ${{ inputs.channel }}
+          TITLE: ${{ inputs.title }}
+          STATUS: ${{ inputs.status }}
           FIELDS_JSON: ${{ inputs.fields_json }}
-          BODY_MD:     ${{ inputs.body_md }}
+          BODY_MD: ${{ inputs.body_md }}
           BUTTON_TEXT: ${{ inputs.button_text }}
-          BUTTON_URL:  ${{ inputs.button_url }}
-          LOGO_URL:    ${{ inputs.logo_url }}
-          BRAND:       ${{ inputs.brand }}
-          RUN_URL:     ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BUTTON_URL: ${{ inputs.button_url }}
+          LOGO_URL: ${{ inputs.logo_url }}
+          BRAND: ${{ inputs.brand }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           LINK_TO_RUN: ${{ inputs.link_to_run }}
-          ACTOR:       ${{ github.actor }}
-          REF:         ${{ github.ref }}
-          SHA:         ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          REF: ${{ github.ref }}
+          SHA: ${{ github.sha }}
         run: |
           set -e
 
@@ -117,10 +148,10 @@ jobs:
             }' > payload.json
 
           echo "payload=$(jq -c . payload.json)" >> $GITHUB_OUTPUT
-
       - name: Send to Slack
         uses: slackapi/slack-github-action@v1
         with:
           payload: ${{ steps.build.outputs.payload }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+...
