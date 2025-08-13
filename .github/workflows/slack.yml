@@ -154,6 +154,5 @@ jobs:
         with:
           method: chat.postMessage
           payload: ${{ steps.build.outputs.payload }}
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
 ...
