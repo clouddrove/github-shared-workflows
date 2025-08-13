@@ -149,13 +149,10 @@ jobs:
 
           echo "payload=$(jq -c . payload.json)" >> $GITHUB_OUTPUT
 
-      - name: debug payload json
-        run: cat payload.json
-
       - name: Send to Slack
         uses: slackapi/slack-github-action@v2.1.1
         with:
-          payload-file-path: payload.json
+          payload: ${{ steps.build.outputs.payload }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 ...
