@@ -149,7 +149,7 @@ jobs:
 
           echo "payload=$(jq -c . payload.json)" >> $GITHUB_OUTPUT
 
-      - nam: debug payload json
+      - name: debug payload json
         run: cat payload.json
 
       - name: Send to Slack
