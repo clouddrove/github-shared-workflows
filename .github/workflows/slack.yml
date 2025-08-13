@@ -151,7 +151,8 @@ jobs:
       - name: Send to Slack
         uses: slackapi/slack-github-action@v1
         with:
-          payload: ${{ steps.build.outputs.payload }}
+          payload: >
+            ${{ steps.build.outputs.payload }}
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 ...
