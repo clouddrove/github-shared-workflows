@@ -1,5 +1,5 @@
 ---
-name: 📦 Module Release on Merge
+name: 📦 Terraform Module Tag Release on Merge
 
 on:
   workflow_call:
@@ -22,32 +22,39 @@ jobs:
         id: detect
         run: |
           git fetch --tags
-          CHANGED_DIRS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^modules/' | cut -d '/' -f2 | sort -u | tr '\n' ' ')
-          echo "changed=$CHANGED_DIRS" >> $GITHUB_OUTPUT
+          CHANGED_DIRS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
+            | grep '^terraform-aws-' \
+            | cut -d '/' -f1 \
+            | sort -u \
+            | tr '\n' ' ')
+          echo "changed=$CHANGED_DIRS" >> "$GITHUB_OUTPUT"
 
-      - name: ⚠️ Fail if no module changed
+      - name: ⚠️ Prevent tag release.
         if: steps.detect.outputs.changed == ''
         run: |
-          echo "No module changes detected. Skipping release."
-          exit 1
+          echo "No module changes detected. Skipping tag release."
+          exit 0
 
       - name: 🏷️ Detect version bump from commit message
-        id: version
+        if: steps.detect.outputs.changed != ''
+        id: version_bump
         run: |
-          LABEL=$(git log -1 --pretty=%B | grep -oE '(major|minor|patch|no-release)' || true)
+          LABEL=$(git log -1 --pretty=%B | grep -oE '(major|minor|patch|no-release)' | tr -d '\n' || true)
           if [[ -z "$LABEL" || "$LABEL" == "no-release" ]]; then
             echo "No semantic version label found or no-release label used. Skipping."
             exit 1
           fi
-          echo "bump=$LABEL" >> $GITHUB_OUTPUT
+          echo "bump=$LABEL" >> "$GITHUB_OUTPUT"
 
       - name: 📝 Extract PR title from merge commit
+        if: steps.detect.outputs.changed != ''
         id: prinfo
         run: |
           TITLE=$(git log -1 --pretty=%B | tail -n 1)
-          echo "pr_title=$TITLE" >> $GITHUB_OUTPUT
+          echo "pr_title=$TITLE" >> "$GITHUB_OUTPUT"
 
       - name: 🔖 Bump version and tag modules
+        if: steps.detect.outputs.changed != ''
         run: |
           for module in ${{ steps.detect.outputs.changed }}; do
             prefix="$module/"
@@ -55,7 +62,7 @@ jobs:
             version=${latest_tag:-0.0.0}
             IFS='.' read -r major minor patch <<< "$version"
 
-            case "${{ steps.version.outputs.bump }}" in
+            case "${{ steps.version_bump.outputs.bump }}" in
               major) major=$((major + 1)); minor=0; patch=0 ;;
               minor) minor=$((minor + 1)); patch=0 ;;
               patch) patch=$((patch + 1)) ;;
@@ -64,20 +71,26 @@ jobs:
             new_version="$major.$minor.$patch"
             new_tag="$module/$new_version"
 
+            if git rev-parse "$new_tag" >/dev/null 2>&1; then
+              echo "Tag $new_tag already exists. Skipping."
+              continue
+            fi
+
             echo "Creating tag: $new_tag"
             git tag "$new_tag"
             git push origin "$new_tag"
           done
 
       - name: 🗒️ Update CHANGELOG.md and push
+        if: steps.detect.outputs.changed != ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           if [ ! -f CHANGELOG.md ]; then
-          touch CHANGELOG.md
+            touch CHANGELOG.md
           fi
-
+          
           for module in ${{ steps.detect.outputs.changed }}; do
             prefix="$module/"
             latest_tag=$(git tag --sort=-v:refname | grep "^$prefix" | head -n 1 | cut -d '/' -f2)
