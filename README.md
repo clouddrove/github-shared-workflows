@@ -77,6 +77,16 @@ Above example is just a simple example to call workflow from github shared workf
 18. [PR Checks workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/pr-checks.md)
 19. [Tag Release workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/tag-release.md)
 20. [Terraform PR plan Diff workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/tf-pr-checks.md)
+21. [Docker-scout workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/docker-scout.md)
+22. [Lock thread workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/lock.md)
+23. [Powerpipe workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/lock.md)
+24. [Prowler workflow AWS](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/prowlerAWS.md)
+25. [Prowler workflow GCP](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/prowlerGCP.md)
+26. [Smurf-Docker-Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/smurf-docker-helm.md)
+27. [Smurf Terraform Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/smurf-terraform.md)
+28. [Terraform Module Tag Release Workflow (Shared)](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/terraform-module-tag-release.md)
+
+
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
