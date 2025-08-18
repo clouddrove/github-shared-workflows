@@ -114,7 +114,7 @@ jobs:
 
     steps:
       - name: 📦 Checkout git repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🔧 Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
