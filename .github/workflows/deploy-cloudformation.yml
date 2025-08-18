@@ -81,10 +81,10 @@ jobs:
 
     steps:
       - name: 📦 Checkout code from master branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 📥 Checkout code from another Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ${{ inputs.organization-name }}/${{ inputs.GitHub-repo-name }}
           ref: ${{ inputs.GitHub-branch }}
