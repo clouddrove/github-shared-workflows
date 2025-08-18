@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout source code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 💾 Cache plugin dir
         uses: actions/cache@v4
@@ -23,7 +23,7 @@ jobs:
           key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
 
       - name: ⚙️ Setup TFLint
-        uses: terraform-linters/setup-tflint@v4
+        uses: terraform-linters/setup-tflint@v5
         with:
           tflint_version: v0.44.1
           github_token: ${{ secrets.GITHUB }}
