@@ -50,7 +50,7 @@ jobs:
 Above example is just a simple example to call workflow from github shared workflow to your workflow and used in the jobs as per your requirements.
 
 ## 🚀 Table Of Content
-1. [SST Workflow](./docs/01.sst.md)
+1. [SST Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/01.sst.md)   
 2. [Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/02.helm.md)
    * [Example for AWS cloud provider](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/02.helm.md#example-for-aws-cloud-provider)
    * [Example for Azure cloud provider](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/02.helm.md#example-for-azure-cloud-provider) 
