@@ -1,0 +1,93 @@
+---
+name: 📦 Module Release on Merge
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 🚀 Release Changed Module
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Detect changed modules
+        id: detect
+        run: |
+          git fetch --tags
+          CHANGED_DIRS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^modules/' | cut -d '/' -f2 | sort -u | tr '\n' ' ')
+          echo "changed=$CHANGED_DIRS" >> $GITHUB_OUTPUT
+
+      - name: ⚠️ Fail if no module changed
+        if: steps.detect.outputs.changed == ''
+        run: |
+          echo "No module changes detected. Skipping release."
+          exit 1
+
+      - name: 🏷️ Detect version bump from commit message
+        id: version
+        run: |
+          LABEL=$(git log -1 --pretty=%B | grep -oE '(major|minor|patch|no-release)' || true)
+          if [[ -z "$LABEL" || "$LABEL" == "no-release" ]]; then
+            echo "No semantic version label found or no-release label used. Skipping."
+            exit 1
+          fi
+          echo "bump=$LABEL" >> $GITHUB_OUTPUT
+
+      - name: 📝 Extract PR title from merge commit
+        id: prinfo
+        run: |
+          TITLE=$(git log -1 --pretty=%B | tail -n 1)
+          echo "pr_title=$TITLE" >> $GITHUB_OUTPUT
+
+      - name: 🔖 Bump version and tag modules
+        run: |
+          for module in ${{ steps.detect.outputs.changed }}; do
+            prefix="$module/"
+            latest_tag=$(git tag --sort=-v:refname | grep "^$prefix" | grep -E '[0-9]+\.[0-9]+\.[0-9]+$' | cut -d '/' -f2 | head -n 1)
+            version=${latest_tag:-0.0.0}
+            IFS='.' read -r major minor patch <<< "$version"
+
+            case "${{ steps.version.outputs.bump }}" in
+              major) major=$((major + 1)); minor=0; patch=0 ;;
+              minor) minor=$((minor + 1)); patch=0 ;;
+              patch) patch=$((patch + 1)) ;;
+            esac
+
+            new_version="$major.$minor.$patch"
+            new_tag="$module/$new_version"
+
+            echo "Creating tag: $new_tag"
+            git tag "$new_tag"
+            git push origin "$new_tag"
+          done
+
+      - name: 🗒️ Update CHANGELOG.md and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if [ ! -f CHANGELOG.md ]; then
+          touch CHANGELOG.md
+          fi
+
+          for module in ${{ steps.detect.outputs.changed }}; do
+            prefix="$module/"
+            latest_tag=$(git tag --sort=-v:refname | grep "^$prefix" | head -n 1 | cut -d '/' -f2)
+            today=$(date +"%Y-%m-%d")
+            changelog_entry="## $module/v$latest_tag - $today\n\n### Changed\n- ${{ steps.prinfo.outputs.pr_title }}\n\n"
+
+            echo -e "$changelog_entry" | cat - CHANGELOG.md > temp && mv temp CHANGELOG.md
+          done
+
+          git add CHANGELOG.md
+          git commit -m "chore: update changelog for released modules"
+          git push origin master
+...
