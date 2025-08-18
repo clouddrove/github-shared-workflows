@@ -1,49 +1,48 @@
-# 🚀 Terraform Module Tag Release Workflow (Shared)
+# 🚀 Terraform Module Auto Tag Release Guide
 
-This is a **shared GitHub Actions workflow** that automates semantic versioning, changelog updates, and tagging for Terraform modules. It's designed to be triggered on push to the `master` branch and is fully reusable across multiple repositories.
+This guide explains how to automatically version, tag, and release Terraform modules using a shared GitHub Actions workflow. It supports multi-module repositories and uses semantic versioning with commit messages.
 
 ---
 
 ## 📦 What It Does
 
-- Detects changed Terraform modules in `modules/` directory.
-- Extracts version bump label (`major`, `minor`, `patch`) from the latest merge commit message.
-- Automatically bumps semantic version per module and creates a new Git tag like:  
+- Detects which Terraform modules changed.
+- Reads commit messages to determine version bump (**major, minor, patch, no-release**).
+- Creates Git tags like:
   ```
-  module-name/1.2.3
+  terraform-aws-vpc/1.2.3
   ```
-- Prepends a changelog entry in `CHANGELOG.md` with the PR title and version info.
-- Pushes updated changelog and tags to the repository.
+- Pushes new tags to the repository.
 
 ---
 
 ## ✨ Key Features
 
-- ✅ Multi-module support (detects and tags only changed modules)
-- 🔖 Auto version bump (based on labels in merge commit)
-- 📄 Automatic changelog updates per module
-- 🏷️ Git tagging in format: `module-name/x.y.z`
-- 📂 Directory-structured tag support (`vpc/1.0.1`, `s3/0.0.5`)
-- 📦 Easily reusable as a shared workflow across all module repos
+✅ Multi-module support (only tags changed modules).  
+🔖 Semantic version bumping (major, minor, patch).  
+🏷️ Git tags in format `module-name/1.2.3`.  
+📦 Reusable workflow across multiple repos.  
 
 ---
 
 ## 🧩 How It Works
 
-### Example:
-1. You modify a file in `modules/vpc/` directory.
-2. Your PR title includes a version label like `minor` or `patch`.
-3. After merge to `master`, this workflow:
-   - Detects `vpc` module was changed.
-   - Reads last tag (e.g., `vpc/1.2.3`)
-   - Bumps version to `vpc/1.3.0` (if `minor`)
-   - Creates git tag and updates `CHANGELOG.md`
+1. You modify one or more modules inside repo (e.g., `terraform-aws-vpc/`).
+2. You commit changes with version bump in commit message:
+   - `major`, `minor`, `patch`, `no-release`
+   - Must include **module name** in commit message.
+3. After PR merge:
+   - Workflow detects changed module(s).
+   - Reads latest tags, bumps version.
+   - Creates and pushes new Git tag.
 
 ---
 
 ## 🛠️ Setup Instructions
 
-### 1. Create a `.github/workflows/terraform-module-tag-release.yml` in your **module repo** and call the shared workflow:
+### 1. Add Shared Workflow to Your Repo
+
+In your repo (`.github/workflows/terraform-module-tag-release.yml`):
 
 ```yaml
 name: 🚀 Terraform Module Auto Tag Release
@@ -61,50 +60,65 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/terraform-module-tag-release.yml@master
 ```
 
-> 🔁 Replace `your-org/shared-workflows` with your GitHub org/repo and branch name.
-
 ---
 
-## 📂 Shared Workflow File Structure
+### 🔖 Initial Tagging (First Release)
 
-In your shared workflow repo (example: `shared-workflows`):
+Before using the workflow, you must tag each module with a base version (`1.0.0`).
 
-```
-.github/
-└── workflows/
-    └── terraform-module-tag-release.yml  <-- shared workflow logic
-```
+Run this script locally:
 
----
+```bash
+#!/bin/bash
 
-## 🏷️ How Version Bump is Determined
+modules=("terraform-aws-labels" "terraform-aws-security-group" "terraform-aws-subnet")  # Replace as per your modules
+version="1.0.0"
 
-This workflow looks at the **last commit message** (usually the merge commit) for any of the following labels:
+for module in "${modules[@]}"; do
+  tag="${module}/${version}"
+  git tag "$tag"
+  echo "✅ Tagged $tag"
+done
 
-- `major`
-- `minor`
-- `patch`
-- `no-release` → skips tagging and changelog
-
-> ✅ Make sure your merge commit contains one of these labels!
-
----
-
-## 📝 Changelog Format
-
-Each entry is prepended to `CHANGELOG.md` like this:
-
-```md
-## vpc/v1.3.0 - 2025-07-24
-
-### Changed
-- Add support for new VPC peering connection
+git push --tags
 ```
 
 ---
 
-## 🔐 Git Permissions
+## 📝 Commit Message Guidelines
 
-Make sure the workflow has `contents: write` permission to create tags and push `CHANGELOG.md` changes.
+Version bump depends on commit message:
+
+- **major** → Breaking changes (API change, incompatible updates, big refactor).
+- **minor** → New features (backward-compatible, adds functionality).
+- **patch** → Bug fixes / small changes (backward-compatible).
+- **no-release** → Skip tagging (docs, comments, refactor only).
+
+### Examples:
+
+```bash
+git commit -m "major: (terraform-aws-ec2) migrated from t2.micro to t3.micro instances (breaking change)"
+git commit -m "minor: (terraform-aws-ec2) added support for multiple security groups"
+git commit -m "patch: (terraform-aws-ec2) fixed incorrect AMI ID in default configuration"
+git commit -m "no-release: (terraform-aws-ec2) updated documentation for module usage"
+```
 
 ---
+
+## 🔄 Workflow Usage Rules
+
+- You can change a single module → commit message must contain bump label.  
+- You can change multiple modules → commit changes separately, then squash & merge PR.  
+- Before merging PR → ensure only latest **2–3 relevant commits** exist (remove junk commits).  
+- After initial tags, you can continue normal development and bump versions with commit messages.  
+
+⚠️ Always:
+- Add your module to **master branch**.  
+- Run initial tagging script once.  
+- Then use workflow for bumps and releases.  
+
+---
+
+## ✅ That’s it! 
+
+Your Terraform modules will now be versioned and tagged automatically 🚀

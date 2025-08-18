@@ -35,18 +35,36 @@ jobs:
           echo "No module changes detected. Skipping tag release."
           exit 0
 
-      - name: 🏷️ Detect version bump from commit message
+      - name: 🏷️ Detect version bumps from commit messages
         if: steps.detect.outputs.changed != ''
         id: version_bump
         run: |
-          LABEL=$(git log -1 --pretty=%B | grep -oE '(major|minor|patch|no-release)' | tr -d '\n' || true)
-          if [[ -z "$LABEL" || "$LABEL" == "no-release" ]]; then
-            echo "No semantic version label found or no-release label used. Skipping."
-            exit 1
-          fi
-          echo "bump=$LABEL" >> "$GITHUB_OUTPUT"
+          COMMITS=$(git log ${{ github.event.before }}..${{ github.sha }} --pretty=%B)
 
-      - name: 📝 Extract PR title from merge commit
+          bump_map=""
+          for module in ${{ steps.detect.outputs.changed }}; do
+            bump="no-release" # default
+
+            # read commits line by line, without subshell
+            while IFS= read -r commit; do
+              if echo "$commit" | grep -q "$module"; then
+                if echo "$commit" | grep -qi "major"; then
+                  bump="major"
+                elif echo "$commit" | grep -qi "minor" && [ "$bump" != "major" ]; then
+                  bump="minor"
+                elif echo "$commit" | grep -qi "patch" && [ "$bump" = "no-release" ]; then
+                  bump="patch"
+                fi
+              fi
+            done <<< "$COMMITS"
+
+            bump_map="$bump_map$module:$bump "
+          done
+
+          echo "bump_map=$bump_map" >> "$GITHUB_OUTPUT"
+
+
+      - name: 📝 Extract PR title (for default changelog heading)
         if: steps.detect.outputs.changed != ''
         id: prinfo
         run: |
@@ -56,13 +74,21 @@ jobs:
       - name: 🔖 Bump version and tag modules
         if: steps.detect.outputs.changed != ''
         run: |
-          for module in ${{ steps.detect.outputs.changed }}; do
+          for entry in ${{ steps.version_bump.outputs.bump_map }}; do
+            module=$(echo $entry | cut -d':' -f1)
+            bump=$(echo $entry | cut -d':' -f2)
+
+            if [ "$bump" = "no-release" ]; then
+              echo "ℹ️ No release requested for $module (commit had no bump label)"
+              continue
+            fi
+
             prefix="$module/"
             latest_tag=$(git tag --sort=-v:refname | grep "^$prefix" | grep -E '[0-9]+\.[0-9]+\.[0-9]+$' | cut -d '/' -f2 | head -n 1)
             version=${latest_tag:-0.0.0}
             IFS='.' read -r major minor patch <<< "$version"
 
-            case "${{ steps.version_bump.outputs.bump }}" in
+            case "$bump" in
               major) major=$((major + 1)); minor=0; patch=0 ;;
               minor) minor=$((minor + 1)); patch=0 ;;
               patch) patch=$((patch + 1)) ;;
@@ -72,35 +98,12 @@ jobs:
             new_tag="$module/$new_version"
 
             if git rev-parse "$new_tag" >/dev/null 2>&1; then
-              echo "Tag $new_tag already exists. Skipping."
+              echo "⚠️ Tag $new_tag already exists. Skipping."
               continue
             fi
 
-            echo "Creating tag: $new_tag"
+            echo "✅ Creating tag: $new_tag"
             git tag "$new_tag"
             git push origin "$new_tag"
           done
-
-      - name: 🗒️ Update CHANGELOG.md and push
-        if: steps.detect.outputs.changed != ''
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          if [ ! -f CHANGELOG.md ]; then
-            touch CHANGELOG.md
-          fi
-          
-          for module in ${{ steps.detect.outputs.changed }}; do
-            prefix="$module/"
-            latest_tag=$(git tag --sort=-v:refname | grep "^$prefix" | head -n 1 | cut -d '/' -f2)
-            today=$(date +"%Y-%m-%d")
-            changelog_entry="## $module/v$latest_tag - $today\n\n### Changed\n- ${{ steps.prinfo.outputs.pr_title }}\n\n"
-
-            echo -e "$changelog_entry" | cat - CHANGELOG.md > temp && mv temp CHANGELOG.md
-          done
-
-          git add CHANGELOG.md
-          git commit -m "chore: update changelog for released modules"
-          git push origin master
 ...
