@@ -129,7 +129,7 @@ jobs:
 
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - uses: webfactory/ssh-agent@v0.9.1
         if: ${{ inputs.git_ssh_key_setup == true }}
