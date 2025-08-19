@@ -114,7 +114,7 @@ Above example is just a simple example to call workflow from github shared workf
 20. [SST Workflow](./docs/20.sst.md)
 21. [Stale PR workflow](./docs/21.stale-pr.md)
 22. [Tag Release workflow](./docs/22.tag-release.md)
-23. [Terraform Checks Workflow](./docs/05.terraform-checks.md)
+23. [Terraform Checks Workflow](./docs/23.terraform-checks.md)
     * [Example for terraform checks with azure cloud](./docs/23.terraform-checks.md#example-for-terraform-checks-with-azure-cloud)
     * [Example for terraform checks with aws cloud](./docs/23.terraform-checks.md#example-for-terraform-checks-with-aws-cloud)
     * [Example for terraform checks with digitalocean cloud](./docs/23.terraform-checks.md#example-for-terraform-checks-with-digitalocean-cloud)
