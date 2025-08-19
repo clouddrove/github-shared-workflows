@@ -49,7 +49,7 @@ jobs:
 ```
 Above example is just a simple example to call workflow from github shared workflow to your workflow and used in the jobs as per your requirements.
 
-## 🚀 Table Of Content
+<!-- ## 🚀 Table Of Content -->
 <!-- 1. [SST Workflow](./docs/01.sst.md)
 2. [Helm Workflow](./docs/02.helm.md)
    * [Example for AWS cloud provider](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/02.helm.md#example-for-aws-cloud-provider)
@@ -115,9 +115,9 @@ Above example is just a simple example to call workflow from github shared workf
 21. [Stale PR workflow](./docs/21.stale-pr.md)
 22. [Tag Release workflow](./docs/22.tag-release.md)
 23. [Terraform Checks Workflow](./docs/05.terraform-checks.md)
-   * [Example for terraform checks with azure cloud](./docs/23.terraform-checks.md#example-for-terraform-checks-with-azure-cloud)
-   * [Example for terraform checks with aws cloud](./docs/23.terraform-checks.md#example-for-terraform-checks-with-aws-cloud)
-   * [Example for terraform checks with digitalocean cloud](./docs/23.terraform-checks.md#example-for-terraform-checks-with-digitalocean-cloud)
+    * [Example for terraform checks with azure cloud](./docs/23.terraform-checks.md#example-for-terraform-checks-with-azure-cloud)
+    * [Example for terraform checks with aws cloud](./docs/23.terraform-checks.md#example-for-terraform-checks-with-aws-cloud)
+    * [Example for terraform checks with digitalocean cloud](./docs/23.terraform-checks.md#example-for-terraform-checks-with-digitalocean-cloud)
 24. [Terraform Checks Workflow](./docs/24.terraform-checks.md)
 25. [Terraform Lint Workflow](./docs/25.terraform-lint.md)
 26. [Terraform Module Tag Release Workflow (Shared)](./docs/26.terraform-module-tag-release.md)
