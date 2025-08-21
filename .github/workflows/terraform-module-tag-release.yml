@@ -63,14 +63,6 @@ jobs:
 
           echo "bump_map=$bump_map" >> "$GITHUB_OUTPUT"
 
-
-      - name: 📝 Extract PR title (for default changelog heading)
-        if: steps.detect.outputs.changed != ''
-        id: prinfo
-        run: |
-          TITLE=$(git log -1 --pretty=%B | tail -n 1)
-          echo "pr_title=$TITLE" >> "$GITHUB_OUTPUT"
-
       - name: 🔖 Bump version and tag modules
         if: steps.detect.outputs.changed != ''
         run: |
