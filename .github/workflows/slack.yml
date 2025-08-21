@@ -1,30 +1,26 @@
----
 name: Slack Notify (CloudDrove Style)
+
 on:
   workflow_call:
     inputs:
       channel:
         type: string
         required: true
-        description: 'Slack channel #name or ID'
+        description: 'Slack channel #name (ignored for webhook, channel is fixed in webhook setup)'
       title:
         type: string
         required: true
-        description: Short action title, e.g., EKS Cluster Spin-up
       status:
         type: string
         required: true
-        description: success|failed|cancelled|warning|info
       fields_json:
         type: string
         required: false
         default: '[]'
-        description: JSON array of {label,value}
       body_md:
         type: string
         required: false
         default: ""
-        description: Optional Markdown body (e.g., commands/logs)
       button_text:
         type: string
         required: false
@@ -46,8 +42,9 @@ on:
         required: false
         default: true
     secrets:
-      SLACK_BOT_TOKEN:
+      SLACK_WEBHOOK_URL:
         required: true
+
 jobs:
   send:
     runs-on: ubuntu-latest
@@ -55,25 +52,18 @@ jobs:
       - name: Build payload (Block Kit)
         id: build
         shell: bash
-        env:
-          CHANNEL: ${{ inputs.channel }}
-          TITLE: ${{ inputs.title }}
-          STATUS: ${{ inputs.status }}
-          FIELDS_JSON: ${{ inputs.fields_json }}
-          BODY_MD: ${{ inputs.body_md }}
-          BUTTON_TEXT: ${{ inputs.button_text }}
-          BUTTON_URL: ${{ inputs.button_url }}
-          LOGO_URL: ${{ inputs.logo_url }}
-          BRAND: ${{ inputs.brand }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          LINK_TO_RUN: ${{ inputs.link_to_run }}
-          ACTOR: ${{ github.actor }}
-          REF: ${{ github.ref }}
-          SHA: ${{ github.sha }}
         run: |
           set -e
+          STATUS="${{ inputs.status }}"
+          TITLE="${{ inputs.title }}"
+          BRAND="${{ inputs.brand }}"
+          LOGO_URL="${{ inputs.logo_url }}"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          LINK_TO_RUN="${{ inputs.link_to_run }}"
+          BODY_MD="${{ inputs.body_md }}"
+          BUTTON_TEXT="${{ inputs.button_text }}"
+          BUTTON_URL="${{ inputs.button_url }}"
 
-          # Map status -> emoji (you can tweak)
           case "${STATUS,,}" in
             success)  EMOJI="✅";;
             failed)   EMOJI="❌";;
@@ -82,77 +72,37 @@ jobs:
             info|*)   EMOJI="ℹ️";;
           esac
 
-          # Default fields (always appended)
-          DEFAULT_FIELDS=$(jq -n --arg ref "$REF" --arg sha "$SHA" --arg actor "@$ACTOR" \
-            '[ {"label":"Ref","value":$ref},
-               {"label":"Commit","value":$sha},
-               {"label":"Actor","value":$actor}
-             ]')
-
-          # Merge custom + default fields
-          FIELDS=$(jq -c -n \
-            --argjson a "${FIELDS_JSON}" \
-            --argjson b "${DEFAULT_FIELDS}" \
-            '$a + $b')
-
-          # Build Block Kit "fields" array
-          FIELDS_BLOCK=$(jq -c '[ .[] | {type:"mrkdwn", text: ("*"+.label+"*:\n`"+.value+"`")} ]' <<<"$FIELDS")
-
-          # Optional body section
-          if [ -n "$BODY_MD" ]; then
-            BODY_BLOCK=$(jq -c -n --arg t "$BODY_MD" \
-              '{ "type":"section", "text": { "type":"mrkdwn", "text": $t } }')
-          else
-            BODY_BLOCK="null"
-          fi
-
-          # Context line with logo + brand + run link
           if [ "$LINK_TO_RUN" = "true" ]; then
-            CTX_TEXT="*by '"$BRAND"'* • <'"$RUN_URL"'|View GitHub Run>"
+            CTX_TEXT="*by $BRAND* • <${RUN_URL}|View GitHub Run>"
           else
-            CTX_TEXT="*by '"$BRAND"'*"
+            CTX_TEXT="*by $BRAND*"
           fi
 
-          CONTEXT_BLOCK=$(jq -n -c --arg logo "$LOGO_URL" --arg t "$CTX_TEXT" \
-            '{ "type":"context", "elements": [
-                { "type":"image", "image_url": $logo, "alt_text": "brand" },
-                { "type":"mrkdwn", "text": $t }
-              ] }')
-
-          # Optional button row
-          if [ -n "$BUTTON_URL" ]; then
-            ACTIONS=$(jq -n -c --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" \
-              '{ "type":"actions",
-                 "elements":[ { "type":"button","text":{"type":"plain_text","text":$txt},"url":$url,"style":"primary"} ] }')
-          else
-            ACTIONS="null"
-          fi
-
-          # Assemble blocks
           jq -n \
-            --arg ch "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
-            --argjson fields "$FIELDS_BLOCK" \
-            --argjson context "$CONTEXT_BLOCK" \
-            --argjson body "$BODY_BLOCK" \
-            --argjson actions "$ACTIONS" \
+            --arg ctx "$CTX_TEXT" \
+            --arg logo "$LOGO_URL" \
+            --arg body "$BODY_MD" \
+            --arg btn_txt "$BUTTON_TEXT" \
+            --arg btn_url "$BUTTON_URL" \
             '{
-              channel: $ch,
               blocks: [
                 { "type":"header", "text":{"type":"plain_text","text":$title,"emoji":true} },
-                $context,
-                { "type":"section", "fields": $fields },
-                ( $body // empty ),
-                ( $actions // empty )
+                { "type":"context", "elements":[
+                    { "type":"image", "image_url": $logo, "alt_text": "brand" },
+                    { "type":"mrkdwn", "text": $ctx }
+                  ]
+                },
+                ( if $body != "" then { "type":"section", "text": { "type":"mrkdwn", "text": $body } } else empty end ),
+                ( if $btn_url != "" then {
+                    "type":"actions",
+                    "elements":[{ "type":"button","text":{"type":"plain_text","text":$btn_txt},"url":$btn_url,"style":"primary"}]
+                  } else empty end )
               ]
             }' > payload.json
 
-          echo "payload=$(jq -c . payload.json)" >> $GITHUB_OUTPUT
-
-      - name: Send to Slack
-        uses: slackapi/slack-github-action@v2.1.1
-        with:
-          method: chat.postMessage
-          payload: ${{ steps.build.outputs.payload }}
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-...
+      - name: Send to Slack (via Webhook)
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data @payload.json \
+            ${{ secrets.SLACK_WEBHOOK_URL }}
