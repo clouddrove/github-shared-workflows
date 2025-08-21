@@ -74,22 +74,25 @@ jobs:
           esac
 
           if [ "$LINK_TO_RUN" = "true" ]; then
-            CTX_TEXT="*by $BRAND* • <${RUN_URL}|View GitHub Run>"
+            CTX_TEXT="by $BRAND • <${RUN_URL}|View GitHub Run>"
           else
-            CTX_TEXT="*by $BRAND*"
+            CTX_TEXT="by $BRAND"
           fi
 
+          # Insert status as a field before other fields
+          FINAL_FIELDS=$(jq -n --arg emoji "$EMOJI" --arg status "$STATUS" --arg title "$TITLE" '
+            [{"name":"Status","value":($emoji + " " + $status + " • " + $title)}]
+          ' | jq --argjson original "$FIELDS_JSON" '. + $original')
+
           jq -n \
-            --arg title "$EMOJI $TITLE — ${STATUS^^}" \
             --arg ctx "$CTX_TEXT" \
             --arg logo "$LOGO_URL" \
             --arg body "$BODY_MD" \
             --arg btn_txt "$BUTTON_TEXT" \
             --arg btn_url "$BUTTON_URL" \
-            --argjson fields "$FIELDS_JSON" \
+            --argjson fields "$FINAL_FIELDS" \
             '{
               blocks: [
-                { "type":"header", "text":{"type":"plain_text","text":$title,"emoji":true} },
                 { "type":"context", "elements":[
                     { "type":"image", "image_url": $logo, "alt_text": "brand" },
                     { "type":"mrkdwn", "text": $ctx }
@@ -98,7 +101,7 @@ jobs:
                 ( if $body != "" then { "type":"section", "text": { "type":"mrkdwn", "text": $body } } else empty end ),
                 ( if ($fields | length) > 0 then {
                     "type": "section",
-                    "fields": ($fields | map({ "type":"mrkdwn", "text": ("*" + .name + "*: " + .value) }))
+                    "fields": ($fields | map({ "type":"mrkdwn", "text": ("*" + .name + "*\n" + .value) }))
                   } else empty end ),
                 ( if $btn_url != "" then {
                     "type":"actions",
