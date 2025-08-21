@@ -63,6 +63,7 @@ jobs:
           BODY_MD="${{ inputs.body_md }}"
           BUTTON_TEXT="${{ inputs.button_text }}"
           BUTTON_URL="${{ inputs.button_url }}"
+          FIELDS_JSON='${{ inputs.fields_json }}'
 
           case "${STATUS,,}" in
             success)  EMOJI="✅";;
@@ -85,6 +86,7 @@ jobs:
             --arg body "$BODY_MD" \
             --arg btn_txt "$BUTTON_TEXT" \
             --arg btn_url "$BUTTON_URL" \
+            --argjson fields "$FIELDS_JSON" \
             '{
               blocks: [
                 { "type":"header", "text":{"type":"plain_text","text":$title,"emoji":true} },
@@ -94,6 +96,10 @@ jobs:
                   ]
                 },
                 ( if $body != "" then { "type":"section", "text": { "type":"mrkdwn", "text": $body } } else empty end ),
+                ( if ($fields | length) > 0 then {
+                    "type": "section",
+                    "fields": ($fields | map({ "type":"mrkdwn", "text": ("*" + .name + "*: " + .value) }))
+                  } else empty end ),
                 ( if $btn_url != "" then {
                     "type":"actions",
                     "elements":[{ "type":"button","text":{"type":"plain_text","text":$btn_txt},"url":$btn_url,"style":"primary"}]
