@@ -19,12 +19,13 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/terraform_workflow.yml@master
     with:
         provider:           # aws
-        working_directory:  # Specify terraform code directory in repo
-        var_file:           # name of tfvar file e.g "variable.tfvar"
+        working_directory:  # Specify terraform code directory in repo, eg. './_example/complete/'
+        var_file:           # name of tfvar file, eg. "variable.tfvar"
         aws_region:         # specify region eg. us-east-2
         approvers:          # Assignee name for approve apply or destroy step
         minimum-approvals:  # Minimum number of approvals required to progress the workflow, deafault value is 1
         terraform_version:  # Specify terraform version e.g 1.3.6
+        plan_only:          # If the value is set to true, the workflow will only show terraform plan
         destroy:            # If the value is set to true, the workflow proceeds to the destroy step. However, the default value is false
      secrets:
         AWS_ACCESS_KEY_ID:  # Specify AWS Access key ID
