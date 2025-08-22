@@ -70,7 +70,7 @@ jobs:
         run: |
           set -e
 
-          # Emoji for status
+          # Status to Emoji
           case "${STATUS,,}" in
             success) EMOJI="✅";;
             failed) EMOJI="❌";;
@@ -93,25 +93,24 @@ jobs:
               {"label":"Actor","value":$actor}
             ]')
 
-          # Merge fields
+          # Merge user fields + default fields
           ALL_FIELDS=$(jq -c -n \
             --argjson a "${FIELDS_JSON}" \
             --argjson b "${DEFAULT_FIELDS}" \
             '$a + $b')
 
-          # Convert to Slack field layout
+          # Format fields in Slack layout
           FIELD_ITEMS=$(jq -c '[ .[] | {
             type: "mrkdwn",
             text: ("*" + .label + "*:\n" + .value)
           } ]' <<<"$ALL_FIELDS")
 
-          # Build field block (2-column layout)
-          FIELD_BLOCK=$(jq -c -n --argjson fields "$FIELD_ITEMS" '{
+          FIELDS_BLOCK=$(jq -c -n --argjson fields "$FIELD_ITEMS" '{
             type: "section",
             fields: $fields
           }')
 
-          # Optional body block
+          # Optional markdown body
           if [ -n "$BODY_MD" ]; then
             BODY_BLOCK=$(jq -c -n --arg t "$BODY_MD" \
               '{ "type":"section", "text": { "type":"mrkdwn", "text": $t } }')
@@ -119,51 +118,71 @@ jobs:
             BODY_BLOCK=null
           fi
 
-          # Context footer block
+          # Top Header block with CloudDrove branding
+          HEADER_CONTEXT=$(jq -c -n --arg logo "$LOGO_URL" --arg brand "$BRAND" '{
+            type: "context",
+            elements: [
+              { "type": "image", "image_url": $logo, "alt_text": "brand" },
+              { "type": "mrkdwn", "text": "*" + $brand + "*" }
+            ]
+          }')
+
+          # Footer block with optional GitHub run link
           if [ "$LINK_TO_RUN" = "true" ]; then
-            CTX_TEXT="*by '$BRAND'* • <$RUN_URL|View GitHub Run>"
+            FOOTER_CONTEXT=$(jq -c -n --arg logo "$LOGO_URL" --arg t "*by '$BRAND'* • <$RUN_URL|View GitHub Run>" '{
+              type: "context",
+              elements: [
+                { "type": "image", "image_url": $logo, "alt_text": "brand" },
+                { "type": "mrkdwn", "text": $t }
+              ]
+            }')
           else
-            CTX_TEXT="*by '$BRAND'*"
+            FOOTER_CONTEXT=$(jq -c -n --arg logo "$LOGO_URL" --arg t "*by '$BRAND'*" '{
+              type: "context",
+              elements: [
+                { "type": "image", "image_url": $logo, "alt_text": "brand" },
+                { "type": "mrkdwn", "text": $t }
+              ]
+            }')
           fi
 
-          CONTEXT_BLOCK=$(jq -c -n --arg logo "$LOGO_URL" --arg t "$CTX_TEXT" \
-            '{ "type":"context", "elements": [
-                { "type":"image", "image_url": $logo, "alt_text": "brand" },
-                { "type":"mrkdwn", "text": $t }
-              ] }')
-
-          # Button block (optional)
+          # Optional button
           if [ -n "$BUTTON_URL" ]; then
-            ACTIONS=$(jq -c -n --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" \
-              '{ "type":"actions", "elements": [
-                  { "type":"button", "text": { "type":"plain_text", "text": $txt }, "url": $url, "style": "primary" }
-                ] }')
+            ACTIONS_BLOCK=$(jq -c -n --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" '{
+              type: "actions",
+              elements: [
+                {
+                  type: "button",
+                  text: { type: "plain_text", text: $txt },
+                  url: $url,
+                  style: "primary"
+                }
+              ]
+            }')
           else
-            ACTIONS=null
+            ACTIONS_BLOCK=null
           fi
 
-          # Final payload
+          # Final Slack message payload
           jq -n \
             --arg ch "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
-            --arg logo "$LOGO_URL" \
-            --argjson context "$CONTEXT_BLOCK" \
-            --argjson fields "$FIELD_BLOCK" \
+            --argjson header "$HEADER_CONTEXT" \
+            --argjson fields "$FIELDS_BLOCK" \
             --argjson body "$BODY_BLOCK" \
-            --argjson actions "$ACTIONS" '
+            --argjson actions "$ACTIONS_BLOCK" \
+            --argjson footer "$FOOTER_CONTEXT" '
             def optional(x): if x != null and x != "null" then [x] else [] end;
 
             {
               channel: $ch,
               blocks: (
-                [
-                  { "type": "image", "image_url": $logo, "alt_text": "CloudDrove" },
-                  { "type": "header", "text": { "type": "plain_text", "text": $title, "emoji": true } },
-                  $fields
-                ]
+                [ $header ]
+                + [{ "type": "header", "text": { "type": "plain_text", "text": $title, "emoji": true } }]
+                + [ $fields ]
                 + optional($body)
                 + optional($actions)
-                + [ $context ]
+                + [ $footer ]
               )
             }' > payload.json
 
@@ -175,4 +194,5 @@ jobs:
           method: chat.postMessage
           payload: ${{ steps.build.outputs.payload }}
           token: ${{ secrets.SLACK_BOT_TOKEN }}
+
 ...
