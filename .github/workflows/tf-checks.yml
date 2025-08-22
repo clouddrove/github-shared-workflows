@@ -1,6 +1,6 @@
 ---
 # Tf check workflow checks for min, max version, terraform fmt, terraform init & terraform validate in your terraform code.
-name: tf-checks
+name: 🧪 tf Checks
 
 on:
   workflow_call:
@@ -82,7 +82,7 @@ on:
 jobs:
   # - Terraform version extract as output.
   versionExtract:
-    name: Get min/max versions
+    name: 🏷️ Get min/max versions
     runs-on: ubuntu-latest
 
     outputs:
@@ -91,17 +91,17 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: 📦 Checkout
+        uses: actions/checkout@v5
 
       # - Checking terraform Max and Min version.
-      - name: Terraform min/max versions
+      - name: 🧮 Terraform min/max versions
         id: minMax
         uses: clowdhaus/terraform-min-max@main
 
   # - Evaluating terraform version based on version extract
   versionEvaluate:
-    name: Evaluate Terraform versions
+    name: 🧪 Evaluate Terraform versions
     runs-on: ubuntu-latest
     needs: versionExtract
     strategy:
@@ -115,10 +115,10 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: 📦 Checkout
+        uses: actions/checkout@v5
 
-      - name: Install AWS CLI
+      - name: 🟦 Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -130,13 +130,13 @@ jobs:
           role-duration-seconds: ${{ inputs.role_duration_seconds }}
           role-skip-session-tagging: true
 
-      - name: Install Azure CLI
+      - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 'Authenticate to Google Cloud'
+      - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
         uses: 'google-github-actions/auth@v2'
         with:
@@ -149,13 +149,13 @@ jobs:
           project_id: ${{ inputs.project_id }}
 
       # - Installing terraform version based on version extract.
-      - name: Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
+      - name: 🛠️ Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
 
       # - Terraform checks to Init and Validate terraform code.
-      - name: Init & validate v${{ matrix.version }}
+      - name: 🏗️ Init & validate v${{ matrix.version }}
         run: |
           cd ${{ matrix.directory }}
           terraform init
@@ -163,22 +163,22 @@ jobs:
 
 # Action to verify terraform formatting.
   format:
-    name: Check code format
+    name: 🧹 Check code format
     runs-on: ubuntu-latest
     needs: [versionExtract, versionEvaluate]
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: 📦 Checkout
+        uses: actions/checkout@v5
 
       # - Action added to install terraform
-      - name: Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
+      - name: 🛠️ Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
 
       # - Running command to check terraform formatting changes.
-      - name: Check Terraform format changes
+      - name: 🧹 Check Terraform format changes
         run: terraform fmt --recursive -check=true
 ...

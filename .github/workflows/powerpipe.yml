@@ -1,5 +1,5 @@
 ---
-name: 'Powerpipe Workflow'
+name: '⚡ Powerpipe Workflow'
 
 on:
   workflow_call:
@@ -88,13 +88,13 @@ on:
 
 jobs:
   powerpipe:
-    name: 'Powerpipe Shared Workflow'
+    name: '⚡ Powerpipe Shared Workflow'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: 📦 Checkout repo
+        uses: actions/checkout@v5
 
-      - name: Setup AWS Credentials
+      - name: 🔑 Setup AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.aws_assume_role }}
@@ -102,7 +102,7 @@ jobs:
           aws-region: us-east-1
         if: ${{ inputs.cloud_provider == 'AWS' }}
 
-      - name: 'Authenticate to Google Cloud'
+      - name: ☁️ Authenticate to Google Cloud
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
@@ -114,7 +114,7 @@ jobs:
           project_id: ${{ inputs.project_id }}
         if: ${{ inputs.cloud_provider == 'GCP' }}
 
-      - name: Authenticate to Azure Cloud
+      - name: 🔷 Authenticate to Azure Cloud
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
@@ -122,19 +122,19 @@ jobs:
           subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
         if: ${{ inputs.cloud_provider == 'AZURE' }}
 
-      - name: Setup Steampipe
+      - name: 🧩 Setup Steampipe
         uses: turbot/steampipe-action-setup@v1
         with:
           plugin-connections: ${{ inputs.plugin_connection }}
 
-      - name: Install Powerpipe
+      - name: ⚡ Install Powerpipe
         uses: turbot/powerpipe-action-setup@v1
 
-      - name: Start steampipe service
+      - name: ▶️ Start steampipe service
         run: |
           steampipe service start
 
-      - name: Run Terraform AWS Compliance control
+      - name: 🛡️ Run Terraform AWS Compliance control
         uses: turbot/powerpipe-action-check@v1
         with:
           mod-url: ${{ inputs.mod_url }}
@@ -142,7 +142,7 @@ jobs:
           benchmarks: ${{ inputs.benchmarks }}
           github-token: ${{ secrets.TOKEN }}
 
-      - name: Read generated markdown file
+      - name: 📖 Read generated markdown file
         id: read_md_file
         run: |
           # Read the content of the generated .md file into an environment variable
@@ -152,7 +152,7 @@ jobs:
           echo "$MD_CONTENT" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Comment on the PR with the markdown report
+      - name: 💬 Comment on the PR with the markdown report
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.TOKEN }}

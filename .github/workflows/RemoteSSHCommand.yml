@@ -1,5 +1,5 @@
 ---
-name: "remote ssh command"
+name: "🔐 Remote SSH Command"
 on:
   workflow_call:
     inputs:
@@ -82,10 +82,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout git repo
-        uses: actions/checkout@v4
+      - name: 📦 Checkout git repo
+        uses: actions/checkout@v5
 
-      - name: executing remote ssh commands using ssh key
+      - name: 🔐 Executing remote SSH commands using SSH key
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.HOST }}
@@ -97,7 +97,7 @@ jobs:
           script: |
             ${{ inputs.script }}
 
-      - name: slack notification
+      - name: 📣 Slack notification
         if: ${{ inputs.slack-notification == 'true' && always() }}
         uses: rtCamp/action-slack-notify@v2
         env:

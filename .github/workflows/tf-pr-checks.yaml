@@ -1,5 +1,5 @@
 ---
-name: Terraform Plan PR Diff
+name: 🧾 Terraform Plan PR Diff
 on:
   workflow_call:
     inputs:
@@ -79,15 +79,15 @@ jobs:
   terraform-plan-diff:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR branch
-        uses: actions/checkout@v3
+      - name: 📥 Checkout PR branch
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
-      - name: Setup Terraform
+      - name: ⚙️ Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Install AWS CLI
+      - name: ☁️ Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -99,13 +99,13 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: Install Azure CLI
+      - name: 🔐 Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 'Authenticate to Google Cloud'
+      - name: 🔑 Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
         uses: 'google-github-actions/auth@v2'
         with:
@@ -117,40 +117,40 @@ jobs:
           access_token_lifetime: ${{ inputs.access_token_lifetime }}
           project_id: ${{ inputs.project_id }}
 
-      - name: Terraform Init (PR branch)
+      - name: 🚀 Terraform Init (PR branch)
         working-directory: ${{ inputs.terraform_directory }}
         run: terraform init
 
-      - name: Terraform Plan (PR branch)
+      - name: 📐 Terraform Plan (PR branch)
         working-directory: ${{ inputs.terraform_directory }}
         run: |
           export ARM_SUBSCRIPTION_ID=${{ secrets.ARM_SUBSCRIPTION_ID }}
           terraform plan -out=tfplan-pr
 
-      - name: Save PR plan
+      - name: 💾 Save PR plan
         working-directory: ${{ inputs.terraform_directory }}
         run: terraform show -no-color tfplan-pr > plan-pr.txt
 
-      - name: Checkout target branch
+      - name: 📥 Checkout target branch
         run: |
           git fetch origin ${{ inputs.target_branch }}
           git checkout ${{ inputs.target_branch }}
 
-      - name: Terraform Init (target branch)
+      - name: 🚀 Terraform Init (target branch)
         working-directory: ${{ inputs.terraform_directory }}
         run: terraform init
 
-      - name: Terraform Plan (target branch)
+      - name: 📐 Terraform Plan (target branch)
         working-directory: ${{ inputs.terraform_directory }}
         run: |
           export ARM_SUBSCRIPTION_ID=${{ secrets.ARM_SUBSCRIPTION_ID }}
           terraform plan -out=tfplan-target
 
-      - name: Save target plan
+      - name: 💾 Save target plan
         working-directory: ${{ inputs.terraform_directory }}
         run: terraform show -no-color tfplan-target > plan-target.txt
 
-      - name: Generate Terraform Plan Diff
+      - name: 🧾 Generate Terraform Plan Diff
         uses: int128/diff-action@v1
         with:
           base: ${{ inputs.terraform_directory }}/plan-target.txt

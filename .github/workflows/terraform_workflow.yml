@@ -1,5 +1,5 @@
 ---
-run-name: 'Terraform workflow'
+run-name: 'Terraform workflow' # PLAN ONLY
 on:
   workflow_call:
     inputs:
@@ -125,15 +125,15 @@ jobs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: 📦 Checkout
+        uses: actions/checkout@v5
 
       - uses: webfactory/ssh-agent@v0.9.1
         if: ${{ inputs.git_ssh_key_setup == true }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Set environment variables
+      - name: 🌱 Set environment variables
         run: |
           (
           cat <<'_EOT'
@@ -141,7 +141,7 @@ jobs:
           _EOT
           ) >> "$GITHUB_ENV"
 
-      - name: Install AWS CLI
+      - name: 🟦 Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -153,13 +153,13 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: Install Azure CLI
+      - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 'Authenticate to Google Cloud'
+      - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
         uses: 'google-github-actions/auth@v2'
         with:
@@ -171,18 +171,18 @@ jobs:
           access_token_lifetime: ${{ inputs.access_token_lifetime }}
           project_id: ${{ inputs.project_id }}
 
-      - name: Install doctl
+      - name: 🟦 Install doctl
         if: ${{ inputs.provider == 'digitalocean' }}
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      - name: Set up Terraform
+      - name: 🛠️ Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
-      - name: 'Terraform Format'
+      - name: 🧹 Terraform Format
         if: ${{ inputs.destroy != true }}
         id: fmt
         uses: 'dflook/terraform-fmt-check@v2'
@@ -190,19 +190,19 @@ jobs:
           actions_subcommand: 'fmt'
           path: ${{ inputs.working_directory }}
 
-      - name: terraform init
+      - name: 🏗️ terraform init
         run: |
            cd ${{ inputs.working_directory }}
            terraform init
 
-      - name: 'Terraform validate'
+      - name: 🔎 Terraform validate
         if: ${{ inputs.destroy != true }}
         id: validate
         uses: dflook/terraform-validate@v2
         with:
           path: ${{ inputs.working_directory }}
 
-      - name: Terraform Plan
+      - name: 📋 Terraform Plan
         id: tf-plan
         run: |
           export exitcode=0
@@ -221,13 +221,13 @@ jobs:
             fi
           fi
 
-      - name: Publish Terraform Plan
+      - name: 📤 Publish Terraform Plan
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
           path: ${{ inputs.working_directory }}/tfplan
 
-      - name: Create String Output
+      - name: 📝 Create String Output
         id: tf-plan-string
         run: |
           cd ${{ inputs.working_directory }}
@@ -243,7 +243,7 @@ jobs:
           echo "</details>" >> $GITHUB_OUTPUT
           echo "${delimiter}" >> $GITHUB_OUTPUT
 
-      - name: "Accept plan or deny"
+      - name: "Accept plan or deny
         if: ${{ inputs.plan_only != true }}
         uses: trstringer/manual-approval@v1
         timeout-minutes: ${{ inputs.timeout }}
@@ -253,7 +253,7 @@ jobs:
           minimum-approvals: ${{ inputs.minimum-approvals }}
           issue-title: "Terraform Plan for Infrastructure Update"
 
-      - name: terraform apply
+      - name: 🚀 terraform apply
         if: ${{ inputs.destroy != true && inputs.plan_only != true }}
         run: |
           if [ -n "${{ inputs.var_file }}" ]; then
@@ -264,7 +264,7 @@ jobs:
            terraform apply -auto-approve
           fi
 
-      - name: Find Errored Terraform State
+      - name: 🕵️ Find Errored Terraform State
         if: ${{ always() }}
         run: |
           cd ${{ inputs.working_directory }}
@@ -275,14 +275,14 @@ jobs:
             echo "Errored Terraform state file not found."
           fi
 
-      - name: Upload Errored Terraform State Artifact
+      - name: 📤 Upload Errored Terraform State Artifact
         if: ${{ always() }} && success() && steps.find_errored_tfstate.outputs['errored_found'] == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: errored_tfstate
           path: ${{ inputs.working_directory }}/errored.tfstate
 
-      - name: Terraform destroy
+      - name: 💣 Terraform destroy
         if: ${{ inputs.destroy == true }}
         id: destroy
         run: |

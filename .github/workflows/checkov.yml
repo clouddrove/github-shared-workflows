@@ -38,13 +38,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: 📦 Checkout
+        uses: actions/checkout@v5
 
-      - name: Cleanup Old SARIF
+      - name: 🧹 Cleanup Old SARIF
         run: rm -f results.sarif || true
 
-      - name: Run Checkov (Docker-based)
+      - name: 🛡️ Run Checkov (Docker-based)
         id: checkov
         continue-on-error: true
         uses: bridgecrewio/checkov-action@v12
@@ -58,21 +58,21 @@ jobs:
           output_format: ${{ inputs.output_format }}
           output_file_path: ${{ inputs.output_file_path }}
 
-      - name: Upload SARIF to GitHub Security
+      - name: 📤 Upload SARIF to GitHub Security
         if: always() && !cancelled()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: results.sarif
           category: checkov
 
-      - name: Comment on PR with Checkov results
+      - name: 💬 Comment on PR with Checkov results
         if: github.event_name == 'pull_request'
         uses: clouddrove/checkov-sarif-view@v0.0.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sarif_file: results.sarif
 
-      - name: Fail if Issues Found
+      - name: ❌ Fail if Issues Found
         if: always() && github.event_name == 'pull_request'
         run: |
           ISSUE_COUNT=$(jq '.runs[0].results | length' results.sarif)

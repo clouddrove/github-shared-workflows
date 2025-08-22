@@ -1,5 +1,5 @@
 ---
-name: Infracost Analysis
+name: 💸 Infracost Analysis
 on:
   workflow_call:
     inputs:
@@ -24,25 +24,25 @@ on:
         description: Slack webhook url
 jobs:
   infracost:
-    name: Infracost Analysis
+    name: 💸 Infracost Analysis
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Infracost
+      - name: 🛠️ Setup Infracost
         uses: infracost/actions/setup@e9d6e6cd65e168e76b0de50ff9957d2fe8bb1832
         with:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
-      - name: Checkout base branch
-        uses: actions/checkout@v4
+      - name: 📦 Checkout base branch
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.base.ref }}
 
-      - name: Print debug info
+      - name: 🐞 Print debug info
         run: |
           echo "github base branch is ${{ github.event.pull_request.base.ref }}"
           echo "github.event.pull_request.number is ${{ github.event.pull_request.number }}"
 
-      - name: Generate Infracost cost estimate baseline
+      - name: 🧮 Generate Infracost cost estimate baseline
         run: |
           export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
           cd ${{ inputs.working-directory }}
@@ -50,10 +50,10 @@ jobs:
                               --format=json \
                               --out-file=/tmp/infracost-base.json
 
-      - name: Checkout PR branch
-        uses: actions/checkout@v4
+      - name: 📦 Checkout PR branch
+        uses: actions/checkout@v5
 
-      - name: Generate Infracost diff
+      - name: 🔀 Generate Infracost diff
         run: |
           export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
           cd ${{ inputs.working-directory }}
@@ -63,19 +63,19 @@ jobs:
                           --compare-to=/tmp/infracost-base.json \
                           --out-file=/tmp/infracost.json
 
-      - name: Generate Infracost Report
+      - name: 📝 Generate Infracost Report
         run: |
           export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
           cd ${{ inputs.working-directory }}
           infracost output --path /tmp/infracost.json --show-skipped --format html --out-file report.html
 
-      - name: Upload current cost in artifactory
+      - name: 📤 Upload current cost in artifactory
         uses: actions/upload-artifact@834a144ee995460fba8ed112a2fc961b36a5ec5a
         with:
           name: report.html
           path: ${{ inputs.working-directory }}/report.html
 
-      - name: Post Infracost comment
+      - name: 💬 Post Infracost comment
         run: |
           export INFRACOST_API_KEY=${{ secrets.INFRACOST_API_KEY }}
           infracost comment github --path=/tmp/infracost.json \
@@ -84,13 +84,13 @@ jobs:
                                    --pull-request=${{ github.event.pull_request.number }} \
                                    --behavior=update
 
-      - name: Generate Slack message
+      - name: 📨 Generate Slack message
         id: infracost-slack
         run: |
           echo "::set-output name=slack-message::$(infracost output --path=/tmp/infracost.json --format=slack-message --show-skipped)"
           echo "::set-output name=diffTotalMonthlyCost::$(jq '(.diffTotalMonthlyCost // 0) | tonumber' /tmp/infracost.json)"
 
-      - name: Send cost estimate to Slack
+      - name: 🚀 Send cost estimate to Slack
         uses: slackapi/slack-github-action@v2
         if: ${{ inputs.slack_notification == 'true' }}
         with:

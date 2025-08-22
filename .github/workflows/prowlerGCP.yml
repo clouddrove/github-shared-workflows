@@ -1,5 +1,5 @@
 ---
-name: Prowler Reusable Workflow for GCP
+name: 🕵️‍♂️ Prowler Reusable Workflow for GCP
 
 on:
   workflow_call:
@@ -74,26 +74,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      - name: 📦 Check out code
+        uses: actions/checkout@v5
 
-      - name: Install pip
+      - name: 🐍 Install pip
         run: |
           sudo apt update
           sudo apt install -y python3 python3-pip
 
-      - name: Install Prowler
+      - name: 🐾 Install Prowler
         run: |
           python3 -m pip install --upgrade pip
           pip3 install prowler
 
-      - name: Authenticate with Google Cloud using GCP_KEY
+      - name: 🔑 Authenticate with Google Cloud using GCP_KEY
         if: ${{ inputs.cloud_provider == 'gcp' && inputs.enable_gcp_key_auth == true }}
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_KEY }}
 
-      - name: Authenticate with Google Cloud using WIF
+      - name: ☁️ Authenticate with Google Cloud using WIF
         if: ${{ inputs.cloud_provider == 'gcp' && inputs.enable_gcp_key_auth == false }}
         uses: google-github-actions/auth@v2
         with:
@@ -102,8 +102,7 @@ jobs:
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
           access_token_lifetime: ${{ inputs.access_token_lifetime }}
 
-
-      - name: Run Prowler for Multiple GCP Projects
+      - name: 🔎 Run Prowler for Multiple GCP Projects
         if: ${{ inputs.cloud_provider == 'gcp' }}
         id: prowler-gcp
         run: |
@@ -118,7 +117,7 @@ jobs:
           done
         continue-on-error: true
 
-      - name: Upload Artifact (If GCS Upload Disabled)
+      - name: 📤 Upload Artifact (If GCS Upload Disabled)
         if: ${{ inputs.enable_gcs_upload == false }}
         uses: actions/upload-artifact@v4
         with:
@@ -126,7 +125,7 @@ jobs:
           path: ${{ github.workspace }}/report/
           retention-days: ${{ inputs.retention_days }}
 
-      - name: Upload Prowler Results to GCS
+      - name: ☁️ Upload Prowler Results to GCS
         if: ${{ inputs.enable_gcs_upload == true }}
         run: |
           IFS=',' read -ra PROJECTS <<< "${{ inputs.gcp_project_ids }}"
@@ -145,7 +144,7 @@ jobs:
             fi
           done
 
-      - name: 'Notify Slack'
+      - name: 📣 Notify Slack
         uses: clouddrove/action-slack-notify@1
         if: ${{ inputs.enable_slack_notification == true }}
         env:
