@@ -86,11 +86,9 @@ jobs:
             --arg ref "$REF" \
             --arg sha "$SHORT_SHA" \
             --arg sha_url "$COMMIT_URL" \
-            --arg actor "@$ACTOR" \
             '[ 
               {"label":"Ref","value":$ref},
               {"label":"Commit","value": ("<" + $sha_url + "|" + $sha + ">")},
-              {"label":"Actor","value":$actor}
             ]')
 
           # Merge fields
