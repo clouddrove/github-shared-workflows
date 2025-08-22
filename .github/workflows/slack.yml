@@ -81,18 +81,20 @@ jobs:
 
           SHORT_SHA=${SHA:0:7}
           COMMIT_URL="https://github.com/${REPO}/commit/${SHA}"
+          ACTOR_URL="https://github.com/${ACTOR}"
 
-          # Default fields
+          # Default fields with clickable actor link
           DEFAULT_FIELDS=$(jq -n \
             --arg ref "$REF" \
             --arg sha "$SHORT_SHA" \
             --arg sha_url "$COMMIT_URL" \
             --arg actor "@$ACTOR" \
+            --arg actor_url "$ACTOR_URL" \
             --arg event "$EVENT_NAME" \
             '[ 
               {"label":"Ref","value":$ref},
               {"label":"Commit","value": ("<" + $sha_url + "|" + $sha + ">")},
-              {"label":"Triggered By","value":$actor},
+              {"label":"Triggered By","value": ("<" + $actor_url + "|" + $actor + ">")},
               {"label":"Event","value":$event}
             ]')
 
