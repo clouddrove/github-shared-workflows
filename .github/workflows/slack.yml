@@ -107,7 +107,7 @@ jobs:
                   title: $title,
                   title_link: $run_url,
                   fields: $fields,
-                  text: ($body != "" ? $body : null)
+                  text: (if $body != "" then $body else empty end)
                 }
               ]
             }' > payload.json
