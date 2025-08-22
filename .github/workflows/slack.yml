@@ -74,7 +74,7 @@ jobs:
           # Emoji for status
           case "${STATUS,,}" in
             success) EMOJI="✅";;
-            failed) EMOJI="❌";;
+            failure) EMOJI="❌";;
             cancelled|warning) EMOJI="⚠️";;
             info|*) EMOJI="ℹ️";;
           esac
