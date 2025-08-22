@@ -120,7 +120,7 @@ Above example is just a simple example to call workflow from github shared workf
     * [Example for terraform checks with digitalocean cloud](./docs/23.terraform-checks.md#example-for-terraform-checks-with-digitalocean-cloud)
 24. [Terraform Checks Workflow](./docs/24.terraform-checks.md)
 25. [Terraform Lint Workflow](./docs/25.terraform-lint.md)
-26. [Terraform Module Tag Release Workflow (Shared)](./docs/26.terraform-module-tag-release.md)
+26. [Terraform Module Tag Release Workflow (Shared)](./docs/25.tf-monorepo-tag-release.md)
 27. [Terraform PR Plan Diff workflow](./docs/27.tf-pr-checks.md)
 28. [Terraform Workflow](./docs/28.terraform_workflow.md)
 
