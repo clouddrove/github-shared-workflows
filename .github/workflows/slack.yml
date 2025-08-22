@@ -194,5 +194,7 @@ jobs:
           method: chat.postMessage
           payload: ${{ steps.build.outputs.payload }}
           token: ${{ secrets.SLACK_BOT_TOKEN }}
+          unfurl_links: false
+          unfurl_media: false
 
 ...
