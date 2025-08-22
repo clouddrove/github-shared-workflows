@@ -1,5 +1,5 @@
 ---
-name: 'Slack Notification'
+name: Slack Notification
 
 on:
   workflow_call:
@@ -46,7 +46,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Build Slack payload (Attachment format)
+      - name: Build Slack payload (Attachment style)
         id: build
         shell: bash
         env:
@@ -55,8 +55,6 @@ jobs:
           STATUS: ${{ inputs.status }}
           FIELDS_JSON: ${{ inputs.fields_json }}
           BODY_MD: ${{ inputs.body_md }}
-          BUTTON_TEXT: ${{ inputs.button_text }}
-          BUTTON_URL: ${{ inputs.button_url }}
           LOGO_URL: ${{ inputs.logo_url }}
           BRAND: ${{ inputs.brand }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -65,8 +63,7 @@ jobs:
           SHA: ${{ github.sha }}
         run: |
           set -e
-
-          # Map status to emoji and color
+          # Determine emoji & color
           case "${STATUS,,}" in
             success) EMOJI="✅"; COLOR="good";;
             failed) EMOJI="❌"; COLOR="danger";;
@@ -74,19 +71,12 @@ jobs:
             warning) EMOJI="⚠️"; COLOR="warning";;
             info|*) EMOJI="ℹ️"; COLOR="#439FE0";;
           esac
-
-          # Default fields
-          DEFAULT_FIELDS=$(jq -n --arg ref "$REF" --arg sha "$SHA" --arg actor "@$ACTOR" '
-            [
-              {"title":"Ref","value":$ref,"short":true},
-              {"title":"Commit","value":$sha,"short":true},
-              {"title":"Actor","value":$actor,"short":true}
-            ]')
-
-          # Merge custom + default fields
+          DEFAULT_FIELDS=$(jq -n --arg ref "$REF" --arg sha "$SHA" --arg actor "@$ACTOR" '[
+            {"title":"Ref","value":$ref,"short":true},
+            {"title":"Commit","value":$sha,"short":true},
+            {"title":"Actor","value":$actor,"short":true}
+          ]')
           ALL_FIELDS=$(jq -c -n --argjson a "$FIELDS_JSON" --argjson b "$DEFAULT_FIELDS" '$a + $b')
-
-          # Write payload.json safely using jq --arg flags
           jq -n \
             --arg channel "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
@@ -95,31 +85,27 @@ jobs:
             --arg logo "$LOGO_URL" \
             --arg run_url "$RUN_URL" \
             --arg body "$BODY_MD" \
-            --argjson fields "$ALL_FIELDS" '
-            {
+            --argjson fields "$ALL_FIELDS" \
+            '{
               channel: $channel,
-              attachments: [
-                {
-                  color: $color,
-                  author_name: $brand,
-                  author_icon: $logo,
-                  footer: ("by " + $brand),
-                  footer_icon: $logo,
-                  title: $title,
-                  title_link: $run_url,
-                  fields: $fields
-                }
-              ]
-            } 
-            + (if $body != "" then { attachments: [ { text: $body } ] } else {} end)
-          ' > payload.json
-
+              attachments: [{
+                color: $color,
+                author_name: $brand,
+                author_icon: $logo,
+                footer: ("by " + $brand),
+                footer_icon: $logo,
+                title: $title,
+                title_link: $run_url,
+                fields: $fields,
+                text: (if $body != "" then $body else null end)
+              }]
+            }' > payload.json
           echo "payload=$(jq -c . payload.json)" >> $GITHUB_OUTPUT
 
-      - name: Send Slack notification
+      - name: Send Slack notification via Bot Token
         uses: slackapi/slack-github-action@v1
         with:
+          botToken: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: ${{ steps.build.outputs.payload }}
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
 
 ...
