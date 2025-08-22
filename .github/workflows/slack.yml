@@ -62,11 +62,12 @@ jobs:
           LOGO_URL: ${{ inputs.logo_url }}
           BRAND: ${{ inputs.brand }}
           LINK_TO_RUN: ${{ inputs.link_to_run }}
-          ACTOR: ${{ github.actor }}
           REF: ${{ github.ref }}
           SHA: ${{ github.sha }}
           REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ACTOR: ${{ github.actor }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -e
 
@@ -86,9 +87,13 @@ jobs:
             --arg ref "$REF" \
             --arg sha "$SHORT_SHA" \
             --arg sha_url "$COMMIT_URL" \
+            --arg actor "@$ACTOR" \
+            --arg event "$EVENT_NAME" \
             '[ 
               {"label":"Ref","value":$ref},
-              {"label":"Commit","value": ("<" + $sha_url + "|" + $sha + ">")}
+              {"label":"Commit","value": ("<" + $sha_url + "|" + $sha + ">")},
+              {"label":"Triggered By","value":$actor},
+              {"label":"Event","value":$event}
             ]')
 
           # Merge fields
