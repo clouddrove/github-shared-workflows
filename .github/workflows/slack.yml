@@ -139,6 +139,7 @@ jobs:
           fi
 
           # Assemble final payload with fields array expanded as separate blocks
+          # Assemble final payload properly
           jq -n \
             --arg ch "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
@@ -148,14 +149,14 @@ jobs:
             --argjson fields "$FIELDS_BLOCK" \
             '{
               channel: $ch,
-              blocks: [
-                { "type":"header", "text":{"type":"plain_text","text":$title,"emoji":true} },
-                $context
-              ] + $fields + [
-                ( $body // empty ),
-                ( $actions // empty )
-              ]
+              blocks: (
+                [ { "type":"header", "text":{"type":"plain_text","text":$title,"emoji":true} }, $context ]
+                + $fields
+                + ( ($body | type == "object")? [ $body ] : [] )
+                + ( ($actions | type == "object")? [ $actions ] : [] )
+              )
             }' > payload.json
+
 
           echo "payload=$(jq -c . payload.json)" >> $GITHUB_OUTPUT
 
