@@ -49,10 +49,15 @@ on:
     secrets:
       SLACK_BOT_TOKEN:
         required: true
+    # Expose github.server_url as env variable
+    env:
+      GITHUB_SERVER_URL: ${{ github.server_url }}
 
 jobs:
   send:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_SERVER_URL: ${{ github.server_url }}
     steps:
       - name: Build payload (Block Kit)
         id: build
@@ -73,6 +78,7 @@ jobs:
           REF: ${{ github.ref }}
           SHA: ${{ github.sha }}
           REPO: ${{ github.repository }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
         run: |
           set -e
 
@@ -85,17 +91,21 @@ jobs:
             info|*)   EMOJI="ℹ️";;
           esac
 
-          # Shorten commit SHA and build commit URL
+          # Shorten commit SHA and build commit URL dynamically using GitHub server URL
           SHORT_SHA=${SHA:0:7}
-          COMMIT_URL="https://github.com/${REPO}/commit/${SHA}"
+          COMMIT_URL="${GITHUB_SERVER_URL}/${REPO}/commit/${SHA}"
 
           # Default fields (always appended), with commit as clickable short SHA
-          DEFAULT_FIELDS=$(jq -n --arg ref "$REF" --arg sha "$SHORT_SHA" --arg sha_url "$COMMIT_URL" --arg actor "@$ACTOR" \
-            '[ 
-              {"label":"Ref","value":$ref},
-              {"label":"Commit","value": "<" + $sha_url + "|" + $sha + ">"},
-              {"label":"Actor","value":$actor}
-            ]')
+          DEFAULT_FIELDS=$(jq -n \
+              --arg ref "$REF" \
+              --arg sha "$SHORT_SHA" \
+              --arg sha_url "$COMMIT_URL" \
+              --arg actor "@$ACTOR" \
+              '[ 
+                {"label":"Ref","value":$ref},
+                {"label":"Commit","value": ("<" + $sha_url + "|" + $sha + ">")},
+                {"label":"Actor","value":$actor}
+              ]')
 
           # Merge custom + default fields
           FIELDS=$(jq -c -n \
