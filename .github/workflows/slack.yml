@@ -1,5 +1,6 @@
 ---
 name: Slack Notify (CloudDrove Style)
+
 on:
   workflow_call:
     inputs:
@@ -48,6 +49,7 @@ on:
     secrets:
       SLACK_BOT_TOKEN:
         required: true
+
 jobs:
   send:
     runs-on: ubuntu-latest
@@ -73,7 +75,7 @@ jobs:
         run: |
           set -e
 
-          # Map status -> emoji (you can tweak)
+          # Map status -> emoji
           case "${STATUS,,}" in
             success)  EMOJI="✅";;
             failed)   EMOJI="❌";;
@@ -95,10 +97,18 @@ jobs:
             --argjson b "${DEFAULT_FIELDS}" \
             '$a + $b')
 
-          # Build Block Kit "fields" array
-          FIELDS_BLOCK=$(jq -c '[ .[] | {type:"mrkdwn", text: ("*"+.label+"*:\n`"+.value+"`")} ]' <<<"$FIELDS")
+          # Build individual section blocks for each field (like Screenshot 2)
+          FIELDS_BLOCK=$(jq -c '[ .[] | {
+            type: "section",
+            fields: [
+              {
+                type: "mrkdwn",
+                text: ("*" + .label + "*:\n" + .value)
+              }
+            ]
+          } ]' <<<"$FIELDS")
 
-          # Optional body section
+          # Optional body block
           if [ -n "$BODY_MD" ]; then
             BODY_BLOCK=$(jq -c -n --arg t "$BODY_MD" \
               '{ "type":"section", "text": { "type":"mrkdwn", "text": $t } }')
@@ -119,7 +129,7 @@ jobs:
                 { "type":"mrkdwn", "text": $t }
               ] }')
 
-          # Optional button row
+          # Optional button block
           if [ -n "$BUTTON_URL" ]; then
             ACTIONS=$(jq -n -c --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" \
               '{ "type":"actions",
@@ -128,7 +138,7 @@ jobs:
             ACTIONS="null"
           fi
 
-          # Assemble blocks
+          # Assemble final payload
           jq -n \
             --arg ch "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
@@ -141,7 +151,7 @@ jobs:
               blocks: [
                 { "type":"header", "text":{"type":"plain_text","text":$title,"emoji":true} },
                 $context,
-                { "type":"section", "fields": $fields },
+                $fields[],
                 ( $body // empty ),
                 ( $actions // empty )
               ]
@@ -156,4 +166,3 @@ jobs:
           payload: ${{ steps.build.outputs.payload }}
           token: ${{ secrets.SLACK_BOT_TOKEN }}
 ...
-
