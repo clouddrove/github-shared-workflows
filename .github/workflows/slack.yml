@@ -86,7 +86,7 @@ jobs:
           # Merge custom + default fields
           ALL_FIELDS=$(jq -c -n --argjson a "$FIELDS_JSON" --argjson b "$DEFAULT_FIELDS" '$a + $b')
 
-          # Build JSON payload
+          # Write payload.json safely using jq --arg flags
           jq -n \
             --arg channel "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
@@ -107,11 +107,12 @@ jobs:
                   footer_icon: $logo,
                   title: $title,
                   title_link: $run_url,
-                  fields: $fields,
-                  text: ($body != "" ? $body : null)
+                  fields: $fields
                 }
               ]
-            }' > payload.json
+            } 
+            + (if $body != "" then { attachments: [ { text: $body } ] } else {} end)
+          ' > payload.json
 
           echo "payload=$(jq -c . payload.json)" >> $GITHUB_OUTPUT
 
@@ -120,4 +121,5 @@ jobs:
         with:
           payload: ${{ steps.build.outputs.payload }}
           token: ${{ secrets.SLACK_BOT_TOKEN }}
+
 ...
