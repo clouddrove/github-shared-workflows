@@ -119,6 +119,6 @@ jobs:
         with:
           payload: ${{ steps.build.outputs.payload }}
         env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
 
 ...
