@@ -97,13 +97,13 @@ jobs:
             --argjson b "${DEFAULT_FIELDS}" \
             '$a + $b')
 
-          # Build individual section blocks for each field with line break and bold label
+          # Build each field as its own section block
           FIELDS_BLOCK=$(jq -c '[ .[] | {
             type: "section",
             fields: [
               {
                 type: "mrkdwn",
-                text: ("*" + .label + "*:\n" + .value)
+                text: ("*" + .label + "*: " + .value)
               }
             ]
           } ]' <<<"$FIELDS")
@@ -113,50 +113,51 @@ jobs:
             BODY_BLOCK=$(jq -c -n --arg t "$BODY_MD" \
               '{ "type":"section", "text": { "type":"mrkdwn", "text": $t } }')
           else
-            BODY_BLOCK="null"
+            BODY_BLOCK=null
           fi
 
-          # Context line with logo + brand + run link
+          # Context block with logo and run link
           if [ "$LINK_TO_RUN" = "true" ]; then
-            CTX_TEXT="*by '"$BRAND"'* • <'"$RUN_URL"'|View GitHub Run>"
+            CTX_TEXT="*by '$BRAND'* • <$RUN_URL|View GitHub Run>"
           else
-            CTX_TEXT="*by '"$BRAND"'*"
+            CTX_TEXT="*by '$BRAND'*"
           fi
 
-          CONTEXT_BLOCK=$(jq -n -c --arg logo "$LOGO_URL" --arg t "$CTX_TEXT" \
+          CONTEXT_BLOCK=$(jq -c -n --arg logo "$LOGO_URL" --arg t "$CTX_TEXT" \
             '{ "type":"context", "elements": [
                 { "type":"image", "image_url": $logo, "alt_text": "brand" },
                 { "type":"mrkdwn", "text": $t }
               ] }')
 
-          # Optional button block
+          # Optional button
           if [ -n "$BUTTON_URL" ]; then
-            ACTIONS=$(jq -n -c --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" \
-              '{ "type":"actions",
-                 "elements":[ { "type":"button","text":{"type":"plain_text","text":$txt},"url":$url,"style":"primary"} ] }')
+            ACTIONS=$(jq -c -n --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" \
+              '{ "type":"actions", "elements": [
+                  { "type":"button", "text": { "type":"plain_text", "text": $txt }, "url": $url, "style": "primary" }
+                ] }')
           else
-            ACTIONS="null"
+            ACTIONS=null
           fi
 
-          # Assemble final payload with fields array expanded as separate blocks
-          # Assemble final payload properly
+          # Final payload build using jq (safe from shell quoting issues)
           jq -n \
             --arg ch "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
             --argjson context "$CONTEXT_BLOCK" \
-            --argjson body "$BODY_BLOCK" \
-            --argjson actions "$ACTIONS" \
             --argjson fields "$FIELDS_BLOCK" \
-            '{
+            --argjson body "$BODY_BLOCK" \
+            --argjson actions "$ACTIONS" '
+            def optional(block): if (block != null and block != "null") then [block] else [] end;
+
+            {
               channel: $ch,
               blocks: (
-                [ { "type":"header", "text":{"type":"plain_text","text":$title,"emoji":true} }, $context ]
+                [ { "type": "header", "text": { "type": "plain_text", "text": $title, "emoji": true } }, $context ]
                 + $fields
-                + ( ($body | type == "object")? [ $body ] : [] )
-                + ( ($actions | type == "object")? [ $actions ] : [] )
+                + optional($body)
+                + optional($actions)
               )
             }' > payload.json
-
 
           echo "payload=$(jq -c . payload.json)" >> $GITHUB_OUTPUT
 
