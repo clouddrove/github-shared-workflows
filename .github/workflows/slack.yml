@@ -76,27 +76,28 @@ jobs:
           esac
 
           # Default fields
-          DEFAULT_FIELDS=$(jq -n --arg ref "$REF" --arg sha "$SHA" --arg actor "@$ACTOR" \
-            '[ {"title":"Ref","value":$ref,"short":true},
-               {"title":"Commit","value":$sha,"short":true},
-               {"title":"Actor","value":$actor,"short":true}
-             ]')
+          DEFAULT_FIELDS=$(jq -n --arg ref "$REF" --arg sha "$SHA" --arg actor "@$ACTOR" '
+            [
+              {"title":"Ref","value":$ref,"short":true},
+              {"title":"Commit","value":$sha,"short":true},
+              {"title":"Actor","value":$actor,"short":true}
+            ]')
 
           # Merge custom + default fields
           ALL_FIELDS=$(jq -c -n --argjson a "$FIELDS_JSON" --argjson b "$DEFAULT_FIELDS" '$a + $b')
 
-          # Format Slack attachment
+          # Build JSON payload
           jq -n \
-            --arg ch "$CHANNEL" \
+            --arg channel "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
             --arg color "$COLOR" \
             --arg brand "$BRAND" \
             --arg logo "$LOGO_URL" \
             --arg run_url "$RUN_URL" \
             --arg body "$BODY_MD" \
-            --argjson fields "$ALL_FIELDS" \
-            '{
-              channel: $ch,
+            --argjson fields "$ALL_FIELDS" '
+            {
+              channel: $channel,
               attachments: [
                 {
                   color: $color,
@@ -107,7 +108,7 @@ jobs:
                   title: $title,
                   title_link: $run_url,
                   fields: $fields,
-                  text: (if $body != "" then $body else empty end)
+                  text: ($body != "" ? $body : null)
                 }
               ]
             }' > payload.json
@@ -118,7 +119,5 @@ jobs:
         uses: slackapi/slack-github-action@v1
         with:
           payload: ${{ steps.build.outputs.payload }}
-        env:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
-
 ...
