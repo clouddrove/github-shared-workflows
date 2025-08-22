@@ -1,5 +1,5 @@
 ---
-run-name: 'Terraform workflow' # PLAN ONLY
+run-name: 'Terraform workflow'
 on:
   workflow_call:
     inputs:
@@ -243,7 +243,7 @@ jobs:
           echo "</details>" >> $GITHUB_OUTPUT
           echo "${delimiter}" >> $GITHUB_OUTPUT
 
-      - name: "Accept plan or deny
+      - name: ✅ Accept plan or deny
         if: ${{ inputs.plan_only != true }}
         uses: trstringer/manual-approval@v1
         timeout-minutes: ${{ inputs.timeout }}
