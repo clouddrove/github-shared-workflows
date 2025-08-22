@@ -7,25 +7,20 @@ on:
       channel:
         type: string
         required: true
-        description: 'Slack channel #name or ID'
       title:
         type: string
         required: true
-        description: Short action title, e.g., EKS Cluster Spin-up
       status:
         type: string
         required: true
-        description: success|failed|cancelled|warning|info
       fields_json:
         type: string
         required: false
         default: '[]'
-        description: JSON array of {label,value}
       body_md:
         type: string
         required: false
         default: ""
-        description: Optional Markdown body (e.g., commands/logs)
       button_text:
         type: string
         required: false
@@ -53,13 +48,9 @@ on:
 jobs:
   send:
     runs-on: ubuntu-latest
-    env:
-      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      REPO: ${{ github.repository }}
     steps:
-      - name: Build payload (Block Kit)
+      - name: Build Slack Payload
         id: build
-        shell: bash
         env:
           CHANNEL: ${{ inputs.channel }}
           TITLE: ${{ inputs.title }}
@@ -74,54 +65,52 @@ jobs:
           ACTOR: ${{ github.actor }}
           REF: ${{ github.ref }}
           SHA: ${{ github.sha }}
-          RUN_URL: ${{ env.RUN_URL }}
-          REPO: ${{ env.REPO }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -e
 
-          # Map status -> emoji
+          # Emoji for status
           case "${STATUS,,}" in
-            success)  EMOJI="✅";;
-            failed)   EMOJI="❌";;
-            cancelled)EMOJI="⚠️";;
-            warning)  EMOJI="⚠️";;
-            info|*)   EMOJI="ℹ️";;
+            success) EMOJI="✅";;
+            failed) EMOJI="❌";;
+            cancelled|warning) EMOJI="⚠️";;
+            info|*) EMOJI="ℹ️";;
           esac
 
-          # Shorten commit SHA and build commit URL
           SHORT_SHA=${SHA:0:7}
           COMMIT_URL="https://github.com/${REPO}/commit/${SHA}"
 
-          # Default fields (always appended), with commit as clickable short SHA
+          # Default fields
           DEFAULT_FIELDS=$(jq -n \
-              --arg ref "$REF" \
-              --arg sha "$SHORT_SHA" \
-              --arg sha_url "$COMMIT_URL" \
-              --arg actor "@$ACTOR" \
-              '[ 
-                {"label":"Ref","value":$ref},
-                {"label":"Commit","value": ("<" + $sha_url + "|" + $sha + ">")},
-                {"label":"Actor","value":$actor}
-              ]')
+            --arg ref "$REF" \
+            --arg sha "$SHORT_SHA" \
+            --arg sha_url "$COMMIT_URL" \
+            --arg actor "@$ACTOR" \
+            '[ 
+              {"label":"Ref","value":$ref},
+              {"label":"Commit","value": ("<" + $sha_url + "|" + $sha + ">")},
+              {"label":"Actor","value":$actor}
+            ]')
 
-          # Merge custom + default fields
-          FIELDS=$(jq -c -n \
+          # Merge fields
+          ALL_FIELDS=$(jq -c -n \
             --argjson a "${FIELDS_JSON}" \
             --argjson b "${DEFAULT_FIELDS}" \
             '$a + $b')
 
-          # Build each field as its own section block
-          FIELDS_BLOCK=$(jq -c '[ .[] | {
-            type: "section",
-            fields: [
-              {
-                type: "mrkdwn",
-                text: ("*" + .label + "*: " + .value)
-              }
-            ]
-          } ]' <<<"$FIELDS")
+          # Convert to Slack field layout
+          FIELD_ITEMS=$(jq -c '[ .[] | {
+            type: "mrkdwn",
+            text: ("*" + .label + "*:\n" + .value)
+          } ]' <<<"$ALL_FIELDS")
 
-          # Optional body block
+          # Build Blocks
+          FIELD_BLOCK=$(jq -c -n --argjson fields "$FIELD_ITEMS" '{
+            type: "section",
+            fields: $fields
+          }')
+
           if [ -n "$BODY_MD" ]; then
             BODY_BLOCK=$(jq -c -n --arg t "$BODY_MD" \
               '{ "type":"section", "text": { "type":"mrkdwn", "text": $t } }')
@@ -129,7 +118,7 @@ jobs:
             BODY_BLOCK=null
           fi
 
-          # Context block with logo and run link
+          # Context Footer
           if [ "$LINK_TO_RUN" = "true" ]; then
             CTX_TEXT="*by '$BRAND'* • <$RUN_URL|View GitHub Run>"
           else
@@ -142,7 +131,7 @@ jobs:
                 { "type":"mrkdwn", "text": $t }
               ] }')
 
-          # Optional button
+          # Button Block
           if [ -n "$BUTTON_URL" ]; then
             ACTIONS=$(jq -c -n --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" \
               '{ "type":"actions", "elements": [
@@ -152,23 +141,26 @@ jobs:
             ACTIONS=null
           fi
 
-          # Final payload build using jq (safe from shell quoting issues)
+          # Final Payload
           jq -n \
             --arg ch "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
             --argjson context "$CONTEXT_BLOCK" \
-            --argjson fields "$FIELDS_BLOCK" \
+            --argjson fields "$FIELD_BLOCK" \
             --argjson body "$BODY_BLOCK" \
             --argjson actions "$ACTIONS" '
-            def optional(block): if (block != null and block != "null") then [block] else [] end;
+            def optional(x): if x != null and x != "null" then [x] else [] end;
 
             {
               channel: $ch,
               blocks: (
-                [ { "type": "header", "text": { "type": "plain_text", "text": $title, "emoji": true } }, $context ]
-                + $fields
+                [ 
+                  { "type": "header", "text": { "type": "plain_text", "text": $title, "emoji": true } },
+                  $fields
+                ]
                 + optional($body)
                 + optional($actions)
+                + [ $context ]
               )
             }' > payload.json
 
