@@ -49,15 +49,13 @@ on:
     secrets:
       SLACK_BOT_TOKEN:
         required: true
-    # Expose github.server_url as env variable
-    env:
-      GITHUB_SERVER_URL: ${{ github.server_url }}
 
 jobs:
   send:
     runs-on: ubuntu-latest
     env:
-      GITHUB_SERVER_URL: ${{ github.server_url }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      REPO: ${{ github.repository }}
     steps:
       - name: Build payload (Block Kit)
         id: build
@@ -72,13 +70,12 @@ jobs:
           BUTTON_URL: ${{ inputs.button_url }}
           LOGO_URL: ${{ inputs.logo_url }}
           BRAND: ${{ inputs.brand }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           LINK_TO_RUN: ${{ inputs.link_to_run }}
           ACTOR: ${{ github.actor }}
           REF: ${{ github.ref }}
           SHA: ${{ github.sha }}
-          REPO: ${{ github.repository }}
-          GITHUB_SERVER_URL: ${{ github.server_url }}
+          RUN_URL: ${{ env.RUN_URL }}
+          REPO: ${{ env.REPO }}
         run: |
           set -e
 
@@ -91,9 +88,9 @@ jobs:
             info|*)   EMOJI="ℹ️";;
           esac
 
-          # Shorten commit SHA and build commit URL dynamically using GitHub server URL
+          # Shorten commit SHA and build commit URL
           SHORT_SHA=${SHA:0:7}
-          COMMIT_URL="${GITHUB_SERVER_URL}/${REPO}/commit/${SHA}"
+          COMMIT_URL="https://github.com/${REPO}/commit/${SHA}"
 
           # Default fields (always appended), with commit as clickable short SHA
           DEFAULT_FIELDS=$(jq -n \
