@@ -105,12 +105,13 @@ jobs:
             text: ("*" + .label + "*:\n" + .value)
           } ]' <<<"$ALL_FIELDS")
 
-          # Build Blocks
+          # Build field block (2-column layout)
           FIELD_BLOCK=$(jq -c -n --argjson fields "$FIELD_ITEMS" '{
             type: "section",
             fields: $fields
           }')
 
+          # Optional body block
           if [ -n "$BODY_MD" ]; then
             BODY_BLOCK=$(jq -c -n --arg t "$BODY_MD" \
               '{ "type":"section", "text": { "type":"mrkdwn", "text": $t } }')
@@ -118,7 +119,7 @@ jobs:
             BODY_BLOCK=null
           fi
 
-          # Context Footer
+          # Context footer block
           if [ "$LINK_TO_RUN" = "true" ]; then
             CTX_TEXT="*by '$BRAND'* • <$RUN_URL|View GitHub Run>"
           else
@@ -131,7 +132,7 @@ jobs:
                 { "type":"mrkdwn", "text": $t }
               ] }')
 
-          # Button Block
+          # Button block (optional)
           if [ -n "$BUTTON_URL" ]; then
             ACTIONS=$(jq -c -n --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" \
               '{ "type":"actions", "elements": [
@@ -141,10 +142,11 @@ jobs:
             ACTIONS=null
           fi
 
-          # Final Payload
+          # Final payload
           jq -n \
             --arg ch "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
+            --arg logo "$LOGO_URL" \
             --argjson context "$CONTEXT_BLOCK" \
             --argjson fields "$FIELD_BLOCK" \
             --argjson body "$BODY_BLOCK" \
@@ -154,7 +156,8 @@ jobs:
             {
               channel: $ch,
               blocks: (
-                [ 
+                [
+                  { "type": "image", "image_url": $logo, "alt_text": "CloudDrove" },
                   { "type": "header", "text": { "type": "plain_text", "text": $title, "emoji": true } },
                   $fields
                 ]
@@ -172,5 +175,4 @@ jobs:
           method: chat.postMessage
           payload: ${{ steps.build.outputs.payload }}
           token: ${{ secrets.SLACK_BOT_TOKEN }}
-
 ...
