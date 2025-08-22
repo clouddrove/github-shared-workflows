@@ -1,8 +1,14 @@
 ---
-name: 📦 Terraform Module Tag Release on Merge
+name: 📦 (Monorepo) Terraform Module Tag Release on Merge
 
 on:
   workflow_call:
+    inputs:
+      module_prefix:
+        required: false
+        description: "Provide prefix of directory name containing terraform modules"
+        type: string
+        default: terraform-aws-
 
 permissions:
   contents: write
@@ -20,20 +26,22 @@ jobs:
 
       - name: 🔍 Detect changed modules
         id: detect
+        env:
+          MODULE_PREFIX: ${{ inputs.module_prefix }}
         run: |
           git fetch --tags
           CHANGED_DIRS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
-            | grep '^terraform-aws-' \
+            | grep "^$MODULE_PREFIX" \
             | cut -d '/' -f1 \
             | sort -u \
             | tr '\n' ' ')
           echo "changed=$CHANGED_DIRS" >> "$GITHUB_OUTPUT"
 
-      - name: ⚠️ Prevent tag release.
+      - name: ⚠️ Fail if no module changed
         if: steps.detect.outputs.changed == ''
         run: |
-          echo "No module changes detected. Skipping tag release."
-          exit 0
+          echo "No module changes detected. Skipping release."
+          exit 1
 
       - name: 🏷️ Detect version bumps from commit messages
         if: steps.detect.outputs.changed != ''
@@ -43,9 +51,8 @@ jobs:
 
           bump_map=""
           for module in ${{ steps.detect.outputs.changed }}; do
-            bump="no-release" # default
+            bump="no-release"
 
-            # read commits line by line, without subshell
             while IFS= read -r commit; do
               if echo "$commit" | grep -q "$module"; then
                 if echo "$commit" | grep -qi "major"; then
@@ -63,7 +70,7 @@ jobs:
 
           echo "bump_map=$bump_map" >> "$GITHUB_OUTPUT"
 
-      - name: 🔖 Bump version and tag modules
+      - name: 🔖 Bump version, tag modules, and update changelog
         if: steps.detect.outputs.changed != ''
         run: |
           for entry in ${{ steps.version_bump.outputs.bump_map }}; do
@@ -71,7 +78,7 @@ jobs:
             bump=$(echo $entry | cut -d':' -f2)
 
             if [ "$bump" = "no-release" ]; then
-              echo "ℹ️ No release requested for $module (commit had no bump label)"
+              echo "ℹ️ No release requested for $module"
               continue
             fi
 
@@ -97,5 +104,73 @@ jobs:
             echo "✅ Creating tag: $new_tag"
             git tag "$new_tag"
             git push origin "$new_tag"
+
+            # --- Update CHANGELOG.md ---
+            echo "📝 Updating CHANGELOG.md for $module"
+            changelog="CHANGELOG.md"
+            repo_url="https://github.com/${{ github.repository }}"
+
+            # Get all tags for this module
+            tags=$(git tag --sort=-v:refname | grep "^$prefix" | cut -d '/' -f2)
+
+            # Create new block for this module
+            {
+              echo "## $module"
+              for t in $tags; do
+                tag_url="$repo_url/releases/tag/$module/$t"
+                if [ "$t" = "$new_version" ]; then
+                  echo "- [$t (latest)]($tag_url)"
+                else
+                  echo "- [$t]($tag_url)"
+                fi
+              done
+              echo
+            } > module_changelog.tmp
+
+            # Prepare final changelog
+            if [ -f "$changelog" ]; then
+              # Remove old section of this module only
+              awk -v mod="## $module" '
+                BEGIN { skip=0 }
+                $0 == mod { skip=1 }
+                skip && /^## / && $0 != mod { skip=0 }
+                !skip { print }
+              ' "$changelog" > changelog.tmp || true
+
+              mv changelog.tmp "$changelog"
+            fi
+
+            # Insert module block at alphabetically sorted position
+            awk -v mod="## $module" -v file="module_changelog.tmp" '
+              BEGIN {
+                while ((getline line < file) > 0) newblock = newblock line ORS
+                inserted=0
+              }
+              /^## / {
+                if (!inserted && $0 > mod) {
+                  printf "%s", newblock
+                  inserted=1
+                }
+              }
+              { print }
+              END {
+                if (!inserted) printf "%s", newblock
+              }
+            ' "$changelog" > changelog.sorted && mv changelog.sorted "$changelog"
+
+            rm -f module_changelog.tmp
+
           done
+
+      - name: 📤 Commit and push updated CHANGELOG.md
+        run: |
+          if git diff --quiet CHANGELOG.md; then
+            echo "No CHANGELOG updates"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add CHANGELOG.md
+            git commit -m "🔖 Update CHANGELOG.md"
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
+          fi
 ...
