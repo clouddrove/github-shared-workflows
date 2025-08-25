@@ -14,6 +14,7 @@ jobs:
           config_data: |
             rules:
               line-length:
+                max: 450
                 level: warning
               comments-indentation:
                  level: error
