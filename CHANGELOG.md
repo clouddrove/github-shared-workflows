@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-08-26
+### :sparkles: New Features
+- [`09c2f96`](https://github.com/clouddrove/github-shared-workflows/commit/09c2f962e18248c8b25ae3361d07d11b2b6845c9) - add plan_only input to support only terraform-plan *(PR [#218](https://github.com/clouddrove/github-shared-workflows/pull/218) by [@h1manshu98](https://github.com/h1manshu98))*
+
+### :bug: Bug Fixes
+- [`05e9ff8`](https://github.com/clouddrove/github-shared-workflows/commit/05e9ff857e4ed36da72abfb19d58b369b8929633) - yamllint line-length warning *(PR [#233](https://github.com/clouddrove/github-shared-workflows/pull/233) by [@Sunny-Mor](https://github.com/Sunny-Mor))*
+
+### :construction_worker: Build System
+- [`aeb4d18`](https://github.com/clouddrove/github-shared-workflows/commit/aeb4d186a34519d4cba9f889d5a5c63039fcd188) - **deps**: bump actions/download-artifact from 4 to 5 *(PR [#223](https://github.com/clouddrove/github-shared-workflows/pull/223) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`2df2912`](https://github.com/clouddrove/github-shared-workflows/commit/2df29121d59f71d8f9aa478d5687f1206c2ec000) - **deps**: bump amannn/action-semantic-pull-request from 5.5.3 to 6.0.1 *(PR [#227](https://github.com/clouddrove/github-shared-workflows/pull/227) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`badc616`](https://github.com/clouddrove/github-shared-workflows/commit/badc6163af38e1aa02d7f7b01c5920e2fd5ad6ce) - **deps**: bump actions/checkout from 2 to 5 *(PR [#226](https://github.com/clouddrove/github-shared-workflows/pull/226) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`debfa54`](https://github.com/clouddrove/github-shared-workflows/commit/debfa54f1825be93263454df663db35bfaf4d734) - **deps**: bump terraform-linters/setup-tflint from 4 to 5 *(PR [#225](https://github.com/clouddrove/github-shared-workflows/pull/225) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`43ede0b`](https://github.com/clouddrove/github-shared-workflows/commit/43ede0bdf74941f12d4aa014b310b018f263a18d) - **deps**: bump actions/checkout from 4 to 5 *(PR [#231](https://github.com/clouddrove/github-shared-workflows/pull/231) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`32ebacd`](https://github.com/clouddrove/github-shared-workflows/commit/32ebacd69940e74f60576415b07abc73cf434422) - **deps**: bump amannn/action-semantic-pull-request from 6.0.1 to 6.1.1 *(PR [#232](https://github.com/clouddrove/github-shared-workflows/pull/232) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`e7c8a32`](https://github.com/clouddrove/github-shared-workflows/commit/e7c8a32c6f0b4b7813d9b0899c5b383fabb86a9d) - update CHANGELOG.md for 1.3.9 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.3.9] - 2025-08-08
 ### :sparkles: New Features
 - [`242de46`](https://github.com/clouddrove/github-shared-workflows/commit/242de46a0db0c86706c5c35f61d8450428ab1ca5) - Release new tag v1.1.1 *(PR [#202](https://github.com/clouddrove/github-shared-workflows/pull/202) by [@AnketCloudDrove](https://github.com/AnketCloudDrove))*
@@ -342,3 +361,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.7]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.6...1.3.7
 [1.3.8]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.7...1.3.8
 [1.3.9]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.8...1.3.9
+[1.4.0]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.9...1.4.0
