@@ -13,7 +13,7 @@ on:
         description: 'Anthropic API Key'
         required: true
 
-permissions: 
+permissions:
   id-token: write
   contents: read
   actions: read
