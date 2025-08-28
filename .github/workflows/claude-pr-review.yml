@@ -13,10 +13,10 @@ on:
         description: 'Anthropic API Key'
         required: true
 
-permissions:
-  id-token: write
-  contents: read
-  actions: read
+permissions: 
+      contents: read
+      pull-requests: write
+      id-token: write
 
 jobs:
   # Regular PR Checks
@@ -35,12 +35,10 @@ jobs:
         with:
           fetch-depth: 1
       - name: Automatic PR Review
-        uses: anthropics/claude-code-action@beta
+        uses: anthropics/claude-code-action@v1-dev
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.CLAUDE_PAT }}
-          timeout_minutes: "60"
-          direct_prompt: |
+          prompt: |
             Please review this pull request and provide comprehensive feedback.
 
             Focus on:
