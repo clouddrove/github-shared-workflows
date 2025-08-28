@@ -14,9 +14,9 @@ on:
         required: true
 
 permissions:
-  id-token: write
   contents: read
-  actions: read
+  pull-requests: write
+  id-token: write
 
 jobs:
   # Regular PR Checks
@@ -35,23 +35,21 @@ jobs:
         with:
           fetch-depth: 1
       - name: Automatic PR Review
-        uses: anthropics/claude-code-action@beta
+        uses: anthropics/claude-code-action@v1-dev
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.CLAUDE_PAT }}
-          timeout_minutes: "60"
-          direct_prompt: |
+          prompt: |
             Please review this pull request and provide comprehensive feedback.
 
             Focus on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security implications
-            - Test coverage
-            - Documentation updates if needed
+              - Code quality and best practices
+              - Potential bugs or issues
+              - Performance considerations
+              - Security implications
+              - Test coverage
+              - Documentation updates if needed
 
-            Provide constructive feedback with specific suggestions for improvement.
+            Provide constructive feedback with specific suggestions for
+            improvement.
             Use inline comments to highlight specific areas of concern.
-
 ...
