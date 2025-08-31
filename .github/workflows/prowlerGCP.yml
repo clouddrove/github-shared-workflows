@@ -89,13 +89,13 @@ jobs:
 
       - name: 🔑 Authenticate with Google Cloud using GCP_KEY
         if: ${{ inputs.cloud_provider == 'gcp' && inputs.enable_gcp_key_auth == true }}
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
           credentials_json: ${{ secrets.GCP_KEY }}
 
       - name: ☁️ Authenticate with Google Cloud using WIF
         if: ${{ inputs.cloud_provider == 'gcp' && inputs.enable_gcp_key_auth == false }}
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
           token_format: access_token
           workload_identity_provider: ${{ secrets.WIP }}
