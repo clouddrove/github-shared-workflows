@@ -76,7 +76,7 @@ jobs:
           # Map status -> emoji (you can tweak)
           case "${STATUS,,}" in
             success)  EMOJI="✅";;
-            failed)   EMOJI="❌";;
+            failure)   EMOJI="❌";;
             cancelled)EMOJI="⚠️";;
             warning)  EMOJI="⚠️";;
             info|*)   EMOJI="ℹ️";;
