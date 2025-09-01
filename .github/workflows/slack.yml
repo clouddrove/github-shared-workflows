@@ -7,28 +7,35 @@ on:
       channel:
         type: string
         required: true
+        description: 'Slack channel #name or ID'
       title:
         type: string
         required: true
+        description: Short action title, e.g., EKS Cluster Spin-up
       status:
         type: string
         required: true
+        description: success|failed|cancelled|warning|info
       fields_json:
         type: string
         required: false
         default: '[]'
+        description: JSON array of {label,value}
       body_md:
         type: string
         required: false
         default: ""
+        description: Optional Markdown body (e.g., commands/logs)
       button_text:
         type: string
         required: false
         default: Open Run
+        description: 'Text label for the optional Slack button'
       button_url:
         type: string
         required: false
         default: ""
+        description: 'Target URL for the Slack button (shows only if set)'
       logo_url:
         type: string
         required: false
@@ -37,13 +44,16 @@ on:
         type: string
         required: false
         default: CloudDrove
+        description: 'Brand/logo image URL displayed in Slack blocks'
       link_to_run:
         type: boolean
         required: false
         default: true
+        description: 'Whether to include a "View GitHub Run" link in footer'
     secrets:
       SLACK_BOT_TOKEN:
         required: true
+        description: 'Slack bot token with chat:write permission'
 
 jobs:
   send:
