@@ -91,7 +91,7 @@ jobs:
             --arg actor "@$ACTOR" \
             --arg actor_url "$ACTOR_URL" \
             --arg event "$EVENT_NAME" \
-            '[ 
+            '[
               {"label":"Ref","value":$ref},
               {"label":"Commit","value": ("<" + $sha_url + "|" + $sha + ">")},
               {"label":"Triggered By","value": ("<" + $actor_url + "|" + $actor + ">")},
