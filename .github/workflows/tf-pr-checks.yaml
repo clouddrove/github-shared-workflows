@@ -76,7 +76,25 @@ on:
         description: 'The service account to be used'
 
 jobs:
+  precheck:
+    runs-on: ubuntu-latest
+    outputs:
+      exists: ${{ steps.dircheck.outputs.exists }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: dircheck
+        run: |
+          # Set true if the directory exists (and has at least one file); else false
+          if [ -d "examples/**" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
   terraform-plan-diff:
+    needs: precheck
+    # Allow workflow to run regardless of examples/complete existence
+    if: needs.precheck.outputs.exists == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout PR branch
