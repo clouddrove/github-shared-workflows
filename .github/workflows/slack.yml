@@ -133,16 +133,6 @@ jobs:
             BODY_BLOCK=null
           fi
 
-          # Top header branding block
-          HEADER_CONTEXT=$(jq -c -n --arg logo "$LOGO_URL" --arg brand "$BRAND" '{
-            type: "context",
-            elements: [
-              { "type": "image", "image_url": $logo, "alt_text": "brand" },
-              { "type": "mrkdwn", "text": "*\($brand)*" }
-            ]
-          }')
-
-          # Footer branding block
           if [ "$LINK_TO_RUN" = "true" ]; then
             FOOTER_CONTEXT=$(jq -c -n --arg logo "$LOGO_URL" --arg brand "$BRAND" --arg url "$RUN_URL" '{
               type: "context",
@@ -177,7 +167,6 @@ jobs:
           jq -n \
             --arg ch "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
-            --argjson header "$HEADER_CONTEXT" \
             --argjson fields "$FIELD_BLOCK" \
             --argjson body "$BODY_BLOCK" \
             --argjson actions "$ACTIONS" \
@@ -187,8 +176,7 @@ jobs:
             {
               channel: $ch,
               blocks: (
-                [ $header ]
-                + [ { "type": "header", "text": { "type": "plain_text", "text": $title, "emoji": true } } ]
+                [ { "type": "header", "text": { "type": "plain_text", "text": $title, "emoji": true } } ]
                 + [ $fields ]
                 + optional($body)
                 + optional($actions)
