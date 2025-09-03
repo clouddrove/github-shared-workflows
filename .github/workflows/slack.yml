@@ -7,28 +7,35 @@ on:
       channel:
         type: string
         required: true
+        description: 'Slack channel #name or ID'
       title:
         type: string
         required: true
+        description: Short action title, e.g., EKS Cluster Spin-down
       status:
         type: string
         required: true
+        description: success|failure|cancelled|warning|info
       fields_json:
         type: string
         required: false
         default: '[]'
+        description: JSON array of {label,value}
       body_md:
         type: string
         required: false
         default: ""
+        description: Optional Markdown body (e.g., commands/logs)
       button_text:
         type: string
         required: false
         default: Open Run
+        description: 'Text label for the optional Slack button'
       button_url:
         type: string
         required: false
         default: ""
+        description: 'Target URL for the Slack button (shows only if set)'
       logo_url:
         type: string
         required: false
@@ -37,13 +44,16 @@ on:
         type: string
         required: false
         default: CloudDrove
+        description: 'Brand/logo image URL displayed in Slack blocks'
       link_to_run:
         type: boolean
         required: false
         default: true
+        description: 'Whether to include a "View GitHub Run" link in footer'
     secrets:
       SLACK_BOT_TOKEN:
         required: true
+        description: 'Slack bot token with chat:write permission'
 
 jobs:
   send:
@@ -83,6 +93,7 @@ jobs:
           COMMIT_URL="https://github.com/${REPO}/commit/${SHA}"
           ACTOR_URL="https://github.com/${ACTOR}"
 
+          # Default fields
           DEFAULT_FIELDS=$(jq -n \
             --arg ref "$REF" \
             --arg sha "$SHORT_SHA" \
@@ -120,18 +131,22 @@ jobs:
             BODY_BLOCK=null
           fi
 
-          # ✅ Combined title and brand in one context block (no gap)
-          TITLE_BLOCK=$(jq -c -n \
-            --arg logo "$LOGO_URL" \
-            --arg brand "$BRAND" \
-            --arg title "$EMOJI $TITLE — ${STATUS^^}" \
-            '{
-              type: "context",
-              elements: [
-                { "type": "image", "image_url": $logo, "alt_text": "brand" },
-                { "type": "mrkdwn", "text": "*\($brand)*\n\($title)" }
-              ]
-            }')
+          # First context block: Brand
+          HEADER_BRAND=$(jq -c -n --arg logo "$LOGO_URL" --arg brand "$BRAND" '{
+            type: "context",
+            elements: [
+              { "type": "image", "image_url": $logo, "alt_text": "brand" },
+              { "type": "mrkdwn", "text": "*\($brand)*" }
+            ]
+          }')
+
+          # Second context block: Title
+          HEADER_TITLE=$(jq -c -n --arg title "$EMOJI $TITLE — ${STATUS^^}" '{
+            type: "context",
+            elements: [
+              { "type": "mrkdwn", "text": $title }
+            ]
+          }')
 
           # Footer
           if [ "$LINK_TO_RUN" = "true" ]; then
@@ -164,9 +179,11 @@ jobs:
             ACTIONS=null
           fi
 
+          # Final payload
           jq -n \
             --arg ch "$CHANNEL" \
-            --argjson title "$TITLE_BLOCK" \
+            --argjson header_brand "$HEADER_BRAND" \
+            --argjson header_title "$HEADER_TITLE" \
             --argjson fields "$FIELD_BLOCK" \
             --argjson body "$BODY_BLOCK" \
             --argjson actions "$ACTIONS" \
@@ -176,7 +193,7 @@ jobs:
             {
               channel: $ch,
               blocks: (
-                [ $title ]
+                [ $header_brand, $header_title ]
                 + [ $fields ]
                 + optional($body)
                 + optional($actions)
