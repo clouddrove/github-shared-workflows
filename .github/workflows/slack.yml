@@ -1,5 +1,5 @@
 ---
-name: Slack Notify (CloudDrove Style - No Top Logo)
+name: Slack Notify (CloudDrove Style)
 
 on:
   workflow_call:
@@ -81,6 +81,7 @@ jobs:
         run: |
           set -e
 
+          # Emoji for status
           case "${STATUS,,}" in
             success) EMOJI="✅";;
             failure) EMOJI="❌";;
@@ -92,6 +93,7 @@ jobs:
           COMMIT_URL="https://github.com/${REPO}/commit/${SHA}"
           ACTOR_URL="https://github.com/${ACTOR}"
 
+          # Default fields with clickable actor link
           DEFAULT_FIELDS=$(jq -n \
             --arg ref "$REF" \
             --arg sha "$SHORT_SHA" \
@@ -106,11 +108,13 @@ jobs:
               {"label":"Event","value":$event}
             ]')
 
+          # Merge fields
           ALL_FIELDS=$(jq -c -n \
             --argjson a "${FIELDS_JSON}" \
             --argjson b "${DEFAULT_FIELDS}" \
             '$a + $b')
 
+          # Slack field layout
           FIELD_ITEMS=$(jq -c '[ .[] | {
             type: "mrkdwn",
             text: ("*" + .label + "*:\n" + .value)
@@ -121,6 +125,7 @@ jobs:
             fields: $fields
           }')
 
+          # Optional body
           if [ -n "$BODY_MD" ]; then
             BODY_BLOCK=$(jq -c -n --arg t "$BODY_MD" \
               '{ "type":"section", "text": { "type":"mrkdwn", "text": $t } }')
@@ -146,6 +151,7 @@ jobs:
             }')
           fi
 
+          # Optional button
           if [ -n "$BUTTON_URL" ]; then
             ACTIONS=$(jq -c -n --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" '{
               type: "actions",
@@ -157,6 +163,7 @@ jobs:
             ACTIONS=null
           fi
 
+          # Final payload
           jq -n \
             --arg ch "$CHANNEL" \
             --arg title "$EMOJI $TITLE — ${STATUS^^}" \
@@ -187,6 +194,5 @@ jobs:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           unfurl_links: false
           unfurl_media: false
-
 
 ...
