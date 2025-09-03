@@ -1,5 +1,5 @@
 ---
-name: Slack Notify (CloudDrove Style)
+name: Slack Notify (CloudDrove Style - No Top Logo)
 
 on:
   workflow_call:
@@ -11,11 +11,11 @@ on:
       title:
         type: string
         required: true
-        description: Short action title, e.g., EKS Cluster Spin-down
+        description: Short action title, e.g., EKS Cluster Spin-up
       status:
         type: string
         required: true
-        description: success|failure|cancelled|warning|info
+        description: success|failed|cancelled|warning|info
       fields_json:
         type: string
         required: false
@@ -81,7 +81,6 @@ jobs:
         run: |
           set -e
 
-          # Emoji for status
           case "${STATUS,,}" in
             success) EMOJI="✅";;
             failure) EMOJI="❌";;
@@ -93,7 +92,6 @@ jobs:
           COMMIT_URL="https://github.com/${REPO}/commit/${SHA}"
           ACTOR_URL="https://github.com/${ACTOR}"
 
-          # Default fields
           DEFAULT_FIELDS=$(jq -n \
             --arg ref "$REF" \
             --arg sha "$SHORT_SHA" \
@@ -123,7 +121,6 @@ jobs:
             fields: $fields
           }')
 
-          # Optional body
           if [ -n "$BODY_MD" ]; then
             BODY_BLOCK=$(jq -c -n --arg t "$BODY_MD" \
               '{ "type":"section", "text": { "type":"mrkdwn", "text": $t } }')
@@ -131,24 +128,6 @@ jobs:
             BODY_BLOCK=null
           fi
 
-          # First context block: Brand
-          HEADER_BRAND=$(jq -c -n --arg logo "$LOGO_URL" --arg brand "$BRAND" '{
-            type: "context",
-            elements: [
-              { "type": "image", "image_url": $logo, "alt_text": "brand" },
-              { "type": "mrkdwn", "text": "*\($brand)*" }
-            ]
-          }')
-
-          # Second context block: Title
-          HEADER_TITLE=$(jq -c -n --arg title "$EMOJI $TITLE — ${STATUS^^}" '{
-            type: "context",
-            elements: [
-              { "type": "mrkdwn", "text": $title }
-            ]
-          }')
-
-          # Footer
           if [ "$LINK_TO_RUN" = "true" ]; then
             FOOTER_CONTEXT=$(jq -c -n --arg logo "$LOGO_URL" --arg brand "$BRAND" --arg url "$RUN_URL" '{
               type: "context",
@@ -167,7 +146,6 @@ jobs:
             }')
           fi
 
-          # Optional button
           if [ -n "$BUTTON_URL" ]; then
             ACTIONS=$(jq -c -n --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" '{
               type: "actions",
@@ -179,11 +157,9 @@ jobs:
             ACTIONS=null
           fi
 
-          # Final payload
           jq -n \
             --arg ch "$CHANNEL" \
-            --argjson header_brand "$HEADER_BRAND" \
-            --argjson header_title "$HEADER_TITLE" \
+            --arg title "$EMOJI $TITLE — ${STATUS^^}" \
             --argjson fields "$FIELD_BLOCK" \
             --argjson body "$BODY_BLOCK" \
             --argjson actions "$ACTIONS" \
@@ -193,7 +169,7 @@ jobs:
             {
               channel: $ch,
               blocks: (
-                [ $header_brand, $header_title ]
+                [ { "type": "header", "text": { "type": "plain_text", "text": $title, "emoji": true } } ]
                 + [ $fields ]
                 + optional($body)
                 + optional($actions)
@@ -211,8 +187,6 @@ jobs:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           unfurl_links: false
           unfurl_media: false
-
-
 
 
 ...
