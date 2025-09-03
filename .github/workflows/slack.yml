@@ -71,7 +71,7 @@ jobs:
         run: |
           set -e
 
-          # Emoji based on status
+          # Emoji for status
           case "${STATUS,,}" in
             success) EMOJI="✅";;
             failure) EMOJI="❌";;
@@ -83,7 +83,7 @@ jobs:
           COMMIT_URL="https://github.com/${REPO}/commit/${SHA}"
           ACTOR_URL="https://github.com/${ACTOR}"
 
-          # Default GitHub fields
+          # Default fields
           DEFAULT_FIELDS=$(jq -n \
             --arg ref "$REF" \
             --arg sha "$SHORT_SHA" \
@@ -98,13 +98,13 @@ jobs:
               {"label":"Event","value":$event}
             ]')
 
-          # Merge custom and default fields
+          # Merge fields
           ALL_FIELDS=$(jq -c -n \
             --argjson a "${FIELDS_JSON}" \
             --argjson b "${DEFAULT_FIELDS}" \
             '$a + $b')
 
-          # Format for Slack section fields
+          # Slack field layout
           FIELD_ITEMS=$(jq -c '[ .[] | {
             type: "mrkdwn",
             text: ("*" + .label + "*:\n" + .value)
@@ -115,7 +115,7 @@ jobs:
             fields: $fields
           }')
 
-          # Optional Markdown body block
+          # Optional body
           if [ -n "$BODY_MD" ]; then
             BODY_BLOCK=$(jq -c -n --arg t "$BODY_MD" \
               '{ "type":"section", "text": { "type":"mrkdwn", "text": $t } }')
@@ -123,72 +123,68 @@ jobs:
             BODY_BLOCK=null
           fi
 
-          # Top brand context (logo + brand name)
-          BRAND_CONTEXT=$(jq -c -n --arg logo "$LOGO_URL" --arg brand "$BRAND" '{
-            type: "context",
-            elements: [
-              { "type": "image", "image_url": $logo, "alt_text": "brand" },
-              { "type": "mrkdwn", "text": "*\($brand)*" }
-            ]
-          }')
+          # ✅ Combine brand + title in single context block to remove gap
+          TITLE_BLOCK=$(jq -c -n \
+            --arg logo "$LOGO_URL" \
+            --arg brand "$BRAND" \
+            --arg title "$EMOJI $TITLE — ${STATUS^^}" \
+            '{
+              type: "context",
+              elements: [
+                { "type": "image", "image_url": $logo, "alt_text": "brand" },
+                { "type": "mrkdwn", "text": "*\($brand)*\n\($title)" }
+              ]
+            }')
 
-          # Title block (native Slack header)
-          TITLE_HEADER=$(jq -c -n --arg title "$EMOJI $TITLE — ${STATUS^^}" '{
-            type: "header",
-            text: { "type": "plain_text", "text": $title, "emoji": true }
-          }')
-
-          # Footer block with run link
+          # Footer branding block
           if [ "$LINK_TO_RUN" = "true" ]; then
-            FOOTER_CONTEXT=$(jq -c -n --arg logo "$LOGO_URL" --arg brand "$BRAND" --arg url "$RUN_URL" '{
-              type: "context",
-              elements: [
-                { "type": "image", "image_url": $logo, "alt_text": "brand" },
-                { "type": "mrkdwn", "text": "*by \($brand)* • <\($url)|View GitHub Run>" }
-              ]
-            }')
+            FOOTER_CONTEXT=$(jq -c -n \
+              --arg logo "$LOGO_URL" \
+              --arg brand "$BRAND" \
+              --arg url "$RUN_URL" '{
+                type: "context",
+                elements: [
+                  { "type": "image", "image_url": $logo, "alt_text": "brand" },
+                  { "type": "mrkdwn", "text": "*by \($brand)* • <\($url)|View GitHub Run>" }
+                ]
+              }')
           else
-            FOOTER_CONTEXT=$(jq -c -n --arg logo "$LOGO_URL" --arg brand "$BRAND" '{
-              type: "context",
-              elements: [
-                { "type": "image", "image_url": $logo, "alt_text": "brand" },
-                { "type": "mrkdwn", "text": "*by \($brand)*" }
-              ]
-            }')
+            FOOTER_CONTEXT=$(jq -c -n \
+              --arg logo "$LOGO_URL" \
+              --arg brand "$BRAND" '{
+                type: "context",
+                elements: [
+                  { "type": "image", "image_url": $logo, "alt_text": "brand" },
+                  { "type": "mrkdwn", "text": "*by \($brand)*" }
+                ]
+              }')
           fi
 
-          # Optional Slack button
+          # Optional button
           if [ -n "$BUTTON_URL" ]; then
             ACTIONS=$(jq -c -n --arg txt "$BUTTON_TEXT" --arg url "$BUTTON_URL" '{
               type: "actions",
               elements: [
-                {
-                  "type":"button",
-                  "text": { "type":"plain_text", "text": $txt },
-                  "url": $url,
-                  "style": "primary"
-                }
+                { "type":"button", "text": { "type":"plain_text", "text": $txt }, "url": $url, "style": "primary" }
               ]
             }')
           else
             ACTIONS=null
           fi
 
-          # Construct final payload
+          # Final Slack message payload
           jq -n \
             --arg ch "$CHANNEL" \
-            --argjson brand_context "$BRAND_CONTEXT" \
-            --argjson title_header "$TITLE_HEADER" \
+            --argjson title_block "$TITLE_BLOCK" \
             --argjson fields "$FIELD_BLOCK" \
             --argjson body "$BODY_BLOCK" \
             --argjson actions "$ACTIONS" \
             --argjson footer "$FOOTER_CONTEXT" '
             def optional(x): if x != null and x != "null" then [x] else [] end;
-
             {
               channel: $ch,
               blocks: (
-                [ $brand_context, $title_header ]
+                [ $title_block ]
                 + [ $fields ]
                 + optional($body)
                 + optional($actions)
@@ -206,6 +202,7 @@ jobs:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           unfurl_links: false
           unfurl_media: false
+
 
 
 ...
