@@ -1,4 +1,5 @@
 ---
+---
 name: Slack Notify (CloudDrove Style)
 
 on:
@@ -133,14 +134,16 @@ jobs:
             BODY_BLOCK=null
           fi
 
-          # Top header branding block
-          HEADER_CONTEXT=$(jq -c -n --arg logo "$LOGO_URL" --arg brand "$BRAND" '{
-            type: "context",
-            elements: [
-              { "type": "image", "image_url": $logo, "alt_text": "brand" },
-              { "type": "mrkdwn", "text": "*\($brand)*" }
-            ]
-          }')
+          # Combined title + logo context block (to avoid gap)
+          TITLE_CONTEXT=$(jq -c -n \
+            --arg logo "$LOGO_URL" \
+            --arg title "$EMOJI $TITLE — ${STATUS^^}" '{
+              type: "context",
+              elements: [
+                { "type": "image", "image_url": $logo, "alt_text": "logo" },
+                { "type": "mrkdwn", "text": "*\($title)*" }
+              ]
+            }')
 
           # Footer branding block
           if [ "$LINK_TO_RUN" = "true" ]; then
@@ -176,8 +179,7 @@ jobs:
           # Final payload
           jq -n \
             --arg ch "$CHANNEL" \
-            --arg title "$EMOJI $TITLE — ${STATUS^^}" \
-            --argjson header "$HEADER_CONTEXT" \
+            --argjson title_context "$TITLE_CONTEXT" \
             --argjson fields "$FIELD_BLOCK" \
             --argjson body "$BODY_BLOCK" \
             --argjson actions "$ACTIONS" \
@@ -187,8 +189,7 @@ jobs:
             {
               channel: $ch,
               blocks: (
-                [ $header ]
-                + [ { "type": "header", "text": { "type": "plain_text", "text": $title, "emoji": true } } ]
+                [ $title_context ]
                 + [ $fields ]
                 + optional($body)
                 + optional($actions)
