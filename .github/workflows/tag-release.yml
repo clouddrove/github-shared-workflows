@@ -9,8 +9,9 @@ on:
         type: string
         default: master
     secrets:
-      GH_TOKEN:
+      GITHUB:
         required: true
+        description: 'PAT of the user to run the jobs.'
 
 jobs:
   release:
@@ -21,6 +22,7 @@ jobs:
       - name: 📦 Checkout the repository
         uses: actions/checkout@v5
         with:
+          token: ${{ secrets.GITHUB }}
           fetch-depth: 0
 
       - name: ⚙️ Set up Git
@@ -48,13 +50,13 @@ jobs:
             echo "skip=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: 🔖 Get latest tag (or v0.0.0 if none)
+      - name: 🔖 Get latest tag (or 1.0.0 if none)
         id: get_latest_tag
         run: |
           git fetch --tags
-          LATEST_TAG=$(git tag --list 'v*' --sort=-v:refname | head -n 1)
+          LATEST_TAG=$(git tag --list --sort=-v:refname | head -n 1)
           if [ -z "$LATEST_TAG" ]; then
-            LATEST_TAG="v0.0.0"
+            LATEST_TAG="1.0.0"
           fi
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
@@ -63,7 +65,6 @@ jobs:
         if: steps.skip_tag.outputs.skip == 'false'
         run: |
           BASE_VERSION="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          BASE_VERSION="${BASE_VERSION#v}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
           LABELS="${{ steps.pr_labels.outputs.labels }}"
           if [[ "$LABELS" == *"major"* ]]; then
@@ -75,21 +76,21 @@ jobs:
           else
             PATCH=$((PATCH+1))
           fi
-          NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: 🏷️ Create GitHub tag for the new version
         if: steps.skip_tag.outputs.skip == 'false'
         run: |
           git tag ${{ steps.calc_version.outputs.new_version }}
-          git push https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }} ${{ steps.calc_version.outputs.new_version }}
+          git push https://x-access-token:${{ secrets.GITHUB }}@github.com/${{ github.repository }} ${{ steps.calc_version.outputs.new_version }}
 
       - name: 📝 Generate Changelog
         if: steps.skip_tag.outputs.skip == 'false'
         id: changelog
         uses: requarks/changelog-action@v1
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB }}
           tag: ${{ steps.calc_version.outputs.new_version }}
           includeInvalidCommits: true
           writeToFile: true
@@ -102,7 +103,7 @@ jobs:
         if: steps.skip_tag.outputs.skip == 'false'
         uses: ncipollo/release-action@v1
         with:
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.GITHUB }}
           tag: ${{ steps.calc_version.outputs.new_version }}
           name: ${{ steps.calc_version.outputs.new_version }}
           allowUpdates: true
