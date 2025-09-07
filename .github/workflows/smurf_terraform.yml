@@ -120,7 +120,7 @@ jobs:
 
       - name: 🔑 Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: '${{ inputs.aws_role }}'
           aws-region: '${{ inputs.aws_region }}'
