@@ -92,7 +92,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB }}
           tag: ${{ steps.calc_version.outputs.new_version }}
-          includeInvalidCommits: true
+          includeInvalidCommits: false
           writeToFile: true
           changelogFilePath: CHANGELOG.md
           includeRefIssues: true
