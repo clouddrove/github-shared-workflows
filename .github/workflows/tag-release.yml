@@ -22,13 +22,7 @@ jobs:
       - name: 📦 Checkout the repository
         uses: actions/checkout@v5
         with:
-          token: ${{ secrets.GITHUB }}
           fetch-depth: 0
-
-      - name: ⚙️ Set up Git
-        run: |
-          git config --global user.email "84795582+clouddrove-ci@users.noreply.github.com"
-          git config --global user.name "clouddrove-ci"
 
       - name: 🧩 Install jq
         run: |
