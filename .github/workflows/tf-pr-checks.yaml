@@ -89,7 +89,7 @@ jobs:
 
       - name: ☁️ Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -138,7 +138,7 @@ jobs:
 
       - name: 🚀 Terraform Init (target branch)
         working-directory: ${{ inputs.terraform_directory }}
-        run: terraform init
+        run: terraform init -upgrade
 
       - name: 📐 Terraform Plan (target branch)
         working-directory: ${{ inputs.terraform_directory }}
