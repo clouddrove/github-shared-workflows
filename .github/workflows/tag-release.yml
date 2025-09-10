@@ -40,7 +40,7 @@ jobs:
         id: skip_tag
         run: |
           LABELS="${{ steps.pr_labels.outputs.labels }}"
-          
+
           # Check if any version label exists (major/minor/patch)
           if [[ "$LABELS" == *"major"* || "$LABELS" == *"minor"* || "$LABELS" == *"patch"* ]]; then
             echo "skip=false" >> $GITHUB_OUTPUT
@@ -68,7 +68,7 @@ jobs:
           BASE_VERSION="${{ steps.get_latest_tag.outputs.latest_tag }}"
           IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
           LABELS="${{ steps.pr_labels.outputs.labels }}"
-          
+
           if [[ "$LABELS" == *"major"* ]]; then
             MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0
             echo "version_type=major" >> $GITHUB_OUTPUT
@@ -79,7 +79,7 @@ jobs:
             PATCH=$((PATCH+1))
             echo "version_type=patch" >> $GITHUB_OUTPUT
           fi
-          
+
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
@@ -117,9 +117,9 @@ jobs:
           makeLatest: true
           body: |
             ${{ steps.changelog.outputs.changes }}
-            
+
             **Release Type:** ${{ steps.calc_version.outputs.version_type }}
-            
+
             [Compare changes](https://github.com/${{ github.repository }}/compare/${{ steps.get_latest_tag.outputs.latest_tag }}...${{ steps.calc_version.outputs.new_version }})
 
       - name: 💾 Commit CHANGELOG.md
