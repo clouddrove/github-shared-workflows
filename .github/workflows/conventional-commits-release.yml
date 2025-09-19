@@ -1,0 +1,124 @@
+---
+name: 🚀 Conventional Commits Release
+
+on:
+  workflow_call:
+    inputs:
+      target_branch:
+        required: true
+        type: string
+        default: master
+        description: 'Target branch for releases'
+      initial_version:
+        required: false
+        type: string
+        default: "1.0.0"
+        description: 'Initial version if no tags exist'
+      prerelease:
+        required: false
+        type: boolean
+        default: false
+        description: 'Create prerelease versions'
+      changelog_file:
+        required: false
+        type: string
+        default: "CHANGELOG.md"
+        description: 'Changelog file path'
+      version_prefix:
+        required: false
+        type: string
+        default: "v"
+        description: 'Version prefix (e.g., v for v1.0.0)'
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+        description: 'GitHub token for creating releases and tags'
+
+jobs:
+  conventional-release:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', inputs.target_branch)
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🧩 Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: 🔍 Determine next version
+        id: version
+        uses: smlx/ccv@v0.9.0
+        with:
+          write-tag: false
+          initial-version: ${{ inputs.initial_version }}
+          prerelease: ${{ inputs.prerelease }}
+          version-prefix: ${{ inputs.version_prefix }}
+
+      - name: 📝 Generate changelog
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.version.outputs.version }}
+          includeInvalidCommits: false
+          writeToFile: true
+          changelogFilePath: ${{ inputs.changelog_file }}
+          includeRefIssues: true
+          useGitmojis: true
+          reverseOrder: false
+
+      - name: 🏷️ Create and push tag
+        if: steps.version.outputs.version != ''
+        run: |
+          git config user.name "clouddrove-ci"
+          git config user.email "84795582+clouddrove-ci@users.noreply.github.com"
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+
+      - name: 🚀 Create GitHub release
+        if: steps.version.outputs.version != ''
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.version }}
+          allowUpdates: true
+          draft: false
+          prerelease: ${{ inputs.prerelease }}
+          makeLatest: true
+          body: |
+            ${{ steps.changelog.outputs.changes }}
+
+            **Release Type:** ${{ steps.version.outputs.version_type }}
+
+            [Compare changes](https://github.com/${{ github.repository }}/compare/${{ steps.version.outputs.previous_version }}...${{ steps.version.outputs.version }})
+
+      - name: 💾 Commit changelog
+        if: steps.version.outputs.version != ''
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          branch: ${{ inputs.target_branch }}
+          commit_user_name: clouddrove-ci
+          commit_user_email: 84795582+clouddrove-ci@users.noreply.github.com
+          commit_author: "CloudDrove CI <84795582+clouddrove-ci@users.noreply.github.com>"
+          commit_message: 'docs: update ${{ inputs.changelog_file }} for ${{ steps.version.outputs.version }}'
+          file_pattern: ${{ inputs.changelog_file }}
+
+      - name: 📋 Release summary
+        run: |
+          if [ -n "${{ steps.version.outputs.version }}" ]; then
+            echo "✅ Released ${{ steps.version.outputs.version }} successfully"
+            echo "🏷️ Version type: ${{ steps.version.outputs.version_type }}"
+            echo "📝 Changelog updated: ${{ inputs.changelog_file }}"
+            if [ "${{ inputs.prerelease }}" == "true" ]; then
+              echo "🔖 This is a prerelease"
+            fi
+          else
+            echo "ℹ️ No new version to release"
+          fi

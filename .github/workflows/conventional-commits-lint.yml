@@ -1,0 +1,54 @@
+---
+name: 🔍 Conventional Commits Lint
+
+on:
+  workflow_call:
+    inputs:
+      allowed_types:
+        required: false
+        type: string
+        default: "feat,fix,docs,style,refactor,perf,test,chore,ci,build,revert"
+        description: 'Comma-separated list of allowed commit types'
+      scopes:
+        required: false
+        type: string
+        default: ""
+        description: 'Comma-separated list of allowed scopes (optional)'
+      breaking_change_token:
+        required: false
+        type: string
+        default: "BREAKING CHANGE"
+        description: 'Token to identify breaking changes'
+    secrets:
+      GITHUB_TOKEN:
+        required: false
+        description: 'GitHub token for private repositories'
+
+jobs:
+  conventional-commits-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔍 Validate Conventional Commits
+        uses: webiny/action-conventional-commits@v1.3.0
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          allowed-commit-types: ${{ inputs.allowed_types }}
+          scopes: ${{ inputs.scopes }}
+          breaking-change-token: ${{ inputs.breaking_change_token }}
+
+      - name: 📋 Summary
+        run: |
+          echo "✅ All commit messages follow Conventional Commits specification"
+          echo "📝 Allowed types: ${{ inputs.allowed_types }}"
+          if [ -n "${{ inputs.scopes }}" ]; then
+            echo "🎯 Allowed scopes: ${{ inputs.scopes }}"
+          fi
+          echo "💥 Breaking change token: ${{ inputs.breaking_change_token }}"

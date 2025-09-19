@@ -1,0 +1,47 @@
+---
+name: 📝 PR Title Conventional Commits Check
+
+on:
+  workflow_call:
+    inputs:
+      allowed_types:
+        required: false
+        type: string
+        default: "feat,fix,docs,style,refactor,perf,test,chore,ci,build,revert"
+        description: 'Comma-separated list of allowed commit types'
+      scopes:
+        required: false
+        type: string
+        default: ""
+        description: 'Comma-separated list of allowed scopes (optional)'
+    secrets:
+      GITHUB_TOKEN:
+        required: false
+        description: 'GitHub token for private repositories'
+
+jobs:
+  pr-title-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔍 Validate PR Title
+        uses: Namchee/conventional-pr@v0.6.0
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+          allowed_types: ${{ inputs.allowed_types }}
+          scopes: ${{ inputs.scopes }}
+
+      - name: 📋 Summary
+        run: |
+          echo "✅ PR title follows Conventional Commits specification"
+          echo "📝 Allowed types: ${{ inputs.allowed_types }}"
+          if [ -n "${{ inputs.scopes }}" ]; then
+            echo "🎯 Allowed scopes: ${{ inputs.scopes }}"
+          fi
+          echo "📄 PR Title: ${{ github.event.pull_request.title }}"
