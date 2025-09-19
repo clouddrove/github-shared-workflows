@@ -1,0 +1,47 @@
+---
+name: 📋 Conventional Commits Example
+
+# This is an example workflow showing how to use all three conventional commits workflows
+# Copy this to your repository and customize as needed
+
+on:
+  pull_request:
+    branches: [ main, master ]
+    types: [opened, edited, reopened, synchronize]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  # Validate commit messages in PRs
+  validate-commits:
+    if: github.event_name == 'pull_request'
+    uses: clouddrove/github-shared-workflows/.github/workflows/conventional-commits-lint.yml@master
+    with:
+      allowed_types: "feat,fix,docs,style,refactor,perf,test,chore,ci,build,revert"
+      scopes: "api,ui,docs,config,deploy,infra"
+      breaking_change_token: "BREAKING CHANGE"
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Validate PR titles
+  validate-pr-title:
+    if: github.event_name == 'pull_request'
+    uses: clouddrove/github-shared-workflows/.github/workflows/conventional-commits-pr-title.yml@master
+    with:
+      allowed_types: "feat,fix,docs,style,refactor,perf,test,chore,ci,build,revert"
+      scopes: "api,ui,docs,config,deploy,infra"
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Create releases on push to main/master
+  release:
+    if: github.event_name == 'push'
+    uses: clouddrove/github-shared-workflows/.github/workflows/conventional-commits-release.yml@master
+    with:
+      target_branch: master
+      initial_version: "1.0.0"
+      prerelease: false
+      changelog_file: "CHANGELOG.md"
+      version_prefix: "v"
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

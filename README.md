@@ -124,6 +124,7 @@ Above example is just a simple example to call workflow from github shared workf
 27. [Terraform Workflow](./docs/27.terraform_workflow.md)
 28. [Terraform Module Tag Release Workflow (Shared)](./docs/28.tf-monorepo-tag-release.md)
 29. [Terraform PR Plan Diff workflow](./docs/29.tf-pr-checks.md)
+30. [Conventional Commits Workflows](./docs/30.conventional-commits.md)
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
