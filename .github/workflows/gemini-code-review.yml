@@ -1,9 +1,13 @@
 ---
-name: ✨ Gemini Code Review ✨
+name: Gemini Code Review ✨
 
 on:
   workflow_call:
     inputs:
+      review_prompt:
+        required: true
+        type: string
+        description: "📝 Prompt text for the Gemini review"
       gemini_model:
         default: "gemini-2.5-pro"
         required: false
@@ -21,47 +25,23 @@ on:
 
 jobs:
   review:
-    name: 🕵️ Gemini Review
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
       contents: read
-
     steps:
-      - name: 📥 Checkout code
+      - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 📑 Get PR diff (via GitHub API, robust)
+      - name: 🔍 Get PR diff
         id: diff
-        env:
-          GITHUB_TOKEN: ${{ inputs.github_token || github.TOKEN }}
         run: |
-          set -euo pipefail
-          PR_NUMBER=${{ github.event.pull_request.number }}
-          OWNER="${GITHUB_REPOSITORY%/*}"
-          REPO="${GITHUB_REPOSITORY#*/}"
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          PR_BRANCH="${{ github.event.pull_request.head.ref }}"
 
-          echo "🔍 Fetching PR diff for $OWNER/$REPO PR#$PR_NUMBER"
-
-          curl -sS -H "Accept: application/vnd.github.v3.diff" \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            "https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER" -o pr.diff || true
-
-          if [ ! -s pr.diff ]; then
-            echo "⚠️ Diff empty, trying patch format..."
-            curl -sS -H "Accept: application/vnd.github.v3.patch" \
-              -H "Authorization: token $GITHUB_TOKEN" \
-              "https://api.github.com/repos/$OWNER/$REPO/pulls/$PR_NUMBER" -o pr.diff || true
-          fi
-
-          echo "📏 PR diff size (bytes): $(wc -c < pr.diff || echo 0)"
-
-          if [ ! -s pr.diff ]; then
-            echo "❌ ERROR: pr.diff is empty — cannot run review."
-            echo "diff_file=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
+          echo "🔗 Base: $BASE_BRANCH, PR: $PR_BRANCH"
+          git fetch origin $BASE_BRANCH $PR_BRANCH
+          git diff origin/$BASE_BRANCH...origin/$PR_BRANCH > pr.diff
           echo "diff_file=pr.diff" >> $GITHUB_OUTPUT
 
       - name: 🤖 Run Gemini Review
@@ -69,26 +49,20 @@ jobs:
         uses: google-github-actions/run-gemini-cli@v0.1.12
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          gemini_model: ${{ inputs.gemini_model }}
+          gemini_model: "gemini-2.5-pro"
           files: ${{ steps.diff.outputs.diff_file }}
           prompt: |
-            You are an AI code reviewer 🕵️.
-            Review the given **git diff**.
-            For each issue:
-              - 📂 Mention the file name and line number
-              - ⚠️ Describe the issue
-              - ❓ Explain why it is problematic
-              - 💡 Suggest a fix
-            If multiple issues exist, list all separately.
+            ${{ inputs.review_prompt }}
 
       - name: 💬 Comment Review on PR
         if: steps.gemini.outputs.summary != ''
         uses: actions/github-script@v6
         with:
-          github-token: ${{ inputs.github_token || github.TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const summary = ${{ toJSON(steps.gemini.outputs.summary) }};
-            const review = `### 📝 Gemini Code Review\n\n${summary}`;
+            const review = `### ✨ Gemini Code Review ✨\n\n${summary}`;
+
             const issue_number = context.payload.pull_request.number;
 
             await github.rest.issues.createComment({
