@@ -8,6 +8,16 @@ on:
         description: 'Enter the tfcheck action name.'
         required: false
         type: string
+      tfchecks_azure:
+        description: 'List of Azure TF checks (JSON array as string)'
+        required: false
+        type: string
+        default: '["pr-validation / 📝 Validate PR title", "pr-validation / 🧾 Validate Commit Messages", "tf-lint / tflint"]'
+      azure_cloud:
+        description: 'Enable Azure-specific checks'
+        required: false
+        type: boolean
+        default: false
     secrets:
       GITHUB:
         description: 'GitHub Token'
@@ -20,7 +30,7 @@ jobs:
     strategy:
       matrix:
         tf-checks: ["tf-lint / tflint", "tfsec / tfsec sarif report", "${{ inputs.tfcheck }}"]
-    if: github.actor == 'dependabot[bot]'
+    if: github.actor == 'dependabot[bot]' && !inputs.azure_cloud
     steps:
       - name: Wait for 2 Minutes
         run: sleep 120s
@@ -31,7 +41,35 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           check-name: ${{ matrix.tf-checks }}
-          repo-token: ${{ secrets.GITHUB }}
+          repo-token: ${{ secrets.GITHUB || secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+          allowed-conclusions: success
+
+  static-checks-azure:
+    name: Check Static Analysis for Azure
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: read
+      pull-requests: read
+    if: |
+      github.actor == 'dependabot[bot]' && 
+      inputs.azure_cloud == true && 
+      inputs.tfchecks_azure != '[]'
+    strategy:
+      matrix:
+        tf-checks: ${{ fromJSON(inputs.tfchecks_azure) }}
+    steps:
+      - name: Wait for 2 Minutes
+        run: sleep 120s
+        shell: bash
+
+      - name: Wait for "${{ matrix.tf-checks }}" to Succeed
+        uses: lewagon/wait-on-check-action@v1.4.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          check-name: ${{ matrix.tf-checks }}
+          repo-token: ${{ secrets.GITHUB || secrets.GITHUB_TOKEN }}
           wait-interval: 30
           allowed-conclusions: success
 
@@ -40,9 +78,12 @@ jobs:
       contents: write
       pull-requests: write
     name: Auto Approve PRs by Dependabot
-    needs: static-checks
+    needs: [static-checks, static-checks-azure]
     runs-on: ubuntu-latest
-    if: github.actor == 'dependabot[bot]'
+    if: |
+      always() && 
+      github.actor == 'dependabot[bot]' && 
+      (needs.static-checks.result == 'success' || needs.static-checks-azure.result == 'success')
     steps:
       - name: Approve PR via GitHub Bot
         run: gh pr review --approve "$PR_URL"
@@ -59,10 +100,14 @@ jobs:
   automerge:
     runs-on: ubuntu-latest
     needs: autoapprove
+    if: |
+      always() && 
+      needs.autoapprove.result == 'success' &&
+      github.event_name == 'pull_request' && 
+      github.event.pull_request.draft == false
     steps:
       - name: Automerge
         uses: pascalgn/automerge-action@v0.16.4
-        if: github.event_name == 'pull_request' && github.event.pull_request.draft == false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB }}
           MERGE_FILTER_AUTHOR: 'dependabot[bot]'
