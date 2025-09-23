@@ -1,0 +1,74 @@
+---
+name: Gemini Code Review ✨
+
+on:
+  workflow_call:
+    inputs:
+      review_prompt:
+        required: true
+        type: string
+        description: "📝 Prompt text for the Gemini review"
+      gemini_model:
+        default: "gemini-2.5-pro"
+        required: false
+        type: string
+        description: "🤖 Gemini model to use (default: gemini-2.5-pro)"
+      github_token:
+        default: ${{ github.TOKEN }}
+        required: false
+        type: string
+        description: "🔒 GitHub token (default: GITHUB_TOKEN)"
+    secrets:
+      GEMINI_API_KEY:
+        required: true
+        description: "🔑 API key for authenticating requests to the Gemini model used for code review."
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔍 Get PR diff
+        id: diff
+        run: |
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          PR_BRANCH="${{ github.event.pull_request.head.ref }}"
+
+          echo "🔗 Base: $BASE_BRANCH, PR: $PR_BRANCH"
+          git fetch origin $BASE_BRANCH $PR_BRANCH
+          git diff origin/$BASE_BRANCH...origin/$PR_BRANCH > pr.diff
+          echo "diff_file=pr.diff" >> $GITHUB_OUTPUT
+
+      - name: 🤖 Run Gemini Review
+        id: gemini
+        uses: google-github-actions/run-gemini-cli@v0.1.12
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          gemini_model: "gemini-2.5-pro"
+          files: ${{ steps.diff.outputs.diff_file }}
+          prompt: |
+            ${{ inputs.review_prompt }}
+
+      - name: 💬 Comment Review on PR
+        if: steps.gemini.outputs.summary != ''
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const summary = ${{ toJSON(steps.gemini.outputs.summary) }};
+            const review = `### ✨ Gemini Code Review ✨\n\n${summary}`;
+
+            const issue_number = context.payload.pull_request.number;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number,
+              body: review
+            });
+...
