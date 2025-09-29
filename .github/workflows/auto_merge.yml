@@ -37,7 +37,7 @@ jobs:
         shell: bash
 
       - name: Wait for "${{ matrix.tf-checks }}" to Succeed
-        uses: lewagon/wait-on-check-action@v1.4.0
+        uses: lewagon/wait-on-check-action@v1.4.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           check-name: ${{ matrix.tf-checks }}
@@ -65,7 +65,7 @@ jobs:
         shell: bash
 
       - name: Wait for "${{ matrix.tf-checks }}" to Succeed
-        uses: lewagon/wait-on-check-action@v1.4.0
+        uses: lewagon/wait-on-check-action@v1.4.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           check-name: ${{ matrix.tf-checks }}
