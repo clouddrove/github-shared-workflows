@@ -23,7 +23,7 @@ jobs:
           key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
 
       - name: ⚙️ Setup TFLint
-        uses: terraform-linters/setup-tflint@v5
+        uses: terraform-linters/setup-tflint@v6
         with:
           tflint_version: v0.44.1
           github_token: ${{ secrets.GITHUB }}
