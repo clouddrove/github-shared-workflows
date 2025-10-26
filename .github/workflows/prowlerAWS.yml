@@ -135,7 +135,7 @@ jobs:
 
       - name: 📤 Upload Artifact
         if: ${{ inputs.enable_s3_upload == false }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: prowler-reports
           path: /home/runner/work/prowler/prowler/output/
