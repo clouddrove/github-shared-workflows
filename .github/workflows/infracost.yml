@@ -33,7 +33,7 @@ jobs:
           api-key: ${{ secrets.INFRACOST_API_KEY }}
 
       - name: 📦 Checkout base branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.base.ref }}
 
@@ -51,7 +51,7 @@ jobs:
                               --out-file=/tmp/infracost-base.json
 
       - name: 📦 Checkout PR branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 🔀 Generate Infracost diff
         run: |
