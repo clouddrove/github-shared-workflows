@@ -88,23 +88,23 @@ jobs:
         with:
           terraform_version: '${{ inputs.terraform_version }}'
 
-      - name: 🧹 Terraform Format
-        uses: clouddrove/smurf@v1.1.4
+      - name: ⚙️ Set up Smurf Terraform
+        uses: clouddrove/smurf@master
         with:
-          tool: stf
-          command: format -r
+          version: ${{ inputs.terraform_version }}
+
+      - name: 🧹 Terraform Format
+        run: |
+          smurf stf format -r
 
       - name: 🏗️ Terraform Init
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: stf
-          command: 'init --dir=${{ inputs.terraform_directory }}'
+        run: |
+          smurf stf 'init --dir=${{ inputs.terraform_directory }}'
 
       - name: 🔎 Terraform Validate
-        uses: clouddrove/smurf@v1.1.4
+        run: |
         with:
-          tool: stf
-          command: 'validate --dir=${{ inputs.terraform_directory }}'
+          smurf stf 'validate --dir=${{ inputs.terraform_directory }}'
 
   terraform-execution:
     if: inputs.terraform_enable == 'true'
@@ -156,17 +156,18 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
-      - name: 🏗️ Terraform Init
-        uses: clouddrove/smurf@v1.1.4
+      - name: ⚙️ Set up Smurf Terraform
+        uses: clouddrove/smurf@master
         with:
-          tool: stf
-          command: 'init --dir=${{ inputs.terraform_directory }}'
+          version: ${{ inputs.terraform_version }}
+
+      - name: 🏗️ Terraform Init
+        run: |
+          smurf stf 'init --dir=${{ inputs.terraform_directory }}'
 
       - name: 📋 Terraform Plan
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: stf
-          command: 'plan --dir=${{ inputs.terraform_directory }}'
+        run: |
+          smurf stf 'plan --dir=${{ inputs.terraform_directory }}'
 
       - name: ✅ Accept plan or deny
         uses: trstringer/manual-approval@v1
@@ -178,10 +179,8 @@ jobs:
           issue-title: Terraform Plan for Infrastructure Update
 
       - name: 🚀 Terraform Apply
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: stf
-          command: 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
+        uses: |
+          smurf stf 'apply --auto-approve --dir=${{ inputs.terraform_directory }}'
 
   terraform-destroy:
     if: inputs.terraform_destroy == 'true'
@@ -195,8 +194,6 @@ jobs:
           terraform_version: '${{ inputs.terraform_version }}'
 
       - name: 💣 Terraform Destroy
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: stf
-          command: 'destroy --auto-approve --dir=${{ inputs.terraform_directory }}'
+        uses: |
+          smurf stf 'destroy --auto-approve --dir=${{ inputs.terraform_directory }}'
 ...
