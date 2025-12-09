@@ -199,7 +199,7 @@ jobs:
       contents: read
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 🐳 Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
@@ -241,7 +241,7 @@ jobs:
       contents: read
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: ⬇️ Download Docker Image Artifact
         uses: actions/download-artifact@v6
@@ -336,7 +336,7 @@ jobs:
     needs: docker_scan_push
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 🧪 Helm Lint
         uses: clouddrove/smurf@v1.1.4
@@ -358,7 +358,7 @@ jobs:
       - helm_lint_template
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 🔑 Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
@@ -441,7 +441,7 @@ jobs:
       contents: read
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: 🔑 Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
