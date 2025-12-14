@@ -1,0 +1,245 @@
+---
+run-name: '🦸‍♂️ Smurf Terraform workflow'
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        required: true
+        type: string
+        description: 'Root directory of the terraform where all resources exist.'
+      provider:
+        required: true
+        type: string
+        description: 'Cloud provider to run the workflow. e.g. azurerm, aws, gcp or digitalocean'
+      aws_region:
+        required: false
+        type: string
+        default: us-east-2
+        description: 'AWS region of terraform deployment.'
+      gcp_region:
+        required: false
+        type: string
+        description: 'GCP region of terraform deployment.'
+      var_file:
+        required: false
+        type: string
+        description: 'Terraform var file directory. e.g. vars/dev.tfvars'
+      destroy:
+        required: false
+        type: boolean
+        default: false
+        description: 'Set true to destroy terraform infrastructure.'
+      approvers:
+        required: false
+        type: string
+        description: 'Approvals list to approve apply or destroy'
+      smurf_version:
+        type: string
+        default: v0.0.9
+        description: 'Required Smurf version'
+      timeout:
+        required: false
+        type: number
+        default: 10
+        description: 'Timeout for approval step'
+      minimum-approvals:
+        required: false
+        type: string
+        default: 1
+        description: 'Minimum approvals required to accept the plan'
+      token_format:
+        required: false
+        type: string
+        default: access_token
+        description: 'Output format for the generated authentication token. For OAuth 2.0 access tokens, specify "access_token". For OIDC tokens, specify "id_token". To skip token generation, leave this value empty'
+      access_token_lifetime:
+        required: false
+        type: string
+        default: 300s
+        description: 'Desired lifetime duration of the access token, in seconds'
+      project_id:
+        required: false
+        type: string
+        description: 'ID of the default project to use for future API calls and invocations.'
+      create_credentials_file:
+        required: false
+        type: string
+        default: true
+        description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+      git_ssh_key_setup:
+        required: false
+        type: string
+        default: false
+        description: 'If true, sets up SSH keys for Git access to clone private repositories.'
+      target_environment:
+        description: "Name of the deployment environment (e.g., dev, staging, prod). Leave empty if no environment-specific context is needed."
+        required: false
+        type: string
+        default: ""
+      plan_only:
+        description: "Set this to `true` to run `smurf stf plan` only"
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      AZURE_CREDENTIALS:
+        required: false
+        description: 'Azure Credentials to install Azure in github runner.'
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      BUILD_ROLE:
+        required: false
+        description: 'AWS OIDC role for aws authentication.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
+      GCP_CREDENTIALS:
+        required: false
+        description: 'The Google Cloud JSON service account key to use for authentication'
+      DIGITALOCEAN_ACCESS_TOKEN:
+        required: false
+        description: 'The DigitalOcean Personal Access Token for Application & API'
+      env-vars:
+        required: false
+        description: 'Pass required environment variables'
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: false
+        description: 'The full identifier of the Workload Identity Provider'
+      SERVICE_ACCOUNT:
+        required: false
+        description: 'The service account to be used'
+      SSH_PRIVATE_KEY:
+        required: false
+        description: 'Private SSH key to register in the SSH agent'
+
+jobs:
+  terraform-execution:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
+
+    outputs:
+      tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
+
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - uses: webfactory/ssh-agent@v0.9.1
+        if: ${{ inputs.git_ssh_key_setup == true }}
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: 🌱 Set environment variables
+        run: |
+          (
+          cat <<'_EOT'
+          ${{ secrets.env-vars }}
+          _EOT
+          ) >> "$GITHUB_ENV"
+
+      - name: 🟦 Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
+
+      - name: ☁️ Install Azure CLI
+        if: ${{ inputs.provider == 'azurerm' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: ☁️ Authenticate to Google Cloud
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          create_credentials_file: ${{ inputs.create_credentials_file }}
+          token_format: ${{ inputs.token_format }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+          project_id: ${{ inputs.project_id }}
+
+      - name: 🟦 Install doctl
+        if: ${{ inputs.provider == 'digitalocean' }}
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: ⚙️ Set up Smurf Terraform
+        uses: clouddrove/smurf@master
+        with:
+          version: ${{ inputs.smurf_version }}
+
+      - name: 🧹 Smurf Terraform Format
+        run: |
+          smurf stf format
+
+      - name: 🏗️ Smurf Terraform Init
+        run: |
+          smurf stf init --dir=${{ inputs.terraform_directory }}
+
+      - name: 🔎 Smurf Terraform validate
+        run: |
+          smurf stf validate --dir=${{ inputs.terraform_directory }}
+
+      - name: 📋 Terraform Plan
+        run: |
+          smurf stf plan --dir=${{ inputs.terraform_directory }}
+
+      - name: ⏳ Approval Before Apply
+        if: inputs.terraform_destroy != 'true'
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: ${{ inputs.approvers }}
+          minimum-approvals: ${{ inputs['minimum-approvals'] }}
+          timeout-minutes: ${{ fromJson(inputs.timeout) }}
+          issue-title: "Approve Terraform Apply"
+
+      - name: 🚀 Terraform Apply
+        if: inputs.terraform_destroy != 'true'
+        run: |
+          smurf stf apply --auto-approve --dir=${{ inputs.terraform_directory }}
+
+  ###############################################
+  # DESTROY → APPROVAL → DESTROY APPLY
+  ###############################################
+  terraform-destroy:
+    if: inputs.terraform_destroy == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v5
+
+      - name: ⚙️ Set up Smurf Terraform
+        uses: clouddrove/smurf@master
+        with:
+          version: ${{ inputs.smurf_version }}
+
+      # APPROVAL BEFORE DESTROY (FIXED)
+      - name: ⏳ Approval Before Destroy
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: ${{ inputs.approvers }}
+          minimum-approvals: ${{ inputs['minimum-approvals'] }}
+          timeout-minutes: ${{ fromJson(inputs.timeout) }}
+          issue-title: "Approve Terraform Destroy"
+
+      - name: 💣 Terraform Destroy
+        run: |
+          smurf stf 'destroy --auto-approve --dir=${{ inputs.terraform_directory }}'
+...
