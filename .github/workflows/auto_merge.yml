@@ -127,7 +127,7 @@ jobs:
     needs: autoapprove-azure
     if: |
       always() &&
-      needs.autoapprove.result == 'success' &&
+      needs.autoapprove-azure.result == 'success' &&
       github.event_name == 'pull_request' &&
       github.event.pull_request.draft == false &&
       inputs.azure_cloud == true
