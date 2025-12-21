@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: 🔐 Executing remote SSH commands using SSH key
-        uses: appleboy/ssh-action@v1.2.3
+        uses: appleboy/ssh-action@v1.2.4
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
