@@ -151,7 +151,7 @@ jobs:
         run: terraform show -no-color tfplan-target > plan-target.txt
 
       - name: 🧾 Generate Terraform Plan Diff
-        uses: int128/diff-action@v1
+        uses: int128/diff-action@v2
         with:
           base: ${{ inputs.terraform_directory }}/plan-target.txt
           head: ${{ inputs.terraform_directory }}/plan-pr.txt
