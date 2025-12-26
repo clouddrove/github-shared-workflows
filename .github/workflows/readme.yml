@@ -28,7 +28,7 @@ jobs:
 
       - name: 🔐 Setup GitHub credentials
         run: |
-          run: git config --global url.https://${{ secrets.TOKEN }}@github.com/.insteadOf https://github.com/
+          git config --global url.https://${{ secrets.TOKEN }}@github.com/.insteadOf https://github.com/
 
       - name: 🐍 Set up Python 3.7
         uses: actions/setup-python@v6
