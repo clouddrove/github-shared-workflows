@@ -227,7 +227,7 @@ jobs:
           inputs.docker_image_tar }}
 
       - name: ⬆️ Upload Docker Image Artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: '${{ inputs.docker_image_name }}'
           path: '${{ inputs.docker_image_tar }}'

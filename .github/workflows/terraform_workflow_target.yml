@@ -241,7 +241,7 @@ jobs:
           eval "$PLAN_CMD"
 
       - name: 📤 Publish Terraform Plan
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: tfplan
           path: ${{ inputs.working_directory }}/tfplan
@@ -290,7 +290,7 @@ jobs:
 
       - name: 📤 Upload Errored Terraform State Artifact
         if: ${{ always() }} && success() && steps.find_errored_tfstate.outputs['errored_found'] == 'true'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: errored_tfstate
           path: ${{ inputs.working_directory }}/errored.tfstate
