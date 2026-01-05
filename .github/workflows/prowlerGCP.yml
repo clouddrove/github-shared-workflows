@@ -119,7 +119,7 @@ jobs:
 
       - name: 📤 Upload Artifact (If GCS Upload Disabled)
         if: ${{ inputs.enable_gcs_upload == false }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: prowler-reports
           path: ${{ github.workspace }}/report/
