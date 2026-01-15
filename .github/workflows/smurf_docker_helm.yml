@@ -165,13 +165,13 @@ name: 🦸‍♂️ Smurf-Docker-Helm
         required: false
 
     secrets:
-      AWS_ACCESS_KEY_ID:
+      STAGING_AWS_ACCESS_KEY_ID:
         required: false
         description: AWS Access Key ID for direct authentication
-      AWS_SECRET_ACCESS_KEY:
+      STAGING_AWS_SECRET_ACCESS_KEY:
         required: false
         description: AWS Secret Access Key for direct authentication
-      AWS_SESSION_TOKEN:
+      STAGING_AWS_SESSION_TOKEN:
         required: false
         description: AWS Session Token for direct authentication
       GCP_WIP:
