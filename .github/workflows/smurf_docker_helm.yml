@@ -212,14 +212,14 @@ jobs:
         run: |
             smurf sdkr build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
             inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
-            --build-arg ${{ inputs.docker_build_args }}
+            ${{ inputs.docker_build_args }}
 
       - name: 🐳 Docker Image Build with Buildkit
         if: inputs.docker_buildkit_enable == 'true'
         run: |
             smurf sdkr build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
             inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
-            --build-arg ${{ inputs.docker_build_args }} --buildkit
+            ${{ inputs.docker_build_args }} --buildkit
 
       - name: 💾 Save Docker Image as Artifact
         run: >
