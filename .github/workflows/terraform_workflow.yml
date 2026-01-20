@@ -204,44 +204,13 @@ jobs:
 
       - name: 📋 Terraform Plan
         id: tf-plan
-        run: |
-          export exitcode=0
-          cd ${{ inputs.working_directory }}
-          if [ "${{ inputs.destroy }}" = true ]; then
-            if [ -n "${{ inputs.var_file }}" ]; then
-              terraform plan -destroy -out tfplan --var-file=${{ inputs.var_file }}
-            else
-              terraform plan -destroy -out tfplan
-            fi
-          else
-            if [ -n "${{ inputs.var_file }}" ]; then
-              terraform plan -out tfplan --var-file=${{ inputs.var_file }}
-            else
-              terraform plan -out tfplan
-            fi
-          fi
-
-      - name: 📤 Publish Terraform Plan
-        uses: actions/upload-artifact@v6
+        uses: dflook/terraform-plan@v2
         with:
-          name: tfplan
-          path: ${{ inputs.working_directory }}/tfplan
+          path: ${{ inputs.working_directory }}
+          var_file: ${{ inputs.var_file }}
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
 
-      - name: 📝 Create String Output
-        id: tf-plan-string
-        run: |
-          cd ${{ inputs.working_directory }}
-          TERRAFORM_PLAN=$(terraform show -no-color tfplan)
-          delimiter="$(openssl rand -hex 8)"
-          echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
-          echo "## Terraform Plan Output" >> $GITHUB_OUTPUT
-          echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          echo '```terraform' >> $GITHUB_OUTPUT
-          echo "$TERRAFORM_PLAN" >> $GITHUB_OUTPUT
-          echo '```' >> $GITHUB_OUTPUT
-          echo "</details>" >> $GITHUB_OUTPUT
-          echo "${delimiter}" >> $GITHUB_OUTPUT
 
       - name: ✅ Accept plan or deny
         if: ${{ inputs.plan_only != true }}
