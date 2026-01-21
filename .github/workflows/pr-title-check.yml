@@ -1,0 +1,31 @@
+---
+name: PR Title Validation
+on:
+  workflow_call:
+    inputs:
+      regex:
+        description: "Regex to validate PR title"
+        required: false
+        type: string
+        default: '^(Feat:|feat:|Fix:|fix:|Docs:|docs:|Test:|test:|ci:|refactor:|chore:|revert:) '
+
+jobs:
+  pr-title-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate PR title
+        run: |
+          echo "PR Title: '${{ github.event.pull_request.title }}'"
+
+          TITLE="${{ github.event.pull_request.title }}"
+          REGEX="${{ inputs.regex }}"
+
+          if [[ ! "$TITLE" =~ $REGEX ]]; then
+            echo "::error::Invalid PR title."
+            echo "::error::Title must start with one of:"
+            echo "::error::Feat:, feat:, Fix:, fix:, Docs:, docs:, Test:, test:, ci:, refactor:, chore:, revert:"
+            exit 1
+          fi
+
+          echo "PR title is valid ✅"[PR Title Validation Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/pr-title-validation.yml)
