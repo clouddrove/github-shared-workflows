@@ -29,3 +29,4 @@ jobs:
           fi
 
           echo "PR title is valid ✅"[PR Title Validation Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/pr-title-validation.yml)
+...
