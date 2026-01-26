@@ -157,7 +157,7 @@ jobs:
           role-skip-session-tagging: true
 
       - name: 🟦 Assume IAM Role
-        if: ${{ secrets.ASSUME_ROLE != '' }}
+        if: ${{ inputs.provider == 'aws' && env.IAM_ROLE != '' }}
         env:
           IAM_ROLE: ${{ secrets.ASSUME_ROLE }}
         run: |
