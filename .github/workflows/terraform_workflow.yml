@@ -118,8 +118,6 @@ on:
       ASSUME_ROLE:
         description: "ARN of the aws iam role to assume"
         required: false
-        type: string
-        default: "NA"
 
 jobs:
   terraform-workflow:
@@ -159,6 +157,7 @@ jobs:
           role-skip-session-tagging: true
 
       - name: 🟦 Assume IAM Role
+        if: ${{ secrets.ASSUME_ROLE != '' }}
         env:
           IAM_ROLE: ${{ secrets.ASSUME_ROLE }}
         run: |
