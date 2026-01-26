@@ -81,11 +81,6 @@ on:
         required: false
         type: boolean
         default: false
-      assume_role:
-        description: "ARN of the aws iam role to assume"
-        required: false
-        type: string
-        default: "NA"
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -120,6 +115,11 @@ on:
       SSH_PRIVATE_KEY:
         required: false
         description: 'Private SSH key to register in the SSH agent'
+      ASSUME_ROLE:
+        description: "ARN of the aws iam role to assume"
+        required: false
+        type: string
+        default: "NA"
 
 jobs:
   terraform-workflow:
@@ -160,7 +160,7 @@ jobs:
 
       - name: 🟦 Assume IAM Role
         env:
-          IAM_ROLE: ${{ inputs.assume_role }}
+          IAM_ROLE: ${{ secrets.ASSUME_ROLE }}
         run: |
           set -euo pipefail
           CREDS=$(aws sts assume-role \
