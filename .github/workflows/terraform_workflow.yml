@@ -81,6 +81,11 @@ on:
         required: false
         type: boolean
         default: false
+      assume_role:
+        description: "ARN of the aws iam role to assume"
+        required: false
+        type: string
+        default: ""
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -149,6 +154,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
+
+      - name: 🟦 Assume IAM Role
+        if: ${{ inputs.provider == 'aws' && inputs.assume_role != "" }}
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ inputs.assume_role }}
           aws-region: ${{ inputs.aws_region }}
           role-duration-seconds: 900
           role-skip-session-tagging: true
