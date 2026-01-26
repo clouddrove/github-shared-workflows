@@ -85,7 +85,7 @@ on:
         description: "ARN of the aws iam role to assume"
         required: false
         type: string
-        default: ""
+        default: "NA"
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -159,7 +159,7 @@ jobs:
           role-skip-session-tagging: true
 
       - name: 🟦 Assume IAM Role
-        if: ${{ inputs.provider == 'aws' && inputs.assume_role != "" }}
+        if: ${{ inputs.provider == 'aws' && inputs.assume_role != 'NA' }}
         uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ inputs.assume_role }}
