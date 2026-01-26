@@ -164,6 +164,10 @@ jobs:
         run: |
           export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" $(aws sts assume-role --role-arn $IAM_ROLE --role-session-name github-actions --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" --output text))
 
+      - name: 🟦 Verify IAM Role
+        run: |
+          aws sts get-caller-identity
+
       - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
         uses: azure/login@v2
@@ -204,6 +208,7 @@ jobs:
       - name: 🏗️ terraform init
         run: |
            cd ${{ inputs.working_directory }}
+           aws sts get-caller-identity
            terraform init
 
       - name: 🔎 Terraform validate
@@ -213,15 +218,22 @@ jobs:
         with:
           path: ${{ inputs.working_directory }}
 
+      # - name: 📋 Terraform Plan
+      #   id: tf-plan
+      #   uses: dflook/terraform-plan@v2
+      #   with:
+      #     path: ${{ inputs.working_directory }}
+      #     var_file: ${{ inputs.var_file }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.TOKEN }}
       - name: 📋 Terraform Plan
-        id: tf-plan
-        uses: dflook/terraform-plan@v2
-        with:
-          path: ${{ inputs.working_directory }}
-          var_file: ${{ inputs.var_file }}
         env:
+          WORKIND_DIRECTORY: ${{ inputs.working_directory }}
           GITHUB_TOKEN: ${{ github.TOKEN }}
-
+        run: |
+          cd $WORKIND_DIRECTORY
+          aws sts get-caller-identity
+          terraform plan
 
       - name: ✅ Accept plan or deny
         if: ${{ inputs.plan_only != true }}
