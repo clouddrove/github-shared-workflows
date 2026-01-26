@@ -159,13 +159,10 @@ jobs:
           role-skip-session-tagging: true
 
       - name: 🟦 Assume IAM Role
-        if: ${{ inputs.provider == 'aws' && inputs.assume_role != 'NA' }}
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ inputs.assume_role }}
-          aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: 900
-          role-skip-session-tagging: true
+        env:
+          IAM_ROLE: ${{ inputs.assume_role }}
+        run: |
+          export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s" $(aws sts assume-role --role-arn $IAM_ROLE --role-session-name github-actions --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]" --output text))
 
       - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
