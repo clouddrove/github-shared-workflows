@@ -211,6 +211,36 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.TOKEN }}
 
+      - name: Fetch latest Plan PR comment
+        id: pr_plan_comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          COMMENT=$(curl -s \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments \
+            | jq -r '
+              map(select(.user.login=="github-actions[bot]"))
+              | last
+            ')
+        
+          BODY=$(echo "$COMMENT" | jq -r '.body')
+          URL=$(echo "$COMMENT" | jq -r '.html_url')
+        
+          SUMMARY=$(echo "$BODY" \
+          | grep -Eo 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy\.' \
+          | uniq \
+          | head -n 1)
+        
+          {
+            echo "PLAN_SUMMARY<<EOF"
+            echo "$SUMMARY"
+            echo "EOF"
+            echo "PLAN_COMMENT_URL=$URL"
+          } >> $GITHUB_ENV
 
       - name: ✅ Accept plan or deny
         if: ${{ inputs.plan_only != true }}
@@ -220,8 +250,18 @@ jobs:
           secret: ${{ github.TOKEN }}
           approvers: ${{ inputs.approvers }}
           minimum-approvals: ${{ inputs.minimum-approvals }}
-          issue-title: "Terraform Plan for Infrastructure Update"
-
+          issue-title: "Terraform Plan in ${{inputs.working_directory}}"
+          issue-body: |
+            ## Terraform Plan Summary
+        
+            ```
+            ${{ env.PLAN_SUMMARY }}
+            ```
+            🔎 **Full Terraform plan :**
+            👉 ${{ env.PLAN_COMMENT_URL }}
+        
+            Please approve to continue with `terraform apply`.
+        
       - name: 🚀 terraform apply
         if: ${{ inputs.destroy != true && inputs.plan_only != true }}
         run: |
