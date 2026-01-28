@@ -226,15 +226,12 @@ jobs:
               map(select(.user.login=="github-actions[bot]"))
               | last
             ')
-        
           BODY=$(echo "$COMMENT" | jq -r '.body')
           URL=$(echo "$COMMENT" | jq -r '.html_url')
-        
           SUMMARY=$(echo "$BODY" \
           | grep -Eo 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy\.' \
           | uniq \
           | head -n 1)
-        
           {
             echo "PLAN_SUMMARY<<EOF"
             echo "$SUMMARY"
@@ -253,15 +250,13 @@ jobs:
           issue-title: "Terraform Plan in ${{inputs.working_directory}}"
           issue-body: |
             ## Terraform Plan Summary
-        
             ```
             ${{ env.PLAN_SUMMARY }}
             ```
             🔎 **Full Terraform plan :**
             👉 ${{ env.PLAN_COMMENT_URL }}
-        
             Please approve to continue with `terraform apply`.
-        
+
       - name: 🚀 terraform apply
         if: ${{ inputs.destroy != true && inputs.plan_only != true }}
         run: |
