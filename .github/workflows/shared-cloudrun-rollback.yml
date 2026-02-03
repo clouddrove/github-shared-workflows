@@ -1,0 +1,75 @@
+name: Cloud Run Deploy with Auto Rollback
+
+on:
+  workflow_call:
+    inputs:
+      gcp_registry_host:
+        required: true
+        type: string
+      IMAGE_NAME:
+        required: true
+        type: string
+      IMAGE_TAG:
+        required: true
+        type: string
+      GCP_REPOSITORY:
+        required: true
+        type: string
+      SERVICE_NAME:
+        required: true
+        type: string
+      REGION:
+        required: true
+        type: string
+
+    secrets:
+      GCP_PROJECT_ID:
+        required: true
+      GCP_SA_KEY:
+        required: true
+
+    outputs:
+      revision:
+        description: "Previous revision"
+        value: ${{ jobs.deploy.outputs.revision }}
+      service_name:
+        description: "Service name"
+        value: ${{ inputs.SERVICE_NAME }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    outputs:
+      revision: ${{ steps.prev.outputs.revision }}
+
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Get current revision
+        id: prev
+        run: |
+          REVISION=$(gcloud run services describe ${{ inputs.SERVICE_NAME }} \
+            --region ${{ inputs.REGION }} \
+            --format="value(status.traffic[0].revisionName)")
+          echo "Current revision: $REVISION"
+          
+          # Set for parent workflow (Environment file)
+          echo "revision=$REVISION" >> $GITHUB_OUTPUT
+
+      # 2️⃣ Deploy new image
+      - name: Deploy new image
+        id: deploy
+        run: |
+          IMAGE_URI="${{ inputs.gcp_registry_host }}/${{ secrets.GCP_PROJECT_ID }}/${{ inputs.GCP_REPOSITORY }}/${{ inputs.IMAGE_NAME }}:${{ inputs.IMAGE_TAG }}"
+          echo "🚀 Deploying $IMAGE_URI"
+          gcloud run deploy ${{ inputs.SERVICE_NAME }} \
+            --image "$IMAGE_URI" \
+            --region ${{ inputs.REGION }} \
+            --platform managed \
+            --quiet
