@@ -1,3 +1,4 @@
+---
 name: Cloud Run Deploy with Auto Rollback
 
 on:
@@ -73,3 +74,4 @@ jobs:
             --region ${{ inputs.REGION }} \
             --platform managed \
             --quiet
+...
