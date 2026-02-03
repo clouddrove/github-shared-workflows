@@ -59,7 +59,6 @@ jobs:
             --region ${{ inputs.REGION }} \
             --format="value(status.traffic[0].revisionName)")
           echo "Current revision: $REVISION"
-          
           # Set for parent workflow (Environment file)
           echo "revision=$REVISION" >> $GITHUB_OUTPUT
 
