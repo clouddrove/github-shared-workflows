@@ -254,14 +254,14 @@ jobs:
 
       - name: 🔑 Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ inputs.aws_role }}
           aws-region: ${{ inputs.aws_region }}
 
       - name: 🔄 Assume another IAM Role
         if: inputs.aws_assume_role == 'true'
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
@@ -362,14 +362,14 @@ jobs:
 
       - name: 🔑 Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: '${{ inputs.aws_role }}'
           aws-region: ${{ inputs.aws_region }}
 
       - name: 🔄 Assume another IAM Role
         if: inputs.aws_assume_role_arn == 'true'
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: '${{ inputs.aws_assume_role_arn }}'
           aws-region: ${{ inputs.aws_region }}
@@ -445,14 +445,14 @@ jobs:
 
       - name: 🔑 Configure AWS credentials with OIDC
         if: inputs.aws_auth_method == 'oidc'
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ inputs.aws_role }}
           aws-region: ${{ inputs.aws_region }}
 
       - name: 🔄 Assume another IAM Role
         if: inputs.aws_assume_role_arn == 'true'
-        uses: aws-actions/configure-aws-credentials@v5
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: '${{ inputs.aws_role }}'
           aws-region: ${{ inputs.aws_region }}
