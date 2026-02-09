@@ -182,10 +182,10 @@ jobs:
         with:
           terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
 
-      # - Setup smurf 
+      # - Setup smurf
       - name: Setup Smurf
         uses: clouddrove/smurf@v0.1.3
-    
+
       # - Running command to check terraform formatting changes.
       - name: 🧹 Check Terraform format changes
         run: smurf stf fmt --recursive --timeout 5s
