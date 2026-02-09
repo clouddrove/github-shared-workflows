@@ -188,5 +188,5 @@ jobs:
     
       # - Running command to check terraform formatting changes.
       - name: 🧹 Check Terraform format changes
-        run: smurf stf fmt --recursive
+        run: smurf stf fmt --recursive --timeout 10s
 ...
