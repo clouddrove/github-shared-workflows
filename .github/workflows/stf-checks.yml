@@ -154,7 +154,7 @@ jobs:
         with:
           terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
 
-      # - Setup smurf 
+      # - Setup smurf CLI
       - name: Setup Smurf
         uses: clouddrove/smurf@master
 
@@ -188,5 +188,5 @@ jobs:
     
       # - Running command to check terraform formatting changes.
       - name: 🧹 Check Terraform format changes
-        run: smurf stf fmt --recursive -check=true
+        run: smurf stf fmt --recursive
 ...
