@@ -1,5 +1,5 @@
 ---
-run-name: '🌎 Terraform workflow'
+name: 🌎 Terraform workflow
 on:
   workflow_call:
     inputs:

@@ -1,5 +1,5 @@
 ---
-run-name: '🦸‍♂️ Smurf Terraform workflow'
+name: 🦸‍♂️ Smurf Terraform workflow
 on:
   workflow_call:
     inputs:
