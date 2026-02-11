@@ -4,6 +4,109 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-02-11
+
+### ⚠️ BREAKING CHANGES
+
+**This is a major release with significant breaking changes. Please review the breaking changes section below and migration instructions.**
+
+#### Workflow File Renames
+
+- **Terraform workflows:** All `terraform-*` workflows renamed to `tf-*`
+  - `terraform-checks.yml` → `tf-checks.yml`
+  - `terraform-drift.yml` → `tf-drift.yml`
+  - `terraform-lint.yml` → `tf-lint.yml`
+  - `terraform-monorepo-tag-release.yml` → `tf-monorepo-tag-release.yml`
+  - `terraform-pr-checks.yml` → `tf-pr-checks.yml`
+  - `terraform-smurf.yml` → `tf-smurf.yml`
+  - `terraform-workflow.yml` → `tf-workflow.yml`
+
+- **CloudFormation workflows:** All `cloudformation-*` workflows renamed to `cf-*`
+  - `cloudformation-deploy.yml` → `cf-deploy.yml`
+  - `cloudformation-deploy-stackset.yml` → `cf-deploy-stackset.yml`
+  - `cloudformation-lint.yml` → `cf-lint.yml`
+
+- **YAML lint workflows:** All `yl-*` workflows renamed to `yml-*`
+  - `yl-lint.yml` → `yml-lint.yml`
+  - `yl-lint-internal.yml` → `yml-lint-internal.yml`
+
+- **PR workflows:** Renamed for consistency
+  - `lock.yml` → `pr-lock.yml`
+  - `auto_merge.yml` → `pr-auto-merge.yml`
+  - `auto_assignee.yml` → `pr-auto-assignee.yml`
+
+#### Workflow Merges
+
+- **Merged `tf-checks.yml` and `tf-tf-checks.yml`** into unified `tf-checks.yml`
+  - New inputs: `enable_version_check`, `enable_plan`
+  - See migration examples in the breaking changes section above
+
+- **Merged `tf-workflow.yml` and `tf-workflow-target.yml`** into unified `tf-workflow.yml`
+  - New inputs: `target`, `target_file` for optional targeting
+  - See migration examples in the breaking changes section above
+
+#### Documentation Changes
+
+- All documentation files renamed to match workflow names
+- Removed numbered prefixes from documentation files
+- Updated all internal links and references
+
+### ✨ Added
+
+- **CI/CD Pipeline** - Comprehensive workflow validation and testing (`ci.yml`)
+  - YAML syntax validation
+  - YAML linting with custom rules
+  - Workflow structure validation
+  - Security scanning (TFSec, Checkov, secret detection)
+  - Documentation validation
+  - Naming convention enforcement
+  - Actionlint integration
+  - Deprecated actions detection
+
+- **Enhanced Documentation**
+  - Comprehensive breaking changes documented in CHANGELOG.md
+  - Created `QUICKSTART.md` - Quick start guide for common use cases
+  - Created `BEST_PRACTICES.md` - Workflow best practices guide
+  - Created `ROADMAP.md` - Future development roadmap
+  - Created `CONTRIBUTING.md` - Contribution guidelines
+  - Created `WORKFLOW_CATALOG.md` - Complete workflow index
+  - Created `IMPROVEMENTS_SUMMARY.md` - Repository improvements summary
+  - Enhanced issue templates (bug report, feature request, workflow request)
+  - Created pull request template
+  - Created security policy
+
+- **Repository Improvements**
+  - Prefix-based naming convention for all workflows
+  - Alphabetical organization by category
+  - Enhanced README with badges, statistics, and featured workflows
+  - Improved discoverability and SEO
+
+### 🔄 Changed
+
+- **Workflow Organization**
+  - All workflows now follow consistent prefix-based naming
+  - Improved categorization and discoverability
+  - Better alignment with GitHub Actions best practices
+
+- **Documentation Structure**
+  - Consistent naming across workflows and documentation
+  - Enhanced examples and use cases
+  - Improved cross-references and links
+
+### 📚 Documentation
+
+- Added comprehensive documentation for `yml-lint.yml` and `yml-lint-internal.yml`
+- Updated all workflow documentation to reflect new names
+- Enhanced examples and migration guides
+
+### 🔗 Migration Resources
+
+- **Breaking Changes** - See version 2.0.0 section above for detailed breaking changes and migration guide
+- **[QUICKSTART.md](./QUICKSTART.md)** - Updated examples with new workflow names
+- **[WORKFLOW_CATALOG.md](./WORKFLOW_CATALOG.md)** - Complete workflow reference
+
+---
+
 ## [1.4.2] - 2026-02-11
 ### :sparkles: New Features
 - [`b9dc651`](https://github.com/clouddrove/github-shared-workflows/commit/b9dc651c54f1f76733a2c18f60583a7bac900ed7) - enable terraform plan output in PR comments *(PR [#298](https://github.com/clouddrove/github-shared-workflows/pull/298) by [@sunnymor-cd](https://github.com/sunnymor-cd))*

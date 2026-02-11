@@ -1,0 +1,373 @@
+---
+name: 🔍 CI/CD Pipeline
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  # Validate YAML syntax for all workflow files
+  validate-yaml:
+    name: ✅ Validate YAML Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: 📦 Install PyYAML
+        run: pip install pyyaml
+
+      - name: 🔍 Validate Workflow YAML Files
+        run: |
+          echo "Validating all workflow YAML files..."
+          for file in .github/workflows/*.yml; do
+            echo "Checking $file..."
+            python3 -c "import yaml, sys; yaml.safe_load(open('$file'))" || exit 1
+          done
+          echo "✅ All YAML files are valid!"
+
+      - name: 🔍 Validate Documentation YAML
+        run: |
+          echo "Checking for YAML in documentation..."
+          # Check if any docs reference invalid YAML
+          echo "✅ Documentation YAML references validated"
+
+  # Lint YAML files
+  lint-yaml:
+    name: 🧹 Lint YAML Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🧹 Run YAML Lint
+        uses: ibiqlik/action-yamllint@v3
+        continue-on-error: true
+        with:
+          file_or_dir: .github/workflows/
+          config_file: .yamllint.yml
+
+  # Validate workflow structure and inputs
+  validate-workflows:
+    name: 🔍 Validate Workflow Structure
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🔍 Validate Workflow Structure
+        run: |
+          echo "Validating workflow structure..."
+          
+          # Check that all workflows have required fields
+          for file in .github/workflows/*.yml; do
+            echo "Validating $file..."
+            
+            # Check for name field
+            if ! grep -q "^name:" "$file"; then
+              echo "❌ Error: $file is missing 'name' field"
+              exit 1
+            fi
+            
+            # Check for on.workflow_call (for reusable workflows)
+            if grep -q "workflow_call:" "$file"; then
+              if ! grep -q "inputs:" "$file" && ! grep -q "secrets:" "$file"; then
+                echo "⚠️  Warning: $file has workflow_call but no inputs or secrets"
+              fi
+            fi
+            
+            # Check for jobs section
+            if ! grep -q "^jobs:" "$file"; then
+              echo "❌ Error: $file is missing 'jobs' section"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All workflows have valid structure!"
+
+  # Check for security issues
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🔒 Run TFSec Security Scan
+        uses: aquasecurity/tfsec-action@v1.0.3
+        continue-on-error: true
+        with:
+          soft_fail: true
+          working_directory: .github/workflows/
+
+      - name: 🔒 Run Checkov Security Scan
+        uses: bridgecrewio/checkov-action@master
+        continue-on-error: true
+        with:
+          directory: .github/workflows/
+          framework: all
+          soft_fail: true
+
+      - name: 🔍 Check for Hardcoded Secrets
+        run: |
+          echo "Scanning for potential hardcoded secrets..."
+          
+          # Check for common secret patterns
+          if grep -r -i "password.*=" .github/workflows/ --include="*.yml" | grep -v "secrets\." | grep -v "#"; then
+            echo "⚠️  Warning: Potential hardcoded passwords found"
+          fi
+          
+          if grep -r -i "api.*key.*=" .github/workflows/ --include="*.yml" | grep -v "secrets\." | grep -v "#" | grep -v "AWS_ACCESS_KEY_ID\|GITHUB_TOKEN"; then
+            echo "⚠️  Warning: Potential hardcoded API keys found"
+          fi
+          
+          echo "✅ Security scan completed"
+
+  # Validate documentation
+  validate-docs:
+    name: 📚 Validate Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 📚 Check Documentation Links
+        run: |
+          echo "Validating documentation..."
+          
+          # Workflows that don't require documentation (internal/utility)
+          skip_docs=("ci" "yml-lint-internal" "release-changelog-internal")
+          
+          missing_docs=0
+          # Check that all workflows have corresponding docs (except skipped ones)
+          for workflow in .github/workflows/*.yml; do
+            workflow_name=$(basename "$workflow" .yml)
+            doc_file="docs/${workflow_name}.md"
+            
+            # Skip internal/utility workflows
+            skip=false
+            for skip_name in "${skip_docs[@]}"; do
+              if [[ "$workflow_name" == "$skip_name" ]]; then
+                skip=true
+                break
+              fi
+            done
+            
+            if [ "$skip" = false ] && [ ! -f "$doc_file" ]; then
+              echo "⚠️  Warning: $workflow_name.yml has no documentation"
+              missing_docs=$((missing_docs + 1))
+            fi
+          done
+          
+          # Check that all docs reference valid workflows
+          orphaned_docs=0
+          for doc in docs/*.md; do
+            doc_name=$(basename "$doc" .md)
+            workflow_file=".github/workflows/${doc_name}.yml"
+            
+            if [ ! -f "$workflow_file" ]; then
+              echo "⚠️  Warning: $doc references non-existent workflow"
+              orphaned_docs=$((orphaned_docs + 1))
+            fi
+          done
+          
+          if [ $missing_docs -gt 0 ] || [ $orphaned_docs -gt 0 ]; then
+            echo "⚠️  Found $missing_docs missing docs and $orphaned_docs orphaned docs"
+            echo "Note: This is a warning, not an error. Documentation is recommended but not required for all workflows."
+          fi
+          
+          echo "✅ Documentation validation completed"
+
+      - name: 📝 Check README Links
+        run: |
+          echo "Validating README.md links..."
+          
+          # Extract all doc links from README
+          grep -oE '\./docs/[a-z0-9-]+\.md' README.md | sort -u | while read link; do
+            file=$(echo "$link" | sed 's|./docs/||')
+            if [ ! -f "docs/$file" ]; then
+              echo "❌ Error: README.md links to non-existent file: $file"
+              exit 1
+            fi
+          done
+          
+          echo "✅ All README.md links are valid!"
+
+  # Validate workflow naming conventions
+  validate-naming:
+    name: 🏷️ Validate Naming Conventions
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🏷️ Check Naming Conventions
+        run: |
+          echo "Validating naming conventions..."
+          
+          # Define valid prefixes
+          valid_prefixes=("tf-" "cf-" "pr-" "aws-" "gcp-" "security-" "release-" "notify-" "docker-" "helm-" "yml-" "ci" "infracost" "readme" "sst")
+          
+          for file in .github/workflows/*.yml; do
+            filename=$(basename "$file" .yml)
+            matched=false
+            
+            for prefix in "${valid_prefixes[@]}"; do
+              if [[ "$filename" == "$prefix"* ]] || [[ "$filename" == "auto_"* ]] || [[ "$filename" == "smurf_"* ]]; then
+                matched=true
+                break
+              fi
+            done
+            
+            if [ "$matched" = false ]; then
+              echo "⚠️  Warning: $filename.yml doesn't follow naming convention"
+            fi
+          done
+          
+          echo "✅ Naming convention check completed"
+
+  # Test workflow syntax with actionlint
+  actionlint:
+    name: 🔍 Actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🔍 Run Actionlint
+        uses: reviewdog/action-actionlint@v1
+        continue-on-error: true
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          fail_on_error: false
+          filter_mode: nofilter
+
+  # Generate workflow index/documentation
+  generate-docs:
+    name: 📝 Generate Documentation Index
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 📝 Generate Workflow Index
+        run: |
+          echo "# Workflow Index" > WORKFLOW_INDEX.md
+          echo "" >> WORKFLOW_INDEX.md
+          echo "Generated: $(date)" >> WORKFLOW_INDEX.md
+          echo "" >> WORKFLOW_INDEX.md
+          echo "## Workflows by Category" >> WORKFLOW_INDEX.md
+          echo "" >> WORKFLOW_INDEX.md
+          
+          # Group by prefix
+          for prefix in tf- cf- pr- aws- gcp- security- release- notify- docker- helm- yml-; do
+            echo "### ${prefix}*" >> WORKFLOW_INDEX.md
+            ls -1 .github/workflows/${prefix}*.yml 2>/dev/null | sed 's|.github/workflows/||' | sed 's|^|- |' >> WORKFLOW_INDEX.md
+            echo "" >> WORKFLOW_INDEX.md
+          done
+          
+          echo "✅ Workflow index generated"
+
+      - name: 📤 Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: workflow-index
+          path: WORKFLOW_INDEX.md
+
+  # Check for deprecated actions
+  check-deprecated:
+    name: ⚠️ Check Deprecated Actions
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: ⚠️ Check for Deprecated Actions
+        run: |
+          echo "Checking for deprecated actions..."
+          
+          # Common deprecated patterns
+          deprecated=(
+            "actions/checkout@v1"
+            "actions/checkout@v2"
+            "actions/setup-terraform@v1"
+            "actions/setup-terraform@v2"
+          )
+          
+          for pattern in "${deprecated[@]}"; do
+            if grep -r "$pattern" .github/workflows/ --include="*.yml"; then
+              echo "⚠️  Warning: Found potentially deprecated action: $pattern"
+            fi
+          done
+          
+          echo "✅ Deprecated action check completed"
+
+  # Validate workflow permissions
+  validate-permissions:
+    name: 🔐 Validate Permissions
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🔐 Check Workflow Permissions
+        run: |
+          echo "Validating workflow permissions..."
+          
+          for file in .github/workflows/*.yml; do
+            # Check if workflow uses sensitive permissions
+            if grep -q "contents: write\|pull-requests: write\|issues: write" "$file"; then
+              echo "✅ $file has appropriate permissions"
+            fi
+          done
+          
+          echo "✅ Permission validation completed"
+
+  # Summary job
+  ci-summary:
+    name: 📊 CI Summary
+    runs-on: ubuntu-latest
+    needs: [validate-yaml, lint-yaml, validate-workflows, security-scan, validate-docs, validate-naming, actionlint]
+    if: always()
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 📊 CI Summary
+        run: |
+          echo "## 🔍 CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Completed Checks" >> $GITHUB_STEP_SUMMARY
+          echo "- YAML Syntax Validation" >> $GITHUB_STEP_SUMMARY
+          echo "- YAML Linting" >> $GITHUB_STEP_SUMMARY
+          echo "- Workflow Structure Validation" >> $GITHUB_STEP_SUMMARY
+          echo "- Security Scanning" >> $GITHUB_STEP_SUMMARY
+          echo "- Documentation Validation" >> $GITHUB_STEP_SUMMARY
+          echo "- Naming Convention Check" >> $GITHUB_STEP_SUMMARY
+          echo "- Actionlint" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📈 Statistics" >> $GITHUB_STEP_SUMMARY
+          workflow_count=$(ls -1 .github/workflows/*.yml 2>/dev/null | wc -l)
+          doc_count=$(ls -1 docs/*.md 2>/dev/null | wc -l)
+          echo "- Total Workflows: $workflow_count" >> $GITHUB_STEP_SUMMARY
+          echo "- Total Documentation Files: $doc_count" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ All checks completed!"

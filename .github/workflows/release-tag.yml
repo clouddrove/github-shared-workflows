@@ -120,6 +120,8 @@ jobs:
 
             **Release Type:** ${{ steps.calc_version.outputs.version_type }}
 
+            ${{ steps.calc_version.outputs.version_type == 'major' && '⚠️ **BREAKING CHANGES:** This is a major release with breaking changes. Please review the breaking changes section in [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ steps.calc_version.outputs.new_version }}/CHANGELOG.md) before upgrading.' || '' }}
+
             [Compare changes](https://github.com/${{ github.repository }}/compare/${{ steps.get_latest_tag.outputs.latest_tag }}...${{ steps.calc_version.outputs.new_version }})
 
       - name: 💾 Commit CHANGELOG.md

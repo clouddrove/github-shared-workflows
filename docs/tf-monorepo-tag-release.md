@@ -61,7 +61,7 @@ terraform-aws-vpc
 
 ### 1. Add Shared Workflow to Your Repo
 
-In your repo (`.github/workflows/tf-monorepo-tag-release.yaml`):
+In your repo (`.github/workflows/tf-monorepo-tag-release.yml`):
 
 ```yaml
 name: 🚀 (Monorepo) Terraform Module Auto Tag Release
@@ -76,7 +76,7 @@ permissions:
 
 jobs:
   module-release:
-    uses: clouddrove/github-shared-workflows/.github/workflows/terraform-module-tag-release.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-monorepo-tag-release.yml@master
     with:
          module_prefix: ""       # Replace with your Module Prefix by deafult "terraform-aws-"
 ```

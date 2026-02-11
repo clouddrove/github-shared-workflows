@@ -1,4 +1,4 @@
-## [Prowler Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/prowlerAWS.yml)
+## [Prowler Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/aws-prowler.yml)
 Prowler an open cloud security platform for our cloud environment. We get a complete report of our cloud infra.
 
 ### Usage
@@ -40,4 +40,4 @@ jobs:
       SLACK_USERNAME: ${{ secrets.SLACK_USERNAME }}
 ```
 
-It uses Clouddrove Github-Shared-Workflow. [HERE](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/prowlerAWS.yml)
+It uses Clouddrove Github-Shared-Workflow. [HERE](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/aws-prowler.yml)

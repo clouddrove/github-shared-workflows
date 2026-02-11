@@ -1,0 +1,17 @@
+---
+name: YAML-LINTER
+on: [pull_request]
+
+jobs:
+  YAML-LINTER:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: 🔍 yaml-lint
+        uses: ibiqlik/action-yamllint@v3
+        continue-on-error: true
+        with:
+          file_or_dir: .github/workflows/
+          config_file: .yamllint.yml
+...

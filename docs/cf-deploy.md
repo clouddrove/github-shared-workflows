@@ -1,5 +1,5 @@
-## [Deploy Cloudformation Stack](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/deploy-cloudformation.yml)
- The process starts with the creation of a shared workflow template. This template contains CloudFormation resource definitions, parameter declarations, and other configuration settings that are commonly used across multiple projects or environments. It serves as a blueprint for the infrastructure you want to create. `.github/workflows/deploy-cloudformation.yml`
+## [Deploy Cloudformation Stack](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/cf-deploy.yml)
+ The process starts with the creation of a shared workflow template. This template contains CloudFormation resource definitions, parameter declarations, and other configuration settings that are commonly used across multiple projects or environments. It serves as a blueprint for the infrastructure you want to create. `.github/workflows/cf-deploy.yml`
 
 #### Usage
 
@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 jobs:
   cloudformation-stack-deploy:
-    uses: clouddrove/github-shared-workflows/.github/workflows/deploy-cloudformation.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/cf-deploy.yml@master
     with:  
       s3-bucket:               # S3 Bucket name where code is stored
       bucket-prefix:           # S3 Bucket prefix/folder name where you push the zip file

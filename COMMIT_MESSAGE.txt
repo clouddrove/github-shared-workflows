@@ -1,0 +1,54 @@
+feat!: major refactoring with breaking changes - workflow renames and CI/CD pipeline
+
+BREAKING CHANGE: This is a major version release (2.0.0) with significant breaking changes.
+All workflow files have been renamed to follow consistent prefix-based naming conventions.
+Users must update all workflow references in their repositories.
+
+🚨 Breaking Changes:
+- Renamed all terraform-* workflows to tf-* (terraform-checks.yml → tf-checks.yml, etc.)
+- Renamed all cloudformation-* workflows to cf-* (cloudformation-deploy.yml → cf-deploy.yml, etc.)
+- Renamed yl-* workflows to yml-* (yl-lint.yml → yml-lint.yml, yl-lint-internal.yml → yml-lint-internal.yml)
+- Renamed lock.yml → pr-lock.yml, auto_merge.yml → pr-auto-merge.yml, auto_assignee.yml → pr-auto-assignee.yml
+- Merged tf-checks.yml and tf-tf-checks.yml into unified tf-checks.yml with new inputs
+- Merged tf-workflow.yml and tf-workflow-target.yml into unified tf-workflow.yml with targeting support
+
+✨ Features:
+- Added comprehensive CI/CD pipeline (ci.yml) with:
+  - YAML syntax validation
+  - YAML linting with custom rules
+  - Workflow structure validation
+  - Security scanning (TFSec, Checkov, secret detection)
+  - Documentation validation
+  - Naming convention enforcement
+  - Actionlint integration
+  - Deprecated actions detection
+- Created .yamllint.yml configuration file
+
+📚 Documentation:
+- Created comprehensive documentation for yml-lint.yml and yml-lint-internal.yml workflows
+- Updated CHANGELOG.md with version 2.0.0 breaking changes section
+- Updated README.md with breaking changes notice and links
+- Updated all workflow references in documentation
+
+🔧 Improvements:
+- Updated release workflow to highlight breaking changes for major versions
+- Enhanced release notes with breaking changes notices
+- Improved workflow organization and discoverability
+- Updated CI/CD naming convention validation to accept yml- prefix
+
+📝 Files Changed:
+- Renamed: yl-lint.yml → yml-lint.yml
+- Renamed: yl-lint-internal.yml → yml-lint-internal.yml
+- Created: .github/workflows/ci.yml
+- Created: .yamllint.yml
+- Created: docs/yml-lint.md
+- Created: docs/yml-lint-internal.md
+- Updated: CHANGELOG.md (added 2.0.0 section)
+- Updated: README.md (breaking changes notice)
+- Updated: .github/workflows/release-tag.yml (breaking changes notice)
+- Updated: .github/workflows/ci.yml (yml- prefix validation)
+- Updated: WORKFLOW_CATALOG.md (yml-lint references)
+- Updated: docs/ci.md (yml- prefix reference)
+- Updated: .github/workflows/yml-lint-internal.yml (reference to yml-lint.yml)
+
+See CHANGELOG.md for complete list of breaking changes and migration guide.

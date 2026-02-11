@@ -1,6 +1,6 @@
-## [Smurf Terraform Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/smurf_terraform.yml)
+## [Smurf Terraform Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/tf-smurf.yml)
 
-This workflow is used to work with Terraform using Smurf. It utilizes the workflows defined in `.github/workflows/smurf_terraform.yml`
+This workflow is used to work with Terraform using Smurf. It utilizes the workflows defined in `.github/workflows/tf-smurf.yml`
 
 #### Usage
 The following workflow can work with Terraform Using Smurf. It can Format, Init, Validate, Plan, Apply and Destroy Infrastructure.
@@ -14,7 +14,7 @@ on:
 
 jobs:
   dev:
-    uses: clouddrove/github-shared-workflows/.github/workflows/smurf_terraform.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-smurf.yml@master
     with:
       terraform_directory: # Terraform Directory
       aws_auth_method: # AWS auth method to use like oidc and keys

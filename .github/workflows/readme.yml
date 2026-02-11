@@ -1,5 +1,5 @@
 ---
-run-name: '📖 Readme workflow'
+name: 📖 Readme workflow
 on:
   workflow_call:
     secrets:

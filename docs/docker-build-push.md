@@ -1,6 +1,6 @@
 ## Docker Workflow
 #### [1. Docker Scanner workflow reference](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker-scanner.yml)
-#### [2. Docker push workflow reference](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker.yml)
+#### [2. Docker push workflow reference](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker-build-push.yml)
 
 This workflow scans the Docker image locally before pushing it to the Docker registry. Workflows have been added in `.github/workflows/docker-scanner.yml`.
 
@@ -30,7 +30,7 @@ jobs:
   docker-push:
     needs: docker-scanner  
     if: ${{ success() && needs.docker-scanner.result == 'success' }}   # This condition start this docker push workflow on succesfull scanning of docker image
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker-build-push.yml@master
     secrets:
       DOCKERHUB_USERNAME: # Dockerhub username
       DOCKERHUB_PASSWORD: # Dockerhub password
@@ -63,7 +63,7 @@ jobs:
   docker-push:
     needs: docker-scanner
     if: ${{ success() && needs.docker-scanner.result == 'success' }}   # This condition start this docker push workflow on succesfull scanning of docker image
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker-build-push.yml@master
     secrets:
       AWS_ACCESS_KEY_ID: # AWS Access Key ID
       AWS_SECRET_ACCESS_KEY: # AWS Secret Access Key ID
