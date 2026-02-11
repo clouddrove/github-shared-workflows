@@ -4,5 +4,13 @@ on: [pull_request]
 
 jobs:
   YAML-LINTER:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: 🔍 yaml-lint
+        uses: ibiqlik/action-yamllint@v3
+        with:
+          file_or_dir: .
+          config_file: .yamllint.yml
 ...
