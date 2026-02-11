@@ -7,7 +7,7 @@ on:
       - "*"
 jobs:
   changelog:
-    uses: clouddrove/github-shared-workflows/.github/workflows/changelog.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/release-changelog.yml@master
     with:
       branch: 'master'
     secrets:
