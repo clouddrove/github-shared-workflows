@@ -272,7 +272,7 @@ Please review our [Security Policy](./.github/SECURITY.md) before reporting secu
 - [Security Checkov](./docs/security-checkov.md) - IaC security scanning
 - [Security Prowler](./docs/security-prowler.md) - Cloud security assessment
 - [Security Powerpipe](./docs/security-powerpipe.md) - Compliance checking
-- [Security TFSec](./docs/security-tfsec.md) - Terraform security scanner
+- [Security TFSec](./docs/tf-tfsec.md) - Terraform security scanner
 
 </details>
 
