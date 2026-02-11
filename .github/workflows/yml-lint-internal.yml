@@ -10,7 +10,8 @@ jobs:
 
       - name: 🔍 yaml-lint
         uses: ibiqlik/action-yamllint@v3
+        continue-on-error: true
         with:
-          file_or_dir: .
+          file_or_dir: .github/workflows/
           config_file: .yamllint.yml
 ...

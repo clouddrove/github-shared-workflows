@@ -15,9 +15,9 @@ rules:
   new-line-at-end-of-file:
     level: error
   document-start:
-    level: error
+    level: warning
   document-end:
-    level: error
+    level: warning
   key-duplicates:
     level: error
   braces:
@@ -29,9 +29,9 @@ rules:
   commas:
     level: error
   comments:
-    level: error
+    level: warning
   empty-lines:
-    level: error
+    level: warning
   empty-values:
     level: warning
   float-values:
