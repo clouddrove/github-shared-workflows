@@ -278,7 +278,7 @@ jobs:
           echo "" >> WORKFLOW_INDEX.md
           
           # Group by prefix
-          for prefix in tf- cf- pr- aws- gcp- security- release- notify- docker- helm- yl-; do
+          for prefix in tf- cf- pr- aws- gcp- security- release- notify- docker- helm- yml-; do
             echo "### ${prefix}*" >> WORKFLOW_INDEX.md
             ls -1 .github/workflows/${prefix}*.yml 2>/dev/null | sed 's|.github/workflows/||' | sed 's|^|- |' >> WORKFLOW_INDEX.md
             echo "" >> WORKFLOW_INDEX.md
@@ -348,6 +348,9 @@ jobs:
     needs: [validate-yaml, lint-yaml, validate-workflows, security-scan, validate-docs, validate-naming, actionlint]
     if: always()
     steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
       - name: 📊 CI Summary
         run: |
           echo "## 🔍 CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
@@ -362,7 +365,9 @@ jobs:
           echo "- Actionlint" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📈 Statistics" >> $GITHUB_STEP_SUMMARY
-          echo "- Total Workflows: $(ls -1 .github/workflows/*.yml | wc -l)" >> $GITHUB_STEP_SUMMARY
-          echo "- Total Documentation Files: $(ls -1 docs/*.md | wc -l)" >> $GITHUB_STEP_SUMMARY
+          workflow_count=$(ls -1 .github/workflows/*.yml 2>/dev/null | wc -l)
+          doc_count=$(ls -1 docs/*.md 2>/dev/null | wc -l)
+          echo "- Total Workflows: $workflow_count" >> $GITHUB_STEP_SUMMARY
+          echo "- Total Documentation Files: $doc_count" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ All checks completed!"
