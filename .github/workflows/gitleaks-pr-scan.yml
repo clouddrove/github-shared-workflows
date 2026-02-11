@@ -1,0 +1,30 @@
+---
+name: 🔐 Gitleaks PR Scan
+
+on:
+  workflow_call:
+    inputs:
+      checkout_ref:
+        description: 'Ref to checkout before scanning (optional).'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  gitleaks:
+    name: 🔍 Gitleaks scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
+
+      - name: 🔐 Run gitleaks on PR changes
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+...
