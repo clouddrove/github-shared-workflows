@@ -1,10 +1,10 @@
-## [Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/helm.yml)
+## [Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/helm-deploy.yml)
 
-This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in `.github/workflows/helm.yml`
+This workflow is used to deploy and rollback Helm charts using GitHub Actions. It utilizes the workflows defined in `.github/workflows/helm-deploy.yml`
 
 #### Usage
 The helm workflow can be triggered manually using the GitHub Actions workflow dispatch feature. It deploys or rollback Helm charts based on the specified inputs. Additionally, it also performs Helm template and Helm lint operations.
-To use the helm Workflow, add the following workflow definition to your `.github/workflows/helm.yml` file:
+To use the helm Workflow, add the following workflow definition to your `.github/workflows/helm-deploy.yml` file:
 
 #### Example for AWS cloud provider
 
@@ -24,7 +24,7 @@ on:
 
 jobs:
   aws:
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/helm-deploy.yml@master
     secrets:
       BUILD_ROLE:                             # AWS OIDC role for authentication
       AWS_ACCESS_KEY_ID:                      # AWS access key
@@ -68,7 +68,7 @@ on:
           - rollback   # GitHub manual workflow trigger with environment selection for rollback
 jobs:
   azure:
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/helm-deploy.yml@master
     secrets:
       AZURE_CREDENTIALS: # Azure Credentials
     with:

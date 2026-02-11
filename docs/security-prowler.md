@@ -1,4 +1,4 @@
-## [Prowler Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/prowler.yml)
+## [Prowler Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/security-prowler.yml)
 Prowler an open cloud security platform for our cloud environment. We get a complete report of our cloud infra.
 
 ### Usage
@@ -19,7 +19,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-    uses: clouddrove/github-shared-workflows/.github/workflows/prowler.yml@feat/master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-prowler.yml@feat/master
     with:
       cloud_provider: aws
       aws_region: ## AWS Region
@@ -47,7 +47,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-    uses: clouddrove/github-shared-workflows/.github/workflows/prowler.yml@feat/master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-prowler.yml@feat/master
     with:
       cloud_provider: azure
     
@@ -72,7 +72,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-    uses: clouddrove/github-shared-workflows/.github/workflows/prowler.yml@feat/master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-prowler.yml@feat/master
     with:
       cloud_provider: gcp
       project_id: ## Your GCP Project ID

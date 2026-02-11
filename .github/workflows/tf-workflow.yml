@@ -1,5 +1,5 @@
 ---
-run-name: '🌎 Terraform workflow --target'
+run-name: '🌎 Terraform workflow'
 on:
   workflow_call:
     inputs:
@@ -36,7 +36,7 @@ on:
       terraform_version:
         type: string
         default: 1.3.6
-        description: 'Required terraform version  '
+        description: 'Required Terraform version'
       timeout:
         required: false
         type: number
@@ -76,6 +76,11 @@ on:
         required: false
         type: string
         default: ""
+      plan_only:
+        description: "Set this to `true` to run `terraform plan` only"
+        required: false
+        type: boolean
+        default: false
       target:
         required: false
         type: string
@@ -193,10 +198,10 @@ jobs:
           actions_subcommand: 'fmt'
           path: ${{ inputs.working_directory }}
 
-      - name: 🏗️ Terraform Init
+      - name: 🏗️ terraform init
         run: |
-          cd ${{ inputs.working_directory }}
-          terraform init
+           cd ${{ inputs.working_directory }}
+           terraform init
 
       - name: 🔎 Terraform validate
         if: ${{ inputs.destroy != true }}
@@ -205,7 +210,20 @@ jobs:
         with:
           path: ${{ inputs.working_directory }}
 
+      # Standard Terraform Plan (when not using targeting)
       - name: 📋 Terraform Plan
+        if: ${{ inputs.target == '' && inputs.target_file == '' }}
+        id: tf-plan
+        uses: dflook/terraform-plan@v2
+        with:
+          path: ${{ inputs.working_directory }}
+          var_file: ${{ inputs.var_file }}
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
+
+      # Targeted Terraform Plan (when using targeting)
+      - name: 📋 Terraform Plan (Targeted)
+        if: ${{ inputs.target != '' || inputs.target_file != '' }}
         id: tf-plan
         run: |
           export exitcode=0
@@ -238,15 +256,20 @@ jobs:
           fi
 
           echo "Running: $PLAN_CMD"
-          eval "$PLAN_CMD"
+          eval "$PLAN_CMD" || export exitcode=$?
+          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
 
-      - name: 📤 Publish Terraform Plan
+      # Upload plan artifact when using targeting
+      - name: 📤 Publish Terraform Plan Artifact
+        if: ${{ inputs.target != '' || inputs.target_file != '' }}
         uses: actions/upload-artifact@v6
         with:
           name: tfplan
           path: ${{ inputs.working_directory }}/tfplan
 
-      - name: 📝 Create String Output
+      # Create plan string output when using targeting
+      - name: 📝 Create Plan String Output
+        if: ${{ (inputs.target != '' || inputs.target_file != '') && inputs.plan_only != true }}
         id: tf-plan-string
         run: |
           cd ${{ inputs.working_directory }}
@@ -262,41 +285,110 @@ jobs:
           echo "</details>" >> $GITHUB_OUTPUT
           echo "${delimiter}" >> $GITHUB_OUTPUT
 
+      # Fetch PR comment when not using targeting
+      - name: Fetch latest Plan PR comment
+        if: ${{ inputs.target == '' && inputs.target_file == '' && github.event_name == 'pull_request' }}
+        id: pr_plan_comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          COMMENT=$(curl -s \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments \
+            | jq -r '
+              map(select(.user.login=="github-actions[bot]"))
+              | last
+            ')
+          BODY=$(echo "$COMMENT" | jq -r '.body')
+          URL=$(echo "$COMMENT" | jq -r '.html_url')
+          SUMMARY=$(echo "$BODY" \
+          | grep -Eo 'Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy\.' \
+          | uniq \
+          | head -n 1)
+          {
+            echo "PLAN_SUMMARY<<EOF"
+            echo "$SUMMARY"
+            echo "EOF"
+            echo "PLAN_COMMENT_URL=$URL"
+          } >> $GITHUB_ENV
+
       - name: ✅ Accept plan or deny
+        if: ${{ inputs.plan_only != true }}
         uses: trstringer/manual-approval@v1
         timeout-minutes: ${{ inputs.timeout }}
         with:
           secret: ${{ github.TOKEN }}
           approvers: ${{ inputs.approvers }}
           minimum-approvals: ${{ inputs.minimum-approvals }}
-          issue-title: "Terraform Plan for Infrastructure Update"
+          issue-title: "Terraform Plan in ${{inputs.working_directory}}${{ inputs.target != '' || inputs.target_file != '' && ' (Targeted)' || '' }}"
+          issue-body: |
+            ${{ inputs.target != '' || inputs.target_file != '' && format('## Targeted Resource\nTarget: {0}\n\n', inputs.target || 'From file') || '' }}
+            ## Terraform Plan Summary
+            ```
+            ${{ inputs.target != '' || inputs.target_file != '' && steps.tf-plan-string.outputs.summary || env.PLAN_SUMMARY }}
+            ```
+            ${{ inputs.target == '' && inputs.target_file == '' && format('🔎 **Full Terraform plan :**\n👉 {0}\n', env.PLAN_COMMENT_URL) || '' }}
+            Please approve to continue with `terraform apply`.
 
+      # Standard terraform apply (when not using targeting)
       - name: 🚀 terraform apply
-        if: ${{ inputs.destroy != true }}
+        if: ${{ inputs.destroy != true && inputs.plan_only != true && inputs.target == '' && inputs.target_file == '' }}
+        run: |
+          if [ -n "${{ inputs.var_file }}" ]; then
+           cd ${{ inputs.working_directory }}
+           terraform apply -var-file="${{ inputs.var_file }}" -auto-approve
+          else
+           cd ${{ inputs.working_directory }}
+           terraform apply -auto-approve
+          fi
+
+      # Targeted terraform apply (when using targeting)
+      - name: 🚀 terraform apply (Targeted)
+        if: ${{ inputs.destroy != true && inputs.plan_only != true && (inputs.target != '' || inputs.target_file != '') }}
         run: |
           cd ${{ inputs.working_directory }}
           terraform apply -auto-approve tfplan
 
       - name: 🕵️ Find Errored Terraform State
         if: ${{ always() }}
+        id: find_errored_tfstate
         run: |
           cd ${{ inputs.working_directory }}
           if [ -f "errored.tfstate" ]; then
             ls -la errored.tfstate
+            echo "errored_found=true" >> $GITHUB_OUTPUT
             echo "Uploading errored.tfstate as artifact..."
           else
+            echo "errored_found=false" >> $GITHUB_OUTPUT
             echo "Errored Terraform state file not found."
           fi
 
       - name: 📤 Upload Errored Terraform State Artifact
-        if: ${{ always() }} && success() && steps.find_errored_tfstate.outputs['errored_found'] == 'true'
+        if: ${{ always() && steps.find_errored_tfstate.outputs.errored_found == 'true' }}
         uses: actions/upload-artifact@v6
         with:
           name: errored_tfstate
           path: ${{ inputs.working_directory }}/errored.tfstate
 
+      # Standard terraform destroy (when not using targeting)
       - name: 💣 Terraform destroy
-        if: ${{ inputs.destroy == true }}
+        if: ${{ inputs.destroy == true && inputs.target == '' && inputs.target_file == '' }}
+        id: destroy
+        run: |
+          if [ -n "${{ inputs.var_file }}" ]; then
+           cd ${{ inputs.working_directory }}
+           terraform destroy -var-file="${{ inputs.var_file }}" -auto-approve
+          else
+           cd ${{ inputs.working_directory }}
+           terraform destroy -auto-approve
+          fi
+
+      # Targeted terraform destroy (when using targeting)
+      - name: 💣 Terraform destroy (Targeted)
+        if: ${{ inputs.destroy == true && (inputs.target != '' || inputs.target_file != '') }}
         id: destroy
         run: |
           cd ${{ inputs.working_directory }}
@@ -321,4 +413,3 @@ jobs:
           else
             terraform destroy -auto-approve
           fi
-...

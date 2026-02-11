@@ -38,7 +38,7 @@ on:
 
 jobs:
   lock:
-    uses: clouddrove-sandbox/terraform-shared-workflows/.github/workflows/lock-thread.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/pr-lock.yml@master
     secrets:
       github-token: ${{ secrets.REPO_TOKEN }}
 ```

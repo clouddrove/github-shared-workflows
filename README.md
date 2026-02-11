@@ -88,44 +88,66 @@ Above example is just a simple example to call workflow from github shared workf
 
 ## 🚀 Table of Contents
 
-1. [Auto Assign Assignee Workflow](./docs/01.auto-assignee.md)
-2. [AWS SSM Send Command workflow](./docs/02.AWSSSMSendCommand.md)
-3. [Checkov Workflow](./docs/03.checkov.md)
-4. [Cloude PR Review Workflow](./docs/04.claude-pr-review.md)
-5. [Deploy CloudFormation Stack workflow](./docs/05.deploy-cloudformation.md)
-6. [Deploy CloudFormation StackSet workflow](./docs/06.deploy-cloudformation-stackset.md)
-7. [Docker Scout workflow](./docs/07.docker-scout.md)
-8. [Docker Workflow](./docs/08.docker.md)
-   * [Example for scan and push docker image on Dockerhub](./docs/08.docker.md#example-for-scan-and-push-docker-image-on-dockerhub)
-   * [Example for scan and push docker image on ECR](./docs/08.docker.md#example-for-scan-and-push-docker-image-on-ecr)
-9. [Gemini Code Review Workflow](./docs/09.gemini-code-review.md)
-10. [Helm Workflow](./docs/10.helm.md)
-    * [Example for AWS cloud provider](./docs/10.helm.md#example-for-aws-cloud-provider)
-    * [Example for Azure cloud provider](./docs/10.helm.md)
-11. [Infracost workflow](./docs/11.infracost.md)
-12. [Lock Thread workflow](./docs/12.lock.md)
-13. [Powerpipe workflow](./docs/13.powerpipe.md)
-14. [PR Checks workflow](./docs/14.pr-checks.md)
-15. [Prowler workflow](./docs/15.prowler.md)
-16. [Prowler workflow (AWS)](./docs/16.prowlerAWS.md)
-17. [Prowler workflow (GCP)](./docs/17.prowlerGCP.md)
-18. [README Generation workflow](./docs/18.readme.md)
-19. [Remote SSH Command workflow](./docs/19.RemoteSSHCommand.md)
-20. [Slack Alert](./docs/20.slack.md)
-21. [Smurf Docker + Helm Workflow](./docs/21.smurf-docker-helm.md)
-22. [Smurf Terraform Workflow](./docs/22.smurf-terraform.md)
-23. [SST Workflow](./docs/23.sst.md)
-24. [Stale PR workflow](./docs/24.stale-pr.md)
-25. [Tag Release workflow](./docs/25.tag-release.md)
-26. [Terraform Checks Workflow](./docs/26.tf-checks.md)
-    * [Example for terraform checks with azure cloud](./docs/26.tf-checks.md#example-for-terraform-checks-with-azure-cloud)
-    * [Example for terraform checks with aws cloud](./docs/26.tf-checks.md#example-for-terraform-checks-with-aws-cloud)
-    * [Example for terraform checks with digitalocean cloud](./docs/26.tf-checks.md#example-for-terraform-checks-with-digitalocean-cloud)
-27. [Terraform Lint Workflow](./docs/27.terraform-lint.md)
-28. [Terraform Workflow](./docs/28.terraform_workflow.md)
-29. [Terraform Module Tag Release Workflow (Shared)](./docs/29.tf-monorepo-tag-release.md)
-30. [Terraform PR Plan Diff workflow](./docs/30.tf-pr-checks.md)
-31. [Gitleaks PR Scan Workflow](./docs/31.gitleaks-pr-scan.md)
+### AWS Workflows
+- [AWS Prowler Workflow](./docs/aws-prowler.md)
+- [AWS Remote SSH Command Workflow](./docs/aws-remote-ssh-command.md)
+- [AWS SSM Send Command Workflow](./docs/aws-ssm-send-command.md)
+
+### CloudFormation Workflows
+- [CloudFormation Deploy Stack Workflow](./docs/cf-deploy.md)
+- [CloudFormation Deploy StackSet Workflow](./docs/cf-deploy-stackset.md)
+
+### Docker Workflows
+- [Docker Build Push Workflow](./docs/docker-build-push.md)
+  * [Example for scan and push docker image on Dockerhub](./docs/docker-build-push.md#example-for-scan-and-push-docker-image-on-dockerhub)
+  * [Example for scan and push docker image on ECR](./docs/docker-build-push.md#example-for-scan-and-push-docker-image-on-ecr)
+- [Docker Scout Workflow](./docs/docker-scout.md)
+- [Docker Smurf Helm Workflow](./docs/docker-smurf-helm.md)
+
+### GCP Workflows
+- [GCP Prowler Workflow](./docs/gcp-prowler.md)
+
+### Helm Workflows
+- [Helm Deploy Workflow](./docs/helm-deploy.md)
+  * [Example for AWS cloud provider](./docs/helm-deploy.md#example-for-aws-cloud-provider)
+  * [Example for Azure cloud provider](./docs/helm-deploy.md#example-for-azure-cloud-provider)
+
+### Notification Workflows
+- [Slack Notification Workflow](./docs/notify-slack.md)
+
+### PR Workflows
+- [PR Auto Assignee Workflow](./docs/pr-auto-assignee.md)
+- [PR Checks Workflow](./docs/pr-checks.md)
+- [PR Claude Review Workflow](./docs/pr-claude-review.md)
+- [PR Gemini Review Workflow](./docs/pr-gemini-review.md)
+- [PR Gitleaks Scan Workflow](./docs/pr-gitleaks-scan.md)
+- [PR Lock Workflow](./docs/pr-lock.md)
+- [PR Stale Workflow](./docs/pr-stale.md)
+
+### Release Workflows
+- [Release Tag Workflow](./docs/release-tag.md)
+
+### Security Workflows
+- [Security Checkov Workflow](./docs/security-checkov.md)
+- [Security Powerpipe Workflow](./docs/security-powerpipe.md)
+- [Security Prowler Workflow](./docs/security-prowler.md)
+
+### Terraform Workflows
+- [Terraform Checks Workflow](./docs/tf-checks.md)
+  * [Example for terraform checks with azure cloud](./docs/tf-checks.md#example-for-terraform-checks-with-azure-cloud)
+  * [Example for terraform checks with aws cloud](./docs/tf-checks.md#example-for-terraform-checks-with-aws-cloud)
+  * [Example for terraform checks with digitalocean cloud](./docs/tf-checks.md#example-for-terraform-checks-with-digitalocean-cloud)
+- [Terraform Drift Workflow](./docs/tf-drift.md)
+- [Terraform Lint Workflow](./docs/tf-lint.md)
+- [Terraform Monorepo Tag Release Workflow](./docs/tf-monorepo-tag-release.md)
+- [Terraform PR Checks Workflow](./docs/tf-pr-checks.md)
+- [Terraform Smurf Workflow](./docs/tf-smurf.md)
+- [Terraform Workflow](./docs/tf-workflow.md)
+
+### Other Workflows
+- [Infracost Workflow](./docs/infracost.md)
+- [README Generation Workflow](./docs/readme.md)
+- [SST Workflow](./docs/sst.md)
 
 ## Feedback 
 If you come accross a bug or have any feedback, please log it in our [issue tracker](https://github.com/clouddrove/github-shared-workflows/issues), or feel free to drop us an email at [hello@clouddrove.com](mailto:hello@clouddrove.com).
