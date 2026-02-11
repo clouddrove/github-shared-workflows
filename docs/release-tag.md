@@ -1,7 +1,7 @@
-## [Tag Release](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/tag-release.yml)
+## [Tag Release](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/release-tag.yml)
 This reusable workflow automatically bumps semantic version tags (X.Y.Z) and generates a categorized changelog on every PR merge, based on PR labels.
 Release notes include a compare link.
-It utilizes the workflows defined in `.github/workflows/tag-release.yml`
+It utilizes the workflows defined in `.github/workflows/release-tag.yml`
 
 ### Features
 
@@ -35,7 +35,7 @@ on:
 
 jobs:
   release:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tag-release.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/release-tag.yml@master
     with:
       target_branch: master
     secrets:
