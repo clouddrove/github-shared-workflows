@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] - 2026-02-11
+### :sparkles: New Features
+- [`b9dc651`](https://github.com/clouddrove/github-shared-workflows/commit/b9dc651c54f1f76733a2c18f60583a7bac900ed7) - enable terraform plan output in PR comments *(PR [#298](https://github.com/clouddrove/github-shared-workflows/pull/298) by [@sunnymor-cd](https://github.com/sunnymor-cd))*
+- [`6e85578`](https://github.com/clouddrove/github-shared-workflows/commit/6e85578b426abd16b9885043d69096987c7ae4b1) - improve terraform plan approval visibility *(PR [#303](https://github.com/clouddrove/github-shared-workflows/pull/303) by [@sunnymor-cd](https://github.com/sunnymor-cd))*
+- [`da18bb9`](https://github.com/clouddrove/github-shared-workflows/commit/da18bb9078b28066f6bc335d02271b9b404d3723) - **actions**: add reusable gitleaks PR scan workflow *(PR [#311](https://github.com/clouddrove/github-shared-workflows/pull/311) by [@anmolnagpal](https://github.com/anmolnagpal))*
+
+### :construction_worker: Build System
+- [`e60ad3e`](https://github.com/clouddrove/github-shared-workflows/commit/e60ad3e27b0c3235ac9024e3b15dd7da659db31c) - **deps**: bump lewagon/wait-on-check-action from 1.4.1 to 1.5.0 *(PR [#300](https://github.com/clouddrove/github-shared-workflows/pull/300) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`3d7e798`](https://github.com/clouddrove/github-shared-workflows/commit/3d7e798606b496d2236e8e84340bc3a9c97bf5e9) - **deps**: bump anthropics/claude-code-action from 1.0.30 to 1.0.34 *(PR [#301](https://github.com/clouddrove/github-shared-workflows/pull/301) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`cac7abe`](https://github.com/clouddrove/github-shared-workflows/commit/cac7abef9a3f6e31e44949c3e0c277b1a9e7f0e2) - **deps**: bump webiny/action-conventional-commits from 1.3.0 to 1.3.1 *(PR [#302](https://github.com/clouddrove/github-shared-workflows/pull/302) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`6138654`](https://github.com/clouddrove/github-shared-workflows/commit/6138654b46a830e766391093319b8ef0756b51ef) - **deps**: bump google-github-actions/run-gemini-cli from 0.1.18 to 0.1.20 *(PR [#304](https://github.com/clouddrove/github-shared-workflows/pull/304) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`0840c46`](https://github.com/clouddrove/github-shared-workflows/commit/0840c4679954edd6c44d6feae8d0898ee331a0da) - **deps**: bump anthropics/claude-code-action from 1.0.34 to 1.0.41 *(PR [#305](https://github.com/clouddrove/github-shared-workflows/pull/305) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`88efd77`](https://github.com/clouddrove/github-shared-workflows/commit/88efd7724e007c8f721a219498be29e0c9ad471b) - **deps**: bump appleboy/ssh-action from 1.2.4 to 1.2.5 *(PR [#306](https://github.com/clouddrove/github-shared-workflows/pull/306) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`312491e`](https://github.com/clouddrove/github-shared-workflows/commit/312491ee7402f77683c935dd257357f88fa72999) - **deps**: bump anthropics/claude-code-action from 1.0.41 to 1.0.46 *(PR [#309](https://github.com/clouddrove/github-shared-workflows/pull/309) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`bd958ea`](https://github.com/clouddrove/github-shared-workflows/commit/bd958ead76ac7c72acf4976c244c47eef89c84f7) - **deps**: bump aws-actions/configure-aws-credentials from 5 to 6 *(PR [#308](https://github.com/clouddrove/github-shared-workflows/pull/308) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`019bc23`](https://github.com/clouddrove/github-shared-workflows/commit/019bc23daf7a113663c5c5c4dc2540b2b2eb8c0b) - update CHANGELOG.md for 1.4.1 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+
 ## [1.4.1] - 2026-01-19
 ### :sparkles: New Features
 - [`5c86710`](https://github.com/clouddrove/github-shared-workflows/commit/5c86710d98f96c4b2b3c55de0189b829d00a32b9) - Updated Tag Release Workflow *(PR [#244](https://github.com/clouddrove/github-shared-workflows/pull/244) by [@vedant-cd](https://github.com/vedant-cd))*
@@ -426,3 +446,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.9]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.8...1.3.9
 [1.4.0]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.9...1.4.0
 [1.4.1]: https://github.com/clouddrove/github-shared-workflows/compare/1.4.0...1.4.1
+[1.4.2]: https://github.com/clouddrove/github-shared-workflows/compare/1.4.1...1.4.2
