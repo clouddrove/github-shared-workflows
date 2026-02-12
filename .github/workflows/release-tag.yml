@@ -1,0 +1,146 @@
+---
+name: 🏷️ Tag-Release
+
+on:
+  workflow_call:
+    inputs:
+      target_branch:
+        required: true
+        type: string
+        default: master
+    secrets:
+      GITHUB:
+        required: true
+        description: 'PAT of the user to run the jobs.'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == inputs.target_branch }}
+
+    steps:
+      - name: 📦 Checkout the repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB }}
+
+      - name: 🧩 Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: 🏷️ Get PR labels
+        id: pr_labels
+        run: |
+          LABELS=$(jq -r '.pull_request.labels | map(.name) | join(",")' "$GITHUB_EVENT_PATH")
+          echo "labels=$LABELS" >> $GITHUB_OUTPUT
+
+      - name: 🚫 Check for release conditions
+        id: skip_tag
+        run: |
+          LABELS="${{ steps.pr_labels.outputs.labels }}"
+
+          # Check if any version label exists (major/minor/patch)
+          if [[ "$LABELS" == *"major"* || "$LABELS" == *"minor"* || "$LABELS" == *"patch"* ]]; then
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "reason=version label found" >> $GITHUB_OUTPUT
+          else
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "reason=no valid label found, skipping" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 🔖 Get latest tag (or 1.0.0 if none)
+        id: get_latest_tag
+        if: steps.skip_tag.outputs.skip == 'false'
+        run: |
+          git fetch --tags
+          LATEST_TAG=$(git tag --list --sort=-v:refname | head -n 1)
+          if [ -z "$LATEST_TAG" ]; then
+            LATEST_TAG="1.0.0"
+          fi
+          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+
+      - name: 🧮 Calculate next version from latest tag and PR label
+        id: calc_version
+        if: steps.skip_tag.outputs.skip == 'false'
+        run: |
+          BASE_VERSION="${{ steps.get_latest_tag.outputs.latest_tag }}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+          LABELS="${{ steps.pr_labels.outputs.labels }}"
+
+          if [[ "$LABELS" == *"major"* ]]; then
+            MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0
+            echo "version_type=major" >> $GITHUB_OUTPUT
+          elif [[ "$LABELS" == *"minor"* ]]; then
+            MINOR=$((MINOR+1)); PATCH=0
+            echo "version_type=minor" >> $GITHUB_OUTPUT
+          elif [[ "$LABELS" == *"patch"* ]]; then
+            PATCH=$((PATCH+1))
+            echo "version_type=patch" >> $GITHUB_OUTPUT
+          fi
+
+          NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: 🏷️ Create GitHub tag for the new version
+        if: steps.skip_tag.outputs.skip == 'false'
+        run: |
+          git config user.name "clouddrove-ci"
+          git config user.email "84795582+clouddrove-ci@users.noreply.github.com"
+          git tag ${{ steps.calc_version.outputs.new_version }}
+          git push origin ${{ steps.calc_version.outputs.new_version }}
+
+      - name: 📝 Generate Changelog
+        if: steps.skip_tag.outputs.skip == 'false'
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ secrets.GITHUB }}
+          tag: ${{ steps.calc_version.outputs.new_version }}
+          includeInvalidCommits: false
+          writeToFile: true
+          changelogFilePath: CHANGELOG.md
+          includeRefIssues: true
+          useGitmojis: true
+          reverseOrder: false
+
+      - name: 🚀 Create Release
+        if: steps.skip_tag.outputs.skip == 'false'
+        uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB }}
+          tag: ${{ steps.calc_version.outputs.new_version }}
+          name: ${{ steps.calc_version.outputs.new_version }}
+          allowUpdates: true
+          draft: false
+          makeLatest: true
+          body: |
+            ${{ steps.changelog.outputs.changes }}
+
+            **Release Type:** ${{ steps.calc_version.outputs.version_type }}
+
+            ${{ steps.calc_version.outputs.version_type == 'major' && '⚠️ **BREAKING CHANGES:** This is a major release with breaking changes. Please review the breaking changes section in [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ steps.calc_version.outputs.new_version }}/CHANGELOG.md) before upgrading.' || '' }}
+
+            [Compare changes](https://github.com/${{ github.repository }}/compare/${{ steps.get_latest_tag.outputs.latest_tag }}...${{ steps.calc_version.outputs.new_version }})
+
+      - name: 💾 Commit CHANGELOG.md
+        if: steps.skip_tag.outputs.skip == 'false'
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          branch: ${{ inputs.target_branch }}
+          commit_user_name: clouddrove-ci
+          commit_user_email: 84795582+clouddrove-ci@users.noreply.github.com
+          commit_author: "CloudDrove CI <84795582+clouddrove-ci@users.noreply.github.com>"
+          commit_message: 'docs: update CHANGELOG.md for ${{ steps.calc_version.outputs.new_version }}'
+          file_pattern: CHANGELOG.md
+
+      - name: 📋 Action Summary
+        run: |
+          if [[ "${{ steps.skip_tag.outputs.skip }}" == "true" ]]; then
+            echo "🚫 Release skipped: ${{ steps.skip_tag.outputs.reason }}"
+          else
+            echo "✅ Released ${{ steps.calc_version.outputs.new_version }} successfully."
+            echo "🏷️ Version type: ${{ steps.calc_version.outputs.version_type }}"
+          fi
+...

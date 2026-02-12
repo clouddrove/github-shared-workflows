@@ -1,38 +1,51 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
+name: 🐛 Bug Report
+about: Report a bug or issue with a workflow
+title: '[BUG] '
+labels: bug
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+## 🐛 Bug Description
+<!-- A clear and concise description of what the bug is -->
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+## 📋 Workflow Information
+- **Workflow Name:** <!-- e.g., tf-checks.yml -->
+- **Workflow Version:** <!-- e.g., @master, @v1.2.0 -->
+- **Category:** <!-- tf-, cf-, pr-, security-, etc. -->
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+## 🔄 Steps to Reproduce
+1. 
+2. 
+3. 
+4. 
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## ✅ Expected Behavior
+<!-- What should happen -->
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+## ❌ Actual Behavior
+<!-- What actually happens -->
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+## 📸 Screenshots/Logs
+<!-- If applicable, add screenshots or workflow logs -->
 
-**Additional context**
-Add any other context about the problem here.
+```
+Paste workflow logs here
+```
+
+## 🔧 Workflow Configuration
+```yaml
+# Paste your workflow configuration here
+```
+
+## 🌍 Environment
+- **GitHub Runner:** <!-- ubuntu-latest, windows-latest, macos-latest -->
+- **GitHub Actions Version:** <!-- If relevant -->
+- **Cloud Provider:** <!-- AWS, Azure, GCP, etc. -->
+
+## 📝 Additional Context
+<!-- Any other context about the problem -->
+
+## 🔍 Related Issues
+<!-- Link related issues using #issue_number -->

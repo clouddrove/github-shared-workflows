@@ -1,0 +1,44 @@
+---
+extends: default
+
+rules:
+  line-length:
+    max: 500
+    level: warning
+  comments-indentation:
+    level: error
+  indentation:
+    level: error
+    indent-sequences: true
+  trailing-spaces:
+    level: error
+  new-line-at-end-of-file:
+    level: error
+  document-start:
+    level: warning
+  document-end:
+    level: warning
+  key-duplicates:
+    level: error
+  braces:
+    level: error
+  brackets:
+    level: error
+  colons:
+    level: error
+  commas:
+    level: error
+  comments:
+    level: warning
+  empty-lines:
+    level: warning
+  empty-values:
+    level: warning
+  float-values:
+    level: error
+  hyphens:
+    level: error
+  key-ordering:
+    level: warning
+  truthy:
+    level: error

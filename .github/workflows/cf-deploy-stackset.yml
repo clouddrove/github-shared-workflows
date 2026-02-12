@@ -1,0 +1,188 @@
+---
+name: Cloudformation stack-set & stack-set-instances
+on:
+  workflow_call:
+    inputs:
+      aws-region:
+        description: 'Aws region (in this region stackset enabled)'
+        required: false
+        default: 'us-east-2'
+        type: string
+      stackset-instance-region:
+        description: 'Stackset-instance regions where you need cloudformation stacks'
+        required: false
+        default: 'us-east-2'
+        type: string
+      stack-set-name:
+        description: 'Stack-set name defined here'
+        required: true
+        type: string
+      template-url:
+        description: 'Cloudformation template path add here (S3 Object URL)'
+        required: true
+        type: string
+      OrganizationalUnitIds:
+        description: 'Organization unit ID for deployment in target accounts when service_managed permission added'
+        required: false
+        type: string
+      account-ids:
+        description: 'account ids for self_managed permission added'
+        required: false
+        type: string
+      parameter-overrides:
+        description: 'The parameters to override in the stack inputs. You can pass a comma-delimited list or a file URL. The comma-delimited list has each entry formatted as <ParameterName>=<ParameterValue> or <ParameterName>="<ParameterValue>,<ParameterValue>".'
+        required: false
+        type: string
+      permission-model:
+        description: 'IAM role permission SERVICE_MANAGED/SELF_MANAGED choose one'
+        required: false
+        type: string
+      auto-deployment-enabled:
+        description: 'true or false (true when Service_managed policy enable else false for Self_managed)'
+        required: true
+        type: string
+      RetainStacksOnAccountRemoval:
+        description: 'true or false (true when Service_managed policy enable else false for Self_managed)'
+        required: true
+        type: string
+      administration-role-arn:
+        description: 'Administrator role arn add here for trust relation on admin and child account'
+        required: false
+        type: string
+      execution-role-name:
+        description: 'execution-role-name add here for trust relation in child account'
+        required: false
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
+      AWS_ROLE_TO_ASSUME:
+        required: false
+        description: 'AWS Role ARN defined'
+      GITHUB:
+        required: false
+        description: 'GitHub token'
+
+jobs:
+  deploy-cf-stackset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📦 Checkout code from master branch
+        uses: actions/checkout@v6
+
+      - name: 🔐 Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ inputs.aws-region }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+
+      - name: 🔄 Check if StackSet exists or not-exist then create/update stack-set
+        id: check-stackset
+        run: |
+          set +e
+          result=$(aws cloudformation describe-stack-set --stack-set-name "${{ inputs.stack-set-name }}" 2>&1)
+          RC=$?
+          set -e
+          if [ "${{ inputs.permission-model }}" = "SERVICE_MANAGED" ]; then
+            if [ $RC -eq 0 ]; then
+              echo "StackSet exists, updating..."
+              aws cloudformation update-stack-set \
+                --stack-set-name ${{ inputs.stack-set-name }} \
+                --template-url ${{ inputs.template-url }} \
+                --parameters ${{ inputs.parameter-overrides }} \
+                --capabilities CAPABILITY_NAMED_IAM \
+                --permission-model ${{ inputs.permission-model }} \
+                --auto-deployment Enabled=${{ inputs.auto-deployment-enabled }},RetainStacksOnAccountRemoval=${{ inputs.RetainStacksOnAccountRemoval }}
+            elif [ $RC -eq 254 ]; then
+            if echo "$result" | grep -q "StackSetNotFoundException"; then
+              echo "StackSet does not exist, creating..."
+              aws cloudformation create-stack-set \
+                --stack-set-name ${{ inputs.stack-set-name }} \
+                --template-url ${{ inputs.template-url }} \
+                --parameters ${{ inputs.parameter-overrides }} \
+                --capabilities CAPABILITY_NAMED_IAM \
+                --permission-model ${{ inputs.permission-model }} \
+                --auto-deployment Enabled=${{ inputs.auto-deployment-enabled }},RetainStacksOnAccountRemoval=${{ inputs.RetainStacksOnAccountRemoval }}
+              else
+                exit $RC
+              fi
+            else
+              exit $RC
+            fi
+          else
+            if [ $RC -eq 0 ]; then
+              echo "StackSet exists, updating..."
+              aws cloudformation update-stack-set \
+                --stack-set-name ${{ inputs.stack-set-name }} \
+                --template-url ${{ inputs.template-url }} \
+                --capabilities CAPABILITY_NAMED_IAM \
+                --parameters ${{ inputs.parameter-overrides }} \
+                --administration-role-arn ${{ inputs.administration-role-arn }}
+            elif [ $RC -eq 254 ]; then
+              if echo "$result" | grep -q "StackSetNotFoundException"; then
+              echo "StackSet does not exist, creating..."
+              aws cloudformation create-stack-set \
+                --stack-set-name ${{ inputs.stack-set-name }} \
+                --template-url ${{ inputs.template-url }} \
+                --capabilities CAPABILITY_NAMED_IAM \
+                --parameters ${{ inputs.parameter-overrides }} \
+                --administration-role-arn ${{ inputs.administration-role-arn }} \
+                --execution-role-name AWSControlTowerExecution
+              else
+                exit $RC
+              fi
+            else
+              exit $RC
+            fi
+            sleep 50s
+          fi
+
+      - name: 🧱 Create or Update StackSet-instance
+        run: |
+          stack_instance_list=$(aws cloudformation list-stack-instances --region ${{ inputs.aws-region }} --stack-set-name ${{ inputs.stack-set-name }})
+          if [ "${{ inputs.permission-model }}" == "SERVICE_MANAGED" ]; then
+            if [[ "$stack_instance_list" == *'"Summaries": []'* ]]; then
+              echo "StackSet-instance, creating..."
+              aws cloudformation create-stack-instances \
+                --stack-set-name ${{ inputs.stack-set-name }} \
+                --deployment-targets OrganizationalUnitIds='["${{ inputs.OrganizationalUnitIds }}"]' \
+                --parameter-overrides ${{ inputs.parameter-overrides }} \
+                --regions ${{ inputs.stackset-instance-region }}
+            else
+              echo "StackSet-instance, updating..."
+              aws cloudformation update-stack-instances \
+                --stack-set-name ${{ inputs.stack-set-name }} \
+                --deployment-targets OrganizationalUnitIds='["${{ inputs.OrganizationalUnitIds }}"]' \
+                --parameter-overrides ${{ inputs.parameter-overrides }} \
+                --regions ${{ inputs.stackset-instance-region }}
+            fi
+          else
+            if [[ "$stack_instance_list" == *'"Summaries": []'* ]]; then
+              echo "StackSet-instance, creating..."
+              aws cloudformation create-stack-instances \
+                --stack-set-name ${{ inputs.stack-set-name }} \
+                --parameter-overrides ${{ inputs.parameter-overrides }} \
+                --accounts ${{ inputs.account-ids }} \
+                --regions ${{ inputs.stackset-instance-region }} \
+                --operation-preferences FailureToleranceCount=1,MaxConcurrentCount=2
+            else
+              echo "StackSet-instance, updating..."
+              aws cloudformation update-stack-instances \
+                --stack-set-name ${{ inputs.stack-set-name }} \
+                --parameter-overrides ${{ inputs.parameter-overrides }} \
+                --accounts ${{ inputs.account-ids }} \
+                --regions ${{ inputs.stackset-instance-region }} \
+                --operation-preferences MaxConcurrentPercentage=1
+            fi
+          fi
+...

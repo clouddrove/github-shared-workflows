@@ -1,0 +1,192 @@
+---
+# Tf check workflow checks for min, max version, terraform fmt, terraform init & terraform validate in your terraform code.
+name: 🧪 tf Checks
+
+on:
+  workflow_call:
+    inputs:
+      working_directory:
+        description: 'Directory where a complete example exists for the module.'
+        required: false
+        type: string
+        default: './examples/complete/'
+      provider:
+        required: false
+        type: string
+        description: 'Cloud provider to run the workflow. e.g. azurerm or aws or gcp'
+      terraform_version:
+        description: 'Terraform version to use. Leave empty for the latest version.'
+        required: false
+        type: string
+      aws_region:
+        required: false
+        type: string
+        default: us-east-1
+        description: 'AWS region of terraform deployment.'
+      role_duration_seconds:
+        required: false
+        type: number
+        default: 3600
+        description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour (3600 seconds). Acceptable values range from 15 minutes (900 seconds) to 12 hours (43200 seconds).'
+      gcp_credentials:
+        description: 'GCP credentials to use.'
+        required: false
+        default: false
+        type: string
+      token_format:
+        required: false
+        type: string
+        default: access_token
+        description: 'Output format for the generated authentication token. For OAuth 2.0 access tokens, specify "access_token". For OIDC tokens, specify "id_token". To skip token generation, leave this value empty'
+      access_token_lifetime:
+        required: false
+        type: string
+        default: 300s
+        description: 'Desired lifetime duration of the access token, in seconds'
+      project_id:
+        required: false
+        type: string
+        description: 'ID of the default project to use for future API calls and invocations.'
+      create_credentials_file:
+        required: false
+        type: string
+        default: true
+        description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+    secrets:
+      AZURE_CREDENTIALS:
+        required: false
+        description: 'Azure Credentials to install Azure in github runner.'
+      AWS_ACCESS_KEY_ID:
+        description: 'aws access keys'
+        required: false
+      AWS_SECRET_ACCESS_KEY:
+        description: 'aws secret access keys'
+        required: false
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
+      BUILD_ROLE:
+        required: false
+        description: 'AWS OIDC role for aws authentication.'
+      GCP_CREDENTIALS:
+        description: 'The Google Cloud JSON service account key to use for authentication'
+        required: false
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: false
+        description: 'The full identifier of the Workload Identity Provider'
+      SERVICE_ACCOUNT:
+        required: false
+        description: 'The service account to be used'
+
+
+jobs:
+  # - Terraform version extract as output.
+  versionExtract:
+    name: 🏷️ Get min/max versions
+    runs-on: ubuntu-latest
+
+    outputs:
+      minVersion: ${{ steps.minMax.outputs.minVersion }}
+      maxVersion: ${{ steps.minMax.outputs.maxVersion }}
+
+    steps:
+      # - Checkout the repository to the GitHub Actions runner
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      # - Checking terraform Max and Min version.
+      - name: 🧮 Terraform min/max versions
+        id: minMax
+        uses: clowdhaus/terraform-min-max@main
+
+  # - Evaluating terraform version based on version extract
+  versionEvaluate:
+    name: 🧪 Evaluate Terraform versions
+    runs-on: ubuntu-latest
+    needs: versionExtract
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - ${{ needs.versionExtract.outputs.minVersion }}
+          - ${{ needs.versionExtract.outputs.maxVersion }}
+        directory:
+          - ${{ inputs.working_directory }}
+
+    steps:
+      # - Checkout the repository to the GitHub Actions runner
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      - name: 🟦 Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: true
+
+      - name: ☁️ Install Azure CLI
+        if: ${{ inputs.provider == 'azurerm' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: ☁️ Authenticate to Google Cloud
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          create_credentials_file: ${{ inputs.create_credentials_file }}
+          token_format: ${{ inputs.token_format }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+          project_id: ${{ inputs.project_id }}
+
+      # - Installing terraform version based on version extract.
+      - name: 🛠️ Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
+
+      # - Setup smurf CLI
+      - name: Setup Smurf
+        uses: clouddrove/smurf@v0.1.3
+
+      # - Terraform checks to Init and Validate terraform code.
+      - name: 🏗️ Init & validate v${{ matrix.version }}
+        run: |
+          cd ${{ matrix.directory }}
+          smurf stf init
+          smurf stf validate
+
+# Action to verify terraform formatting.
+  format:
+    name: 🧹 Check code format
+    runs-on: ubuntu-latest
+    needs: [versionExtract, versionEvaluate]
+
+    steps:
+      # - Checkout the repository to the GitHub Actions runner
+      - name: 📦 Checkout
+        uses: actions/checkout@v6
+
+      # - Action added to install terraform
+      - name: 🛠️ Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
+
+      # - Setup smurf
+      - name: Setup Smurf
+        uses: clouddrove/smurf@v0.1.3
+
+      # - Running command to check terraform formatting changes.
+      - name: 🧹 Check Terraform format changes
+        run: smurf stf fmt --recursive --timeout 5s
+...

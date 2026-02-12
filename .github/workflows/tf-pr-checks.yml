@@ -1,0 +1,164 @@
+---
+name: 🧾 Terraform Plan PR Diff
+on:
+  workflow_call:
+    inputs:
+      terraform_directory:
+        description: Directory containing Terraform files
+        required: true
+        type: string
+        default: examples/complete
+      target_branch:
+        description: Target branch to compare against
+        required: true
+        type: string
+        default: master
+      provider:
+        required: true
+        type: string
+        description: 'Cloud provider to run the workflow. e.g. azurerm, aws, gcp or digitalocean'
+      aws_region:
+        required: false
+        type: string
+        default: us-east-2
+        description: 'AWS region of terraform deployment.'
+      gcp_region:
+        required: false
+        type: string
+        description: 'GCP region of terraform deployment.'
+      create_credentials_file:
+        required: false
+        type: string
+        default: true
+        description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+      token_format:
+        required: false
+        type: string
+        default: access_token
+        description: 'Output format for the generated authentication token. For OAuth 2.0 access tokens, specify "access_token". For OIDC tokens, specify "id_token". To skip token generation, leave this value empty'
+      access_token_lifetime:
+        required: false
+        type: string
+        default: 300s
+        description: 'Desired lifetime duration of the access token, in seconds'
+      project_id:
+        required: false
+        type: string
+        description: 'ID of the default project to use for future API calls and invocations.'
+
+    secrets:
+      AZURE_CREDENTIALS:
+        description: Azure credentials for authentication
+        required: true
+      ARM_SUBSCRIPTION_ID:
+        description: Azure Subscription ID
+        required: true
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      GCP_CREDENTIALS:
+        required: false
+        description: 'The Google Cloud JSON service account key to use for authentication'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
+      BUILD_ROLE:
+        required: false
+        description: 'AWS OIDC role for aws authentication.'
+      WORKLOAD_IDENTITY_PROVIDER:
+        required: false
+        description: 'The full identifier of the Workload Identity Provider'
+      SERVICE_ACCOUNT:
+        required: false
+        description: 'The service account to be used'
+
+jobs:
+  terraform-plan-diff:
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout PR branch
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: ☁️ Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
+
+      - name: 🔐 Install Azure CLI
+        if: ${{ inputs.provider == 'azurerm' }}
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 🔑 Authenticate to Google Cloud
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: 'google-github-actions/auth@v3'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          create_credentials_file: ${{ inputs.create_credentials_file }}
+          token_format: ${{ inputs.token_format }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+          project_id: ${{ inputs.project_id }}
+
+      - name: 🚀 Terraform Init (PR branch)
+        working-directory: ${{ inputs.terraform_directory }}
+        run: terraform init
+
+      - name: 📐 Terraform Plan (PR branch)
+        working-directory: ${{ inputs.terraform_directory }}
+        run: |
+          export ARM_SUBSCRIPTION_ID=${{ secrets.ARM_SUBSCRIPTION_ID }}
+          terraform plan -out=tfplan-pr
+
+      - name: 💾 Save PR plan
+        working-directory: ${{ inputs.terraform_directory }}
+        run: terraform show -no-color tfplan-pr > plan-pr.txt
+
+      - name: 📥 Checkout target branch
+        run: |
+          git fetch origin ${{ inputs.target_branch }}
+          git checkout ${{ inputs.target_branch }}
+
+      - name: 🚀 Terraform Init (target branch)
+        working-directory: ${{ inputs.terraform_directory }}
+        run: terraform init -upgrade
+
+      - name: 📐 Terraform Plan (target branch)
+        working-directory: ${{ inputs.terraform_directory }}
+        run: |
+          export ARM_SUBSCRIPTION_ID=${{ secrets.ARM_SUBSCRIPTION_ID }}
+          terraform plan -out=tfplan-target
+
+      - name: 💾 Save target plan
+        working-directory: ${{ inputs.terraform_directory }}
+        run: terraform show -no-color tfplan-target > plan-target.txt
+
+      - name: 🧾 Generate Terraform Plan Diff
+        uses: int128/diff-action@v2
+        with:
+          base: ${{ inputs.terraform_directory }}/plan-target.txt
+          head: ${{ inputs.terraform_directory }}/plan-pr.txt
+          label: Terraform Plan Changes
+          token: ${{ secrets.GITHUB_TOKEN }}
+...

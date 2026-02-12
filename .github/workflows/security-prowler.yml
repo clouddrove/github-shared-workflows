@@ -1,0 +1,128 @@
+---
+name: 🕵️‍♂️ Prowler Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      cloud_provider:
+        required: true
+        type: string
+        description: 'Cloud Provider'
+      project_id:
+        required: false
+        type: string
+        description: 'Project ID for GCP'
+      aws_region:
+        required: false
+        type: string
+        description: 'AWS Region'
+      access_token_lifetime:
+        required: false
+        type: number
+        default: 300
+        description: 'Duration for which an access token remains valid.'
+      role_duration_seconds:
+        required: false
+        type: number
+        default: 900
+        description: 'Duration of the session.'
+
+    secrets:
+      WIP:
+        required: false
+        description: 'WIP Connected with Service Account'
+      SERVICE_ACCOUNT:
+        required: false
+        description: 'GCP service account'
+      BUILD_ROLE:
+        required: false
+        description: 'AWS OIDC role for AWS authentication.'
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret Access Key'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token'
+      AZURE_CLIENT_ID:
+        required: false
+        description: 'Azure Client ID'
+      AZURE_CLIENT_SECRET:
+        required: false
+        description: 'Azure Client Secret'
+      AZURE_TENANT_ID:
+        required: false
+        description: 'Azure Tenant ID'
+
+jobs:
+  prowler:
+    runs-on: macos-latest
+
+    steps:
+      - name: 📦 Check out code
+        uses: actions/checkout@v6
+
+      - name: 🍺 Install Homebrew
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+      - name: 🐾 Install Prowler
+        run: |
+          brew install prowler
+
+      - name: ☁️ Authenticate with Google Cloud
+        if: ${{ inputs.cloud_provider == 'gcp' }}
+        uses: google-github-actions/auth@v3
+        with:
+          token_format: access_token
+          workload_identity_provider: ${{ secrets.WIP }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          access_token_lifetime: ${{ inputs.access_token_lifetime }}
+          project_id: ${{ inputs.project_id }}
+
+      - name: 🟦 Install AWS CLI
+        if: ${{ inputs.cloud_provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: true
+
+      - name: 🔎 Run Prowler for GCP
+        if: ${{ inputs.cloud_provider == 'gcp' }}
+        id: prowler-gcp
+        run: |
+          prowler gcp \
+          --project-ids ${{ inputs.project_id }} \
+          -o ${{ github.workspace }}/report/
+        continue-on-error: true
+
+      - name: 🔎 Run Prowler for AWS
+        if: ${{ inputs.cloud_provider == 'aws' }}
+        id: prowler-aws
+        run: |
+          prowler aws -o ${{ github.workspace }}/report/
+        continue-on-error: true
+
+      - name: 🔎 Run Prowler for Azure
+        if: ${{ inputs.cloud_provider == 'azure' }}
+        id: prowler-azure
+        run: |
+          export AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}
+          export AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}
+          export AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}
+          prowler azure --sp-env-auth -o ${{ github.workspace }}/report/
+        continue-on-error: true
+
+      - name: 📤 Upload report directory
+        uses: actions/upload-artifact@v6
+        with:
+          name: compliance-report
+          path: ${{ github.workspace }}/report/
+...
