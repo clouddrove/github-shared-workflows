@@ -1,0 +1,31 @@
+---
+name: '🔍 PR Validation (compat alias)'
+on:
+  workflow_call:
+    inputs:
+      types:
+        required: false
+        type: string
+      requireScope:
+        required: false
+        type: boolean
+      subjectPattern:
+        required: false
+        type: string
+      validateSingleCommit:
+        required: false
+        type: boolean
+      checkLabels:
+        required: false
+        type: boolean
+
+jobs:
+  delegate:
+    uses: ./.github/workflows/pr-checks.yml
+    with:
+      types: ${{ inputs.types }}
+      requireScope: ${{ inputs.requireScope }}
+      subjectPattern: ${{ inputs.subjectPattern }}
+      validateSingleCommit: ${{ inputs.validateSingleCommit }}
+      checkLabels: ${{ inputs.checkLabels }}
+    secrets: inherit
