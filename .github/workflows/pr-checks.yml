@@ -53,8 +53,6 @@ jobs:
             starts with an uppercase character.
           wip: true
           validateSingleCommit: ${{ inputs.validateSingleCommit }}
-          scopes: |
-            *
 
       - name: 🏷️ Check PR labels
         if: ${{ inputs.checkLabels }}
@@ -79,6 +77,5 @@ jobs:
       - name: 🧾 Validate Commit Messages
         uses: webiny/action-conventional-commits@v1.3.1
         with:
-          subject_case: false
-          types: ${{ inputs.types }}
+          allowed-commit-types: ${{ inputs.types }}
 ...
