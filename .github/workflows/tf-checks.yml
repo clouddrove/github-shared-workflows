@@ -153,7 +153,7 @@ jobs:
           role-skip-session-tagging: true
 
       - name: ☁️ Install Azure CLI
-        if: ${{ inputs.provider == 'azurerm' && secrets.AZURE_CREDENTIALS != '' }}
+        if: ${{ inputs.provider == 'azurerm' }}
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -225,7 +225,7 @@ jobs:
           aws-region: ${{ inputs.aws_region }}
 
       - name: ☁️ Install Azure CLI
-        if: ${{ inputs.provider == 'azurerm' && secrets.AZURE_CREDENTIALS != '' }}
+        if: ${{ inputs.provider == 'azurerm' }}
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
