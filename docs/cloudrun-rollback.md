@@ -29,7 +29,7 @@ This approach helps reduce production risk and ensures quick recovery from faile
 
 ### Workflow Location
 ```
-.github/workflows/shared-cloudrun-rollback.yml
+.github/workflows/cloudrun-rollback.yml
 ```
 #### Example
 ```yaml
@@ -40,7 +40,7 @@ on:
 
 jobs:
   deploy-backend:
-    uses: clouddrove/github-shared-workflows/.github/workflows/shared-cloudrun-rollback.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/cloudrun-rollback.yml@master
     with:
       gcp_registry_host:     # GCP Artifact Registry host
       IMAGE_NAME:            # Docker image name
