@@ -1,48 +1,20 @@
-## [Cloud Run Deploy with Auto Rollback reusable workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/shared-cloudrun-rollback.yml)
+########################################################################################
+# Rollback Workflow (Cloud Run)
+#---------------------------------------------------------------------------------------
+# Purpose:
+#   This job is automatically triggered when the `deploy-backend` job fails.
+#   It safely rolls back the specified Google Cloud Run service to the
+#   previously deployed revision by shifting 100% traffic back to it.
+#
+# Use case:
+#   - Prevents broken deployments from impacting production
+#   - Ensures high availability by restoring last known good revision
+#
+# Trigger condition:
+#   - Runs only when a dependent job fails (`if: failure()`)
+########################################################################################
 
-
-
-### Overview
-
-The Cloud Run Deploy with Auto Rollback workflow:
-
-* Deploys a new Docker image to a Cloud Run service
-
-* Captures the currently active revision before deployment
-
-* Exposes the previous revision as an output for rollback
-
-* Enables parent workflows to trigger rollback automatically on failure
-
-This workflow helps ensure safer production deployments and faster recovery in case of issues.
-
-### Workflow Location
-```
-.github/workflows/shared-cloudrun-rollback.yml
-```
-#### Example
-```yaml
-
-name: Deploy to Cloud Run
-
-on:
-  workflow_dispatch:
-
-jobs:
-  deploy-backend:
-    uses: clouddrove/github-shared-workflows/.github/workflows/shared-cloudrun-rollback.yml@master
-    with:
-      gcp_registry_host:     # GCP Artifact Registry host
-      IMAGE_NAME:            # Docker image name
-      IMAGE_TAG:             # Image tag to deploy
-      SERVICE_NAME:          # Cloud Run service name
-      REGION:                # GCP region
-      GCP_REPOSITORY:        # Artifact Registry repository
-    secrets:
-      GCP_PROJECT_ID:        # GCP Project ID
-      GCP_SA_KEY:            # GCP Service Account key (JSON)
-
-  rollback-all:
+rollback-all:
     needs:
       - deploy-backend
     if: ${{ failure() }}
@@ -93,6 +65,4 @@ jobs:
             fi
           }
 
-          rollback_if_needed "# Cloud Run service name" "${{ needs.deploy-backend.outputs.revision }}"     
-
-```          
+          rollback_if_needed "# Cloud Run service name" "${{ needs.deploy-backend.outputs.revision }}" 
