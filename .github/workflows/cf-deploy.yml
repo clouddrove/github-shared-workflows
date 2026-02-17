@@ -108,7 +108,7 @@ jobs:
             aws s3 cp  ${{inputs.zip-file-name}} s3://${{ inputs.s3-bucket }}/${{ inputs.bucket-prefix }}/
 
       - name: 🚀 Deploy cloudformation stack using template
-        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        uses: aws-actions/aws-cloudformation-github-deploy@v2
         with:
           name: ${{ inputs.stack-name }}
           template: ${{ inputs.template-path }}
