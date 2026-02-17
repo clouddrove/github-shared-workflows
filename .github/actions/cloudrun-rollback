@@ -1,0 +1,68 @@
+########################################################################################
+# Rollback Workflow (Cloud Run)
+#---------------------------------------------------------------------------------------
+# Purpose:
+#   This job is automatically triggered when the `deploy-backend` job fails.
+#   It safely rolls back the specified Google Cloud Run service to the
+#   previously deployed revision by shifting 100% traffic back to it.
+#
+# Use case:
+#   - Prevents broken deployments from impacting production
+#   - Ensures high availability by restoring last known good revision
+#
+# Trigger condition:
+#   - Runs only when a dependent job fails (`if: failure()`)
+########################################################################################
+
+rollback-all:
+    needs:
+      - deploy-backend
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: # GCP Service Account key (JSON)
+
+      - name: Setup gcloud
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: # GCP Project ID
+
+      - name: Rollback Cloud Run services (if needed)
+        run: |
+          echo "🚨 Rollback triggered because a deployment failed"
+
+          REGION= # GCP region
+          PROJECT= # GCP Project ID
+
+          rollback_if_needed () {
+            SERVICE_NAME=$1
+            PREV_REV=$2
+
+            if [ -z "$PREV_REV" ]; then
+              echo "ℹ️ $SERVICE_NAME was not deployed, skipping rollback"
+              return
+            fi
+
+            CURRENT_REV=$(gcloud run services describe "$SERVICE_NAME" \
+              --region "$REGION" \
+              --project "$PROJECT" \
+              --format="value(status.traffic[0].revisionName)")
+
+            if [ "$CURRENT_REV" = "$PREV_REV" ]; then
+              echo "✅ $SERVICE_NAME rollback not required — traffic already on previous revision ($PREV_REV)"
+            else
+              echo "🔄 Rolling back $SERVICE_NAME to revision: $PREV_REV"
+              gcloud run services update-traffic "$SERVICE_NAME" \
+                --to-revisions="$PREV_REV=100" \
+                --region "$REGION" \
+                --project "$PROJECT" \
+                && echo "✅ $SERVICE_NAME rollback successful" \
+                || echo "⚠️ $SERVICE_NAME rollback failed — traffic may already be correct"
+            fi
+          }
+
+          rollback_if_needed "# Cloud Run service name" "${{ needs.deploy-backend.outputs.revision }}" 
