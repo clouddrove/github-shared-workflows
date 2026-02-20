@@ -128,10 +128,10 @@ Above example is just a simple example to call workflow from github shared workf
 
 | Category | Count | Workflows |
 |----------|-------|-----------|
-| **Terraform** | 9 | Checks, Lint, Workflow, Drift, PR Checks, Smurf, Monorepo Tag Release |
+| **Terraform** | 9 | Checks, Lint, Workflow, Drift, PR Checks, Smurf, Monorepo Tag Release, STF Checks |
 | **Docker** | 4 | Build Push, Scanner, Scout, Smurf Helm |
 | **PR Automation** | 7 | Auto Assignee, Auto Merge, Checks, Claude Review, Gemini Review, Gitleaks, Lock, Stale |
-| **Security** | 5 | Checkov, Prowler, Powerpipe, TFSec, STF Checks |
+| **Security** | 5 | Checkov, Prowler, Powerpipe, TFSec |
 | **AWS** | 3 | Prowler, SSM Send Command, Remote SSH Command |
 | **CloudFormation** | 3 | Deploy, Deploy StackSet, Lint |
 | **Release** | 3 | Tag, Changelog, Changelog Internal |
@@ -193,6 +193,7 @@ Above example is just a simple example to call workflow from github shared workf
   * [Example for terraform checks with azure cloud](./docs/tf-checks.md#example-for-terraform-checks-with-azure-cloud)
   * [Example for terraform checks with aws cloud](./docs/tf-checks.md#example-for-terraform-checks-with-aws-cloud)
   * [Example for terraform checks with digitalocean cloud](./docs/tf-checks.md#example-for-terraform-checks-with-digitalocean-cloud)
+- [Terraform Smurf Checks](./docs/stf-checks.md)
 - [Terraform Drift Workflow](./docs/tf-drift.md)
 - [Terraform Lint Workflow](./docs/tf-lint.md)
 - [Terraform Monorepo Tag Release Workflow](./docs/tf-monorepo-tag-release.md)
@@ -280,7 +281,7 @@ Please review our [Security Policy](./.github/SECURITY.md) before reporting secu
 <summary><b>☁️ Infrastructure as Code</b> - Deploy with confidence</summary>
 
 - [Terraform Workflow](./docs/tf-workflow.md) - Full Terraform lifecycle management
-- [Terraform Checks](./docs/tf-checks.md) - Validation and testing
+- [Terraform Smurf Checks](./docs/stf-checks.md) - Validation and testing
 - [CloudFormation Deploy](./docs/cf-deploy.md) - AWS CloudFormation deployment
 
 </details>

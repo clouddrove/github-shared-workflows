@@ -24,6 +24,7 @@ Complete index of all available workflows organized by category and use case.
 | Workflow | Description | Use Case |
 |----------|-------------|----------|
 | [tf-checks.yml](./.github/workflows/tf-checks.yml) | Validate, format, init, plan | Pre-commit validation |
+| [stf-checks.yml](./.github/workflows/stf-checks.yml) | Validate, format, init, plan | Pre-commit validation |
 | [tf-workflow.yml](./.github/workflows/tf-workflow.yml) | Full lifecycle (plan, apply, destroy) | Infrastructure deployment |
 | [tf-lint.yml](./.github/workflows/tf-lint.yml) | Lint Terraform code | Code quality checks |
 | [tf-drift.yml](./.github/workflows/tf-drift.yml) | Detect infrastructure drift | Compliance checking |
@@ -61,7 +62,6 @@ Complete index of all available workflows organized by category and use case.
 | [security-prowler.yml](./.github/workflows/security-prowler.yml) | Cloud security assessment | Multi-cloud security |
 | [security-powerpipe.yml](./.github/workflows/security-powerpipe.yml) | Compliance checking | Regulatory compliance |
 | [security-tfsec.yml](./.github/workflows/security-tfsec.yml) | Terraform security scanner | Terraform security |
-| [security-stf-checks.yml](./.github/workflows/security-stf-checks.yml) | STF security checks | Additional security |
 
 ### 🔄 PR Automation Workflows
 
@@ -140,6 +140,7 @@ Complete index of all available workflows organized by category and use case.
 6. tf-workflow.yml        # Deploy infrastructure
 7. helm-deploy.yml        # Deploy to Kubernetes
 8. notify-slack.yml       # Notify team
+9. stf-checks.yml         # Smurf Terraform Validation
 ```
 
 ### Security-First Pipeline
