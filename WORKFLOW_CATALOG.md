@@ -10,6 +10,7 @@ Complete index of all available workflows organized by category and use case.
 | Deploy Infrastructure | [tf-workflow.yml](./.github/workflows/tf-workflow.yml) |
 | Build Docker Image | [docker-build-push.yml](./.github/workflows/docker-build-push.yml) |
 | Deploy Helm Chart | [helm-deploy.yml](./.github/workflows/helm-deploy.yml) |
+| AWS Cloud Audit | [clens.yml](./.github/workflows/clens.yml) |
 | Scan Security | [security-checkov.yml](./.github/workflows/security-checkov.yml) |
 | Validate PR | [pr-checks.yml](./.github/workflows/pr-checks.yml) |
 | Auto Assign PR | [pr-auto-assignee.yml](./.github/workflows/pr-auto-assignee.yml) |
@@ -89,6 +90,7 @@ Complete index of all available workflows organized by category and use case.
 #### AWS
 | Workflow | Description | Use Case |
 |----------|-------------|----------|
+| [clens.yml](./.github/workflows/clens.yml) | AWS cloud audit & security reports | Inventory, IAM, cost, security |
 | [aws-prowler.yml](./.github/workflows/aws-prowler.yml) | AWS security scanning | AWS compliance |
 | [aws-ssm-send-command.yml](./.github/workflows/aws-ssm-send-command.yml) | Execute commands via SSM | Remote execution |
 | [aws-remote-ssh-command.yml](./.github/workflows/aws-remote-ssh-command.yml) | Execute SSH commands | Remote management |

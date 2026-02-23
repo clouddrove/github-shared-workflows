@@ -132,7 +132,7 @@ Above example is just a simple example to call workflow from github shared workf
 | **Docker** | 4 | Build Push, Scanner, Scout, Smurf Helm |
 | **PR Automation** | 7 | Auto Assignee, Auto Merge, Checks, Claude Review, Gemini Review, Gitleaks, Lock, Stale |
 | **Security** | 5 | Checkov, Prowler, Powerpipe, TFSec |
-| **AWS** | 3 | Prowler, SSM Send Command, Remote SSH Command |
+| **AWS** | 4 | Clens Audit, Prowler, SSM Send Command, Remote SSH Command |
 | **CloudFormation** | 3 | Deploy, Deploy StackSet, Lint |
 | **Release** | 3 | Tag, Changelog, Changelog Internal |
 | **GCP** | 1 | Prowler |
@@ -145,6 +145,7 @@ Above example is just a simple example to call workflow from github shared workf
 ## 🚀 Table of Contents
 
 ### AWS Workflows
+- [Clens AWS Audit Workflow](./docs/clens.md)
 - [AWS Prowler Workflow](./docs/aws-prowler.md)
 - [AWS Remote SSH Command Workflow](./docs/aws-remote-ssh-command.md)
 - [AWS SSM Send Command Workflow](./docs/aws-ssm-send-command.md)
