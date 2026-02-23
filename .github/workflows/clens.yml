@@ -7,6 +7,11 @@ on:
         required: true
         type: string
         description: 'Tool to run: aws-inventory, iam-audit, cost-report, security-audit, unused-resources, tag-compliance, service-quotas, or all'
+      version:
+        required: false
+        type: string
+        default: 'latest'
+        description: 'Clens release version to use (e.g. v1.0.0). Defaults to latest.'
       api_host:
         required: false
         type: string
@@ -68,19 +73,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          RUN_ID=$(gh run list \
+          gh release download ${{ inputs.version }} \
             --repo clouddrove/clens-client \
-            --workflow ci.yml \
-            --status success \
-            --limit 1 \
-            --json databaseId \
-            -q '.[0].databaseId')
-          gh run download "$RUN_ID" \
-            --repo clouddrove/clens-client \
-            --name clens-linux-amd64 \
+            --pattern 'clens-linux-amd64' \
             -D ./bin
-          mv ./bin/clens-linux-amd64 ./clens
-          chmod +x ./clens
+          chmod +x ./bin/clens-linux-amd64
 
       - name: 🚀 Run clens
         env:
@@ -97,7 +94,7 @@ jobs:
           if [ -n "$API_TOKEN" ]; then
             ARGS="$ARGS -api-token $API_TOKEN"
           fi
-          ./clens $ARGS
+          ./bin/clens-linux-amd64 $ARGS
 
       - name: 📤 Upload report artifacts
         if: always()
