@@ -64,21 +64,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📦 Check out clens source
-        uses: actions/checkout@v4
-        with:
-          repository: clouddrove/clens-client
-          ref: master
-
-      - name: 🐹 Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23'
-
-      - name: 🔨 Build clens
+      - name: 📥 Download clens binary
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          cd client
-          go build -buildvcs=false -o ../clens .
+          RUN_ID=$(gh run list \
+            --repo clouddrove/clens-client \
+            --workflow ci.yml \
+            --status success \
+            --limit 1 \
+            --json databaseId \
+            -q '.[0].databaseId')
+          gh run download "$RUN_ID" \
+            --repo clouddrove/clens-client \
+            --name clens-linux-amd64 \
+            -D ./bin
+          mv ./bin/clens-linux-amd64 ./clens
+          chmod +x ./clens
 
       - name: 🚀 Run clens
         env:
