@@ -224,7 +224,7 @@ jobs:
       # Targeted Terraform Plan (when using targeting)
       - name: 📋 Terraform Plan (Targeted)
         if: ${{ inputs.target != '' || inputs.target_file != '' }}
-        id: tf-plan
+        id: tf-plan-targeted
         run: |
           export exitcode=0
           cd ${{ inputs.working_directory }}
@@ -389,7 +389,7 @@ jobs:
       # Targeted terraform destroy (when using targeting)
       - name: 💣 Terraform destroy (Targeted)
         if: ${{ inputs.destroy == true && (inputs.target != '' || inputs.target_file != '') }}
-        id: destroy
+        id: destroy-targeted
         run: |
           cd ${{ inputs.working_directory }}
 
