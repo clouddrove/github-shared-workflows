@@ -30,7 +30,7 @@ permissions:
 
 jobs:
   deploy-cf-stackset:
-    uses: clouddrove/github-shared-workflows/.github/workflows/cf-deploy-stackset.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/cf-deploy-stackset.yml@2.0.0
     with:
       aws-region:                         # aws-configure region add, where you need stackset 
       stackset-instance-region:           # region add where you need stacks

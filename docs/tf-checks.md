@@ -19,12 +19,12 @@ This workflow automates terraform checks including format, init, validate, and o
 name: Terraform Checks
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
   pull_request:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
     with:
       working_directory: './examples/complete/'
       provider: 'azurerm'
@@ -38,11 +38,11 @@ jobs:
 name: Terraform Checks with Plan
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
     with:
       working_directory: './examples/complete/'
       provider: 'aws'
@@ -62,11 +62,11 @@ jobs:
 name: Terraform Version Checks
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
     with:
       working_directory: './examples/complete/'
       provider: 'aws'
@@ -84,11 +84,11 @@ jobs:
 name: Terraform Checks Azure
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
     with:
       working_directory: './examples/complete/'
       provider: 'azurerm'
@@ -104,11 +104,11 @@ jobs:
 name: Terraform Checks AWS
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
     with:
       working_directory: './examples/complete/'
       provider: 'aws'
@@ -127,11 +127,11 @@ jobs:
 name: Terraform Checks DigitalOcean
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
     with:
       working_directory: './examples/complete/'
       provider: 'digitalocean'
@@ -146,11 +146,11 @@ jobs:
 name: Terraform Checks GCP
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
     with:
       working_directory: './examples/complete/'
       provider: 'gcp'

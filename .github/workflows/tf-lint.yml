@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout source code
+      - name: 📦 Checkout repo
         uses: actions/checkout@v6
 
       - name: 💾 Cache plugin dir

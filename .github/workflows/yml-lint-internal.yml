@@ -6,7 +6,8 @@ jobs:
   YAML-LINTER:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - name: 📦 Checkout repo
+        uses: actions/checkout@v6
 
       - name: 🔍 yaml-lint
         uses: ibiqlik/action-yamllint@v3

@@ -23,12 +23,12 @@ name: Security Scan
 
 on:
   pull_request:
-    branches: [master]
+    branches: [master, main]
     types: [opened, synchronize]
 
 jobs:
   tfsec-scan:
-    uses: clouddrove/github-shared-workflows/.github/workflows/security-tfsec.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-tfsec.yml@2.0.0
     secrets:
       GITHUB: ${{ secrets.GITHUB_TOKEN }}
 ```

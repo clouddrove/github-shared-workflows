@@ -133,7 +133,7 @@ jobs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout repo
         uses: actions/checkout@v6
 
       - uses: webfactory/ssh-agent@v0.9.1
