@@ -11,12 +11,12 @@ This workflow automates Terraform configuration drift detection by running terra
 name:  TF-Drift
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
   pull_request:
   workflow_dispatch:
 jobs:
   tf-lint:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tfdrift.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tfdrift.yml@main
     with:  
       working_directory:    #'./_example/complete/'
       provider:             #aws

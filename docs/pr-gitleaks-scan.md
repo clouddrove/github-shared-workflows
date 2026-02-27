@@ -24,6 +24,6 @@ permissions:
 
 jobs:
   gitleaks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/gitleaks-pr-scan.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/gitleaks-pr-scan.yml@2.0.0
     secrets: inherit
 ```

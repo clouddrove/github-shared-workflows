@@ -91,7 +91,7 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: 📦 Checkout
+      - name: 📦 Checkout repo
         uses: actions/checkout@v6
 
       # - Checking terraform Max and Min version.
@@ -115,7 +115,7 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: 📦 Checkout
+      - name: 📦 Checkout repo
         uses: actions/checkout@v6
 
       - name: 🟦 Install AWS CLI
@@ -173,7 +173,7 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: 📦 Checkout
+      - name: 📦 Checkout repo
         uses: actions/checkout@v6
 
       # - Action added to install terraform

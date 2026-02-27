@@ -15,7 +15,7 @@ on:
 
 jobs:
   prowler-security:
-    uses: clouddrove/github-shared-workflows/.github/workflows/gcp-prowler.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/gcp-prowler.yml@2.0.0
     with:
       cloud_provider: 'gcp'
       gcp_project_ids: 'project-1,project-2'  # Comma-separated GCP project IDs to scan

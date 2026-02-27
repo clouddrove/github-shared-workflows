@@ -76,7 +76,7 @@ permissions:
 
 jobs:
   module-release:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-monorepo-tag-release.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-monorepo-tag-release.yml@2.0.0
     with:
          module_prefix: ""       # Replace with your Module Prefix by deafult "terraform-aws-"
 ```

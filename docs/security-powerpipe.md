@@ -36,7 +36,7 @@ on:
 
 jobs:
   powerpipe:
-    uses: clouddrove/github-shared-workflows/.github/workflows/powerpipe.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-powerpipe.yml@2.0.0
     with:
       cloud_provider: 'AWS'
       mod_url: "https://github.com/turbot/steampipe-mod-terraform-aws-compliance"
@@ -73,7 +73,7 @@ on:
 
 jobs:
   powerpipe:
-    uses: clouddrove/github-shared-workflows/.github/workflows/powerpipe.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-powerpipe.yml@master
     with:
       cloud_provider: 'AWS'
       mod_url: "https://github.com/turbot/steampipe-mod-aws-thrifty"
@@ -104,7 +104,7 @@ on:
 
 jobs:
   powerpipe:
-    uses: clouddrove/github-shared-workflows/.github/workflows/powerpipe.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-powerpipe.yml@master
     with:
       cloud_provider: 'AZURE'
       mod_url: "https://github.com/turbot/steampipe-mod-azure-thrifty"
@@ -138,7 +138,7 @@ on:
 
 jobs:
   powerpipe:
-    uses: clouddrove/github-shared-workflows/.github/workflows/powerpipe.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-powerpipe.yml@master
     with:
       cloud_provider: 'AWS'
     secrets: 

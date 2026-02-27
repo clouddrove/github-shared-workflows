@@ -33,7 +33,7 @@ permissions:
 
 jobs:
   claude-feedback:
-    uses: clouddrove/github-shared-workflows/.github/workflows/claude-pr-review.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/claude-pr-review.yml@2.0.0
     secrets:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }} # Secret API key used to authenticate with Claude (Anthropic)
 ```

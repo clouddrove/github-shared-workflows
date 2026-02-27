@@ -25,7 +25,7 @@ on:
 
 jobs:
   complete-example:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-pr-checks.yaml@tf-master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-pr-checks.yaml@2.0.0
     with:
       provider: 'azurerm'
       terraform_directory: 'examples/complete'

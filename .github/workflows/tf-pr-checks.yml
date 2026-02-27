@@ -83,7 +83,7 @@ jobs:
       issues: write
     runs-on: ubuntu-latest
     steps:
-      - name: 📥 Checkout PR branch
+      - name: 📦 Checkout repo
         uses: actions/checkout@v6
         with:
           fetch-depth: 0

@@ -40,7 +40,7 @@ on:
 
 jobs:
   deploy-backend:
-    uses: clouddrove/github-shared-workflows/.github/workflows/cloudrun-rollback.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/cloudrun-rollback.yml@2.0.0
     with:
       gcp_registry_host:     # GCP Artifact Registry host
       IMAGE_NAME:            # Docker image name

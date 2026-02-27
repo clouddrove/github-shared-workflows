@@ -38,7 +38,7 @@ on:
 
 jobs:
   lock:
-    uses: clouddrove/github-shared-workflows/.github/workflows/pr-lock.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/pr-lock.yml@2.0.0
     secrets:
       github-token: ${{ secrets.REPO_TOKEN }}
 ```

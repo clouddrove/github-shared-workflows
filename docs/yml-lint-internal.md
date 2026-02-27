@@ -25,7 +25,7 @@ on: [pull_request]
 
 jobs:
   YAML-LINTER:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@2.0.0
 ```
 
 #### Complete Example
@@ -39,7 +39,7 @@ on:
 
 jobs:
   YAML-LINTER:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@2.0.0
 ```
 
 ### When to Use

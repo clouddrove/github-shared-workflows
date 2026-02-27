@@ -37,7 +37,7 @@ on:
 
 jobs:
   pr-validation:
-    uses: clouddrove/github-shared-workflows/.github/workflows/pr-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/pr-checks.yml@2.0.0
     secrets: inherit
     with:
       types: |

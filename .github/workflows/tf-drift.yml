@@ -93,7 +93,7 @@ jobs:
 
     steps:
       # Checkout the repository to the GitHub Actions runner
-      - name: 📥 Checkout
+      - name: 📦 Checkout repo
         uses: actions/checkout@v6
 
       - name: 🔧 Set environment variables

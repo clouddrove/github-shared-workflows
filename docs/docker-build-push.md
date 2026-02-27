@@ -23,14 +23,14 @@ on:
 
 jobs:
   docker-scanner:
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker-scanner.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker-scanner.yml@2.0.0
     with:
       severity: # which vulnerability should disable the workflow before pusing image to registry. eg. 'HIGH,CRITICAL,MEDIUM,LOW'
 
   docker-push:
     needs: docker-scanner  
     if: ${{ success() && needs.docker-scanner.result == 'success' }}   # This condition start this docker push workflow on succesfull scanning of docker image
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker-build-push.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker-build-push.yml@2.0.0
     secrets:
       DOCKERHUB_USERNAME: # Dockerhub username
       DOCKERHUB_PASSWORD: # Dockerhub password
