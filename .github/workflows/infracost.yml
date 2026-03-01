@@ -70,7 +70,7 @@ jobs:
           infracost output --path /tmp/infracost.json --show-skipped --format html --out-file report.html
 
       - name: 📤 Upload current cost in artifactory
-        uses: actions/upload-artifact@47309c993abb98030a35d55ef7ff34b7fa1074b5
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f
         with:
           name: report.html
           path: ${{ inputs.working-directory }}/report.html
