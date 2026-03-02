@@ -19,7 +19,7 @@ jobs:
     if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == inputs.target_branch }}
 
     steps:
-      - name: 📦 Checkout the repository
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0

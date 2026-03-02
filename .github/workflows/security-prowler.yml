@@ -61,7 +61,7 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: 📦 Check out code
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🍺 Install Homebrew
@@ -82,7 +82,7 @@ jobs:
           access_token_lifetime: ${{ inputs.access_token_lifetime }}
           project_id: ${{ inputs.project_id }}
 
-      - name: 🟦 Install AWS CLI
+      - name: ☁️ Install AWS CLI
         if: ${{ inputs.cloud_provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:

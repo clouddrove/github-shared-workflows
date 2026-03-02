@@ -91,7 +91,7 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: 📦 Checkout repo
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       # - Checking terraform Max and Min version.
@@ -115,10 +115,10 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: 📦 Checkout repo
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
-      - name: 🟦 Install AWS CLI
+      - name: ☁️ Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v5
         with:
@@ -173,7 +173,7 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: 📦 Checkout repo
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       # - Action added to install terraform

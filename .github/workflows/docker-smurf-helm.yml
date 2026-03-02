@@ -422,7 +422,7 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🔑 Configure AWS credentials with OIDC

@@ -18,7 +18,7 @@ jobs:
     name: 🔍 Gitleaks scan
     runs-on: ubuntu-latest
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
         with:
           ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
