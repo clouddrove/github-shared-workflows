@@ -55,15 +55,17 @@ jobs:
           validateSingleCommit: ${{ inputs.validateSingleCommit }}
 
       - name: 🏷️ Check PR labels
-        if: ${{ inputs.checkLabels }}
+        if: ${{ inputs.checkLabels && github.event.pull_request.head.repo.fork == false }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -z "$(gh api repos/$GITHUB_REPOSITORY/issues/${{ github.event.pull_request.number }}/labels --jq '.[].name')" ]; then
+          labels=$(gh api repos/$GITHUB_REPOSITORY/issues/${{ github.event.pull_request.number }}/labels --jq '.[].name')
+
+          if [ -z "$labels" ]; then
             echo "::error::No labels found on this PR. Please add at least one label."
             exit 1
           else
-            echo "PR has labels, validation passed."
+            echo "PR has labels"
           fi
 
   validate-commits:
@@ -75,8 +77,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🧾 Validate Commit Messages
-        uses: webiny/action-conventional-commits@v1.3.1
+      - name: 🧾 Commitlint Validation (Inline Config)
+        uses: wagoid/commitlint-github-action@v6
         with:
-          allowed-commit-types: ${{ inputs.types }}
+          configFile: commitlint.config.cjs
 ...

@@ -23,6 +23,71 @@ Automatically validates:
 ### Usage
 This workflow triggers automatically on PR events and can be configured with input parameters.
 
+### 1️⃣ PR Title Validation
+- Using [amannn/action-semantic-pull-request](https://github.com/amannn/action-semantic-pull-request/blob/main/README.md)
+- Ensures PR titles follow Conventional Commits format.
+- Example:
+
+✅ Valid
+
+```
+  feat(api): Add login endpoint
+  fix: Resolve token issue
+  docs(readme): Update installation guide
+```
+
+  ❌ Invalid
+  ```
+    update login
+    bug fix
+    added new feature
+  ```
+
+  **🏷️ Check PR labels**
+  | **PR Type**        | **Label Validation**     |
+  |--------------------|--------------------------|
+  | Internal PR        | ✅ checked               |
+  | Fork PR            | ⏭ skipped               |
+
+####  **Example flow**
+  Internal contributor
+
+  PR → validation runs:
+  ```
+  PR title ✔
+  commits  ✔
+  labels   ✔
+  ```
+
+  Fork contributor
+
+  PR → validation runs:
+  ```
+  PR title ✔
+  commits  ✔
+  labels   ⏭ skipped
+  ```
+
+### 2️⃣ Commit Message Validation
+- Using [wagoid/commitlint-github-action](https://github.com/wagoid/commitlint-github-action/blob/master/README.md)
+- Ensures all commits follow Conventional Commit format.
+- Example:
+
+✅ Valid commits
+
+```
+  feat(api): add login endpoint
+  fix(auth): resolve token issue
+  docs: update readme
+```
+  ❌ Invalid
+
+```
+  update code
+  bug fix
+  changes
+```
+
 #### Example Implementation
 ```yaml
 name: 'PR Validation'
