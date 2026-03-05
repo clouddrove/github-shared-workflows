@@ -262,7 +262,7 @@ jobs:
       # Upload plan artifact when using targeting
       - name: 📤 Publish Terraform Plan Artifact
         if: ${{ inputs.target != '' || inputs.target_file != '' }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: tfplan
           path: ${{ inputs.working_directory }}/tfplan
@@ -368,7 +368,7 @@ jobs:
 
       - name: 📤 Upload Errored Terraform State Artifact
         if: ${{ always() && steps.find_errored_tfstate.outputs.errored_found == 'true' }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: errored_tfstate
           path: ${{ inputs.working_directory }}/errored.tfstate
