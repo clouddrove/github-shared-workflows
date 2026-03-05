@@ -33,12 +33,12 @@ name: terraform workflow
 permissions: write-all
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
   pull_request:
   workflow_dispatch:
 jobs:
   prod:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@2.0.0
     with:
         provider:           # aws
         working_directory:  # Specify terraform code directory in repo, eg. './_example/complete/'
@@ -65,12 +65,12 @@ name: terraform workflow
 permissions: write-all
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
   pull_request:
   workflow_dispatch:
 jobs:
   prod:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@2.0.0
     with:
         provider:           # azurerm
         working_directory:  # Specify terraform code directory in repo

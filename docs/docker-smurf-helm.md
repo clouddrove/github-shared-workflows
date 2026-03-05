@@ -13,7 +13,7 @@ on:
 
 jobs:
   dev:
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker-smurf-helm.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker-smurf-helm.yml@2.0.0
     with:
       docker_image_name: # Image Name
       docker_image_tag: # Image Tag

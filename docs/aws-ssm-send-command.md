@@ -28,7 +28,7 @@ on:
 
 jobs:
   bash-commands-without-ssh:
-    uses: clouddrove/github-shared-workflows/.github/workflows/aws-ssm-send-command.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/aws-ssm-send-command.yml@2.0.0
     with:
       working-directory: # Specify the working directory for the job
       slack_message: # Message to be sent to Slack

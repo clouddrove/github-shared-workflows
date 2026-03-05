@@ -201,23 +201,22 @@ jobs:
       - name: 📦 Checkout
         uses: actions/checkout@v6
 
+      # - Setup smurf CLI
+      - name: Setup Smurf
+        uses: clouddrove/smurf@v1.0.0
+
       - name: 🐳 Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: sdkr
-          command: >-
-            build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
+        run: |
+            smurf sdkr build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
             inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
             --build-arg ${{ inputs.docker_build_args }}
 
       - name: 🐳 Docker Image Build with Buildkit
         if: inputs.docker_buildkit_enable == 'true'
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: sdkr
-          command: >-
-            build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
+        uses: clouddrove/smurf@v1.0.0
+        run: |
+            smurf sdkr build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
             inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
             --build-arg ${{ inputs.docker_build_args }} --buildkit
 
@@ -298,35 +297,28 @@ jobs:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
       - name: 🛡️ Docker Image Scan
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: sdkr
-          command: scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
+        uses: clouddrove/smurf@v1.0.0
+        run: |
+          smurf sdkr scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
       - name: 🏷️ Docker Image Tag
         if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: sdkr
-          command: >-
-            tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
+        uses: clouddrove/smurf@v1.0.0
+        run: |
+            smurf sdkr tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
             inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
       - name: 🚀 Docker Image Push
         if: inputs.docker_push == 'true'  && inputs.gcp_docker_push != 'true'
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: sdkr
-          command: >-
+        uses: clouddrove/smurf@v1.0.0
+        run: |
             push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
             inputs.docker_image_tag }}
 
       - name: 🚀 Docker Image Push in GCP
         if: inputs.docker_push == 'true' && inputs.gcp_docker_push == 'true'
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: sdkr
-          command: >-
+        uses: clouddrove/smurf@v1.0.0
+        run: |
             push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
             inputs.docker_image_tag }} --project-id ${{ inputs.gcp_project_id }}
 
@@ -338,18 +330,17 @@ jobs:
       - name: 📦 Checkout
         uses: actions/checkout@v6
 
+      # - Setup smurf CLI
+      - name: Setup Smurf
+        uses: clouddrove/smurf@v1.0.0
+
       - name: 🧪 Helm Lint
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: selm
-          command: lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+        run : |
+         smurf selm lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
       - name: 📝 Helm Template
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: selm
-          command: >-
-            template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+        run: |
+            smurf selm template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
 
   helm-deploy:
     if: inputs.helm_enable == 'true'
@@ -404,31 +395,22 @@ jobs:
 
       - name: 🔌 Helm Plugin
         if: inputs.helm_plugin_install == 'true'
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: selm
-          command: plugin ${{ inputs.helm_plugins }}
+        run: |
+          smurf selm plugin ${{ inputs.helm_plugins }}
 
       - name: ➕ Add Helm Chart
         if: inputs.helm_repo_add == 'true'
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: selm
-          command: repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
+        run: |
+          smurf selm repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
 
       - name: ♻️ Update Helm Charts
         if: inputs.helm_repo_add == 'true'
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: selm
-          command: repo update
+        run: |
+          smurf selm repo update
 
       - name: 🚀 Helm Deploy
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: selm
-          command: >-
-            upgrade --install ${{ inputs.helm_flags }} ${{ secrets.aws_set_parameters }}
+        run: |
+            smurf selm upgrade --install ${{ inputs.helm_flags }} ${{ secrets.aws_set_parameters }}
             ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
             inputs.helm_values_file_path }} -n=${{ inputs.helm_namespace }} --timeout ${{
             inputs.helm_timeout }}
@@ -440,7 +422,7 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🔑 Configure AWS credentials with OIDC
@@ -485,10 +467,7 @@ jobs:
         shell: bash
 
       - name: ⏪ Helm Rollback
-        uses: clouddrove/smurf@v1.1.4
-        with:
-          tool: selm
-          command: >-
-            rollback ${{ inputs.helm_release_name }} ${{ inputs.helm_revision }} -n=${{
+        run: |
+            smurf selm rollback ${{ inputs.helm_release_name }} ${{ inputs.helm_revision }} -n=${{
             inputs.helm_namespace }}
 ...

@@ -114,7 +114,7 @@ jobs:
       maxVersion: ${{ steps.minMax.outputs.maxVersion }}
 
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🧮 Terraform min/max versions
@@ -137,10 +137,10 @@ jobs:
           - ${{ inputs.working_directory }}
 
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
-      - name: 🟦 Install AWS CLI
+      - name: ☁️ Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -189,7 +189,7 @@ jobs:
     needs: [versionExtract, versionEvaluate]
 
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🛠️ Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
@@ -212,10 +212,10 @@ jobs:
       tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
-      - name: 🟦 Install AWS CLI
+      - name: ☁️ Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:

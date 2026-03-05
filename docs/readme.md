@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 jobs:
   assignee:
-    uses: clouddrove/github-shared-workflows/.github/workflows/readme.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/readme.yml@2.0.0
     secrets:
       TOKEN :                  # Provide GitHub token 
       SLACK_WEBHOOK_TERRAFORM: # Provide slack-webhook url

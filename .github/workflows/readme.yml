@@ -19,7 +19,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: echo "GH_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
 
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@master
         with:
           fetch-depth: 0

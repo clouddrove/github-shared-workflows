@@ -24,7 +24,7 @@ on:
 
 jobs:
   aws:
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm-deploy.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/helm-deploy.yml@2.0.0
     secrets:
       BUILD_ROLE:                             # AWS OIDC role for authentication
       AWS_ACCESS_KEY_ID:                      # AWS access key
@@ -68,7 +68,7 @@ on:
           - rollback   # GitHub manual workflow trigger with environment selection for rollback
 jobs:
   azure:
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm-deploy.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/helm-deploy.yml@2.0.0
     secrets:
       AZURE_CREDENTIALS: # Azure Credentials
     with:

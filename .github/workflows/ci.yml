@@ -19,7 +19,7 @@ jobs:
     name: ✅ Validate YAML Syntax
     runs-on: ubuntu-latest
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🐍 Setup Python
@@ -50,7 +50,7 @@ jobs:
     name: 🧹 Lint YAML Files
     runs-on: ubuntu-latest
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🧹 Run YAML Lint
@@ -65,7 +65,7 @@ jobs:
     name: 🔍 Validate Workflow Structure
     runs-on: ubuntu-latest
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🔍 Validate Workflow Structure
@@ -144,7 +144,7 @@ jobs:
     name: 📚 Validate Documentation
     runs-on: ubuntu-latest
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 📚 Check Documentation Links
@@ -214,7 +214,7 @@ jobs:
     name: 🏷️ Validate Naming Conventions
     runs-on: ubuntu-latest
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🏷️ Check Naming Conventions
@@ -247,7 +247,7 @@ jobs:
     name: 🔍 Actionlint
     runs-on: ubuntu-latest
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🔍 Run Actionlint
@@ -265,7 +265,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 📝 Generate Workflow Index
@@ -297,7 +297,7 @@ jobs:
     name: ⚠️ Check Deprecated Actions
     runs-on: ubuntu-latest
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: ⚠️ Check for Deprecated Actions
@@ -325,7 +325,7 @@ jobs:
     name: 🔐 Validate Permissions
     runs-on: ubuntu-latest
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🔐 Check Workflow Permissions
@@ -348,7 +348,7 @@ jobs:
     needs: [validate-yaml, lint-yaml, validate-workflows, security-scan, validate-docs, validate-naming, actionlint]
     if: always()
     steps:
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 📊 CI Summary

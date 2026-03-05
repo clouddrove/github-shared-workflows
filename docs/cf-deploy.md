@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 jobs:
   cloudformation-stack-deploy:
-    uses: clouddrove/github-shared-workflows/.github/workflows/cf-deploy.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/cf-deploy.yml@2.0.0
     with:  
       s3-bucket:               # S3 Bucket name where code is stored
       bucket-prefix:           # S3 Bucket prefix/folder name where you push the zip file

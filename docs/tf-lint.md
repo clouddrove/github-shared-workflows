@@ -10,12 +10,12 @@ TFLint is a framework and each feature is provided by plugins, the key features 
 name:  TF-Lint
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
   pull_request:
   workflow_dispatch:
 jobs:
   tf-lint:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-lint.yml@2.0.0
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
 ```

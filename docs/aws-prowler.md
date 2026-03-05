@@ -19,8 +19,7 @@ permissions:
 jobs:
   aws-assessment:
     name: Run prowler security
-    # uses: clouddrove/github-shared-workflows/.github/workflows/prowler.yml@master
-    uses: clouddrove-sandbox/test-shared-workflow/.github/workflows/prowler.yml@master
+    uses: clouddrove-sandbox/test-shared-workflow/.github/workflows/prowler.yml@2.0.0
     with:
       cloud_provider: 'aws'
       aws_region: ## aws region

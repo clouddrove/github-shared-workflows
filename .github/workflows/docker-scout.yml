@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout git repo
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: ⚙️ Setup Docker buildx

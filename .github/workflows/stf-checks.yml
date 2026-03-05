@@ -91,7 +91,7 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       # - Checking terraform Max and Min version.
@@ -115,10 +115,10 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
-      - name: 🟦 Install AWS CLI
+      - name: ☁️ Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v5
         with:
@@ -156,7 +156,7 @@ jobs:
 
       # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v0.1.3
+        uses: clouddrove/smurf@v1.0.0
 
       # - Terraform checks to Init and Validate terraform code.
       - name: 🏗️ Init & validate v${{ matrix.version }}
@@ -173,7 +173,7 @@ jobs:
 
     steps:
       # - Checkout the repository to the GitHub Actions runner
-      - name: 📦 Checkout
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       # - Action added to install terraform
@@ -184,7 +184,7 @@ jobs:
 
       # - Setup smurf
       - name: Setup Smurf
-        uses: clouddrove/smurf@v0.1.3
+        uses: clouddrove/smurf@v1.0.0
 
       # - Running command to check terraform formatting changes.
       - name: 🧹 Check Terraform format changes

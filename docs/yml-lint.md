@@ -56,11 +56,11 @@ name: 'Validate YAML Files'
 on:
   pull_request:
   push:
-    branches: [master]
+    branches: [ master, main ]
 
 jobs:
   yaml-lint:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@2.0.0
 ```
 
 #### With Custom File/Directory

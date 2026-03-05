@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📦 Checkout git repo
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 🔐 Executing remote SSH commands using SSH key

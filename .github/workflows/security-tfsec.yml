@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Clone repo
+      - name: 📦 Checkout Repository
         uses: actions/checkout@master
 
       - name: 🔍 Run tfsec

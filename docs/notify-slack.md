@@ -26,9 +26,9 @@ on:
 jobs:
   notify-job-status:
     needs: test # Job name for which you wnat the stauus of that like is it completed or failed.
-    uses: clouddrove/github-shared-workflows/.github/workflows/notify-slack.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/notify-slack.yml@2.0.0
     with:
-      channel: C077NBXAZBP   # Slack id of channel where you want alerts to be setup so update this as per your channel-id
+      channel: ${{ vars.SLACK_CHANNEL_ID }}   # Slack id of channel where you want alerts to be setup so update this as per your channel-id. SLACK_CHANNEL_ID = C07XXXXXX
       title: "Workflow Run"  # Title of alert like for which job its give the status as success or failed ex- terraform apply  if workflow runs it gives status as terraform apply - success 
       status: ${{ needs.test.result }}  # specify the job name to check the status of job wheather its failed or completed.
       fields_json: |

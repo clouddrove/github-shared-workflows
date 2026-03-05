@@ -80,7 +80,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📦 Checkout code from master branch
+      - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
       - name: 📥 Checkout code from another Repo

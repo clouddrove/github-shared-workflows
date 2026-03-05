@@ -68,7 +68,7 @@ on:
 jobs:
   call-gemini-review:
     name: 🤖 Run Gemini Code Review
-    uses: clouddrove/github-shared-workflows/.github/workflows/gemini-code-review.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/gemini-code-review.yml@2.0.0
     with:
       gemini_model: "gemini-2.5-pro"   # ✨ optional, default already set
       github_token: ${{ github.TOKEN }}   # 🔑 optional override
