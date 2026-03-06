@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-03-06
+### :sparkles: New Features
+- [`0cdc55f`](https://github.com/clouddrove/github-shared-workflows/commit/0cdc55fad359fed037af4c0c96951f636da01957) - add reusable workflow to deploy images to Cloud Run with auto rollback *(PR [#307](https://github.com/clouddrove/github-shared-workflows/pull/307) by [@kalyani-cd](https://github.com/kalyani-cd))*
+- [`1ada629`](https://github.com/clouddrove/github-shared-workflows/commit/1ada629b045ac9d58903b09992905a5a31396dcc) - add clens AWS audit reusable workflow *(commit by [@anmolnagpal](https://github.com/anmolnagpal))*
+
+### :bug: Bug Fixes
+- [`e075b2c`](https://github.com/clouddrove/github-shared-workflows/commit/e075b2c8f7a739fc1f2a0d13133abd16c943dec2) - **ci**: repair shared PR validation workflow and add pr_checks alias *(PR [#316](https://github.com/clouddrove/github-shared-workflows/pull/316) by [@anmolnagpal](https://github.com/anmolnagpal))*
+- [`3343efe`](https://github.com/clouddrove/github-shared-workflows/commit/3343efe7e5ff41478bb9eb37ca4ca1c5df924ae4) - **tf-checks**: skip azure/login when AZURE_CREDENTIALS is not set *(PR [#317](https://github.com/clouddrove/github-shared-workflows/pull/317) by [@anmolnagpal](https://github.com/anmolnagpal))*
+- [`521761c`](https://github.com/clouddrove/github-shared-workflows/commit/521761c1a5cf68d919980a2ed84b755182aeabfe) - remove secret check from conditional expressions *(PR [#318](https://github.com/clouddrove/github-shared-workflows/pull/318) by [@anmolnagpal](https://github.com/anmolnagpal))*
+- [`32c193f`](https://github.com/clouddrove/github-shared-workflows/commit/32c193f59dc2bd0d9b8fc375eb323658e18cb40c) - rename security-stf-checks.yml to stf-checks.yml *(PR [#322](https://github.com/clouddrove/github-shared-workflows/pull/322) by [@anket-cd](https://github.com/anket-cd))*
+- [`74df2ef`](https://github.com/clouddrove/github-shared-workflows/commit/74df2ef7327ca06f5f7ee4cc7727a6e8b87f0959) - resolve duplicate IDs and align branch version *(PR [#327](https://github.com/clouddrove/github-shared-workflows/pull/327) by [@anket-cd](https://github.com/anket-cd))*
+- [`1a77be9`](https://github.com/clouddrove/github-shared-workflows/commit/1a77be93ccd008d6384fc78fb3d567c50cd963fd) - resolve conventional commit validation issue and skip label requirement for forked PRs *(PR [#331](https://github.com/clouddrove/github-shared-workflows/pull/331) by [@anket-cd](https://github.com/anket-cd))*
+
+### :construction_worker: Build System
+- [`a0627af`](https://github.com/clouddrove/github-shared-workflows/commit/a0627afed647242b83dca709730eede1c74e3317) - **deps**: bump anthropics/claude-code-action from 1.0.46 to 1.0.51 *(PR [#319](https://github.com/clouddrove/github-shared-workflows/pull/319) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`bd609ee`](https://github.com/clouddrove/github-shared-workflows/commit/bd609ee0d43afddcb0cfb08daad953056686a818) - **deps**: bump actions/upload-artifact from 4 to 6 *(PR [#320](https://github.com/clouddrove/github-shared-workflows/pull/320) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`53128e9`](https://github.com/clouddrove/github-shared-workflows/commit/53128e9bc79fcdc6acba280d4810660e8d2bed10) - **deps**: bump aws-actions/aws-cloudformation-github-deploy from 1 to 2 *(PR [#321](https://github.com/clouddrove/github-shared-workflows/pull/321) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`47dc456`](https://github.com/clouddrove/github-shared-workflows/commit/47dc456edbffb7953d682192bf85ae1bc7ee0083) - **deps**: bump google-github-actions/auth from 2 to 3 *(PR [#323](https://github.com/clouddrove/github-shared-workflows/pull/323) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`f6b4090`](https://github.com/clouddrove/github-shared-workflows/commit/f6b40904f029a7791853597f6b26716a59145918) - **deps**: bump google-github-actions/setup-gcloud from 2 to 3 *(PR [#324](https://github.com/clouddrove/github-shared-workflows/pull/324) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`62909fc`](https://github.com/clouddrove/github-shared-workflows/commit/62909fc10e105bba5cba4ff73b03c020b97789d4) - **deps**: bump actions/setup-python from 5 to 6 *(PR [#325](https://github.com/clouddrove/github-shared-workflows/pull/325) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`7cf7f7b`](https://github.com/clouddrove/github-shared-workflows/commit/7cf7f7b63ae01758cdcb3c7738d9e491c136ad63) - **deps**: bump actions/upload-artifact from 6 to 7 *(PR [#329](https://github.com/clouddrove/github-shared-workflows/pull/329) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`4f3a516`](https://github.com/clouddrove/github-shared-workflows/commit/4f3a5169f60dc5d2ac53949d9487f27d008ca9c8) - **deps**: bump actions/download-artifact from 7 to 8 *(PR [#330](https://github.com/clouddrove/github-shared-workflows/pull/330) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+
 ## [2.0.0] - 2026-02-11
 
 ### ⚠️ BREAKING CHANGES
@@ -550,3 +574,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.4.0]: https://github.com/clouddrove/github-shared-workflows/compare/1.3.9...1.4.0
 [1.4.1]: https://github.com/clouddrove/github-shared-workflows/compare/1.4.0...1.4.1
 [1.4.2]: https://github.com/clouddrove/github-shared-workflows/compare/1.4.1...1.4.2
+[2.1.0]: https://github.com/clouddrove/github-shared-workflows/compare/2.0.0...2.1.0
