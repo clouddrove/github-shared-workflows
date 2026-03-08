@@ -39,7 +39,7 @@ jobs:
 
       - name: 🏗️ Build and export to Docker
         id: build-id
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           push: false
           load: true  #  Export to Docker Engine rather than pushing to a registry
