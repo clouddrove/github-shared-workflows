@@ -55,17 +55,15 @@ jobs:
           validateSingleCommit: ${{ inputs.validateSingleCommit }}
 
       - name: 🏷️ Check PR labels
-        if: ${{ inputs.checkLabels && github.event.pull_request.head.repo.fork == false }}
+        if: ${{ inputs.checkLabels }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          labels=$(gh api repos/$GITHUB_REPOSITORY/issues/${{ github.event.pull_request.number }}/labels --jq '.[].name')
-
-          if [ -z "$labels" ]; then
+          if [ -z "$(gh api repos/$GITHUB_REPOSITORY/issues/${{ github.event.pull_request.number }}/labels --jq '.[].name')" ]; then
             echo "::error::No labels found on this PR. Please add at least one label."
             exit 1
           else
-            echo "PR has labels"
+            echo "PR has labels, validation passed."
           fi
 
   validate-commits:
