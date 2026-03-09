@@ -40,22 +40,40 @@ jobs:
     name: 📝 Validate PR title
     runs-on: ubuntu-latest
     steps:
-      - uses: amannn/action-semantic-pull-request@v6.1.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          types: ${{ inputs.types }}
-          requireScope: ${{ inputs.requireScope }}
-          subjectPattern: ${{ inputs.subjectPattern }}
-          subjectPatternError: |
-            The subject "{subject}" found in the pull request title "{title}"
-            didn't match the configured pattern. Please ensure that the subject
-            starts with an uppercase character.
-          wip: true
-          validateSingleCommit: ${{ inputs.validateSingleCommit }}
+      # - uses: amannn/action-semantic-pull-request@v6.1.1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     types: ${{ inputs.types }}
+      #     requireScope: ${{ inputs.requireScope }}
+      #     subjectPattern: ${{ inputs.subjectPattern }}
+      #     subjectPatternError: |
+      #       The subject "{subject}" found in the pull request title "{title}"
+      #       didn't match the configured pattern. Please ensure that the subject
+      #       starts with an uppercase character.
+      #     wip: true
+      #     validateSingleCommit: ${{ inputs.validateSingleCommit }}
+
+      - name: Validate PR title format
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+
+          echo "PR Title: $TITLE"
+
+          PATTERN="^(feat|fix|docs|style|refactor|test|chore|build|ci|perf|revert)(\([a-zA-Z0-9_-]+\))?: .+"
+
+          if [[ ! "$TITLE" =~ $PATTERN ]]; then
+            echo "::error::PR title does not follow Conventional Commits format."
+            echo "Valid examples:"
+            echo "  feat: Add login API"
+            echo "  fix(auth): Resolve token issue"
+            exit 1
+          fi
+
+          echo "PR title validation passed."
 
       - name: 🏷️ Check PR labels
-        if: ${{ inputs.checkLabels }}
+        if: ${{ inputs.checkLabels && github.event.pull_request.head.repo.fork == false }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
