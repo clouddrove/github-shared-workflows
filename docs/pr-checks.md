@@ -24,7 +24,8 @@ Automatically validates:
 This workflow triggers automatically on PR events and can be configured with input parameters.
 
 ### 1️⃣ PR Title Validation
-- Using [amannn/action-semantic-pull-request](https://github.com/amannn/action-semantic-pull-request/blob/main/README.md)
+- Lightweight regex-based PR title validation script.
+- Enforces Conventional Commit style titles with optional scope.
 - Ensures PR titles follow Conventional Commits format.
 - Example:
 
