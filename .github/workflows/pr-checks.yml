@@ -34,6 +34,11 @@ on:
         required: false
         type: boolean
         default: true
+      commitlintConfig:
+        description: "Path to commitlint configuration file"
+        required: false
+        type: string
+        default: "commitlint.config.cjs"
 
 jobs:
   validate-title:
@@ -60,7 +65,8 @@ jobs:
           # Check scope requirement
           if [[ "${{ inputs.requireScope }}" == "true" ]]; then
             if [[ ! "$TITLE" =~ ^(${TYPES}|$(echo ${TYPES} | sed 's/\([^|]*\)/\u\1|\l\1/g'))\([a-zA-Z0-9_-]+\): ]]; then
-              echo "::error::PR title must include a scope because requireScope=true."
+              echo "::error::PR title must include a scope because requireScope is set to true."
+              echo "type(scope): Your Message"
               echo "Example:"
               echo "  feat(auth): Add login API"
               exit 1
@@ -113,8 +119,8 @@ jobs:
             exit 1
           fi
 
-      - name: 🧾 Commitlint Validation (Inline Config)
+      - name: "🧾 Commitlint Validation - type(scope): subject"
         uses: wagoid/commitlint-github-action@v6
         with:
-          configFile: commitlint.config.cjs
+          configFile: ${{ inputs.commitlintConfig }}
 ...
