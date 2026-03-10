@@ -131,3 +131,4 @@ jobs:
         uses: wagoid/commitlint-github-action@v6
         with:
           configFile: ${{ inputs.commitlintConfig }}
+...
