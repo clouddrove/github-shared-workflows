@@ -25,7 +25,7 @@ on:
       subjectPattern:
         required: false
         type: string
-        default: '^[A-Z].+$'
+        default: '^[A-Za-z].+$'
       validateSingleCommit:
         required: false
         type: boolean
@@ -46,13 +46,27 @@ jobs:
 
           echo "PR Title: $TITLE"
 
-          PATTERN="^(feat|fix|docs|style|refactor|test|chore|build|ci|perf|revert)(\([a-zA-Z0-9_-]+\))?: .+"
+          TYPES=$(echo "${{ inputs.types }}" | tr '\n' '|' | sed 's/|$//')
+
+          if [ "${{ inputs.requireScope }}" = "true" ]; then
+            PATTERN="^(${TYPES}|$(echo ${TYPES} | sed 's/\([^|]*\)/\u\1|\l\1/g'))(\([a-zA-Z0-9_-]+\)): ${{ inputs.subjectPattern }}"
+          else
+            PATTERN="^(${TYPES}|$(echo ${TYPES} | sed 's/\([^|]*\)/\u\1|\l\1/g'))(\([a-zA-Z0-9_-]+\))?: ${{ inputs.subjectPattern }}"
+          fi
 
           if [[ ! "$TITLE" =~ $PATTERN ]]; then
             echo "::error::PR title does not follow Conventional Commits format."
             echo "Valid examples:"
             echo "  feat: Add login API"
+            echo "  Feat: Add login API"
             echo "  fix(auth): Resolve token issue"
+            echo "  Fix(auth): Resolve token issue"
+            echo "  docs: Update README"
+            echo "  Docs(readme): Update README formatting"
+            echo "  chore: Update dependencies"
+            echo "  Chore(ci): Update CI pipeline"
+            echo "  refactor(core): Simplify authentication logic"
+            echo "  Refactor(core): Simplify authentication logic"
             exit 1
           fi
 
@@ -79,8 +93,19 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: 🔢 Validate single commit
+        if: ${{ inputs.validateSingleCommit }}
+        run: |
+          COUNT=$(git rev-list --count origin/${{ github.base_ref }}..HEAD)
+          echo "Commit count in PR: $COUNT"
+
+          if [ "$COUNT" -ne 1 ]; then
+            echo "::error::This PR must contain exactly one commit."
+            exit 1
+          fi
+
       - name: 🧾 Commitlint Validation (Inline Config)
         uses: wagoid/commitlint-github-action@v6
         with:
           configFile: commitlint.config.cjs
-... 
+...
