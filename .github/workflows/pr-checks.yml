@@ -1,5 +1,6 @@
 ---
 name: '🔍 PR Validation'
+
 on:
   workflow_call:
     inputs:
@@ -18,22 +19,27 @@ on:
           perf
           build
           revert
+
       requireScope:
         required: false
         type: boolean
         default: false
+
       subjectPattern:
         required: false
         type: string
         default: '[A-Za-z].+'
+
       validateSingleCommit:
         required: false
         type: boolean
         default: false
+
       checkLabels:
         required: false
         type: boolean
         default: true
+
       commitlintConfig:
         description: "Path to commitlint configuration file"
         required: false
@@ -44,6 +50,7 @@ jobs:
   validate-title:
     name: 📝 Validate PR title
     runs-on: ubuntu-latest
+
     steps:
       - name: Validate PR title format
         run: |
@@ -52,37 +59,37 @@ jobs:
 
           TYPES=$(echo "${{ inputs.types }}" | tr '\n' '|' | sed 's/|$//')
 
-          # Check valid type
-          TYPE_REGEX="^(${TYPES}|$(echo ${TYPES} | sed 's/\([^|]*\)/\u\1|\l\1/g'))"
+          # Allow capitalized types as well
+          TYPES_REGEX="${TYPES}|$(echo ${TYPES} | sed 's/\([^|]*\)/\u\1|\l\1/g')"
 
-          if [[ ! "$TITLE" =~ $TYPE_REGEX ]]; then
-            echo "::error::Invalid PR type."
+          # Full regex for conventional commits
+          FULL_REGEX="^(${TYPES_REGEX})(\([a-zA-Z0-9_-]+\))?:\s+${{ inputs.subjectPattern }}$"
+
+          if [[ ! "$TITLE" =~ $FULL_REGEX ]]; then
+            echo "::error::PR title does not follow Conventional Commit format."
+            echo ""
+            echo "Required format:"
+            echo "  type(scope): subject"
+            echo "  type: subject"
+            echo ""
+            echo "Examples:"
+            echo "  feat: Add login API"
+            echo "  fix(auth): Resolve token issue"
+            echo "  docs(readme): Update README"
+            echo ""
             echo "Allowed types:"
             echo "${{ inputs.types }}"
             exit 1
           fi
 
-          # Check scope requirement
+          # Enforce scope if required
           if [[ "${{ inputs.requireScope }}" == "true" ]]; then
-            if [[ ! "$TITLE" =~ ^(${TYPES}|$(echo ${TYPES} | sed 's/\([^|]*\)/\u\1|\l\1/g'))\([a-zA-Z0-9_-]+\): ]]; then
-              echo "::error::PR title must include a scope because requireScope is set to true."
-              echo "type(scope): Your Message"
+            if [[ ! "$TITLE" =~ ^(${TYPES_REGEX})\([a-zA-Z0-9_-]+\): ]]; then
+              echo "::error::PR title must include a scope because requireScope=true"
               echo "Example:"
               echo "  feat(auth): Add login API"
               exit 1
             fi
-          fi
-
-          # Extract subject
-          SUBJECT=$(echo "$TITLE" | sed 's/^.*: //')
-
-          # Validate subject pattern
-          if [[ ! "$SUBJECT" =~ ${{ inputs.subjectPattern }} ]]; then
-            echo "::error::PR subject does not match required pattern."
-            echo "Subject must match regex: ${{ inputs.subjectPattern }}"
-            echo "Example:"
-            echo "  feat: Add login API"
-            exit 1
           fi
 
           echo "PR title validation passed."
@@ -102,6 +109,7 @@ jobs:
   validate-commits:
     name: 🧾 Validate Commit Messages
     runs-on: ubuntu-latest
+
     steps:
       - name: 📦 Checkout Repository
         uses: actions/checkout@v6
@@ -119,8 +127,7 @@ jobs:
             exit 1
           fi
 
-      - name: "🧾 Commitlint Validation - type(scope): subject"
+      - name: 🧾 Commitlint Validation
         uses: wagoid/commitlint-github-action@v6
         with:
           configFile: ${{ inputs.commitlintConfig }}
-...
