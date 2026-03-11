@@ -16,6 +16,9 @@ on:
           - v1
           - v2
 
+permissions:
+  contents: write
+
 jobs:
   tag:
     runs-on: ubuntu-latest
