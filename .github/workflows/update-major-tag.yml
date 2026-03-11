@@ -38,5 +38,5 @@ jobs:
       - name: Push updated tag
         run: |
           git push origin ${{ github.event.inputs.major_version }} --force
----
+...
       
