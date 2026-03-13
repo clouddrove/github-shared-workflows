@@ -2,9 +2,8 @@
 name: Update Major Tag
 
 on:
-  push:
-    tags:
-      - "*.*.*"
+  release:
+    types: [published]
 
 permissions:
   contents: write
