@@ -14,29 +14,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check tag format
+        id: check
+        run: |
+          TAG=${{ github.event.release.tag_name }}
+
+          echo "Release tag: $TAG"
+
+          if [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "valid=true" >> $GITHUB_OUTPUT
+            echo "Tag format valid"
+          else
+            echo "valid=false" >> $GITHUB_OUTPUT
+            echo "Tag format invalid. Workflow will skip."
+          fi
+
       - name: Checkout repo
+        if: steps.check.outputs.valid == 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Fetch tags
+        if: steps.check.outputs.valid == 'true'
         run: git fetch --tags
 
       - name: Configure git
+        if: steps.check.outputs.valid == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Extract major version
+        if: steps.check.outputs.valid == 'true'
         id: version
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
+          TAG=${{ github.event.release.tag_name }}
 
-          echo "Release tag: $TAG"
-
-          # Extract major version from X.Y.Z
           MAJOR=$(echo "$TAG" | cut -d. -f1)
-
           MAJOR_TAG="v$MAJOR"
 
           echo "Major tag: $MAJOR_TAG"
@@ -44,10 +59,12 @@ jobs:
           echo "major_tag=$MAJOR_TAG" >> $GITHUB_OUTPUT
 
       - name: Update major tag
+        if: steps.check.outputs.valid == 'true'
         run: |
-          git tag -f ${{ steps.version.outputs.major_tag }} ${{ github.ref_name }}
+          git tag -f ${{ steps.version.outputs.major_tag }} ${{ github.event.release.tag_name }}
 
       - name: Push major tag
+        if: steps.check.outputs.valid == 'true'
         run: |
           git push origin ${{ steps.version.outputs.major_tag }} --force
 ...
