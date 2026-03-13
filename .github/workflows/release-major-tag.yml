@@ -1,0 +1,69 @@
+---
+name: Update Major Tag
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  check-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      valid: ${{ steps.check.outputs.valid }}
+
+    steps:
+      - name: Check tag format
+        id: check
+        run: |
+          TAG=${{ github.event.release.tag_name }}
+
+          echo "Release tag: $TAG"
+
+          if [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "valid=true" >> $GITHUB_OUTPUT
+            echo "Tag format valid"
+          else
+            echo "valid=false" >> $GITHUB_OUTPUT
+            echo "Tag format invalid"
+          fi
+
+  update-major-tag:
+    needs: check-tag
+    if: needs.check-tag.outputs.valid == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch tags
+        run: git fetch --tags
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Extract major version
+        id: version
+        run: |
+          TAG=${{ github.event.release.tag_name }}
+          MAJOR=$(echo "$TAG" | cut -d. -f1)
+          MAJOR_TAG="v$MAJOR"
+
+          echo "Major tag: $MAJOR_TAG"
+          echo "major_tag=$MAJOR_TAG" >> $GITHUB_OUTPUT
+
+      - name: Update major tag
+        run: |
+          git tag -f ${{ steps.version.outputs.major_tag }} ${{ github.event.release.tag_name }}
+
+      - name: Push major tag
+        run: |
+          git push origin ${{ steps.version.outputs.major_tag }} --force
+...
