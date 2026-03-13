@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
 jobs:
   tf-lint:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-lint.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-lint.yml@v2
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
 ```

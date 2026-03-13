@@ -24,7 +24,7 @@ on:
 
 jobs:
   aws:
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm-deploy.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/helm-deploy.yml@v2
     secrets:
       BUILD_ROLE:                             # AWS OIDC role for authentication
       AWS_ACCESS_KEY_ID:                      # AWS access key

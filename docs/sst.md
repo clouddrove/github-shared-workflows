@@ -25,19 +25,19 @@ Secrets:
 ```yaml
   staging-workflow:
     if: ${{ github.event.pull_request.base.ref == 'master' }} 
-    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@v2
     with:
       app-env: staging
 
   production-workflow:
     if: startsWith(github.event.ref, 'refs/tags/v') 
-    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@v2
     with:
       app-env: production
 ```
 
 
-##### Path: `clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@master`
+##### Path: `clouddrove/github-shared-workflows/.github/workflows/sst_workflow.yml@v2`
 
 Should be used with `on: pull_request`. Includes the following:
 1. Adds SST Deployed application link into the description of a pull request.

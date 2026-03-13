@@ -22,7 +22,7 @@ on:
 
 jobs:
   ssh-commands:
-    uses: clouddrove/github-shared-workflows/.github/workflows/RemoteSSHCommand.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/RemoteSSHCommand.yml@v2
     with:
       port: # your_ssh_port
       timeout: # your_timeout_in_seconds

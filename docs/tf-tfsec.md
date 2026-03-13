@@ -28,7 +28,7 @@ on:
 
 jobs:
   tfsec-scan:
-    uses: clouddrove/github-shared-workflows/.github/workflows/security-tfsec.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-tfsec.yml@v2
     secrets:
       GITHUB: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -44,7 +44,7 @@ on:
 
 jobs:
   tfsec-scan:
-    uses: clouddrove/github-shared-workflows/.github/workflows/security-tfsec.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-tfsec.yml@v2
     secrets:
       GITHUB: ${{ secrets.GITHUB_TOKEN }}
     with:

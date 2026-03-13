@@ -1,5 +1,5 @@
 ---
-name: Update Major Tag
+name: Release - Maintain Major Tag
 
 on:
   release:

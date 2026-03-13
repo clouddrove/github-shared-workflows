@@ -14,7 +14,7 @@ on:
 
 jobs:
   dev:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-smurf.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-smurf.yml@v2
     with:
       terraform_directory: # Terraform Directory
       aws_auth_method: # AWS auth method to use like oidc and keys

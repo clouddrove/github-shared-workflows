@@ -38,7 +38,7 @@ on:
   workflow_dispatch:
 jobs:
   prod:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@v2
     with:
         provider:           # aws
         working_directory:  # Specify terraform code directory in repo, eg. './_example/complete/'
@@ -70,7 +70,7 @@ on:
   workflow_dispatch:
 jobs:
   prod:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@v2
     with:
         provider:           # azurerm
         working_directory:  # Specify terraform code directory in repo
@@ -97,7 +97,7 @@ on:
   workflow_dispatch:
 jobs:
   prod:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@v2
     with:
         provider:           # digitalocean
         working_directory:  # Specify terraform code directory in repo
@@ -124,7 +124,7 @@ on:
   workflow_dispatch:
 jobs:
   prod:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@v2
     with:
         provider:           # gcp
         working_directory:  # Specify terraform code directory in repo
@@ -151,7 +151,7 @@ on:
   workflow_dispatch:
 jobs:
   prod:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@v2
     with:
         provider:           # aws
         working_directory:  # Specify terraform code directory in repo
