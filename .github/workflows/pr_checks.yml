@@ -29,3 +29,4 @@ jobs:
       validateSingleCommit: ${{ inputs.validateSingleCommit }}
       checkLabels: ${{ inputs.checkLabels }}
     secrets: inherit
+...
