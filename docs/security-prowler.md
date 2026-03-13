@@ -19,7 +19,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-    uses: clouddrove/github-shared-workflows/.github/workflows/security-prowler.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-prowler.yml@v2
     with:
       cloud_provider: aws
       aws_region: ## AWS Region
@@ -47,7 +47,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-    uses: clouddrove/github-shared-workflows/.github/workflows/security-prowler.yml@feat/master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-prowler.yml@v2
     with:
       cloud_provider: azure
     
@@ -72,7 +72,7 @@ jobs:
       contents: 'read'
       id-token: 'write'
 
-    uses: clouddrove/github-shared-workflows/.github/workflows/security-prowler.yml@feat/master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-prowler.yml@v2
     with:
       cloud_provider: gcp
       project_id: ## Your GCP Project ID

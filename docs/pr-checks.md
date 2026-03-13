@@ -94,7 +94,7 @@ This workflow triggers automatically on PR events and can be configured with inp
 name: 'PR Validation'
 
 on:
-  pull_request_target:
+  pull_request:
     types:
       - opened
       - edited
@@ -103,7 +103,7 @@ on:
 
 jobs:
   pr-validation:
-    uses: clouddrove/github-shared-workflows/.github/workflows/pr-checks.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/pr-checks.yml@v2
     secrets: inherit
     with:
       types: |
