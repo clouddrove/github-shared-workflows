@@ -1,0 +1,11 @@
+---
+name: 🔍 PR Validation
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  pr-validation:
+    uses: ./.github/workflows/pr-checks.yml
+...
