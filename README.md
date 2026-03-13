@@ -77,7 +77,7 @@ See our [Quick Start Guide](./QUICKSTART.md) for common use cases and examples.
 ```yaml
 jobs:
   staging: # Job name
-    uses: clouddrove/github-shared-workflows/.github/workflows/example.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/example.yml@v2
     secrets:
       SECRET_1:
       SECRET_2: 
