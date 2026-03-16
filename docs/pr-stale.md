@@ -35,7 +35,7 @@ on:
 
 jobs:
   stale-pr:
-    uses: clouddrove/github-shared-workflows/.github/workflows/stale_pr.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/pr-stale.yml@v2
     with:
       days-before-issue-stale: 30  # Days until issue marked stale
       days-before-pr-stale: 30     # Days until PR marked stale
