@@ -187,7 +187,7 @@ jobs:
           echo "payload=$(jq -c . payload.json)" >> $GITHUB_OUTPUT
 
       - name: Send to Slack
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@v3
         with:
           method: chat.postMessage
           payload: ${{ steps.build.outputs.payload }}
