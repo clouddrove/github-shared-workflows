@@ -77,7 +77,7 @@ See our [Quick Start Guide](./QUICKSTART.md) for common use cases and examples.
 ```yaml
 jobs:
   staging: # Job name
-    uses: clouddrove/github-shared-workflows/.github/workflows/example.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/example.yml@v2
     secrets:
       SECRET_1:
       SECRET_2: 
@@ -273,7 +273,7 @@ Please review our [Security Policy](./.github/SECURITY.md) before reporting secu
 - [Security Checkov](./docs/security-checkov.md) - IaC security scanning
 - [Security Prowler](./docs/security-prowler.md) - Cloud security assessment
 - [Security Powerpipe](./docs/security-powerpipe.md) - Compliance checking
-- [Security TFSec](./docs/tf-tfsec.md) - Terraform security scanner
+- [Security TFSec](./docs/security-tfsec.md) - Terraform security scanner
 
 </details>
 

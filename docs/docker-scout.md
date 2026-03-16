@@ -21,7 +21,7 @@ on:
 
 jobs:
   docker-scout:
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker-scout.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker-scout.yml@v2
     with:
       IMAGES:             # Specify the dockerhub repository name
       IMAGE_TAG:          # Give the tag to the latest image you want to build

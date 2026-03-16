@@ -25,7 +25,7 @@ on: [pull_request]
 
 jobs:
   YAML-LINTER:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
 ```
 
 #### Complete Example
@@ -39,7 +39,7 @@ on:
 
 jobs:
   YAML-LINTER:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
 ```
 
 ### When to Use
@@ -71,17 +71,17 @@ on:
 jobs:
   # YAML validation
   yaml-lint:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint-internal.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint-internal.yml@v2
   
   # Terraform validation
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: terraform/
   
   # Security scanning
   security-scan:
-    uses: clouddrove/github-shared-workflows/.github/workflows/security-checkov.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-checkov.yml@v2
 ```
 
 ### Customization
@@ -100,7 +100,7 @@ on:
 
 jobs:
   yaml-lint:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
     # Add any custom steps or configuration here
 ```
 
@@ -116,7 +116,7 @@ on:
 
 jobs:
   YAML-LINTER:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
     # Add additional steps if needed
 ```
 
@@ -132,7 +132,7 @@ name: YAML-LINTER
 on: [pull_request]
 jobs:
   YAML-LINTER:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
 ```
 
 #### 2. Configuration Files Validation
@@ -144,7 +144,7 @@ name: YAML-LINTER
 on: [pull_request]
 jobs:
   YAML-LINTER:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
 ```
 
 #### 3. Documentation Validation
@@ -156,7 +156,7 @@ name: YAML-LINTER
 on: [pull_request]
 jobs:
   YAML-LINTER:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
 ```
 
 ### Troubleshooting

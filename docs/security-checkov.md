@@ -23,7 +23,7 @@ on:
 
 jobs:
   checkov:
-    uses: clouddrove/github-shared-workflows/.github/workflows/security-checkov.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-checkov.yml@v2
     with:
       directory: '.'
       continue_on_error: 'true'

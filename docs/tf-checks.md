@@ -24,7 +24,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'azurerm'
@@ -42,7 +42,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'aws'
@@ -66,7 +66,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'aws'
@@ -88,7 +88,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'azurerm'
@@ -108,7 +108,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'aws'
@@ -131,7 +131,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'digitalocean'
@@ -150,7 +150,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'gcp'

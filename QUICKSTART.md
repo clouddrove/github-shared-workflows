@@ -16,7 +16,7 @@ on: [pull_request]
 
 jobs:
   validate:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: './terraform'
       provider: 'aws'
@@ -33,7 +33,7 @@ on: [push]
 
 jobs:
   docker:
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker-build-push.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/docker-build-push.yml@v2
     with:
       provider: 'aws'
       ECR_REPOSITORY: 'my-app'
@@ -51,7 +51,7 @@ on: [pull_request]
 
 jobs:
   validate:
-    uses: clouddrove/github-shared-workflows/.github/workflows/pr-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/pr-checks.yml@v2
 ```
 
 ## Common Patterns
@@ -61,7 +61,7 @@ jobs:
 Instead of `@master`, use version tags for stability:
 
 ```yaml
-uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v1.2.0
+uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
 ```
 
 ### Environment-Specific Workflows
@@ -69,7 +69,7 @@ uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v1.2.0
 ```yaml
 jobs:
   deploy:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-workflow.yml@v2
     with:
       target_environment: 'production'
 ```

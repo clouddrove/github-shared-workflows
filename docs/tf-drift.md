@@ -16,7 +16,7 @@ on:
   workflow_dispatch:
 jobs:
   tf-lint:
-    uses: clouddrove/github-shared-workflows/.github/workflows/tfdrift.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-drift.yml@v2
     with:  
       working_directory:    #'./_example/complete/'
       provider:             #aws

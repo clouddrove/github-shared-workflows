@@ -60,7 +60,7 @@ on:
 
 jobs:
   yaml-lint:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@2.0.0
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
 ```
 
 #### With Custom File/Directory
@@ -75,10 +75,10 @@ on:
 
 jobs:
   lint-config:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
   
   lint-workflows:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
 ```
 
 ### Integration Examples
@@ -96,12 +96,12 @@ on:
 jobs:
   # Lint YAML files
   yaml-lint:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
   
   # Other validation steps
   terraform-validate:
     needs: yaml-lint
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
     with:
       working_directory: terraform/
 ```
@@ -117,17 +117,17 @@ on:
 jobs:
   # Validate workflow files
   lint-workflows:
-    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/yml-lint.yml@v2
   
   # Validate Terraform
   terraform-checks:
     needs: lint-workflows
-    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
   
   # Security scan
   security-scan:
     needs: lint-workflows
-    uses: clouddrove/github-shared-workflows/.github/workflows/security-checkov.yml@master
+    uses: clouddrove/github-shared-workflows/.github/workflows/security-checkov.yml@v2
 ```
 
 ### Customization
