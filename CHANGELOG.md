@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-03-16
+### :sparkles: New Features
+- [`f9ab1c2`](https://github.com/clouddrove/github-shared-workflows/commit/f9ab1c2430a95d69083cbc5309502a1fc0b5fbcd) - **tf-checks**: add role-to-assume support for AWS authentication in tf-checks workflow *(PR [#332](https://github.com/clouddrove/github-shared-workflows/pull/332) by [@ramnivas-cd](https://github.com/ramnivas-cd))*
+- [`a26d1ab`](https://github.com/clouddrove/github-shared-workflows/commit/a26d1abb482f8615f50f54e3e5ca2b9ed0e349d4) - handle PR validation for forked repository contributions *(PR [#336](https://github.com/clouddrove/github-shared-workflows/pull/336) by [@anket-cd](https://github.com/anket-cd))*
+- [`3f5f04a`](https://github.com/clouddrove/github-shared-workflows/commit/3f5f04aeaf2695df870f7e3fff6647ea685b8323) - Replace semantic PR action with fork-safe PR title validation *(PR [#337](https://github.com/clouddrove/github-shared-workflows/pull/337) by [@anket-cd](https://github.com/anket-cd))*
+- [`e84897b`](https://github.com/clouddrove/github-shared-workflows/commit/e84897b38bb66b47925c80e5482c2e32ee76c26b) - **ci**: add workflow to update major version tag for shared workflows *(PR [#339](https://github.com/clouddrove/github-shared-workflows/pull/339) by [@anket-cd](https://github.com/anket-cd))*
+
+### :bug: Bug Fixes
+- [`3be9d9d`](https://github.com/clouddrove/github-shared-workflows/commit/3be9d9d050ad4620cb0e029b35e217540c7068f4) - **ci**: update PR validation workflow pr-checks.yml to use types, subjectPattern and validateSingleCommit inputs *(PR [#338](https://github.com/clouddrove/github-shared-workflows/pull/338) by [@hahirwar-cd](https://github.com/hahirwar-cd))*
+
+### :construction_worker: Build System
+- [`a631b4a`](https://github.com/clouddrove/github-shared-workflows/commit/a631b4aa65f9d29e3abfb779be2872ed2bf93c3b) - **deps**: bump docker/build-push-action from 6 to 7 *(PR [#333](https://github.com/clouddrove/github-shared-workflows/pull/333) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`997469c`](https://github.com/clouddrove/github-shared-workflows/commit/997469c290ba5baa6df86d2e3bd0b50c5fadafe0) - **deps**: bump docker/setup-buildx-action from 3.12.0 to 4.0.0 *(PR [#334](https://github.com/clouddrove/github-shared-workflows/pull/334) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`1c43f71`](https://github.com/clouddrove/github-shared-workflows/commit/1c43f71cb95be532a4ee848596eb73953dde517c) - **deps**: bump aws-actions/configure-aws-credentials from 5 to 6 *(PR [#335](https://github.com/clouddrove/github-shared-workflows/pull/335) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`98e51f8`](https://github.com/clouddrove/github-shared-workflows/commit/98e51f8fc9fbabf73d833dac950f39b511badf57) - **deps**: bump webfactory/ssh-agent from 0.9.1 to 0.10.0 *(PR [#341](https://github.com/clouddrove/github-shared-workflows/pull/341) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`c8b6f9c`](https://github.com/clouddrove/github-shared-workflows/commit/c8b6f9c13937799e42d22f7c2740da17aaf69e2e) - **deps**: bump slackapi/slack-github-action from 2 to 3 *(PR [#342](https://github.com/clouddrove/github-shared-workflows/pull/342) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+- [`7bc2965`](https://github.com/clouddrove/github-shared-workflows/commit/7bc2965ff8f6b68db9402316dd5dd7498ec9c0e4) - **deps**: bump anthropics/claude-code-action from 1.0.51 to 1.0.72 *(PR [#343](https://github.com/clouddrove/github-shared-workflows/pull/343) by [@dependabot[bot]](https://github.com/apps/dependabot))*
+
+### :memo: Documentation Changes
+- [`9db6ce0`](https://github.com/clouddrove/github-shared-workflows/commit/9db6ce0e27e44d60dfb166a04f7ecddde842ec4f) - update CHANGELOG.md for 2.1.0 *(commit by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+- [`3231822`](https://github.com/clouddrove/github-shared-workflows/commit/3231822431947dffc1dc07bb21cb3b46ae7638a4) - refresh documentation for major version v2 *(PR [#340](https://github.com/clouddrove/github-shared-workflows/pull/340) by [@anket-cd](https://github.com/anket-cd))*
+
+
 ## [2.1.0] - 2026-03-06
 ### :sparkles: New Features
 - [`0cdc55f`](https://github.com/clouddrove/github-shared-workflows/commit/0cdc55fad359fed037af4c0c96951f636da01957) - add reusable workflow to deploy images to Cloud Run with auto rollback *(PR [#307](https://github.com/clouddrove/github-shared-workflows/pull/307) by [@kalyani-cd](https://github.com/kalyani-cd))*
@@ -575,3 +598,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.4.1]: https://github.com/clouddrove/github-shared-workflows/compare/1.4.0...1.4.1
 [1.4.2]: https://github.com/clouddrove/github-shared-workflows/compare/1.4.1...1.4.2
 [2.1.0]: https://github.com/clouddrove/github-shared-workflows/compare/2.0.0...2.1.0
+[2.1.1]: https://github.com/clouddrove/github-shared-workflows/compare/2.1.0...2.1.1
