@@ -12,10 +12,11 @@ on:
         type: string
         description: "Enter the semantic version tag (eg: 2.3.2) for which you want to update the changelog"
 jobs:
-  call-workflow-changelog:
+  changelog:
     uses: ./.github/workflows/release-changelog.yml
-    secrets: inherit
     with:
       branch: master
       tag: ${{ inputs.tag || '' }}
+    secrets:
+        GITHUB: ${{ secrets.GITHUB }}
 ...
