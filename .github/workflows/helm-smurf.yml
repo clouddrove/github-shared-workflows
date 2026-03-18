@@ -178,12 +178,17 @@ jobs:
       - name: Setup Smurf
         uses: clouddrove/smurf@v1.0.0
 
-      - name: 🔑 Configure AWS credentials with OIDC
-        if: inputs.aws_auth_method == 'oidc'
+      - name: 🟦 Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: '${{ inputs.aws_role }}'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
 
       - name: 🔄 Assume another IAM Role
         if: inputs.aws_assume_role_arn == 'true'
@@ -191,21 +196,6 @@ jobs:
         with:
           role-to-assume: '${{ inputs.aws_assume_role_arn }}'
           aws-region: ${{ inputs.aws_region }}
-
-      - name: 🔑 Configure AWS credentials with access keys
-        if: inputs.aws_auth_method == 'keys'
-        env:
-          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-          AWS_REGION: ${{ inputs.aws_region }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-          fi
-          aws configure set region $AWS_REGION
 
       - name: 🌎 Set environment variables
         run: |
