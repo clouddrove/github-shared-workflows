@@ -87,23 +87,22 @@ jobs:
           token: ${{ secrets.GITHUB }}
           excludeTypes: ""
           includeInvalidCommits: false
-          tag: ${{ github.ref_name }}
-
+          tag: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
       - name: 🚀 Create Release
         uses: ncipollo/release-action@v1.16.0
         with:
           allowUpdates: true
           draft: false
           makeLatest: true
-          name: ${{ github.ref_name }}
-          # owner: clouddrove-ci
+          name: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
+          tag: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
           body: ${{ steps.changelog.outputs.changes }}
-          token: '${{ secrets.GITHUB }}'
+          token: ${{ secrets.GITHUB }}
 
       - name: ✅ Commit CHANGELOG.md
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          branch: ${{ inputs.branch}}
+          branch: ${{ inputs.branch }}
           commit_user_name: clouddrove-ci  #  defaults to "github-actions[bot]"
           commit_user_email: 84795582+clouddrove-ci@users.noreply.github.com  #  defaults to "41898282+github-actions[bot]@users.noreply.github.com"
           commit_author: CloudDrove CI <84795582+clouddrove-ci@users.noreply.github.com>

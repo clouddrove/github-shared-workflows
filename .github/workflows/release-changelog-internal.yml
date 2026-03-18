@@ -2,12 +2,18 @@
 name: changelog
 permissions: write-all
 on:
-  push:
+  push: 
     tags:
-      - "*"
+      - '*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        required: true   
+        type: string
+        description: "Enter the semantic version tag (eg: 2.3.2) for which you want to update the changelog"
 jobs:
   changelog:
-    uses: ./.github/workflows/release-changelog.yml@master
+    uses: ./.github/workflows/release-changelog.yml@v2
     with:
       branch: 'master'
       tag_format: X.Y.Z
