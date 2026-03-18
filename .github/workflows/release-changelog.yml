@@ -14,6 +14,7 @@ on:
     secrets:
       GITHUB:
         required: true
+        description: 'PAT of the user to run the jobs.'
 
 jobs:
   create_changelog:
@@ -21,7 +22,7 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB }}
 
