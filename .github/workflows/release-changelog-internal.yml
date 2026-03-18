@@ -7,9 +7,11 @@ on:
       - "*"
 jobs:
   changelog:
-    uses: clouddrove/github-shared-workflows/.github/workflows/release-changelog.yml@master
+    uses: ./.github/workflows/release-changelog.yml@master
     with:
       branch: 'master'
+      tag_format: X.Y.Z
+      release_tag: ${{ github.ref_name }}
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
 ...
