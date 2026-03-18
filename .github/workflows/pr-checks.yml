@@ -57,13 +57,11 @@ jobs:
           TITLE="${{ github.event.pull_request.title }}"
           echo "PR Title: $TITLE"
 
-          TYPES=$(echo "${{ inputs.types }}" | tr '\n' '|' | sed 's/|$//')
-
-          # Allow capitalized types as well
-          TYPES_REGEX="${TYPES}|$(echo ${TYPES} | sed 's/\([^|]*\)/\u\1|\l\1/g')"
+          shopt -s nocasematch
+          TYPES=$(echo "${{ inputs.types }}" | tr ',\n' '|' | sed 's/|$//')
 
           # Full regex for conventional commits
-          FULL_REGEX="^(${TYPES_REGEX})(\([a-zA-Z0-9_-]+\))?:\s+${{ inputs.subjectPattern }}$"
+          FULL_REGEX="^(${TYPES})(\([a-zA-Z0-9_-]+\))?:\s+${{ inputs.subjectPattern }}$"
 
           if [[ ! "$TITLE" =~ $FULL_REGEX ]]; then
             echo "::error::PR title does not follow Conventional Commit format."
@@ -84,7 +82,7 @@ jobs:
 
           # Enforce scope if required
           if [[ "${{ inputs.requireScope }}" == "true" ]]; then
-            if [[ ! "$TITLE" =~ ^(${TYPES_REGEX})\([a-zA-Z0-9_-]+\): ]]; then
+            if [[ ! "$TITLE" =~ ^(${TYPES})\([a-zA-Z0-9_-]+\): ]]; then
               echo "::error::PR title must include a scope because requireScope=true"
               echo "Example:"
               echo "  feat(auth): Add login API"
