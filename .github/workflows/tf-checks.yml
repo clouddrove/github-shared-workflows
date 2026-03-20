@@ -33,26 +33,16 @@ on:
         type: number
         default: 3600
         description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour (3600 seconds). Acceptable values range from 15 minutes (900 seconds) to 12 hours (43200 seconds).'
-      enable_version_check:
-        required: false
-        type: boolean
-        default: false
-        description: 'Enable min/max version checking and testing against both versions.'
       enable_plan:
         required: false
         type: boolean
         default: false
-        description: 'Enable terraform plan step.'
+        description: 'Allow workflow to run terraform plan.'
       show_plan:
         required: false
         type: boolean
         default: false
-        description: 'Show full terraform plan output. If false, only shows summary (e.g. Plan: 4 to add, 1 to change).'
-      gcp_credentials:
-        required: false
-        type: string
-        default: false
-        description: 'GCP credentials to use.'
+        description: 'Controls Terraform plan output. When true, displays full plan details. When false, shows only a concise summary (e.g., Plan: X to add, Y to change, Z to destroy).'
       token_format:
         required: false
         type: string
@@ -72,6 +62,7 @@ on:
         type: string
         default: true
         description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+
     secrets:
       AZURE_CREDENTIALS:
         required: false
@@ -108,120 +99,54 @@ on:
         description: 'The service account to be used'
 
 jobs:
-  # Terraform version extract as output (only if version check is enabled)
-  versionExtract:
-    if: ${{ inputs.enable_version_check }}
-    name: 🏷️ Get min/max versions
+
+  terraform-checks:
+    name: 🌎 Terraform Full Checks
     runs-on: ubuntu-latest
+    env:
+      TF_PLUGIN_CACHE_DIR: /tmp/terraform-plugin-cache
 
-    outputs:
-      minVersion: ${{ steps.minMax.outputs.minVersion }}
-      maxVersion: ${{ steps.minMax.outputs.maxVersion }}
-
-    steps:
-      - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
-
-      - name: 🧮 Terraform min/max versions
-        id: minMax
-        uses: clowdhaus/terraform-min-max@main
-
-  # Evaluate terraform version based on version extract (only if version check is enabled)
-  versionEvaluate:
-    if: ${{ inputs.enable_version_check }}
-    name: 🧪 Evaluate Terraform versions
-    runs-on: ubuntu-latest
-    needs: versionExtract
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - ${{ needs.versionExtract.outputs.minVersion }}
-          - ${{ needs.versionExtract.outputs.maxVersion }}
-        directory:
-          - ${{ inputs.working_directory }}
+        version: ["min", "max"]
 
     steps:
       - name: 📦 Checkout Repository
         uses: actions/checkout@v6
-
-      - name: ☁️ Install AWS CLI
-        if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          role-to-assume: ${{ secrets.BUILD_ROLE }}
-          aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: ${{ inputs.role_duration_seconds }}
-          role-skip-session-tagging: true
+          fetch-depth: 1
 
-      - name: ☁️ Install Azure CLI
-        if: ${{ inputs.provider == 'azurerm' }}
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: 📁 Create Terraform plugin cache dir
+        run: mkdir -p "$TF_PLUGIN_CACHE_DIR"
 
-      - name: ☁️ Authenticate to Google Cloud
-        if: ${{ inputs.provider == 'gcp' }}
-        uses: 'google-github-actions/auth@v3'
-        with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-          create_credentials_file: ${{ inputs.create_credentials_file }}
-          token_format: ${{ inputs.token_format }}
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.SERVICE_ACCOUNT }}
-          access_token_lifetime: ${{ inputs.access_token_lifetime }}
-          project_id: ${{ inputs.project_id }}
+      - name: 🧮 Get Terraform min/max versions
+        id: minmax
+        uses: clowdhaus/terraform-min-max@main
 
-      - name: 🛠️ Install Terraform v${{ inputs.terraform_version || matrix.version }}
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ inputs.terraform_version || matrix.version }}
-
-      - name: 🏗️ Init & validate v${{ matrix.version }}
+      - name: 🎯 Set Terraform version
+        id: set-version
         run: |
-          cd ${{ matrix.directory }}
-          terraform init
-          terraform validate
+          if [ "${{ matrix.version }}" = "min" ]; then
+            echo "tf_version=${{ steps.minmax.outputs.minVersion }}" >> $GITHUB_OUTPUT
+          else
+            if [ -n "${{ inputs.terraform_version }}" ]; then
+              echo "tf_version=${{ inputs.terraform_version }}" >> $GITHUB_OUTPUT
+            else
+              echo "tf_version=${{ steps.minmax.outputs.maxVersion }}" >> $GITHUB_OUTPUT
+            fi
+          fi
 
-  # Format check job (runs if version check is enabled)
-  format:
-    if: ${{ inputs.enable_version_check }}
-    name: 🧹 Check code format
-    runs-on: ubuntu-latest
-    needs: [versionExtract, versionEvaluate]
-
-    steps:
-      - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
-
-      - name: 🛠️ Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
-        uses: hashicorp/setup-terraform@v3
+      - name: ♻️ Cache Terraform plugins
+        uses: actions/cache@v4
         with:
-          terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
-
-      - name: 🧹 Check Terraform format changes
-        run: terraform fmt --recursive -check=true
-
-  # Main terraform checks job (runs if version check is disabled)
-  terraform-checks:
-    if: ${{ !inputs.enable_version_check }}
-    name: '🌎 Terraform Validate, Init and Plan'
-    runs-on: ubuntu-latest
-    env:
-      #  This is needed since we are running terraform with read-only permissions
-      ARM_SKIP_PROVIDER_REGISTRATION: true
-    outputs:
-      tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
-
-    steps:
-      - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
+          path: ${{ env.TF_PLUGIN_CACHE_DIR }}
+          key: terraform-${{ runner.os }}-${{ hashFiles('**/.terraform.lock.hcl') }}
+          restore-keys: |
+            terraform-${{ runner.os }}-
 
       - name: ☁️ Install AWS CLI
-        if: ${{ inputs.provider == 'aws' }}
+        if: ${{ inputs.provider == 'aws' && inputs.enable_plan }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -233,20 +158,20 @@ jobs:
           role-skip-session-tagging: true
 
       - name: ☁️ Install Azure CLI
-        if: ${{ inputs.provider == 'azurerm' }}
+        if: ${{ inputs.provider == 'azurerm' && inputs.enable_plan }}
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🟦 Install doctl
+      - name: ☁️ Install DigitalOcean CLI
         if: ${{ inputs.provider == 'digitalocean' }}
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: ☁️ Authenticate to Google Cloud
-        if: ${{ inputs.provider == 'gcp' }}
-        uses: 'google-github-actions/auth@v3'
+        if: ${{ inputs.provider == 'gcp' && inputs.enable_plan }}
+        uses: google-github-actions/auth@v3
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           create_credentials_file: ${{ inputs.create_credentials_file }}
@@ -260,45 +185,42 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_wrapper: false
-          terraform_version: ${{ inputs.terraform_version }}
+          terraform_version: ${{ steps.set-version.outputs.tf_version }}
 
       - name: 🧹 Terraform Format
-        uses: 'dflook/terraform-fmt-check@v2'
+        run: terraform fmt --recursive -check=true
 
-      - name: 🏗️ Terraform Init
-        id: init
-        run: terraform init -input=false
-
-      - name: 🔎 Terraform validate
-        uses: dflook/terraform-validate@v2
-        with:
-          path: ${{ inputs.working_directory }}
+      - name: 🏗️ Terraform Init & Terraform Validate
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          terraform init -input=false -no-color
+          terraform validate -no-color
 
       - name: 📋 Terraform Plan
         id: tf-plan
         if: ${{ inputs.enable_plan }}
+        working-directory: ${{ inputs.working_directory }}
         run: |
           export exitcode=0
-          cd ${{ inputs.working_directory }}
-              
+          terraform version | head -n 1
+
           if [ -n "${{ inputs.var_file }}" ]; then
             terraform plan -detailed-exitcode -no-color -out=tfplan --var-file=${{ inputs.var_file }} > plan.txt 2>&1 || exitcode=$?
           else
             terraform plan -detailed-exitcode -no-color -out=tfplan > plan.txt 2>&1 || exitcode=$?
           fi
-              
+
           if [ $exitcode -eq 1 ]; then
             echo "Terraform Plan Failed!"
             cat plan.txt
             exit 1
           fi
-              
+
           echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-              
+
           if [ "${{ inputs.show_plan }}" == "true" ]; then
-            # Show full plan
             cat plan.txt
           else
-            # Show only summary
             grep -E '^Plan:|^No changes' plan.txt || echo "No changes."
           fi
+...
