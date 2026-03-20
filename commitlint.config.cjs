@@ -14,6 +14,6 @@ module.exports = {
       'build',
       'revert'
     ]],
-    'header-max-length': [2, 'always', 100]
+    'header-max-length': [2, 'always', 150]
   }
 };
