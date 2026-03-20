@@ -23,10 +23,10 @@ jobs:
   delegate:
     uses: ./.github/workflows/pr-checks.yml
     with:
-      types: ${{ inputs.types }}
-      requireScope: ${{ inputs.requireScope }}
-      subjectPattern: ${{ inputs.subjectPattern }}
-      validateSingleCommit: ${{ inputs.validateSingleCommit }}
-      checkLabels: ${{ inputs.checkLabels }}
+      types: ${{ inputs.types || '' }}
+      requireScope: ${{ inputs.requireScope || false }}
+      subjectPattern: ${{ inputs.subjectPattern || '[A-Za-z].+' }}
+      validateSingleCommit: ${{ inputs.validateSingleCommit || false }}
+      checkLabels: ${{ inputs.checkLabels || false }}
     secrets: inherit
 ...
