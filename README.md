@@ -158,7 +158,7 @@ Above example is just a simple example to call workflow from github shared workf
   * [Example for scan and push docker image on Dockerhub](./docs/docker-build-push.md#example-for-scan-and-push-docker-image-on-dockerhub)
   * [Example for scan and push docker image on ECR](./docs/docker-build-push.md#example-for-scan-and-push-docker-image-on-ecr)
 - [Docker Scout Workflow](./docs/docker-scout.md)
-- [Docker Smurf Helm Workflow](./docs/docker-smurf-helm.md)
+- [Docker Smurf Helm Workflow](./docs/docker-smurf.md)
 
 ### GCP Workflows
 - [GCP Prowler Workflow](./docs/gcp-prowler.md)

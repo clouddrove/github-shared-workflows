@@ -13,10 +13,11 @@ on:
         description: "Enter the semantic version tag (eg: 2.3.2) for which you want to update the changelog"
 jobs:
   changelog:
-    uses: ./.github/workflows/release-changelog.yml
+    uses: ./.github/workflows/release-changelog.yml@v2
     with:
-      branch: master
-      tag: ${{ inputs.tag || '' }}
+      branch: 'master'
+      tag_format: X.Y.Z
+      release_tag: ${{ github.ref_name }}
     secrets:
-        GITHUB: ${{ secrets.GITHUB }}
+      GITHUB: ${{ secrets.GITHUB }}
 ...
