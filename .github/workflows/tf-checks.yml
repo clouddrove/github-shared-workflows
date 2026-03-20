@@ -12,7 +12,7 @@ on:
       provider:
         required: false
         type: string
-        default: azurerm
+        default: ""
         description: 'Cloud provider to run the workflow. e.g. azurerm, aws, gcp, digitalocean, or none (skip cloud auth for validate-only)'
       aws_region:
         required: false
@@ -46,7 +46,7 @@ on:
       show_plan:
         required: false
         type: boolean
-        default: true
+        default: false
         description: 'Show full terraform plan output. If false, only shows summary (e.g. Plan: 4 to add, 1 to change).'
       gcp_credentials:
         required: false
