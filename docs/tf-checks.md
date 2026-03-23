@@ -47,6 +47,7 @@ jobs:
       working_directory: './examples/complete/'
       provider: 'aws'
       enable_plan: true
+      show_plan: false
       var_file: 'vars/dev.tfvars'
       aws_region: 'us-east-1'
     secrets:
@@ -93,6 +94,7 @@ jobs:
       working_directory: './examples/complete/'
       provider: 'azurerm'
       enable_plan: true
+      show_plan: false
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       GITHUB: ${{ secrets.GITHUB }}
@@ -113,6 +115,7 @@ jobs:
       working_directory: './examples/complete/'
       provider: 'aws'
       enable_plan: true
+      show_plan: false
       aws_region: 'us-east-1'
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -173,6 +176,7 @@ jobs:
 | `terraform_version` | No | Latest | Specific Terraform version to use |
 | `enable_version_check` | No | `false` | Enable min/max version compatibility testing |
 | `enable_plan` | No | `false` | Enable terraform plan step |
+| `show_plan` | No | `true` | Only shows terraform plan summary |
 | `role_duration_seconds` | No | `3600` | AWS role duration in seconds (900-43200) |
 | `project_id` | No | - | GCP project ID |
 | `token_format` | No | `access_token` | GCP token format (`access_token` or `id_token`) |
