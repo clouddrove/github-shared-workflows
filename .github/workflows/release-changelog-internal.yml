@@ -6,17 +6,13 @@ on:
     tags:
       - '*'
   workflow_dispatch:
-    inputs:
-      tag:
-        required: true   
-        type: string
-        description: "Enter the semantic version tag (eg: 2.3.2) for which you want to update the changelog"
 jobs:
   changelog:
     uses: ./.github/workflows/release-changelog.yml
     with:
-      branch: master
-      tag: ${{ inputs.tag || '' }}
+      branch: 'master'
+      tag_format: X.Y.Z
+      release_tag: ${{ github.ref_name }}
     secrets:
-        GITHUB: ${{ secrets.GITHUB }}
+      GITHUB: ${{ secrets.GITHUB }}
 ...

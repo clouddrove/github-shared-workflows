@@ -1,12 +1,8 @@
 ---
-name: 🦸‍♂️ Smurf-Docker-Helm
+name: 🦸‍♂️ Smurf-Helm
 'on':
   workflow_call:
     inputs:
-      docker_enable:
-        description: Set to true to run docker commands
-        type: string
-        required: false
       aws_auth_method:
         description: AWS auth method to use like oidc and keys
         type: string
@@ -24,48 +20,6 @@ name: 🦸‍♂️ Smurf-Docker-Helm
         type: string
         required: false
         default: aws
-      docker_image_name:
-        description: Docker image name
-        type: string
-        required: false
-      docker_image_tag:
-        description: Docker image tag
-        type: string
-        default: 'latest'
-      docker_image_tar:
-        description: Docker image tar
-        type: string
-        required: false
-        default: image
-      docker_push:
-        description: Set true for docker push
-        type: string
-        required: false
-      docker_buildkit_enable:
-        description: Set true to enable docker buildkit
-        type: string
-        required: false
-        default: 'false'
-      docker_registry:
-        description: 'The registry to Push Docker Image (aws, az, gcp, hub)'
-        type: string
-        default: aws
-      docker_registry_url:
-        description: 'The URL of the container registry (e.g., Docker Hub, ECR, GCR, ACR).'
-        type: string
-      dockerfile_path:
-        description: Docker file directory
-        type: string
-        default: Dockerfile
-      docker_build_args:
-        description: Docker Build Arguments
-        type: string
-        required: false
-        default: key1=val1
-      docker_build_platform:
-        description: Docker Image Build Platform
-        type: string
-        default: linux/amd64
       helm_enable:
         description: Set to true to run helm commands
         type: string
@@ -191,137 +145,6 @@ name: 🦸‍♂️ Smurf-Docker-Helm
         description: Overriding the default values using --set flag
 
 jobs:
-  docker_build:
-    if: inputs.docker_enable == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: 📦 Checkout
-        uses: actions/checkout@v6
-
-      # - Setup smurf CLI
-      - name: Setup Smurf
-        uses: clouddrove/smurf@v1.0.0
-
-      - name: 🐳 Docker Image Build
-        if: inputs.docker_buildkit_enable != 'true'
-        run: |
-            smurf sdkr build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
-            inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
-            --build-arg ${{ inputs.docker_build_args }}
-
-      - name: 🐳 Docker Image Build with Buildkit
-        if: inputs.docker_buildkit_enable == 'true'
-        uses: clouddrove/smurf@v1.0.0
-        run: |
-            smurf sdkr build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
-            inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
-            --build-arg ${{ inputs.docker_build_args }} --buildkit
-
-      - name: 💾 Save Docker Image as Artifact
-        run: >
-          docker save ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -o ${{
-          inputs.docker_image_tar }}
-
-      - name: ⬆️ Upload Docker Image Artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: '${{ inputs.docker_image_name }}'
-          path: '${{ inputs.docker_image_tar }}'
-
-  docker_scan_push:
-    if: inputs.docker_enable == 'true' && inputs.docker_push == 'true'
-    runs-on: ubuntu-latest
-    needs: docker_build
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: 📦 Checkout
-        uses: actions/checkout@v6
-
-      - name: ⬇️ Download Docker Image Artifact
-        uses: actions/download-artifact@v8
-        with:
-          name: '${{ inputs.docker_image_name }}'
-
-      - name: 📥 Load Docker Image
-        run: |
-          docker load -i ${{ inputs.docker_image_tar }}
-
-      - name: 🔑 Configure AWS credentials with OIDC
-        if: inputs.aws_auth_method == 'oidc'
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-to-assume: ${{ inputs.aws_role }}
-          aws-region: ${{ inputs.aws_region }}
-
-      - name: 🔄 Assume another IAM Role
-        if: inputs.aws_assume_role == 'true'
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-to-assume: ${{ inputs.aws_assume_role_arn }}
-          aws-region: ${{ inputs.aws_region }}
-
-      - name: 🔑 Configure AWS credentials with access keys
-        if: inputs.aws_auth_method == 'keys'
-        env:
-          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-          aws-region: ${{ inputs.aws_region }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-          fi
-          aws configure set region $AWS_REGION
-
-      - name: ☁️ Authenticate Google Cloud with WIP and Service Account
-        if: inputs.gcp_auth_method == 'wip'
-        uses: google-github-actions/auth@v3
-        with:
-          token_format: access_token
-          workload_identity_provider: ${{ secrets.GCP_WIP }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-          access_token_lifetime: 300s
-          project_id: ${{ inputs.gcp_project_id }}
-
-      - name: ☁️ Authenticate Google Cloud with Service Account JSON Key
-        if: inputs.gcp_auth_method == 'json'
-        uses: 'google-github-actions/auth@v3'
-        with:
-          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
-
-      - name: 🛡️ Docker Image Scan
-        uses: clouddrove/smurf@v1.0.0
-        run: |
-          smurf sdkr scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
-
-      - name: 🏷️ Docker Image Tag
-        if: inputs.docker_push == 'true'
-        uses: clouddrove/smurf@v1.0.0
-        run: |
-            smurf sdkr tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
-            inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
-
-      - name: 🚀 Docker Image Push
-        if: inputs.docker_push == 'true'  && inputs.gcp_docker_push != 'true'
-        uses: clouddrove/smurf@v1.0.0
-        run: |
-            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
-            inputs.docker_image_tag }}
-
-      - name: 🚀 Docker Image Push in GCP
-        if: inputs.docker_push == 'true' && inputs.gcp_docker_push == 'true'
-        uses: clouddrove/smurf@v1.0.0
-        run: |
-            push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
-            inputs.docker_image_tag }} --project-id ${{ inputs.gcp_project_id }}
-
   helm_lint_template:
     if: inputs.helm_enable == 'true'
     runs-on: ubuntu-latest
@@ -351,12 +174,21 @@ jobs:
       - name: 📦 Checkout
         uses: actions/checkout@v6
 
-      - name: 🔑 Configure AWS credentials with OIDC
-        if: inputs.aws_auth_method == 'oidc'
+      # - Setup smurf CLI
+      - name: Setup Smurf
+        uses: clouddrove/smurf@v1.0.0
+
+      - name: 🟦 Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: '${{ inputs.aws_role }}'
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
 
       - name: 🔄 Assume another IAM Role
         if: inputs.aws_assume_role_arn == 'true'
@@ -364,21 +196,6 @@ jobs:
         with:
           role-to-assume: '${{ inputs.aws_assume_role_arn }}'
           aws-region: ${{ inputs.aws_region }}
-
-      - name: 🔑 Configure AWS credentials with access keys
-        if: inputs.aws_auth_method == 'keys'
-        env:
-          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-          AWS_REGION: ${{ inputs.aws_region }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-          fi
-          aws configure set region $AWS_REGION
 
       - name: 🌎 Set environment variables
         run: |
@@ -392,6 +209,10 @@ jobs:
           echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
           echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
         shell: bash
+
+      - name: Update Kubernetes KubeConfig
+        run : |
+          aws eks update-kubeconfig --name ${{ inputs.aws_eks_cluster_name }} --region ${{ inputs.aws_region }}
 
       - name: 🔌 Helm Plugin
         if: inputs.helm_plugin_install == 'true'
@@ -425,34 +246,28 @@ jobs:
       - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
-      - name: 🔑 Configure AWS credentials with OIDC
-        if: inputs.aws_auth_method == 'oidc'
+      # - Setup smurf CLI
+      - name: Setup Smurf
+        uses: clouddrove/smurf@v1.0.0
+
+      - name: 🟦 Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ inputs.aws_role }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
 
       - name: 🔄 Assume another IAM Role
         if: inputs.aws_assume_role_arn == 'true'
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: '${{ inputs.aws_role }}'
+          role-to-assume: '${{ inputs.aws_assume_role_arn }}'
           aws-region: ${{ inputs.aws_region }}
-
-      - name: 🔑 Configure AWS credentials with access keys
-        if: inputs.aws_auth_method == 'keys'
-        env:
-          AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-          AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-          AWS_SESSION_TOKEN: '${{ secrets.AWS_SESSION_TOKEN }}'
-          aws-region: ${{ inputs.aws_region }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          if [[ -n "$AWS_SESSION_TOKEN" ]]; then
-            aws configure set aws_session_token $AWS_SESSION_TOKEN
-          fi
-          aws configure set region $AWS_REGION
 
       - name: 🌎 Set environment variables
         run: |
@@ -465,6 +280,10 @@ jobs:
           echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
           echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
         shell: bash
+
+      - name: Update Kubernetes KubeConfig
+        run : |
+          aws eks update-kubeconfig --name ${{ inputs.aws_eks_cluster_name }} --region ${{ inputs.aws_region }}
 
       - name: ⏪ Helm Rollback
         run: |
