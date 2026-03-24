@@ -88,6 +88,7 @@ jobs:
           excludeTypes: ""
           includeInvalidCommits: false
           tag: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
+
       - name: 🚀 Create Release
         uses: ncipollo/release-action@v1.16.0
         with:
