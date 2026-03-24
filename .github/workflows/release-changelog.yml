@@ -7,17 +7,71 @@ on:
       branch:
         required: true
         type: string
-      tag:
-        required: false
+      tag_format:
+        required: true
         type: string
-        default: ''
+        description: "Repository tag format (e.g., vX.Y.Z or X.Y.Z) - defines how tags should look"
+      release_tag:
+        required: true
+        type: string
+        description: "Actual release tag to validate"
+
+    outputs:
+      valid:
+        description: "Is release tag valid for this repository"
+        value: ${{ jobs.tag-validation.outputs.valid }}
+
     secrets:
       GITHUB:
         required: true
         description: 'PAT of the user to run the jobs.'
 
 jobs:
+  tag-validation:
+    runs-on: ubuntu-latest
+    outputs:
+      valid: ${{ steps.check.outputs.valid }}
+      final_tag: ${{ steps.check.outputs.final_tag }}
+
+    steps:
+      - name: Validate release tag matches repository format
+        id: check
+        run: |
+          REPO_TAG_FORMAT="${{ inputs.tag_format }}"
+          RELEASE_TAG="${{ inputs.release_tag }}"
+
+          echo "📋 Repository tag format: $REPO_TAG_FORMAT"
+          echo "🏷️  Release tag: $RELEASE_TAG"
+          echo "================"
+
+          # Check if repository uses v-prefixed tags
+          if [[ "$REPO_TAG_FORMAT" == v* ]]; then
+            # Repository uses v-prefixed format (vX.Y.Z)
+            if [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "valid=true" >> $GITHUB_OUTPUT
+              echo "final_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+              echo "✅ Release tag matches repository format (v-prefixed)"
+            else
+              echo "valid=false" >> $GITHUB_OUTPUT
+              echo "❌ Repository uses v-prefixed tags (vX.Y.Z) but release tag is: $RELEASE_TAG"
+              echo "⏭️  Skipping changelog generation"
+            fi
+          else
+            # Repository uses plain format (X.Y.Z)
+            if [[ "$RELEASE_TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "valid=true" >> $GITHUB_OUTPUT
+              echo "final_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+              echo "✅ Release tag matches repository format (plain)"
+            else
+              echo "valid=false" >> $GITHUB_OUTPUT
+              echo "❌ Repository uses plain tags (X.Y.Z) but release tag is: $RELEASE_TAG"
+              echo "⏭️  Skipping changelog generation"
+            fi
+          fi
+
   create_changelog:
+    needs: tag-validation
+    if: needs.tag-validation.outputs.valid == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -34,6 +88,7 @@ jobs:
           excludeTypes: ""
           includeInvalidCommits: false
           tag: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
+
       - name: 🚀 Create Release
         uses: ncipollo/release-action@v1.16.0
         with:
