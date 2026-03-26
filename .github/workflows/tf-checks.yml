@@ -101,6 +101,7 @@ on:
 jobs:
 
   terraform-checks:
+    if: github.actor != 'dependabot[bot]'
     name: 🌎 Terraform Full Checks
     runs-on: ubuntu-latest
     env:
