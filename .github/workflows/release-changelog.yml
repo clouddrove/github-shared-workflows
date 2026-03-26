@@ -7,19 +7,23 @@ on:
       branch:
         required: true
         type: string
+        description: "Branch to update CHANGELOG from"
       tag_format:
         required: true
         type: string
-        description: "Repository tag format (e.g., vX.Y.Z or X.Y.Z) - defines how tags should look"
+        description: "Repository tag format (e.g., vX.Y.Z or X.Y.Z)"
       release_tag:
         required: true
         type: string
-        description: "Actual release tag to validate"
-
-    outputs:
-      valid:
-        description: "Is release tag valid for this repository"
-        value: ${{ jobs.tag-validation.outputs.valid }}
+        description: "Actual release tag to validate and use"
+      version_type:
+        required: true
+        type: string
+        description: "Type of release (major/minor/patch)"
+      latest_tag:
+        required: true
+        type: string
+        description: "Previous tag for comparison"
 
     secrets:
       GITHUB:
@@ -54,7 +58,7 @@ jobs:
             else
               echo "valid=false" >> $GITHUB_OUTPUT
               echo "❌ Repository uses v-prefixed tags (vX.Y.Z) but release tag is: $RELEASE_TAG"
-              echo "⏭️  Skipping changelog generation"
+              exit 1
             fi
           else
             # Repository uses plain format (X.Y.Z)
@@ -65,7 +69,7 @@ jobs:
             else
               echo "valid=false" >> $GITHUB_OUTPUT
               echo "❌ Repository uses plain tags (X.Y.Z) but release tag is: $RELEASE_TAG"
-              echo "⏭️  Skipping changelog generation"
+              exit 1
             fi
           fi
 
@@ -79,34 +83,51 @@ jobs:
         uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB }}
+          ref: ${{ inputs.release_tag }}
 
-      - name: 📝 Update CHANGELOG
+      - name: 📝 Generate Changelog
         id: changelog
         uses: requarks/changelog-action@v1
         with:
           token: ${{ secrets.GITHUB }}
-          excludeTypes: ""
+          tag: ${{ inputs.release_tag }}
           includeInvalidCommits: false
-          tag: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
+          writeToFile: true
+          changelogFilePath: CHANGELOG.md
+          includeRefIssues: true
+          useGitmojis: true
+          reverseOrder: false
 
       - name: 🚀 Create Release
         uses: ncipollo/release-action@v1.16.0
         with:
+          token: ${{ secrets.GITHUB }}
+          tag: ${{ inputs.release_tag }}
+          name: ${{ inputs.release_tag }}
           allowUpdates: true
           draft: false
           makeLatest: true
-          name: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
-          tag: ${{ inputs.tag != '' && inputs.tag || github.ref_name }}
-          body: ${{ steps.changelog.outputs.changes }}
-          token: ${{ secrets.GITHUB }}
+          body: |
+            ${{ steps.changelog.outputs.changes }}
 
-      - name: ✅ Commit CHANGELOG.md
+            **Release Type:** ${{ inputs.version_type }}
+
+            ${{ inputs.version_type == 'major' && '⚠️ **BREAKING CHANGES:** This is a major release with breaking changes. Please review the breaking changes section in [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ inputs.release_tag }}/CHANGELOG.md) before upgrading.' || '' }}
+
+            [Compare changes](https://github.com/${{ github.repository }}/compare/${{ inputs.latest_tag }}...${{ inputs.release_tag }})
+
+      - name: 💾 Commit CHANGELOG.md
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: ${{ inputs.branch }}
-          commit_user_name: clouddrove-ci  #  defaults to "github-actions[bot]"
-          commit_user_email: 84795582+clouddrove-ci@users.noreply.github.com  #  defaults to "41898282+github-actions[bot]@users.noreply.github.com"
-          commit_author: CloudDrove CI <84795582+clouddrove-ci@users.noreply.github.com>
-          commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }}'
+          commit_user_name: clouddrove-ci
+          commit_user_email: 84795582+clouddrove-ci@users.noreply.github.com
+          commit_author: "CloudDrove CI <84795582+clouddrove-ci@users.noreply.github.com>"
+          commit_message: 'docs: update CHANGELOG.md for ${{ inputs.release_tag }}'
           file_pattern: CHANGELOG.md
-...
+
+      - name: 📋 Release Summary
+        run: |
+          echo "✅ Release ${{ inputs.release_tag }} created successfully."
+          echo "🏷️ Version type: ${{ inputs.version_type }}"
+          echo "📝 Changelog has been updated and committed."
