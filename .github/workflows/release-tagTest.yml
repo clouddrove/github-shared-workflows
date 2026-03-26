@@ -13,6 +13,11 @@ on:
         type: string
         default: "vX.Y.Z"
         description: "Repository tag format (e.g., vX.Y.Z or X.Y.Z)"
+      create_changelog:
+        required: false
+        type: boolean
+        default: true
+        description: "Whether to create changelog and release (default: true)"
     secrets:
       GITHUB:
         required: true
@@ -126,7 +131,7 @@ jobs:
   # Job 2: Call CHANGELOG workflow for release creation
   changelog-workflow:
     needs: create-tag
-    if: ${{ needs.create-tag.outputs.skip == 'false' }}
+    if: ${{ needs.create-tag.outputs.skip == 'false' && inputs.create_changelog == true }}
     uses: ./.github/workflows/release-changelog.yml
     with:
       branch: ${{ inputs.target_branch }}
