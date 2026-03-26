@@ -8,15 +8,32 @@ on:
         required: true
         type: string
         default: master
+      tag_format:
+        required: false
+        type: string
+        default: "vX.Y.Z"
+        description: "Repository tag format (e.g., vX.Y.Z or X.Y.Z)"
+      create_changelog:
+        required: false
+        type: boolean
+        default: true
+        description: "Whether to create changelog and release (default: true)"
     secrets:
       GITHUB:
         required: true
         description: 'PAT of the user to run the jobs.'
 
 jobs:
-  release:
+  # Job 1: Create Tag
+  create-tag:
     runs-on: ubuntu-latest
     if: ${{ github.event.pull_request.merged == true && github.event.pull_request.base.ref == inputs.target_branch }}
+    outputs:
+      skip: ${{ steps.skip_tag.outputs.skip }}
+      reason: ${{ steps.skip_tag.outputs.reason }}
+      final_tag: ${{ steps.calc_version.outputs.final_tag }}
+      version_type: ${{ steps.calc_version.outputs.version_type }}
+      latest_tag: ${{ steps.get_latest_tag.outputs.latest_tag }}
 
     steps:
       - name: 📦 Checkout Repository
@@ -66,7 +83,9 @@ jobs:
         if: steps.skip_tag.outputs.skip == 'false'
         run: |
           BASE_VERSION="${{ steps.get_latest_tag.outputs.latest_tag }}"
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE_VERSION"
+          # Remove v prefix if present for version calculation
+          CLEAN_BASE_VERSION="${BASE_VERSION#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CLEAN_BASE_VERSION"
           LABELS="${{ steps.pr_labels.outputs.labels }}"
 
           if [[ "$LABELS" == *"major"* ]]; then
@@ -81,66 +100,69 @@ jobs:
           fi
 
           NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          
+          # Apply tag format (add v prefix if needed)
+          TAG_FORMAT="${{ inputs.tag_format }}"
+          if [[ "$TAG_FORMAT" == v* ]]; then
+            FINAL_TAG="v$NEW_VERSION"
+          else
+            FINAL_TAG="$NEW_VERSION"
+          fi
+          
+          echo "final_tag=$FINAL_TAG" >> $GITHUB_OUTPUT
 
       - name: 🏷️ Create GitHub tag for the new version
         if: steps.skip_tag.outputs.skip == 'false'
         run: |
           git config user.name "clouddrove-ci"
           git config user.email "84795582+clouddrove-ci@users.noreply.github.com"
-          git tag ${{ steps.calc_version.outputs.new_version }}
-          git push origin ${{ steps.calc_version.outputs.new_version }}
+          git tag ${{ steps.calc_version.outputs.final_tag }}
+          git push origin ${{ steps.calc_version.outputs.final_tag }}
 
-      - name: 📝 Generate Changelog
-        if: steps.skip_tag.outputs.skip == 'false'
-        id: changelog
-        uses: requarks/changelog-action@v1
-        with:
-          token: ${{ secrets.GITHUB }}
-          tag: ${{ steps.calc_version.outputs.new_version }}
-          includeInvalidCommits: false
-          writeToFile: true
-          changelogFilePath: CHANGELOG.md
-          includeRefIssues: true
-          useGitmojis: true
-          reverseOrder: false
-
-      - name: 🚀 Create Release
-        if: steps.skip_tag.outputs.skip == 'false'
-        uses: ncipollo/release-action@v1
-        with:
-          token: ${{ secrets.GITHUB }}
-          tag: ${{ steps.calc_version.outputs.new_version }}
-          name: ${{ steps.calc_version.outputs.new_version }}
-          allowUpdates: true
-          draft: false
-          makeLatest: true
-          body: |
-            ${{ steps.changelog.outputs.changes }}
-
-            **Release Type:** ${{ steps.calc_version.outputs.version_type }}
-
-            ${{ steps.calc_version.outputs.version_type == 'major' && '⚠️ **BREAKING CHANGES:** This is a major release with breaking changes. Please review the breaking changes section in [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ steps.calc_version.outputs.new_version }}/CHANGELOG.md) before upgrading.' || '' }}
-
-            [Compare changes](https://github.com/${{ github.repository }}/compare/${{ steps.get_latest_tag.outputs.latest_tag }}...${{ steps.calc_version.outputs.new_version }})
-
-      - name: 💾 Commit CHANGELOG.md
-        if: steps.skip_tag.outputs.skip == 'false'
-        uses: stefanzweifel/git-auto-commit-action@v7
-        with:
-          branch: ${{ inputs.target_branch }}
-          commit_user_name: clouddrove-ci
-          commit_user_email: 84795582+clouddrove-ci@users.noreply.github.com
-          commit_author: "CloudDrove CI <84795582+clouddrove-ci@users.noreply.github.com>"
-          commit_message: 'docs: update CHANGELOG.md for ${{ steps.calc_version.outputs.new_version }}'
-          file_pattern: CHANGELOG.md
-
-      - name: 📋 Action Summary
+      - name: 📋 Tag Creation Summary
         run: |
           if [[ "${{ steps.skip_tag.outputs.skip }}" == "true" ]]; then
-            echo "🚫 Release skipped: ${{ steps.skip_tag.outputs.reason }}"
+            echo "🚫 Tag creation skipped: ${{ steps.skip_tag.outputs.reason }}"
           else
-            echo "✅ Released ${{ steps.calc_version.outputs.new_version }} successfully."
+            echo "✅ Tag ${{ steps.calc_version.outputs.final_tag }} created successfully."
             echo "🏷️ Version type: ${{ steps.calc_version.outputs.version_type }}"
           fi
-...
+
+  # Job 2: Call CHANGELOG workflow for release creation
+  changelog-workflow:
+    needs: create-tag
+    if: ${{ needs.create-tag.outputs.skip == 'false' && inputs.create_changelog == true }}
+    uses: ./.github/workflows/release-changelog.yml
+    with:
+      branch: ${{ inputs.target_branch }}
+      tag_format: ${{ inputs.tag_format }}
+      release_tag: ${{ needs.create-tag.outputs.final_tag }}
+      version_type: ${{ needs.create-tag.outputs.version_type }}
+      latest_tag: ${{ needs.create-tag.outputs.latest_tag }}
+    secrets:
+      GITHUB: ${{ secrets.GITHUB }}
+
+  # Optional: Summary job to show what happened
+  summary:
+    runs-on: ubuntu-latest
+    needs: [create-tag, changelog-workflow]
+    if: always()
+    steps:
+      - name: 📊 Workflow Summary
+        run: |
+          echo "## Workflow Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.create-tag.outputs.skip }}" == "true" ]]; then
+            echo "❌ **Tag Creation:** Skipped - ${{ needs.create-tag.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Tag Creation:** Successful - Tag: \`${{ needs.create-tag.outputs.final_tag }}\` (Type: ${{ needs.create-tag.outputs.version_type }})" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [[ "${{ inputs.create_changelog }}" == "true" && "${{ needs.create-tag.outputs.skip }}" == "false" ]]; then
+            echo "✅ **Changelog Generation:** Enabled and executed" >> $GITHUB_STEP_SUMMARY
+          elif [[ "${{ inputs.create_changelog }}" == "false" ]]; then
+            echo "⏭️ **Changelog Generation:** Disabled by configuration" >> $GITHUB_STEP_SUMMARY
+          elif [[ "${{ needs.create-tag.outputs.skip }}" == "true" ]]; then
+            echo "⏭️ **Changelog Generation:** Skipped because tag was not created" >> $GITHUB_STEP_SUMMARY
+          fi
