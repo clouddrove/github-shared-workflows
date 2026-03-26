@@ -141,28 +141,3 @@ jobs:
       latest_tag: ${{ needs.create-tag.outputs.latest_tag }}
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
-
-  # Optional: Summary job to show what happened
-  summary:
-    runs-on: ubuntu-latest
-    needs: [create-tag, changelog-workflow]
-    if: always()
-    steps:
-      - name: 📊 Workflow Summary
-        run: |
-          echo "## Workflow Execution Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          if [[ "${{ needs.create-tag.outputs.skip }}" == "true" ]]; then
-            echo "❌ **Tag Creation:** Skipped - ${{ needs.create-tag.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "✅ **Tag Creation:** Successful - Tag: \`${{ needs.create-tag.outputs.final_tag }}\` (Type: ${{ needs.create-tag.outputs.version_type }})" >> $GITHUB_STEP_SUMMARY
-          fi
-          
-          if [[ "${{ inputs.create_changelog }}" == "true" && "${{ needs.create-tag.outputs.skip }}" == "false" ]]; then
-            echo "✅ **Changelog Generation:** Enabled and executed" >> $GITHUB_STEP_SUMMARY
-          elif [[ "${{ inputs.create_changelog }}" == "false" ]]; then
-            echo "⏭️ **Changelog Generation:** Disabled by configuration" >> $GITHUB_STEP_SUMMARY
-          elif [[ "${{ needs.create-tag.outputs.skip }}" == "true" ]]; then
-            echo "⏭️ **Changelog Generation:** Skipped because tag was not created" >> $GITHUB_STEP_SUMMARY
-          fi
