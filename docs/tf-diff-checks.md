@@ -1,9 +1,9 @@
 
 ---
 
-## [Terraform plan PR Diff Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/tf-pr-checks.yml)
+## [Terraform plan PR Diff Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/tf-diff-checks.yml)
 
-This workflow automatically run a terraform plan command for the PR and for the master and generate a comparison between them. It utilizes the workflows defined in `.github/workflows/tf-pr-checks.yaml`.
+This workflow automatically run a terraform plan command for the PR and for the master and generate a comparison between them. It utilizes the workflows defined in `.github/workflows/tf-diff-checks.yaml`.
 
 ### Features
 - Make it easy to decide the new tag version.
