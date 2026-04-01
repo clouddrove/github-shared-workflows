@@ -7,8 +7,9 @@ It utilizes the workflows defined in `.github/workflows/release-tag.yml`
 
 - Label-driven versioning based on semantic versioning  
 - Automatic changelog generation  
-- Auto-tagging with `x.y.z` format  
-- Skips tagging when needed via label  
+- Auto-tagging with `x.y.z` and `vX.Y.Z` format  
+- Skips tagging when needed via label
+- create_changelog flag option for release changelog  
 
 By default, the first release starts at **`1.0.0`**. After that, all new releases are created based on the label applied to the PR.  
 
@@ -34,10 +35,13 @@ on:
     types: [closed]
 
 jobs:
-  release:
-    uses: clouddrove/github-shared-workflows/.github/workflows/release-tag.yml@master
+  handle-release:
+    if: github.event.pull_request.merged == true
+    uses: clouddrove/github-shared-workflows/.github/workflows/release-tagTest.yml@v2
     with:
-      target_branch: master
+      target_branch: ${{ github.event.pull_request.base.ref }}
+      tag_format: "vX.Y.Z"  # or "X.Y.Z" depending on your preference
+      # create_changelog: false  # 👈 Disable changelog generation
     secrets:
-      GITHUB: ${{ secrets.GITHUB }}
+      GITHUB: ${{ secrets.TOKEN_GITHUB }}
 ```
