@@ -9,7 +9,8 @@ on:
         type: string
         description: "Branch to update CHANGELOG from"
       tag_format:
-        required: true
+        required: false
+        default: 'vX.Y.Z'
         type: string
         description: "Repository tag format (e.g., vX.Y.Z or X.Y.Z)"
       release_tag:
