@@ -22,7 +22,7 @@ clouddrove/github-shared-workflows/.github/workflows/release-changelog.yml@v2
 | Name         | Required | Type   | Description |
 |--------------|----------|--------|-------------|
 | `branch`     | ✅ Yes   | string | Target branch where CHANGELOG.md will be committed |
-| `tag_format` | ✅ Yes   | string | Repository tag format (`vX.Y.Z` or `X.Y.Z`) |
+| `tag_format` | ❌ No    | string | Repository tag format (`vX.Y.Z` or `X.Y.Z`)  default : vX.Y.Z |
 | `release_tag`| ✅ Yes   | string | Actual release tag to validate |
 
 ---
@@ -97,7 +97,7 @@ jobs:
     uses: clouddrove/github-shared-workflows/.github/workflows/release-changelog.yml@v2
     with:
       branch: master
-      tag_format: vX.Y.Z
+      tag_format: vX.Y.Z //Repository tag format (`vX.Y.Z` or `X.Y.Z`)  default : vX.Y.Z
       release_tag: ${{ github.ref_name }}
     secrets:
       GITHUB: ${{ secrets.GITHUB_TOKEN }}
