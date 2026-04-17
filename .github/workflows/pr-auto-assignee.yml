@@ -12,6 +12,10 @@ on:
         description: 'A list of reviewers(GitHub user name) to be added to PRs'
         required: false
         type: string
+      assign_yourself:
+        description: 'Whether to assign the PR opener as an assignee'
+        required: true
+        type: boolean
     secrets:
       GITHUB:
         description: 'Your GitHub token for authentication.'
@@ -27,4 +31,18 @@ jobs:
           assignees: ${{ inputs.assignees }}
           reviewers: ${{ inputs.reviewers }}
           skipKeywords: wip, draft
+
+      - uses: actions/github-script@v7
+        if: ${{ inputs.assign_yourself }}
+        with:
+          github-token: ${{ secrets.GITHUB }}
+          script: |
+            const opener = context.payload.pull_request.user.login;
+
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              assignees:[ opener ] 
+            });
 ...
