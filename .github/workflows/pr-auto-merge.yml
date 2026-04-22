@@ -5,9 +5,14 @@ on:
   workflow_call:
     inputs:
       tfcheck:
-        description: 'Enter the tfcheck action name.'
+        description: 'DEPRECATED — use `wait_checks`. Kept for backward compatibility; ignored.'
         required: false
         type: string
+      wait_checks:
+        description: 'JSON array of required check-run names to wait on before auto-approving. Must match the exact names GitHub reports (including emoji, casing, and parentheses).'
+        required: false
+        type: string
+        default: '["tf-lint / tflint", "tfsec / 🧪 tfsec SARIF Report"]'
       tfchecks_azure:
         description: 'List of Azure TF checks (JSON array as string)'
         required: false
@@ -29,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tf-checks: ["tf-lint / tflint", "tfsec / tfsec sarif report", "${{ inputs.tfcheck }}"]
+        tf-checks: ${{ fromJSON(inputs.wait_checks) }}
     if: github.actor == 'dependabot[bot]' && !inputs.azure_cloud
     steps:
       - name: Wait for 2 Minutes
