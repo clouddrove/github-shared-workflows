@@ -74,6 +74,9 @@ on:
       SERVICE_ACCOUNT:
         required: false
         description: 'The service account to be used'
+      DIGITALOCEAN_TOKEN:
+        required: false
+        description: 'DigitalOcean API token used by the DigitalOcean Terraform provider.'
 
 jobs:
   terraform-plan-diff:
@@ -120,6 +123,10 @@ jobs:
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
           access_token_lifetime: ${{ inputs.access_token_lifetime }}
           project_id: ${{ inputs.project_id }}
+
+      - name: 🌊 Configure DigitalOcean Credentials
+        if: ${{ inputs.provider == 'digitalocean' }}
+        run: echo "DIGITALOCEAN_TOKEN=${{ secrets.DIGITALOCEAN_TOKEN }}" >> "$GITHUB_ENV"
 
       - name: 🚀 Terraform Init (PR branch)
         working-directory: ${{ inputs.terraform_directory }}
