@@ -5,7 +5,7 @@ on:
   workflow_call:
     inputs:
       tfcheck:
-        description: 'DEPRECATED — use `wait_checks`. Kept for backward compatibility; ignored.'
+        description: 'Optional extra check-run name to wait on, appended to `wait_checks`. Kept for backward compatibility; prefer listing all checks in `wait_checks`.'
         required: false
         type: string
       wait_checks:
@@ -29,12 +29,33 @@ on:
         required: false
 
 jobs:
+  prep-checks:
+    name: Resolve wait_checks
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]' && !inputs.azure_cloud
+    outputs:
+      checks: ${{ steps.build.outputs.checks }}
+    steps:
+      - id: build
+        shell: bash
+        env:
+          BASE: ${{ inputs.wait_checks }}
+          EXTRA: ${{ inputs.tfcheck }}
+        run: |
+          if [ -n "$EXTRA" ]; then
+            checks=$(jq -cn --argjson base "$BASE" --arg extra "$EXTRA" '$base + [$extra]')
+          else
+            checks="$BASE"
+          fi
+          echo "checks=$checks" >>"$GITHUB_OUTPUT"
+
   static-checks:
     name: Check Static Analysis
+    needs: prep-checks
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tf-checks: ${{ fromJSON(inputs.wait_checks) }}
+        tf-checks: ${{ fromJSON(needs.prep-checks.outputs.checks) }}
     if: github.actor == 'dependabot[bot]' && !inputs.azure_cloud
     steps:
       - name: Wait for 2 Minutes
