@@ -155,7 +155,7 @@ jobs:
 
       # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@v1.0.4
 
       - name: 🧪 Helm Lint
         run : |
@@ -176,7 +176,7 @@ jobs:
 
       # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@v1.0.4
 
       - name: 🟦 Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
@@ -248,7 +248,7 @@ jobs:
 
       # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@v1.0.4
 
       - name: 🟦 Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
