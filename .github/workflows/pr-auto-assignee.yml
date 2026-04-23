@@ -12,7 +12,6 @@ on:
         description: 'A list of reviewers(GitHub user name) to be added to PRs'
         required: false
         type: string
-        default: true
       assign_yourself:
         description: 'Whether to assign the PR opener as an assignee'
         required: false
