@@ -10,7 +10,7 @@ This workflow can be used to automatically assign assignees to a PR when it is o
 | Name              | Description                                           | Required | Type    |
 | ----------------- | ----------------------------------------------------- | -------- | ------- |
 | `assignees`       | List of GitHub usernames to randomly assign to the PR | No       | String  |
-| `assign_yourself` | Whether to assign the PR creator as an assignee       | Yes      | Boolean |
+| `assign_yourself` | Whether to assign the PR creator as an assignee       | No      | Boolean |
 
 
 

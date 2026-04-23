@@ -8,7 +8,6 @@ on:
         description: 'A list of assignees(GitHub user name) to be added to PR'
         required: true
         type: string
-        default: true
       reviewers:
         description: 'A list of reviewers(GitHub user name) to be added to PRs'
         required: false
