@@ -142,7 +142,7 @@ jobs:
 
       # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@v1.0.4
 
       - name: 🐳 Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
@@ -182,7 +182,7 @@ jobs:
 
       # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v1.0.0
+        uses: clouddrove/smurf@v1.0.4
 
       - name: ⬇️ Download Docker Image Artifact
         uses: actions/download-artifact@v8
