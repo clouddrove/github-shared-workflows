@@ -3,7 +3,16 @@
 This workflow automates process for assigning assignees to the PR which would opened or reopened from a users list. Workflows have been added in `.github/workflows/pr-auto-assignee.yml`
 
 #### Usage
-Below workflow can be used to automatically assign the assignee to a pull request (PR) when the request is opened or reopened from the specified branch. If we provide a list of users, it will randomly select one user and assign as assignee to the PR.
+This workflow can be used to automatically assign assignees to a PR when it is opened or reopened.
+* If a list of users is provided, one user will be randomly selected and assigned.
+* You can also enable assigning the PR opener to themselves using the `assign_yourself` flag.
+
+| Name              | Description                                           | Required | Type    |
+| ----------------- | ----------------------------------------------------- | -------- | ------- |
+| `assignees`       | List of GitHub usernames to randomly assign to the PR | No       | String  |
+| `assign_yourself` | Whether to assign the PR creator as an assignee       | No      | Boolean |
+
+
 
 #### Example
 ```yaml
@@ -20,5 +29,6 @@ jobs:
       secrets:
         GITHUB: ${{ secrets.TOKEN_GITHUB }}
       with:  
-        assignees: #list of usernames of assignees
+      assignees: user1,user2,user3   # List of usernames
+      assign_yourself: true          # Assign PR creator as assignee
 ```
