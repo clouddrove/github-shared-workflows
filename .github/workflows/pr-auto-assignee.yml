@@ -33,7 +33,7 @@ jobs:
           reviewers: ${{ inputs.reviewers }}
           skipKeywords: wip, draft
 
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v9
         if: ${{ inputs.assign_yourself }}
         with:
           github-token: ${{ secrets.GITHUB }}
