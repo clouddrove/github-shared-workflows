@@ -46,7 +46,7 @@ jobs:
 
       - name: 🤖 Run Gemini Review
         id: gemini
-        uses: google-github-actions/run-gemini-cli@v0.1.20
+        uses: google-github-actions/run-gemini-cli@v0.1.22
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
           gemini_model: "gemini-2.5-pro"
