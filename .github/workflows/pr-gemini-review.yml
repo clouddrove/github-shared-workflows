@@ -56,7 +56,7 @@ jobs:
 
       - name: 💬 Comment Review on PR
         if: steps.gemini.outputs.summary != ''
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
