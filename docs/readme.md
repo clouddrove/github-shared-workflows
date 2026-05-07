@@ -16,6 +16,6 @@ jobs:
   assignee:
     uses: clouddrove/github-shared-workflows/.github/workflows/readme.yml@v2
     secrets:
-      TOKEN :                  # Provide GitHub token 
-      SLACK_WEBHOOK_TERRAFORM: # Provide slack-webhook url
+      TOKEN : ${{ secrets.GITHUB }}        # Provide GitHub token 
+      SLACK_WEBHOOK_TERRAFORM:             # Provide slack-webhook url
 ```

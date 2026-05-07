@@ -20,7 +20,7 @@ jobs:
         run: echo "GH_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
 
       - name: 📦 Checkout Repository
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: master
