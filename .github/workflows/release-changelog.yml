@@ -17,14 +17,6 @@ on:
         required: true
         type: string
         description: "Actual release tag to validate and use"
-      version_type:
-        required: true
-        type: string
-        description: "Type of release (major/minor/patch)"
-      latest_tag:
-        required: true
-        type: string
-        description: "Previous tag for comparison"
 
     secrets:
       GITHUB:
@@ -108,14 +100,7 @@ jobs:
           allowUpdates: true
           draft: false
           makeLatest: true
-          body: |
-            ${{ steps.changelog.outputs.changes }}
-
-            **Release Type:** ${{ inputs.version_type }}
-
-            ${{ inputs.version_type == 'major' && '⚠️ **BREAKING CHANGES:** This is a major release with breaking changes. Please review the breaking changes section in [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ inputs.release_tag }}/CHANGELOG.md) before upgrading.' || '' }}
-
-            [Compare changes](https://github.com/${{ github.repository }}/compare/${{ inputs.latest_tag }}...${{ inputs.release_tag }})
+          body: ${{ steps.changelog.outputs.changes }}
 
       - name: 💾 Commit CHANGELOG.md
         uses: stefanzweifel/git-auto-commit-action@v7
