@@ -152,7 +152,5 @@ jobs:
       branch: ${{ inputs.target_branch }}
       tag_format: ${{ inputs.tag_format }}
       release_tag: ${{ needs.create-tag.outputs.final_tag }}
-      version_type: ${{ needs.create-tag.outputs.version_type }}
-      latest_tag: ${{ needs.create-tag.outputs.latest_tag }}
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
