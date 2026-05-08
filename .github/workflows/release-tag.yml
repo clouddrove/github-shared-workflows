@@ -18,10 +18,6 @@ on:
         type: boolean
         default: true
         description: "Whether to create changelog and release (default: true)"
-      version_type:
-        required: true
-        type: string
-        description: "Type of release (major/minor/patch)"
       latest_tag:
         required: false
         type: string
