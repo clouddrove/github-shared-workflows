@@ -42,6 +42,7 @@ jobs:
       target_branch: ${{ github.event.pull_request.base.ref }}
       tag_format: "vX.Y.Z"  # or "X.Y.Z" depending on your preference
       # create_changelog: false  # 👈 Disable changelog generation
+      # latest_tag: ${{ github.event.inputs.base_tag }} # "" # 👈 latest_tag is optional - will be auto-detected
     secrets:
       GITHUB: ${{ secrets.TOKEN_GITHUB }}
 ```
