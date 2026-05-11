@@ -11,7 +11,7 @@ jobs:
     uses: ./.github/workflows/release-changelog.yml
     with:
       branch: 'master'
-      tag_format: X.Y.Z
+      tag_format: vX.Y.Z
       release_tag: ${{ github.ref_name }}
     secrets:
       GITHUB: ${{ secrets.GITHUB }}

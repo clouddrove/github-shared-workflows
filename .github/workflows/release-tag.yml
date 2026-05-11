@@ -18,6 +18,11 @@ on:
         type: boolean
         default: true
         description: "Whether to create changelog and release (default: true)"
+      latest_tag:
+        required: false
+        type: string
+        description: "Previous tag for comparison (optional - will be auto-detected if not provided)"
+
     secrets:
       GITHUB:
         required: true
@@ -67,14 +72,24 @@ jobs:
             echo "reason=no valid label found, skipping" >> $GITHUB_OUTPUT
           fi
 
-      - name: 🔖 Get latest tag (or 1.0.0 if none)
+      - name: 🔖 Get latest tag (or use provided latest_tag or default to 1.0.0)
         id: get_latest_tag
         if: steps.skip_tag.outputs.skip == 'false'
         run: |
-          git fetch --tags
-          LATEST_TAG=$(git tag --list --sort=-v:refname | head -n 1)
-          if [ -z "$LATEST_TAG" ]; then
-            LATEST_TAG="1.0.0"
+          # First, check if latest_tag was provided as input
+          if [ -n "${{ inputs.latest_tag }}" ]; then
+            LATEST_TAG="${{ inputs.latest_tag }}"
+            echo "Using provided latest_tag: $LATEST_TAG"
+          else
+            # Otherwise, fetch from git tags
+            git fetch --tags
+            LATEST_TAG=$(git tag --list --sort=-v:refname | head -n 1)
+            if [ -z "$LATEST_TAG" ]; then
+              LATEST_TAG="1.0.0"
+              echo "No existing tags found, defaulting to: $LATEST_TAG"
+            else
+              echo "Found latest tag from git: $LATEST_TAG"
+            fi
           fi
           echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
@@ -137,7 +152,5 @@ jobs:
       branch: ${{ inputs.target_branch }}
       tag_format: ${{ inputs.tag_format }}
       release_tag: ${{ needs.create-tag.outputs.final_tag }}
-      version_type: ${{ needs.create-tag.outputs.version_type }}
-      latest_tag: ${{ needs.create-tag.outputs.latest_tag }}
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
