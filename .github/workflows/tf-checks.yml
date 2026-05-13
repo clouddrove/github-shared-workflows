@@ -182,7 +182,7 @@ jobs:
           project_id: ${{ inputs.project_id }}
 
       - name: 🛠️ Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_wrapper: false
           terraform_version: ${{ steps.set-version.outputs.tf_version }}

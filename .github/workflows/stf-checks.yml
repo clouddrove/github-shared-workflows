@@ -150,7 +150,7 @@ jobs:
 
       # - Installing terraform version based on version extract.
       - name: 🛠️ Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
 
@@ -178,7 +178,7 @@ jobs:
 
       # - Action added to install terraform
       - name: 🛠️ Install Terraform v${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ inputs.terraform_version || needs.versionExtract.outputs.maxVersion }}
 
