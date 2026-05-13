@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.1.4] - 2026-05-13
+### :bug: Bug Fixes
+- [`c165f93`](https://github.com/clouddrove/github-shared-workflows/commit/c165f939ce9ad3de94da8fc50b3368565bea4fda) - **readme**: update checkout version in readme.yml shared workflow *(PR [#378](https://github.com/clouddrove/github-shared-workflows/pull/378) by [@ruchit-cd](https://github.com/ruchit-cd))*
+- [`4b2ff70`](https://github.com/clouddrove/github-shared-workflows/commit/4b2ff708285026c1211445c4acb213af1c6ff3ba) - **release-changelog**: update tag format in release changelog internal workflows *(PR [#379](https://github.com/clouddrove/github-shared-workflows/pull/379) by [@anket-cd](https://github.com/anket-cd))*
+- [`4eea1cc`](https://github.com/clouddrove/github-shared-workflows/commit/4eea1ccdd2ab3528330746d2606392c0568b9bac) - remove invalid job dependency and update Smurf version *(PR [#383](https://github.com/clouddrove/github-shared-workflows/pull/383) by [@anket-cd](https://github.com/anket-cd))*
+
+
 ## [2.1.1] - 2026-03-16
 ### :sparkles: New Features
 - [`f9ab1c2`](https://github.com/clouddrove/github-shared-workflows/commit/f9ab1c2430a95d69083cbc5309502a1fc0b5fbcd) - **tf-checks**: add role-to-assume support for AWS authentication in tf-checks workflow *(PR [#332](https://github.com/clouddrove/github-shared-workflows/pull/332) by [@ramnivas-cd](https://github.com/ramnivas-cd))*
@@ -599,3 +606,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.4.2]: https://github.com/clouddrove/github-shared-workflows/compare/1.4.1...1.4.2
 [2.1.0]: https://github.com/clouddrove/github-shared-workflows/compare/2.0.0...2.1.0
 [2.1.1]: https://github.com/clouddrove/github-shared-workflows/compare/2.1.0...2.1.1
+[v2.1.4]: https://github.com/clouddrove/github-shared-workflows/compare/2.1.3...v2.1.4
