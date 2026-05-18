@@ -14,21 +14,11 @@ jobs:
   readme-workflow:
     runs-on: ubuntu-latest
     steps:
-      - name: 🔑 Updating GitHub Token
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
-        run: echo "GH_TOKEN=${GITHUB_TOKEN}" >> $GITHUB_ENV
-
       - name: 📦 Checkout Repository
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: master
-          token: ${{ env.GH_TOKEN }}
-
-      - name: 🔐 Setup GitHub credentials
-        run: |
-          git config --global url.https://${{ secrets.TOKEN }}@github.com/.insteadOf https://github.com/
+          ref: ${{ github.ref }}
 
       - name: 🐍 Set up Python 3.7
         uses: actions/setup-python@v6
@@ -36,12 +26,10 @@ jobs:
           python-version: '3.x'
 
       - name: 📝 Create readme
-        uses: 'clouddrove/github-actions@9.0.3'
+        uses: 'clouddrove/github-actions@9.0.4'
         with:
           actions_subcommand: 'readme'
-          github_token: '${{ secrets.TOKEN }}'
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN}}
+          github_token: ${{ secrets.TOKEN }}
 
       - name: ✅ Pre-commit check errors
         uses: pre-commit/action@v3.0.1
@@ -52,11 +40,10 @@ jobs:
         continue-on-error: true
 
       - name: 🚀 Push readme
-        uses: 'clouddrove/github-actions@9.0.3'
+        uses: 'clouddrove/github-actions@9.0.4'
         with:
           actions_subcommand: 'push'
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN}}
+          github_token: ${{ secrets.TOKEN }}
 
       - name: 📣 Slack Notification
         uses: clouddrove/action-slack@v2
