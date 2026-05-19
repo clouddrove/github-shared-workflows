@@ -3,7 +3,7 @@ name: 🦸‍♂️ Smurf Terraform workflow
 on:
   workflow_call:
     inputs:
-      working_directory:
+      terraform_directory:
         required: true
         type: string
         description: 'Root directory of the terraform where all resources exist.'

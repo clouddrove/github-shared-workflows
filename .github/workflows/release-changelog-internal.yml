@@ -15,4 +15,13 @@ jobs:
       release_tag: ${{ github.ref_name }}
     secrets:
       GITHUB: ${{ secrets.GITHUB }}
+
+  release-major-tag:
+    needs: changelog
+    if: always()
+    uses: ./.github/workflows/release-maintain-major-tag.yml
+    with:
+      tag_name: ${{ github.ref_name }}
+    secrets:
+      GITHUB: ${{ secrets.GITHUB }}
 ...
