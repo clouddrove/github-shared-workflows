@@ -31,6 +31,11 @@ Example:
 The workflow runs when a **GitHub Release is published**.
 
 ```yaml
-on:
-  release:
-    types: [published]
+release-major-tag:
+  needs: changelog
+  if: always()
+  uses: clouddrove/github-shared-workflows/.github/workflows/release-maintain-major-tag.yml
+  with:
+    tag_name: ${{ github.ref_name }}
+  secrets:
+    GITHUB: ${{ secrets.GITHUB }}

@@ -3,7 +3,7 @@ name: 🦸‍♂️ Smurf Terraform workflow
 on:
   workflow_call:
     inputs:
-      working_directory:
+      terraform_directory:
         required: true
         type: string
         description: 'Root directory of the terraform where all resources exist.'
@@ -35,8 +35,12 @@ on:
         description: 'Approvals list to approve apply or destroy'
       smurf_version:
         type: string
-        default: v0.0.9
+        default: latest
         description: 'Required Smurf version'
+      terraform_version:
+        type: string
+        default: 1.3.6
+        description: 'Required Terraform version'
       timeout:
         required: false
         type: number
@@ -177,6 +181,11 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
+      - name: 🛠️ Set up Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
       - name: ⚙️ Set up Smurf Terraform
         uses: clouddrove/smurf@v1.1.3
 
@@ -221,6 +230,11 @@ jobs:
     steps:
       - name: 📦 Checkout Repository
         uses: actions/checkout@v6
+
+      - name: 🛠️ Set up Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
 
       - name: ⚙️ Set up Smurf Terraform
         uses: clouddrove/smurf@v1.1.3
