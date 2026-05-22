@@ -10,11 +10,9 @@ This workflow ensures that the major version tag always points to the **latest r
 
 When a new release is published:
 
-1. The workflow validates the release tag format.
-2. Only **semantic version tags (`vX.Y.Z`)** are processed.
-3. The workflow extracts the **major version (`vX`)**.
-4. It updates or creates the corresponding **major tag (`vX`)**.
-5. The major tag is force-pushed to point to the latest release.
+1. The workflow extracts the **major version (`vX`)**.
+2. It updates or creates the corresponding **major tag (`vX`)**.
+3. The major tag is force-pushed to point to the latest release.
 
 Example:
 
