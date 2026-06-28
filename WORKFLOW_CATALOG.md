@@ -111,6 +111,7 @@ Complete index of all available workflows organized by category and use case.
 | [yml-lint.yml](./.github/workflows/yml-lint.yml) | YAML linting | Code quality |
 | [yml-lint-internal.yml](./.github/workflows/yml-lint-internal.yml) | Internal YAML linting | Internal checks |
 | [readme.yml](./.github/workflows/readme.yml) | Generate README | Documentation |
+| [registry-webhook-sync.yml](./.github/workflows/registry-webhook-sync.yml) | Fix registry webhooks (push→push,create,delete) so new module tags auto-sync | Registry maintenance |
 | [infracost.yml](./.github/workflows/infracost.yml) | Cost estimation | Cost management |
 | [sst_workflow.yml](./.github/workflows/sst_workflow.yml) | SST deployment | Serverless |
 
