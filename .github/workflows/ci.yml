@@ -371,3 +371,23 @@ jobs:
           echo "- Total Documentation Files: $doc_count" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ All checks completed!"
+
+  naoru:
+    name: 🩺 Diagnose failure (naoru)
+    needs: [validate-yaml, lint-yaml, validate-workflows, security-scan, validate-docs, validate-naming, actionlint, generate-docs, check-deprecated, validate-permissions]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - name: 🩺 Diagnose with naoru
+        env:
+          NAORU_KEY: ${{ secrets.NAORU_API_KEY }}
+        if: ${{ env.NAORU_KEY != '' }}
+        uses: clouddrove/naoru@v0
+        with:
+          api-key: ${{ secrets.NAORU_API_KEY }}
+          provider: openrouter
+          model: openai/gpt-4o
