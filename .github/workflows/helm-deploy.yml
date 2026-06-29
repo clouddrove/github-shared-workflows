@@ -108,6 +108,9 @@ on:
       set-parameters:
         required: false
         description: 'Overriding the default values using --set flag'
+      NAORU_API_KEY:
+        required: false
+        description: 'API key for naoru AI failure diagnosis (OpenRouter provider by default).'
 jobs:
   helm-action:
     runs-on: ubuntu-latest
@@ -223,4 +226,24 @@ jobs:
         if: ${{ inputs.uninstall == true }}
         run: |
           helm uninstall ${{ inputs.release-name }} -n ${{ inputs.namespace }}
+
+  naoru:
+    name: 🩺 Diagnose failure (naoru)
+    needs: [helm-action]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - name: 🩺 Diagnose with naoru
+        env:
+          NAORU_KEY: ${{ secrets.NAORU_API_KEY }}
+        if: ${{ env.NAORU_KEY != '' }}
+        uses: clouddrove/naoru@v0
+        with:
+          api-key: ${{ secrets.NAORU_API_KEY }}
+          provider: openrouter
+          model: openai/gpt-4o
 ...

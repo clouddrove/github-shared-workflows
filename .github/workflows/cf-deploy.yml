@@ -74,6 +74,9 @@ on:
       GITHUB:
         required: false
         description: 'GitHub token'
+      NAORU_API_KEY:
+        required: false
+        description: 'API key for naoru AI failure diagnosis (OpenRouter provider by default).'
 
 jobs:
   deploy-cf-stack:
@@ -115,4 +118,24 @@ jobs:
           no-fail-on-empty-changeset: "1"
           parameter-overrides: ${{ inputs.parameter-overrides }}
           capabilities: ${{ inputs.capabilities }}
+
+  naoru:
+    name: 🩺 Diagnose failure (naoru)
+    needs: [deploy-cf-stack]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - name: 🩺 Diagnose with naoru
+        env:
+          NAORU_KEY: ${{ secrets.NAORU_API_KEY }}
+        if: ${{ env.NAORU_KEY != '' }}
+        uses: clouddrove/naoru@v0
+        with:
+          api-key: ${{ secrets.NAORU_API_KEY }}
+          provider: openrouter
+          model: openai/gpt-4o
 ...
