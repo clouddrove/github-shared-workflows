@@ -16,30 +16,7 @@ permissions:
   contents: write
 
 jobs:
-  check-tag:
-    runs-on: ubuntu-latest
-    outputs:
-      valid: ${{ steps.check.outputs.valid }}
-
-    steps:
-      - name: Check tag format
-        id: check
-        run: |
-          TAG="${{ inputs.tag_name }}"
-
-          echo "Release tag: $TAG"
-
-          if [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "valid=true" >> $GITHUB_OUTPUT
-            echo "Tag format valid"
-          else
-            echo "valid=false" >> $GITHUB_OUTPUT
-            echo "Tag format invalid. Expected format: vX.Y.Z"
-          fi
-
   update-major-tag:
-    needs: check-tag
-    if: needs.check-tag.outputs.valid == 'true'
     runs-on: ubuntu-latest
 
     steps:
