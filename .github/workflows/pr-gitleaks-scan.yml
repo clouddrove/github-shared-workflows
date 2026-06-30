@@ -24,7 +24,7 @@ jobs:
           ref: ${{ inputs.checkout_ref != '' && inputs.checkout_ref || github.ref }}
 
       - name: 🔐 Run gitleaks on PR changes
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ...

@@ -1,0 +1,146 @@
+---
+name: 🔄 Terraform Registry Webhook Sync
+
+# Audits the Terraform Registry webhook on every matching repo in one or more
+# orgs and ensures it fires on tag/branch creation+deletion (not just push),
+# so new module tags auto-sync to registry.terraform.io without a manual resync.
+#
+# Root cause this fixes: the registry installs a webhook subscribed to "push"
+# only. Tag ingestion keys off the "create" event, so new tags never reach the
+# registry and require a manual "Resync Module" click. Adding create+delete to
+# the hook makes sync automatic and self-healing for newly published repos.
+
+on:
+  workflow_call:
+    inputs:
+      orgs:
+        description: 'Comma-separated GitHub orgs to audit. e.g. "clouddrove,org2,org3"'
+        required: true
+        type: string
+      repo_filter:
+        description: 'Only repos whose name matches this regex are touched.'
+        required: false
+        type: string
+        default: '^terraform-'
+      required_events:
+        description: 'Comma-separated webhook events the registry hook must have.'
+        required: false
+        type: string
+        default: 'push,create,delete'
+      dry_run:
+        description: 'When true, report drift only; do not modify any webhook.'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      GH_ADMIN_TOKEN:
+        description: 'PAT with admin:repo_hook + repo (read) scope across the orgs.'
+        required: true
+
+  workflow_dispatch:
+    inputs:
+      orgs:
+        description: 'Comma-separated GitHub orgs to audit.'
+        required: true
+        type: string
+      repo_filter:
+        description: 'Repo name regex filter.'
+        required: false
+        type: string
+        default: '^terraform-'
+      required_events:
+        description: 'Webhook events the registry hook must have.'
+        required: false
+        type: string
+        default: 'push,create,delete'
+      dry_run:
+        description: 'Report drift only; do not modify.'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync-webhooks:
+    name: 🔍 Audit & fix registry webhooks
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_ADMIN_TOKEN || github.token }}
+      ORGS: ${{ inputs.orgs }}
+      REPO_FILTER: ${{ inputs.repo_filter }}
+      REQUIRED_EVENTS: ${{ inputs.required_events }}
+      DRY_RUN: ${{ inputs.dry_run }}
+    steps:
+      - name: 🔄 Reconcile webhooks
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # jq array of events the registry hook must contain.
+          mapfile -t WANT < <(echo "$REQUIRED_EVENTS" | tr ',' '\n' | sed 's/ //g' | grep -v '^$')
+          WANT_JSON=$(printf '%s\n' "${WANT[@]}" | jq -R . | jq -sc .)
+          echo "Required events: $WANT_JSON | dry_run=$DRY_RUN"
+
+          changed=0; ok=0; missing=0; total=0
+          summary=""
+
+          IFS=',' read -ra ORG_LIST <<< "$ORGS"
+          for org in "${ORG_LIST[@]}"; do
+            org=$(echo "$org" | xargs)   # trim
+            [ -z "$org" ] && continue
+            echo "::group::Org $org"
+
+            # All repos in the org matching the filter (paginated).
+            repos=$(gh api "orgs/$org/repos" --paginate \
+              --jq ".[] | select(.name|test(\"$REPO_FILTER\")) | .name")
+
+            for repo in $repos; do
+              total=$((total+1))
+              # Find the registry's webhook on this repo, if any.
+              hook=$(gh api "repos/$org/$repo/hooks" \
+                --jq '.[] | select(.config.url // "" | test("registry.terraform.io")) | {id, events}' \
+                2>/dev/null | jq -sc '.[0] // empty') || hook=""
+
+              if [ -z "$hook" ]; then
+                missing=$((missing+1))
+                summary+="⚠️  $org/$repo: no registry webhook (publish module on registry first)\n"
+                continue
+              fi
+
+              id=$(echo "$hook" | jq -r '.id')
+              have=$(echo "$hook" | jq -c '.events')
+              # Drift = any required event not already present.
+              drift=$(jq -nc --argjson have "$have" --argjson want "$WANT_JSON" \
+                '$want - $have')
+
+              if [ "$drift" = "[]" ]; then
+                ok=$((ok+1))
+                continue
+              fi
+
+              if [ "$DRY_RUN" = "true" ]; then
+                summary+="🔸 $org/$repo: hook $id missing $drift (would set $WANT_JSON)\n"
+                changed=$((changed+1))
+                continue
+              fi
+
+              # PATCH: set the hook's events to the full required set.
+              args=(); for e in "${WANT[@]}"; do args+=(-f "events[]=$e"); done
+              gh api -X PATCH "repos/$org/$repo/hooks/$id" "${args[@]}" >/dev/null
+              summary+="✅ $org/$repo: hook $id updated -> $WANT_JSON (was missing $drift)\n"
+              changed=$((changed+1))
+            done
+            echo "::endgroup::"
+          done
+
+          echo "## Registry webhook sync" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Repos scanned: $total" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Already correct: $ok" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Changed${DRY_RUN:+ (dry-run)}: $changed" >> "$GITHUB_STEP_SUMMARY"
+          echo "- No registry hook: $missing" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo -e "$summary" >> "$GITHUB_STEP_SUMMARY"
+          echo -e "$summary"

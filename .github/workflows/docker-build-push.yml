@@ -48,6 +48,9 @@ on:
       DOCKERHUB_PASSWORD:
         description: 'dockerhub password'
         required: false
+      NAORU_API_KEY:
+        required: false
+        description: 'API key for naoru AI failure diagnosis (OpenRouter provider by default).'
 
 jobs:
   build-image:
@@ -127,4 +130,24 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker build -t $images:$IMAGE_TAG $BUILD_PATH
           docker push $images:$IMAGE_TAG
+
+  naoru:
+    name: 🩺 Diagnose failure (naoru)
+    needs: [build-image]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - name: 🩺 Diagnose with naoru
+        env:
+          NAORU_KEY: ${{ secrets.NAORU_API_KEY }}
+        if: ${{ env.NAORU_KEY != '' }}
+        uses: clouddrove/naoru@v0
+        with:
+          api-key: ${{ secrets.NAORU_API_KEY }}
+          provider: openrouter
+          model: openai/gpt-4o
 ...
