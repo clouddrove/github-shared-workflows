@@ -24,7 +24,7 @@ on:
         required: false
         type: string
         description: 'Terraform var file directory. e.g. vars/dev.tfvars'
-      destroy:
+      terraform_destroy:
         required: false
         type: boolean
         default: false
@@ -206,7 +206,7 @@ jobs:
           smurf stf plan --dir=${{ inputs.terraform_directory }}
 
       - name: ⏳ Approval Before Apply
-        if: inputs.terraform_destroy != 'true'
+        if: ${{ inputs.terraform_destroy != 'true' && inputs.plan_only != 'true' }}
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}
@@ -216,7 +216,7 @@ jobs:
           issue-title: "Approve Terraform Apply"
 
       - name: 🚀 Terraform Apply
-        if: inputs.terraform_destroy != 'true'
+        if: ${{ inputs.terraform_destroy != 'true' && inputs.plan_only != 'true' }}
         run: |
           smurf stf apply --auto-approve --dir=${{ inputs.terraform_directory }}
 
@@ -224,7 +224,7 @@ jobs:
   # DESTROY → APPROVAL → DESTROY APPLY
   ###############################################
   terraform-destroy:
-    if: inputs.terraform_destroy == 'true'
+    if: ${{ inputs.terraform_destroy == true }}
     runs-on: ubuntu-latest
 
     steps:
