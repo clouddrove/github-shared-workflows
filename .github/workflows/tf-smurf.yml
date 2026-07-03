@@ -125,8 +125,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target_environment }}
 
-    # outputs:
-    #   tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
+    outputs:
+      tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
       - name: 📦 Checkout Repository
@@ -145,17 +145,17 @@ jobs:
           _EOT
           ) >> "$GITHUB_ENV"
 
-      # - name: 🟦 Install AWS CLI
-      #   if: ${{ inputs.provider == 'aws' }}
-      #   uses: aws-actions/configure-aws-credentials@v6
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-      #     role-to-assume: ${{ secrets.BUILD_ROLE }}
-      #     aws-region: ${{ inputs.aws_region }}
-      #     role-duration-seconds: 900
-      #     role-skip-session-tagging: true
+      - name: 🟦 Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: 900
+          role-skip-session-tagging: true
 
       - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
@@ -195,18 +195,15 @@ jobs:
 
       - name: 🏗️ Smurf Terraform Init
         run: |
-          #smurf stf init --dir=${{ inputs.terraform_directory }}
-          echo "This is Init"
+          smurf stf init --dir=${{ inputs.terraform_directory }}
 
       - name: 🔎 Smurf Terraform validate
         run: |
-          #smurf stf validate --dir=${{ inputs.terraform_directory }}
-          echo "This is Validate"
+          smurf stf validate --dir=${{ inputs.terraform_directory }}
 
       - name: 📋 Terraform Plan
         run: |
-          #smurf stf plan --dir=${{ inputs.terraform_directory }}
-          echo "This is Plan"
+          smurf stf plan --dir=${{ inputs.terraform_directory }}
 
       - name: ⏳ Approval Before Apply
         if: ${{ !inputs.terraform_destroy && !inputs.plan_only }}
@@ -221,8 +218,7 @@ jobs:
       - name: 🚀 Terraform Apply
         if: ${{ !inputs.terraform_destroy && !inputs.plan_only }}
         run: |
-          #smurf stf apply --auto-approve --dir=${{ inputs.terraform_directory }}
-          echo "This is Init"
+          smurf stf apply --auto-approve --dir=${{ inputs.terraform_directory }}
 
   ###############################################
   # DESTROY → APPROVAL → DESTROY APPLY
@@ -255,6 +251,5 @@ jobs:
 
       - name: 💣 Terraform Destroy
         run: |
-          #smurf stf 'destroy --auto-approve --dir=${{ inputs.terraform_directory }}'
-          echo "This is Destroy"
+          smurf stf 'destroy --auto-approve --dir=${{ inputs.terraform_directory }}'
 ...
