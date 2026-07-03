@@ -209,7 +209,7 @@ jobs:
           echo "This is Plan"
 
       - name: ⏳ Approval Before Apply
-        if: ${{ inputs.terraform_destroy != 'true' && inputs.plan_only != 'true' }}
+        if: ${{ !inputs.terraform_destroy && !inputs.plan_only }}
         uses: trstringer/manual-approval@v1
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}
@@ -219,7 +219,7 @@ jobs:
           issue-title: "Approve Terraform Apply"
 
       - name: 🚀 Terraform Apply
-        if: ${{ inputs.terraform_destroy != 'true' && inputs.plan_only != 'true' }}
+        if: ${{ !inputs.terraform_destroy && !inputs.plan_only }}
         run: |
           #smurf stf apply --auto-approve --dir=${{ inputs.terraform_directory }}
           echo "This is Init"
