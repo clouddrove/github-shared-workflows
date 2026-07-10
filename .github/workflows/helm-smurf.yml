@@ -1,181 +1,196 @@
 ---
-name: 🦸‍♂️ Smurf-Helm
-'on':
+name: Smurf Helm Shared Workflow
+
+on:
   workflow_call:
     inputs:
-      aws_auth_method:
-        description: AWS auth method to use like oidc and keys
-        type: string
-        required: false
-      aws_eks_cluster_name:
-        description: AWS eks cluster name
-        type: string
-        required: false
-      aws_role:
-        description: AWS OIDC role for aws authentication.
-        type: string
-        default: 'false'
       provider:
-        description: Cloud provider (aws, azure, gcp, digitalocean)
+        description: Cloud provider (aws, gcp, azure)
         type: string
         required: false
         default: aws
+      aws_region:
+        description: AWS region
+        type: string
+        required: false
+        default: us-east-1
+      aws_eks_cluster_name:
+        description: AWS EKS cluster name
+        type: string
+        required: false
+      aws_assume_role:
+        description: Assume another IAM role after initial AWS auth
+        type: boolean
+        required: false
+        default: false
+      aws_assume_role_arn:
+        description: IAM role ARN to assume
+        type: string
+        required: false
+      gcp_project_id:
+        description: GCP project ID
+        type: string
+        required: false
+      gcp_region:
+        description: GCP region
+        type: string
+        required: false
+        default: us-central1
+      gcp_gke_cluster_name:
+        description: GKE cluster name
+        type: string
+        required: false
+      smurf_version:
+        description: Smurf CLI version
+        type: string
+        required: false
+        default: v1.1.5
+      target_environment:
+        description: GitHub Environment name (empty = no gate)
+        type: string
+        required: false
+        default: ""
       helm_enable:
-        description: Set to true to run helm commands
-        type: string
+        description: Run lint + deploy jobs
+        type: boolean
         required: false
-        default: 'false'
+        default: false
       helm_rollback_enable:
-        description: Set to true for helm rollback
-        type: string
+        description: Run helm rollback job
+        type: boolean
         required: false
-        default: 'false'
+        default: false
       helm_release_name:
-        description: Unique ID for installed chart
-        required: false
+        description: Helm release name
         type: string
+        required: false
       helm_chart_directory:
-        required: false
+        description: Path to Helm chart directory
         type: string
-        description: Kubernetes deployment configurations files
+        required: false
       helm_values_file_path:
-        required: false
+        description: Values file path (relative to repo root)
         type: string
-        description: Values file path from helm chart directory
+        required: false
       helm_namespace:
-        required: false
+        description: Kubernetes namespace
         type: string
-        description: Boundary for Kubernetes resources
+        required: false
+        default: default
       helm_revision:
-        required: false
+        description: Revision number for rollback
         type: string
-        description: helm_revision for Helm rollback
+        required: false
       helm_timeout:
-        required: false
-        type: string
-        description: helm_timeout for helm install step in seconds
-      helm_plugins:
-        description: List of Helm plugins to install
+        description: Helm install/upgrade timeout (e.g. 5m, 300s)
         type: string
         required: false
+        default: 5m
+      helm_flags:
+        description: Extra flags for helm upgrade --install
+        type: string
+        required: false
+        default: "--atomic --wait --create-namespace"
       helm_plugin_install:
-        description: Set to True for Helm Plugin install
+        description: Install Helm plugins before deploy
+        type: boolean
+        required: false
+        default: false
+      helm_plugins:
+        description: Helm plugin install command args
         type: string
         required: false
-        default: 'false'
       helm_repo_add:
-        description: Set to True for Adding Helm Repo
-        type: string
+        description: Add Helm repo before deploy
+        type: boolean
         required: false
-        default: 'false'
+        default: false
       helm_repository:
-        description: Helm Repository to add
+        description: Helm repository name
         type: string
         required: false
       helm_repository_url:
-        description: Helm Repository URL to add
-        type: string
-        required: false
-      helm_flags:
-        description: Helm flags
-        type: string
-        required: false
-        default: '--atomic --debug'
-      aws_region:
-        required: false
-        type: string
-        description: AWS Region
-        default: 'us-east-1'
-      aws_assume_role:
-        description: Set to True to run Assume another IAM Role step
-        required: false
-        type: string
-        default: 'false'
-      aws_assume_role_arn:
-        type: string
-        description: AWS assume role
-        required: false
-      gcp_project_id:
-        required: false
-        type: string
-        description: 'ID of the default project to use for future API calls and invocations.'
-      gcp_auth_method:
-        description: GCP auth method to use like wip and json
-        type: string
-        required: false
-      gcp_docker_push:
-        description: Set to True to Push Images in GCP
-        type: string
-        required: false
-        default: 'false'
-      gcp_region:
-        required: false
-        type: string
-        description: GCP Region
-        default: 'us-central1'
-      gcp_gke_cluster_name:
-        description: GCP gke cluster name
+        description: Helm repository URL
         type: string
         required: false
 
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
-        description: AWS Access Key ID for direct authentication
+        description: AWS access key (keys auth)
       AWS_SECRET_ACCESS_KEY:
         required: false
-        description: AWS Secret Access Key for direct authentication
+        description: AWS secret key (keys auth)
       AWS_SESSION_TOKEN:
         required: false
-        description: AWS Session Token for direct authentication
-      GCP_WIP:
+        description: AWS session token (optional)
+      BUILD_ROLE:
         required: false
-        description: 'WIP Connected with Service Account'
-      GCP_SERVICE_ACCOUNT:
+        description: AWS OIDC role ARN
+      GCP_CREDENTIALS:
         required: false
-        description: 'GCP service account'
-      GOOGLE_CREDENTIALS:
+        description: GCP service account JSON key
+      WORKLOAD_IDENTITY_PROVIDER:
         required: false
-        description: 'GCP service account JSON Key'
-      GCP_SERVICE_ACCOUNT_KEY:
+        description: GCP workload identity provider
+      SERVICE_ACCOUNT:
         required: false
-        description: 'GCP service account JSON Key'
-      aws_set_parameters:
+        description: GCP service account email (WIP auth)
+      GCP_PROJECT_ID:                   
+        description: 'GCP Project ID'
         required: false
-        description: Overriding the default values using --set flag
+      AZURE_CREDENTIALS:
+        required: false
+        description: Azure service principal JSON
+      helm_extra_args:
+        required: false
+        description: Extra helm CLI args (e.g. --set key=val)
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
-  helm_lint_template:
-    if: inputs.helm_enable == 'true'
+  helm-lint:
+    name: Helm Lint & Template
+    if: ${{ inputs.helm_enable }}
     runs-on: ubuntu-latest
     steps:
-      - name: 📦 Checkout
+      - name: Checkout
         uses: actions/checkout@v6
 
-      # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v1.1.3
+        uses: clouddrove/smurf@v1.1.5
+        with:
+          version: ${{ inputs.smurf_version }}
 
-      - name: 🧪 Helm Lint
-        run : |
-         smurf selm lint ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
-
-      - name: 📝 Helm Template
+      - name: Helm Lint
         run: |
-            smurf selm template ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{ inputs.helm_values_file_path }}
+          smurf selm lint "${{ inputs.helm_chart_directory }}" \
+            -f "${{ inputs.helm_values_file_path }}"
+
+      - name: Helm Template
+        run: |
+          smurf selm template "${{ inputs.helm_release_name }}" \
+            "${{ inputs.helm_chart_directory }}" \
+            -f "${{ inputs.helm_values_file_path }}"
 
   helm-deploy:
-    if: inputs.helm_enable == 'true'
+    name: Helm Deploy
+    if: ${{ inputs.helm_enable }}
+    needs: helm-lint
     runs-on: ubuntu-latest
+    environment: ${{ inputs.target_environment }}
     steps:
-      - name: 📦 Checkout
+      - name: Checkout
         uses: actions/checkout@v6
 
-      # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v1.1.3
+        uses: clouddrove/smurf@v1.1.5
+        with:
+          version: ${{ inputs.smurf_version }}
 
-      - name: 🟦 Install AWS CLI
+      - name: Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -187,67 +202,96 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: 🔄 Assume another IAM Role
-        if: inputs.aws_assume_role_arn == 'true'
+      - name: Assume another IAM role
+        if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: '${{ inputs.aws_assume_role_arn }}'
+          role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
 
-      - name: 🌎 Set environment variables
-        run: |
-          echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
-          echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
-          echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
-          echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
-          echo "🔹 Setting up service account key credentials..."
-          echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
-          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
-        shell: bash
+      - name: Authenticate to Google Cloud
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          project_id: ${{ inputs.gcp_project_id }}
 
-      - name: Update Kubernetes KubeConfig
-        run : |
-          aws eks update-kubeconfig --name ${{ inputs.aws_eks_cluster_name }} --region ${{ inputs.aws_region }}
+      - name: Set up gcloud SDK
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ inputs.gcp_project_id }}
+          install_components: gke-gcloud-auth-plugin
 
-      - name: 🔌 Helm Plugin
-        if: inputs.helm_plugin_install == 'true'
+      - name: Update kubeconfig (GKE)
+        if: ${{ inputs.provider == 'gcp' }}
         run: |
-          smurf selm plugin ${{ inputs.helm_plugins }}
+          gcloud container clusters get-credentials \
+            "${{ inputs.gcp_gke_cluster_name }}" \
+            --region "${{ inputs.gcp_region }}" \
+            --project "${{ inputs.gcp_project_id }}"
 
-      - name: ➕ Add Helm Chart
-        if: inputs.helm_repo_add == 'true'
-        run: |
-          smurf selm repo add ${{ inputs.helm_repository }} ${{ inputs.helm_repository_url }}
+      - name: Login to Azure
+        if: ${{ inputs.provider == 'azure' }}
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: ♻️ Update Helm Charts
-        if: inputs.helm_repo_add == 'true'
+      - name: Update kubeconfig (EKS)
+        if: ${{ inputs.provider == 'aws' }}
         run: |
-          smurf selm repo update
+          aws eks update-kubeconfig \
+            --name "${{ inputs.aws_eks_cluster_name }}" \
+            --region "${{ inputs.aws_region }}"
 
-      - name: 🚀 Helm Deploy
+      - name: Update kubeconfig (GKE)
+        if: ${{ inputs.provider == 'gcp' }}
         run: |
-            smurf selm upgrade --install ${{ inputs.helm_flags }} ${{ secrets.aws_set_parameters }}
-            ${{ inputs.helm_release_name }} ${{ inputs.helm_chart_directory }} -f ${{
-            inputs.helm_values_file_path }} -n=${{ inputs.helm_namespace }} --timeout ${{
-            inputs.helm_timeout }}
+          gcloud container clusters get-credentials "${{ inputs.gcp_gke_cluster_name }}" \
+            --region "${{ inputs.gcp_region }}" \
+            --project "${{ inputs.gcp_project_id }}"
+
+      - name: Helm Plugin
+        if: ${{ inputs.helm_plugin_install }}
+        run: smurf selm plugin ${{ inputs.helm_plugins }}
+
+      - name: Add Helm Chart Repo
+        if: ${{ inputs.helm_repo_add }}
+        run: |
+          smurf selm repo add "${{ inputs.helm_repository }}" "${{ inputs.helm_repository_url }}"
+
+      - name: Update Helm Chart Repos
+        if: ${{ inputs.helm_repo_add }}
+        run: smurf selm repo update
+
+      - name: Helm Deploy
+        run: |
+          smurf selm upgrade --install \
+            "${{ inputs.helm_release_name }}" \
+            "${{ inputs.helm_chart_directory }}" \
+            -f "${{ inputs.helm_values_file_path }}" \
+            -n "${{ inputs.helm_namespace }}" \
+            --timeout "${{ inputs.helm_timeout }}" \
+            ${{ inputs.helm_flags }} \
+            ${{ secrets.helm_extra_args }}
 
   helm-rollback:
-    if: inputs.helm_rollback_enable == 'true'
+    name: Helm Rollback
+    if: ${{ inputs.helm_rollback_enable }}
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
+    environment: ${{ inputs.target_environment }}
     steps:
-      - name: 📦 Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v6
 
-      # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v1.1.3
+        uses: clouddrove/smurf@v1.1.5
+        with:
+          version: ${{ inputs.smurf_version }}
 
-      - name: 🟦 Install AWS CLI
+      - name: Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -259,31 +303,59 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: 🔄 Assume another IAM Role
-        if: inputs.aws_assume_role_arn == 'true'
+      - name: Assume another IAM role
+        if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: '${{ inputs.aws_assume_role_arn }}'
+          role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
 
-      - name: 🌎 Set environment variables
-        run: |
-          echo "AWS_DEFAULT_REGION=${{ inputs.aws_region }}" >> $GITHUB_ENV
-          echo "PROVIDER=${{ inputs.provider }}" >> $GITHUB_ENV
-          echo "EKS_CLUSTER_NAME=${{ inputs.aws_eks_cluster_name }}" >> $GITHUB_ENV
-          echo "GCP_PROJECT_ID=${{ inputs.gcp_project_id }}" >> $GITHUB_ENV
-          echo "GCP_REGION=${{ inputs.gcp_region }}" >> $GITHUB_ENV
-          echo "GKE_CLUSTER_NAME=${{ inputs.gcp_gke_cluster_name }}" >> $GITHUB_ENV
-          echo "GCP_KEY_B64=$(echo '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}' | base64 -w0)" >> $GITHUB_ENV
-          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json" >> $GITHUB_ENV
-        shell: bash
+      - name: Authenticate to Google Cloud
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          project_id: ${{ inputs.gcp_project_id }}
 
-      - name: Update Kubernetes KubeConfig
-        run : |
-          aws eks update-kubeconfig --name ${{ inputs.aws_eks_cluster_name }} --region ${{ inputs.aws_region }}
+      - name: Set up gcloud SDK
+        if: ${{ inputs.provider == 'gcp' }}
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ inputs.gcp_project_id }}
+          install_components: gke-gcloud-auth-plugin
 
-      - name: ⏪ Helm Rollback
+      - name: Update kubeconfig (GKE)
+        if: ${{ inputs.provider == 'gcp' }}
         run: |
-            smurf selm rollback ${{ inputs.helm_release_name }} ${{ inputs.helm_revision }} -n=${{
-            inputs.helm_namespace }}
-...
+          gcloud container clusters get-credentials \
+            "${{ inputs.gcp_gke_cluster_name }}" \
+            --region "${{ inputs.gcp_region }}" \
+            --project "${{ inputs.gcp_project_id }}"
+
+      - name: Login to Azure
+        if: ${{ inputs.provider == 'azure' }}
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Update kubeconfig (EKS)
+        if: ${{ inputs.provider == 'aws' }}
+        run: |
+          aws eks update-kubeconfig \
+            --name "${{ inputs.aws_eks_cluster_name }}" \
+            --region "${{ inputs.aws_region }}"
+
+      - name: Update kubeconfig (GKE)
+        if: ${{ inputs.provider == 'gcp' }}
+        run: |
+          gcloud container clusters get-credentials "${{ inputs.gcp_gke_cluster_name }}" \
+            --region "${{ inputs.gcp_region }}" \
+            --project "${{ inputs.gcp_project_id }}"
+
+      - name: Helm Rollback
+        run: |
+          smurf selm rollback "${{ inputs.helm_release_name }}" \
+            "${{ inputs.helm_revision }}" \
+            -n "${{ inputs.helm_namespace }}"

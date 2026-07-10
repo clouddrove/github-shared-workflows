@@ -1,6 +1,7 @@
 ---
-name: 🦸‍♂️ Smurf-Docker
-'on':
+name: Smurf-Docker
+
+on:
   workflow_call:
     inputs:
       docker_enable:
@@ -54,7 +55,7 @@ name: 🦸‍♂️ Smurf-Docker
         description: 'The URL of the container registry (e.g., Docker Hub, ECR, GCR, ACR).'
         type: string
       dockerfile_path:
-        description: Docker file directory
+        description: Docker file path (relative to repo root)
         type: string
         default: Dockerfile
       docker_build_args:
@@ -113,6 +114,9 @@ name: 🦸‍♂️ Smurf-Docker
       AWS_SESSION_TOKEN:
         required: false
         description: AWS Session Token for direct authentication
+      BUILD_ROLE:
+        required: false
+        description: AWS OIDC role for aws authentication
       GCP_WIP:
         required: false
         description: 'WIP Connected with Service Account'
@@ -125,6 +129,12 @@ name: 🦸‍♂️ Smurf-Docker
       GCP_SERVICE_ACCOUNT_KEY:
         required: false
         description: 'GCP service account JSON Key'
+      DOCKER_USERNAME:
+        required: false
+        description: Docker Hub username
+      DOCKER_PASSWORD:
+        required: false
+        description: Docker Hub access token or password
       aws_set_parameters:
         required: false
         description: Overriding the default values using --set flag
@@ -137,37 +147,39 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: 📦 Checkout
+      - name: Checkout
         uses: actions/checkout@v6
 
-      # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v1.1.3
+        uses: clouddrove/smurf@v1.1.5
 
-      - name: 🐳 Docker Image Build
+      - name: Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
         run: |
-            smurf sdkr build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
-            inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
+          smurf sdkr build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} \
+            -f ${{ inputs.dockerfile_path }} \
+            --platform ${{ inputs.docker_build_platform }} \
             --build-arg ${{ inputs.docker_build_args }}
 
-      - name: 🐳 Docker Image Build with Buildkit
+      - name: Docker Image Build with Buildkit
         if: inputs.docker_buildkit_enable == 'true'
         run: |
-            smurf sdkr build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -f ${{
-            inputs.dockerfile_path }} --platform ${{ inputs.docker_build_platform }}
-            --build-arg ${{ inputs.docker_build_args }} --buildkit
+          smurf sdkr build ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} \
+            -f ${{ inputs.dockerfile_path }} \
+            --platform ${{ inputs.docker_build_platform }} \
+            --build-arg ${{ inputs.docker_build_args }} \
+            --buildkit
 
-      - name: 💾 Save Docker Image as Artifact
-        run: >
-          docker save ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} -o ${{
-          inputs.docker_image_tar }}
+      - name: Save Docker Image as Artifact
+        run: |
+          docker save ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} \
+            -o ${{ inputs.docker_image_tar }}
 
-      - name: ⬆️ Upload Docker Image Artifact
+      - name: Upload Docker Image Artifact
         uses: actions/upload-artifact@v7
         with:
-          name: '${{ inputs.docker_image_name }}'
-          path: '${{ inputs.docker_image_tar }}'
+          name: docker-image
+          path: ${{ inputs.docker_image_tar }}
 
   docker_scan_push:
     if: inputs.docker_enable == 'true' && inputs.docker_push == 'true'
@@ -177,23 +189,21 @@ jobs:
       id-token: write
       contents: read
     steps:
-      - name: 📦 Checkout
+      - name: Checkout
         uses: actions/checkout@v6
 
-      # - Setup smurf CLI
       - name: Setup Smurf
-        uses: clouddrove/smurf@v1.1.3
+        uses: clouddrove/smurf@v1.1.5
 
-      - name: ⬇️ Download Docker Image Artifact
+      - name: Download Docker Image Artifact
         uses: actions/download-artifact@v8
         with:
-          name: '${{ inputs.docker_image_name }}'
+          name: docker-image
 
-      - name: 📥 Load Docker Image
-        run: |
-          docker load -i ${{ inputs.docker_image_tar }}
+      - name: Load Docker Image
+        run: docker load -i ${{ inputs.docker_image_tar }}
 
-      - name: 🟦 Install AWS CLI
+      - name: Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -205,14 +215,14 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: 🔄 Assume another IAM Role
+      - name: Assume another IAM Role
         if: inputs.aws_assume_role == 'true'
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
 
-      - name: ☁️ Authenticate Google Cloud with WIP and Service Account
+      - name: Authenticate Google Cloud with WIP and Service Account
         if: inputs.gcp_auth_method == 'wip'
         uses: google-github-actions/auth@v3
         with:
@@ -222,31 +232,42 @@ jobs:
           access_token_lifetime: 300s
           project_id: ${{ inputs.gcp_project_id }}
 
-      - name: ☁️ Authenticate Google Cloud with Service Account JSON Key
+      - name: Authenticate Google Cloud with Service Account JSON Key
         if: inputs.gcp_auth_method == 'json'
-        uses: 'google-github-actions/auth@v3'
+        uses: google-github-actions/auth@v3
         with:
-          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+          credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 
-      - name: 🛡️ Docker Image Scan
+      - name: Set Docker Hub environment variables
+        if: inputs.docker_registry == 'hub'
+        run: |
+          echo "DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}" >> $GITHUB_ENV
+          echo "DOCKER_PASSWORD=${{ secrets.DOCKER_PASSWORD }}" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Install Trivy
+        run: |
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+          trivy --version
+
+      - name: Docker Image Scan
         run: |
           smurf sdkr scan ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
-      - name: 🏷️ Docker Image Tag
+      - name: Docker Image Tag
         if: inputs.docker_push == 'true'
         run: |
-            smurf sdkr tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} ${{
-            inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
+          smurf sdkr tag ${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} \
+            ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
-      - name: 🚀 Docker Image Push
-        if: inputs.docker_push == 'true'  && inputs.gcp_docker_push != 'true'
+      - name: Docker Image Push
+        if: inputs.docker_push == 'true' && inputs.gcp_docker_push != 'true'
         run: |
-            smurf sdkr push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
-            inputs.docker_image_tag }}
+          smurf sdkr push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }}
 
-      - name: 🚀 Docker Image Push on gcp
+      - name: Docker Image Push on gcp
         if: inputs.docker_push == 'true' && inputs.gcp_docker_push == 'true'
         run: |
-            smurf sdkr push ${{ inputs.docker_registry }} ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{
-            inputs.docker_image_tag }} --project-id ${{ inputs.gcp_project_id }}
-...
+          smurf sdkr push ${{ inputs.docker_registry }} \
+            ${{ inputs.docker_registry_url }}/${{ inputs.docker_image_name }}:${{ inputs.docker_image_tag }} \
+            --project-id ${{ inputs.gcp_project_id }}
