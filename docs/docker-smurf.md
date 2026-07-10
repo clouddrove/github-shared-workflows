@@ -73,7 +73,6 @@ The full pushed image is assembled in the shared workflow:
 | `aws_assume_role_arn` | string | — | Secondary IAM role ARN |
 | `gcp_auth_method` | string | — | `wip` or `json` for GCP auth |
 | `gcp_project_id` | string | — | GCP project ID |
-| `gcp_region` | string | `us-central1` | GCP region |
 | `gcp_docker_push` | string | `false` | Set to `'true'` to push with `--project-id` (GCP) |
 
 > **Note:** `docker_enable`, `docker_push`, and other toggles use the string `'true'` / `'false'`, not YAML booleans.

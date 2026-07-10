@@ -62,18 +62,6 @@ on:
         default: 'false'
 
       # ── AWS ──────────────────────────────────────────────────────────
-      aws_auth_method:
-        description: AWS auth method to use like oidc and keys
-        type: string
-        required: false
-      aws_eks_cluster_name:
-        description: AWS eks cluster name
-        type: string
-        required: false
-      aws_role:
-        description: AWS OIDC role for aws authentication.
-        type: string
-        default: 'false'
       aws_region:
         required: false
         type: string
@@ -103,15 +91,6 @@ on:
         type: string
         required: false
         default: 'false'
-      gcp_region:
-        required: false
-        type: string
-        description: GCP Region
-        default: 'us-central1'
-      gcp_gke_cluster_name:
-        description: GCP gke cluster name
-        type: string
-        required: false
 
     secrets:
       # ── AWS secrets ──────────────────────────────────────────────────

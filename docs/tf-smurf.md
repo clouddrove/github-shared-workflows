@@ -63,7 +63,6 @@ When both flags are set in one run, destroy runs after create completes successf
 | `terraform_version` | string | `1.3.6` | Terraform CLI version |
 | `smurf_version` | string | `v1.1.5` | Smurf CLI version |
 | `aws_region` | string | `us-east-2` | AWS region |
-| `gcp_region` | string | — | GCP region |
 | `project_id` | string | — | GCP project ID |
 | `git_ssh_key_setup` | boolean | `false` | Enable SSH agent for private module clones |
 | `create_credentials_file` | string | `true` | GCP credentials file generation |
@@ -215,7 +214,6 @@ jobs:
       run_create: true
       run_destroy: false
       project_id: my-gcp-project
-      gcp_region: us-central1
       var_file: vars/prod.tfvars
       approvers: your-github-username
     secrets:

@@ -20,10 +20,6 @@ on:
         type: string
         default: us-east-2
         description: 'AWS region of terraform deployment.'
-      gcp_region:
-        required: false
-        type: string
-        description: 'GCP region of terraform deployment.'
       var_file:
         required: false
         type: string
