@@ -1,8 +1,12 @@
 ---
+# Reusable Smurf STF workflow — format, plan, apply, and destroy Terraform infrastructure.
+# Docs: docs/tf-smurf.md
 name: 🦸‍♂️ Smurf Terraform Shared workflow
+
 on:
   workflow_call:
     inputs:
+      # ── Terraform core ───────────────────────────────────────────────
       terraform_directory:
         required: true
         type: string
@@ -24,6 +28,8 @@ on:
         required: false
         type: string
         description: 'Terraform var file path relative to terraform_directory. e.g. vars/dev.tfvars'
+
+      # ── Job toggles ──────────────────────────────────────────────────
       run_create:
         required: false
         type: boolean
@@ -38,6 +44,8 @@ on:
         required: false
         type: string
         description: 'Approvals list to approve apply or destroy'
+
+      # ── Tool versions & approval ─────────────────────────────────────
       smurf_version:
         type: string
         default: v1.1.5
@@ -70,6 +78,8 @@ on:
         required: false
         type: string
         description: 'ID of the default project to use for future API calls and invocations.'
+
+      # ── GCP & SSH ────────────────────────────────────────────────────
       create_credentials_file:
         required: false
         type: string
@@ -85,6 +95,8 @@ on:
         required: false
         type: string
         default: ""
+
+      # ── Plan options ─────────────────────────────────────────────────
       plan_only:
         description: "Set this to `true` to run `smurf stf plan` only"
         required: false
@@ -101,6 +113,7 @@ on:
         type: boolean
         default: false
     secrets:
+      # ── Cloud credentials ────────────────────────────────────────────
       AZURE_CREDENTIALS:
         required: false
         description: 'Azure Credentials to install Azure in github runner.'
@@ -151,7 +164,8 @@ jobs:
       - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
-      - uses: webfactory/ssh-agent@v0.10.0
+      - name: 🔑 Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.10.0
         if: ${{ inputs.git_ssh_key_setup }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -164,6 +178,7 @@ jobs:
           _EOT
           ) >> "$GITHUB_ENV"
 
+      # ── Cloud authentication ─────────────────────────────────────────
       - name: 🟦 Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
@@ -209,6 +224,7 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
+      # ── Terraform & Smurf setup ──────────────────────────────────────
       - name: 🛠️ Set up Terraform
         uses: hashicorp/setup-terraform@v4
         with:
@@ -220,6 +236,7 @@ jobs:
         with:
           version: ${{ inputs.smurf_version }}
 
+      # ── Format → init → validate → plan → apply ──────────────────────
       - name: 🧹 Smurf Terraform Format
         run: |
           smurf stf fmt --recursive --timeout 5s
@@ -274,7 +291,8 @@ jobs:
       - name: 📦 Checkout Repository
         uses: actions/checkout@v6
 
-      - uses: webfactory/ssh-agent@v0.10.0
+      - name: 🔑 Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.10.0
         if: ${{ inputs.git_ssh_key_setup }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -287,6 +305,7 @@ jobs:
           _EOT
           ) >> "$GITHUB_ENV"
 
+      # ── Cloud authentication ─────────────────────────────────────────
       - name: 🟦 Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
@@ -332,6 +351,7 @@ jobs:
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
+      # ── Terraform & Smurf setup ──────────────────────────────────────
       - name: 🛠️ Set up Terraform
         uses: hashicorp/setup-terraform@v4
         with:
@@ -343,6 +363,7 @@ jobs:
         with:
           version: ${{ inputs.smurf_version }}
 
+      # ── Init → import → approval → destroy ───────────────────────────
       - name: 🏗️ Smurf Terraform Init
         run: |
           smurf stf init --dir=${{ inputs.terraform_directory }}

@@ -1,14 +1,29 @@
 ---
-name: Smurf Helm Shared Workflow
+# Reusable Smurf SELM workflow — lint, template, deploy, and rollback Helm charts.
+# Docs: docs/helm-smurf.md
+name: ⎈ Smurf Helm Shared Workflow
 
 on:
   workflow_call:
     inputs:
+      # ── Cloud provider ───────────────────────────────────────────────
       provider:
         description: Cloud provider (aws, gcp, azure)
         type: string
         required: false
         default: aws
+      target_environment:
+        description: GitHub Environment name (empty = no gate)
+        type: string
+        required: false
+        default: ""
+      smurf_version:
+        description: Smurf CLI version
+        type: string
+        required: false
+        default: v1.1.5
+
+      # ── AWS ──────────────────────────────────────────────────────────
       aws_region:
         description: AWS region
         type: string
@@ -27,6 +42,8 @@ on:
         description: IAM role ARN to assume
         type: string
         required: false
+
+      # ── GCP ──────────────────────────────────────────────────────────
       gcp_project_id:
         description: GCP project ID
         type: string
@@ -40,16 +57,8 @@ on:
         description: GKE cluster name
         type: string
         required: false
-      smurf_version:
-        description: Smurf CLI version
-        type: string
-        required: false
-        default: v1.1.5
-      target_environment:
-        description: GitHub Environment name (empty = no gate)
-        type: string
-        required: false
-        default: ""
+
+      # ── Helm toggles ─────────────────────────────────────────────────
       helm_enable:
         description: Run lint + deploy jobs
         type: boolean
@@ -60,6 +69,8 @@ on:
         type: boolean
         required: false
         default: false
+
+      # ── Helm chart & release ─────────────────────────────────────────
       helm_release_name:
         description: Helm release name
         type: string
@@ -91,6 +102,8 @@ on:
         type: string
         required: false
         default: "--atomic --wait --create-namespace"
+
+      # ── Helm plugins & repos ─────────────────────────────────────────
       helm_plugin_install:
         description: Install Helm plugins before deploy
         type: boolean
@@ -115,6 +128,7 @@ on:
         required: false
 
     secrets:
+      # ── AWS secrets ──────────────────────────────────────────────────
       AWS_ACCESS_KEY_ID:
         required: false
         description: AWS access key (keys auth)
@@ -127,6 +141,8 @@ on:
       BUILD_ROLE:
         required: false
         description: AWS OIDC role ARN
+
+      # ── GCP secrets ──────────────────────────────────────────────────
       GCP_CREDENTIALS:
         required: false
         description: GCP service account JSON key
@@ -136,12 +152,15 @@ on:
       SERVICE_ACCOUNT:
         required: false
         description: GCP service account email (WIP auth)
-      GCP_PROJECT_ID:                   
+      GCP_PROJECT_ID:
         description: 'GCP Project ID'
         required: false
+
+      # ── Azure secrets ────────────────────────────────────────────────
       AZURE_CREDENTIALS:
         required: false
         description: Azure service principal JSON
+
       helm_extra_args:
         required: false
         description: Extra helm CLI args (e.g. --set key=val)
@@ -151,30 +170,36 @@ permissions:
   contents: read
 
 jobs:
+  ###############################################
+  # LINT → TEMPLATE
+  ###############################################
   helm-lint:
     name: Helm Lint & Template
     if: ${{ inputs.helm_enable }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: 📦 Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Smurf
+      - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.5
         with:
           version: ${{ inputs.smurf_version }}
 
-      - name: Helm Lint
+      - name: ✅ Helm Lint
         run: |
           smurf selm lint "${{ inputs.helm_chart_directory }}" \
             -f "${{ inputs.helm_values_file_path }}"
 
-      - name: Helm Template
+      - name: 📄 Helm Template
         run: |
           smurf selm template "${{ inputs.helm_release_name }}" \
             "${{ inputs.helm_chart_directory }}" \
             -f "${{ inputs.helm_values_file_path }}"
 
+  ###############################################
+  # AUTH → KUBECONFIG → DEPLOY
+  ###############################################
   helm-deploy:
     name: Helm Deploy
     if: ${{ inputs.helm_enable }}
@@ -182,15 +207,16 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.target_environment }}
     steps:
-      - name: Checkout
+      - name: 📦 Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Smurf
+      - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.5
         with:
           version: ${{ inputs.smurf_version }}
 
-      - name: Configure AWS credentials
+      # ── Cloud authentication ─────────────────────────────────────────
+      - name: 🟦 Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -202,14 +228,14 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: Assume another IAM role
+      - name: 🔑 Assume another IAM role
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
 
-      - name: Authenticate to Google Cloud
+      - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
         uses: google-github-actions/auth@v3
         with:
@@ -218,14 +244,14 @@ jobs:
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
           project_id: ${{ inputs.gcp_project_id }}
 
-      - name: Set up gcloud SDK
+      - name: 🛠️ Set up gcloud SDK
         if: ${{ inputs.provider == 'gcp' }}
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ inputs.gcp_project_id }}
           install_components: gke-gcloud-auth-plugin
 
-      - name: Update kubeconfig (GKE)
+      - name: 🔧 Update kubeconfig (GKE)
         if: ${{ inputs.provider == 'gcp' }}
         run: |
           gcloud container clusters get-credentials \
@@ -233,40 +259,41 @@ jobs:
             --region "${{ inputs.gcp_region }}" \
             --project "${{ inputs.gcp_project_id }}"
 
-      - name: Login to Azure
+      - name: 🔵 Login to Azure
         if: ${{ inputs.provider == 'azure' }}
         uses: azure/login@v3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Update kubeconfig (EKS)
+      - name: 🔧 Update kubeconfig (EKS)
         if: ${{ inputs.provider == 'aws' }}
         run: |
           aws eks update-kubeconfig \
             --name "${{ inputs.aws_eks_cluster_name }}" \
             --region "${{ inputs.aws_region }}"
 
-      - name: Update kubeconfig (GKE)
+      - name: 🔧 Update kubeconfig (GKE)
         if: ${{ inputs.provider == 'gcp' }}
         run: |
           gcloud container clusters get-credentials "${{ inputs.gcp_gke_cluster_name }}" \
             --region "${{ inputs.gcp_region }}" \
             --project "${{ inputs.gcp_project_id }}"
 
-      - name: Helm Plugin
+      # ── Helm plugins & repos ─────────────────────────────────────────
+      - name: 🔌 Helm Plugin
         if: ${{ inputs.helm_plugin_install }}
         run: smurf selm plugin ${{ inputs.helm_plugins }}
 
-      - name: Add Helm Chart Repo
+      - name: 📚 Add Helm Chart Repo
         if: ${{ inputs.helm_repo_add }}
         run: |
           smurf selm repo add "${{ inputs.helm_repository }}" "${{ inputs.helm_repository_url }}"
 
-      - name: Update Helm Chart Repos
+      - name: 🔄 Update Helm Chart Repos
         if: ${{ inputs.helm_repo_add }}
         run: smurf selm repo update
 
-      - name: Helm Deploy
+      - name: 🚀 Helm Deploy
         run: |
           smurf selm upgrade --install \
             "${{ inputs.helm_release_name }}" \
@@ -277,21 +304,25 @@ jobs:
             ${{ inputs.helm_flags }} \
             ${{ secrets.helm_extra_args }}
 
+  ###############################################
+  # AUTH → KUBECONFIG → ROLLBACK
+  ###############################################
   helm-rollback:
     name: Helm Rollback
     if: ${{ inputs.helm_rollback_enable }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.target_environment }}
     steps:
-      - name: Checkout
+      - name: 📦 Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Smurf
+      - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.5
         with:
           version: ${{ inputs.smurf_version }}
 
-      - name: Configure AWS credentials
+      # ── Cloud authentication ─────────────────────────────────────────
+      - name: 🟦 Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -303,14 +334,14 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: Assume another IAM role
+      - name: 🔑 Assume another IAM role
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
 
-      - name: Authenticate to Google Cloud
+      - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
         uses: google-github-actions/auth@v3
         with:
@@ -319,14 +350,14 @@ jobs:
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
           project_id: ${{ inputs.gcp_project_id }}
 
-      - name: Set up gcloud SDK
+      - name: 🛠️ Set up gcloud SDK
         if: ${{ inputs.provider == 'gcp' }}
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ inputs.gcp_project_id }}
           install_components: gke-gcloud-auth-plugin
 
-      - name: Update kubeconfig (GKE)
+      - name: 🔧 Update kubeconfig (GKE)
         if: ${{ inputs.provider == 'gcp' }}
         run: |
           gcloud container clusters get-credentials \
@@ -334,27 +365,27 @@ jobs:
             --region "${{ inputs.gcp_region }}" \
             --project "${{ inputs.gcp_project_id }}"
 
-      - name: Login to Azure
+      - name: 🔵 Login to Azure
         if: ${{ inputs.provider == 'azure' }}
         uses: azure/login@v3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Update kubeconfig (EKS)
+      - name: 🔧 Update kubeconfig (EKS)
         if: ${{ inputs.provider == 'aws' }}
         run: |
           aws eks update-kubeconfig \
             --name "${{ inputs.aws_eks_cluster_name }}" \
             --region "${{ inputs.aws_region }}"
 
-      - name: Update kubeconfig (GKE)
+      - name: 🔧 Update kubeconfig (GKE)
         if: ${{ inputs.provider == 'gcp' }}
         run: |
           gcloud container clusters get-credentials "${{ inputs.gcp_gke_cluster_name }}" \
             --region "${{ inputs.gcp_region }}" \
             --project "${{ inputs.gcp_project_id }}"
 
-      - name: Helm Rollback
+      - name: ⏪ Helm Rollback
         run: |
           smurf selm rollback "${{ inputs.helm_release_name }}" \
             "${{ inputs.helm_revision }}" \
