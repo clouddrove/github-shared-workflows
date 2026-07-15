@@ -75,7 +75,7 @@ jobs:
     name: 🚀 Run sst-deploy
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 📝 Update environment variable in .env file
         run: |
