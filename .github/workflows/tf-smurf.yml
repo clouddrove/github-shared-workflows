@@ -1,168 +1,173 @@
 ---
-# Reusable Smurf STF workflow — format, plan, apply, and destroy Terraform infrastructure.
-# Docs: docs/tf-smurf.md
-name: 🦸‍♂️ Smurf Terraform Shared workflow
+name: 🦸‍♂️ Smurf Terraform Workflow
+run-name: "🌍 Terraform Workflow with Smurf"
 
 on:
   workflow_call:
     inputs:
-      # ── Terraform core ───────────────────────────────────────────────
       terraform_directory:
         required: true
         type: string
-        description: 'Root directory of the terraform where all resources exist.'
+        description: Root directory of Terraform configuration.
+
       provider:
         required: true
         type: string
-        description: 'Cloud provider to run the workflow. e.g. azurerm, aws, gcp or digitalocean'
+        description: Cloud provider where Terraform resources will be deployed (aws, azurerm, gcp, digitalocean).
+
       aws_region:
         required: false
         type: string
         default: us-east-2
-        description: 'AWS region of terraform deployment.'
+        description: AWS region where resources will be provisioned.
+
+      gcp_region:
+        required: false
+        type: string
+        description: GCP region where resources will be provisioned.
+
       var_file:
         required: false
         type: string
-        description: 'Terraform var file path relative to terraform_directory. e.g. vars/dev.tfvars'
+        description: Terraform variable file (.tfvars) to use during execution.
 
-      # ── Job toggles ──────────────────────────────────────────────────
-      run_create:
+      destroy:
         required: false
         type: boolean
         default: false
-        description: 'Run plan and apply (create infrastructure).'
-      run_destroy:
-        required: false
-        type: boolean
-        default: false
-        description: 'Run destroy infrastructure.'
+        description: Whether to destroy Terraform-managed infrastructure instead of creating/updating resources.
+
       approvers:
         required: false
         type: string
-        description: 'Approvals list to approve apply or destroy'
+        description: List of users or teams authorized to approve Terraform execution.
 
-      # ── Tool versions & approval ─────────────────────────────────────
-      smurf_version:
-        type: string
-        default: v1.1.5
-        description: 'Required Smurf version'
       terraform_version:
+        required: false
         type: string
-        default: 1.3.6
-        description: 'Required Terraform version'
+        default: "1.3.6"
+        description: Terraform CLI version to use for running Terraform commands.
+
+      smurf_version:
+        required: false
+        type: string
+        default: latest
+        description: Version of Smurf tool to use for Terraform workflow execution.
+
       timeout:
         required: false
         type: number
         default: 10
-        description: 'Timeout for approval step'
+        description: Maximum timeout duration for the Terraform workflow execution.
+
       minimum-approvals:
         required: false
         type: string
-        default: 1
-        description: 'Minimum approvals required to accept the plan'
+        default: "1"
+        description: Minimum number of approvals required before Terraform execution proceeds.
+
       token_format:
         required: false
         type: string
         default: access_token
-        description: 'Output format for the generated authentication token. For OAuth 2.0 access tokens, specify "access_token". For OIDC tokens, specify "id_token". To skip token generation, leave this value empty'
+        description: Format of authentication token generated for cloud provider access.
+
       access_token_lifetime:
         required: false
         type: string
         default: 300s
-        description: 'Desired lifetime duration of the access token, in seconds'
+        description: Lifetime duration of the generated access token.
+
       project_id:
         required: false
         type: string
-        description: 'ID of the default project to use for future API calls and invocations.'
+        description: Cloud project identifier used for resource deployment.
 
-      # ── GCP & SSH ────────────────────────────────────────────────────
       create_credentials_file:
         required: false
         type: string
         default: true
-        description: 'If true, the action will securely generate a credentials file which can be used for authentication via gcloud and Google Cloud SDKs.'
+        description: Whether to create a credentials file for cloud authentication.
+
       git_ssh_key_setup:
         required: false
-        type: boolean
+        type: string
         default: false
-        description: 'If true, sets up SSH keys for Git access to clone private repositories.'
+        description: Whether to configure SSH keys for accessing Git repositories.
+
       target_environment:
-        description: "Name of the deployment environment (e.g., dev, staging, prod). Leave empty if no environment-specific context is needed."
         required: false
         type: string
         default: ""
+        description: Target deployment environment name (for example dev, staging, production).
 
-      # ── Plan options ─────────────────────────────────────────────────
       plan_only:
-        description: "Set this to `true` to run `smurf stf plan` only"
         required: false
         type: boolean
         default: false
-      plan_out:
-        description: 'Plan filename written inside terraform_directory (e.g. tfplan)'
-        required: false
-        type: string
-        default: tfplan
-      auto_approve:
-        description: 'Skip manual approval before apply or destroy'
-        required: false
-        type: boolean
-        default: false
+        description: Run only Terraform plan without applying changes.
+
+
     secrets:
-      # ── Cloud credentials ────────────────────────────────────────────
-      AZURE_CREDENTIALS:
-        required: false
-        description: 'Azure Credentials to install Azure in github runner.'
-      AWS_ACCESS_KEY_ID:
-        required: false
-        description: 'AWS Access Key ID to install AWS CLI.'
-      BUILD_ROLE:
-        required: false
-        description: 'AWS OIDC role for aws authentication.'
-      AWS_SECRET_ACCESS_KEY:
-        required: false
-        description: 'AWS Secret access key to install AWS CLI'
-      AWS_SESSION_TOKEN:
-        required: false
-        description: 'AWS Session Token to install AWS CLI'
-      GCP_CREDENTIALS:
-        required: false
-        description: 'The Google Cloud JSON service account key to use for authentication'
-      DIGITALOCEAN_ACCESS_TOKEN:
-        required: false
-        description: 'The DigitalOcean Personal Access Token for Application & API'
-      env-vars:
-        required: false
-        description: 'Pass required environment variables'
-      WORKLOAD_IDENTITY_PROVIDER:
-        required: false
-        description: 'The full identifier of the Workload Identity Provider'
-      SERVICE_ACCOUNT:
-        required: false
-        description: 'The service account to be used'
-      SSH_PRIVATE_KEY:
-        required: false
-        description: 'Private SSH key to register in the SSH agent'
+
+        AZURE_CREDENTIALS:
+          required: false
+          description: Azure service principal credentials used for authentication.
+
+        AWS_ACCESS_KEY_ID:
+          required: false
+          description: AWS access key ID used for authentication.
+
+        BUILD_ROLE:
+          required: false
+          description: IAM role or cloud build role used for deployment permissions.
+
+        AWS_SECRET_ACCESS_KEY:
+          required: false
+          description: AWS secret access key used for authentication.
+
+        AWS_SESSION_TOKEN:
+          required: false
+          description: Temporary AWS session token for authenticated requests.
+
+        GCP_CREDENTIALS:
+          required: false
+          description: GCP service account credentials used for authentication.
+
+        DIGITALOCEAN_ACCESS_TOKEN:
+          required: false
+          description: DigitalOcean API token used for resource provisioning.
+
+        env-vars:
+          required: false
+          description: Environment variables required during Terraform execution.
+
+        WORKLOAD_IDENTITY_PROVIDER:
+          required: false
+          description: Workload Identity Provider used for cloud authentication without static credentials.
+
+        SERVICE_ACCOUNT:
+          required: false
+          description: Cloud service account identifier used for authentication.
+
+        SSH_PRIVATE_KEY:
+          required: false
+          description: Private SSH key used for secure Git repository access.
 
 jobs:
-  ###############################################
-  # FORMAT → INIT → PLAN → APPLY
-  ###############################################
-  terraform-execution:
-    if: ${{ inputs.run_create }}
+
+  terraform-plan:
+    name: "⚙️ Terraform Init + Validate + Plan"
     runs-on: ubuntu-latest
     environment: ${{ inputs.target_environment }}
 
-    outputs:
-      tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
-
     steps:
-      - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
 
-      - name: 🔑 Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.10.0
-        if: ${{ inputs.git_ssh_key_setup }}
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v6
+
+      - uses: webfactory/ssh-agent@v0.10.0
+        if: ${{ inputs.git_ssh_key_setup == true }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -174,8 +179,11 @@ jobs:
           _EOT
           ) >> "$GITHUB_ENV"
 
-      # ── Cloud authentication ─────────────────────────────────────────
-      - name: 🟦 Install AWS CLI
+      ##########################
+      # Authentication
+      ##########################
+
+      - name: 🟦 Configure AWS
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -187,26 +195,17 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: ☁️ Install Azure CLI
+      - name: ☁️ Azure Login
         if: ${{ inputs.provider == 'azurerm' }}
         uses: azure/login@v3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🔐 Set Azure Terraform credentials
-        if: ${{ inputs.provider == 'azurerm' }}
-        run: |
-          echo "ARM_CLIENT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .clientId)" >> "$GITHUB_ENV"
-          echo "ARM_CLIENT_SECRET=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .clientSecret)" >> "$GITHUB_ENV"
-          echo "ARM_TENANT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .tenantId)" >> "$GITHUB_ENV"
-          echo "ARM_SUBSCRIPTION_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .subscriptionId)" >> "$GITHUB_ENV"
-          echo "ARM_USE_AZUREAD=true" >> "$GITHUB_ENV"
-
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: 'google-github-actions/auth@v3'
+        uses: google-github-actions/auth@v3
         with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           create_credentials_file: ${{ inputs.create_credentials_file }}
           token_format: ${{ inputs.token_format }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
@@ -214,82 +213,67 @@ jobs:
           access_token_lifetime: ${{ inputs.access_token_lifetime }}
           project_id: ${{ inputs.project_id }}
 
-      - name: 🟦 Install doctl
+      - name: 🌊 Configure DigitalOcean
         if: ${{ inputs.provider == 'digitalocean' }}
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      # ── Terraform & Smurf setup ──────────────────────────────────────
-      - name: 🛠️ Set up Terraform
+      ##########################
+      # Terraform
+      ##########################
+
+      - name: 🛠 Setup Terraform
         uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ inputs.terraform_version }}
-          terraform_wrapper: false
 
-      - name: ⚙️ Set up Smurf Terraform
-        uses: clouddrove/smurf@v1.1.5
+      - name: ⚙️ Setup Smurf
+        uses: clouddrove/smurf@master
         with:
-          version: ${{ inputs.smurf_version }}
+          version: latest
 
-      # ── Format → init → validate → plan → apply ──────────────────────
-      - name: 🧹 Smurf Terraform Format
+      - name: 🧹 Terraform Format
         run: |
-          smurf stf fmt --recursive --timeout 5s
+          smurf stf format
 
-      - name: 🏗️ Smurf Terraform Init
+      - name: 🏗 Terraform Init
         run: |
           smurf stf init --dir=${{ inputs.terraform_directory }}
 
-      - name: 🔎 Smurf Terraform validate
+      - name: ✅ Terraform Validate
         run: |
           smurf stf validate --dir=${{ inputs.terraform_directory }}
 
       - name: 📋 Terraform Plan
-        id: tf-plan
+        if: ${{ !inputs.destroy }}
+        shell: bash
         run: |
-          cd "${{ inputs.terraform_directory }}"
-          ARGS="--out=${{ inputs.plan_out }}"
-          if [ -n "${{ inputs.var_file }}" ]; then
-            ARGS="$ARGS --var-file=${{ inputs.var_file }}"
+          if [ -f "${{ inputs.terraform_directory }}/${{ inputs.var_file }}" ]; then
+            echo "Using var file: ${{ inputs.var_file }}"
+            smurf stf plan \
+              --dir="${{ inputs.terraform_directory }}" \
+              --var-file="${{ inputs.var_file }}"
+          else
+            echo "No tfvars file found"
+            smurf stf plan \
+              --dir="${{ inputs.terraform_directory }}"
           fi
-          smurf stf plan $ARGS
-          EXIT=$?
-          echo "exitcode=$EXIT" >> "$GITHUB_OUTPUT"
-          exit $EXIT
 
-      - name: ⏳ Approval Before Apply
-        if: ${{ !inputs.plan_only && !inputs.auto_approve }}
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ github.token }}
-          approvers: ${{ inputs.approvers }}
-          minimum-approvals: ${{ inputs['minimum-approvals'] }}
-          timeout-minutes: ${{ inputs.timeout }}
-          issue-title: "Approve Terraform Apply"
-
-      - name: 🚀 Terraform Apply
-        if: ${{ !inputs.plan_only }}
-        run: |
-          cd "${{ inputs.terraform_directory }}"
-          smurf stf apply "${{ inputs.plan_out }}"
-
-  ###############################################
-  # DESTROY → APPROVAL → DESTROY APPLY
-  ###############################################
-  terraform-destroy:
-    needs: terraform-execution
-    if: ${{ always() && inputs.run_destroy && (inputs.run_create != true || needs.terraform-execution.result == 'success') }}
+  terraform-apply:
+    name: "${{ inputs.destroy && '🔥 Terraform Destroy' || '🚀 Terraform Apply' }}"
+    needs: terraform-plan
+    if: ${{ !inputs.plan_only }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.target_environment }}
 
     steps:
-      - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
 
-      - name: 🔑 Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.10.0
-        if: ${{ inputs.git_ssh_key_setup }}
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v6
+
+      - uses: webfactory/ssh-agent@v0.10.0
+        if: ${{ inputs.git_ssh_key_setup == true }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -301,8 +285,11 @@ jobs:
           _EOT
           ) >> "$GITHUB_ENV"
 
-      # ── Cloud authentication ─────────────────────────────────────────
-      - name: 🟦 Install AWS CLI
+      ##################################################
+      # Authentication
+      ##################################################
+
+      - name: 🟦 Configure AWS
         if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -314,26 +301,17 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: ☁️ Install Azure CLI
+      - name: ☁️ Azure Login
         if: ${{ inputs.provider == 'azurerm' }}
         uses: azure/login@v3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🔐 Set Azure Terraform credentials
-        if: ${{ inputs.provider == 'azurerm' }}
-        run: |
-          echo "ARM_CLIENT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .clientId)" >> "$GITHUB_ENV"
-          echo "ARM_CLIENT_SECRET=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .clientSecret)" >> "$GITHUB_ENV"
-          echo "ARM_TENANT_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .tenantId)" >> "$GITHUB_ENV"
-          echo "ARM_SUBSCRIPTION_ID=$(echo '${{ secrets.AZURE_CREDENTIALS }}' | jq -r .subscriptionId)" >> "$GITHUB_ENV"
-          echo "ARM_USE_AZUREAD=true" >> "$GITHUB_ENV"
-
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: 'google-github-actions/auth@v3'
+        uses: google-github-actions/auth@v3
         with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           create_credentials_file: ${{ inputs.create_credentials_file }}
           token_format: ${{ inputs.token_format }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
@@ -341,66 +319,80 @@ jobs:
           access_token_lifetime: ${{ inputs.access_token_lifetime }}
           project_id: ${{ inputs.project_id }}
 
-      - name: 🟦 Install doctl
+      - name: 🌊 Configure DigitalOcean
         if: ${{ inputs.provider == 'digitalocean' }}
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
-      # ── Terraform & Smurf setup ──────────────────────────────────────
-      - name: 🛠️ Set up Terraform
+      ##################################################
+      # Terraform Setup
+      ##################################################
+
+      - name: 🛠 Setup Terraform
         uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ inputs.terraform_version }}
-          terraform_wrapper: false
 
-      - name: ⚙️ Set up Smurf Terraform
-        uses: clouddrove/smurf@v1.1.5
+      - name: ⚙️ Setup Smurf
+        uses: clouddrove/smurf@master
         with:
-          version: ${{ inputs.smurf_version }}
+          version: latest
 
-      # ── Init → import → approval → destroy ───────────────────────────
-      - name: 🏗️ Smurf Terraform Init
+      - name: 🏗 Terraform Init
         run: |
           smurf stf init --dir=${{ inputs.terraform_directory }}
 
-      - name: 🔗 Import orphaned Azure resources
-        if: ${{ inputs.provider == 'azurerm' }}
-        run: |
-          cd "${{ inputs.terraform_directory }}"
-          VAR_FILE=""
-          if [ -n "${{ inputs.var_file }}" ]; then
-            VAR_FILE="${{ inputs.var_file }}"
-            VAR_FILE="${VAR_FILE#./}"
-          fi
-          if [ ! -s terraform.tfstate ] || [ -z "$(terraform state list 2>/dev/null)" ]; then
-            RG=$(grep -E '^\s*resource_group_name\s*=' "$VAR_FILE" | sed -E 's/.*=\s*"([^"]+)".*/\1/')
-            if az group show --name "$RG" >/dev/null 2>&1; then
-              echo "Importing existing resource group into state: $RG"
-              smurf stf import --var-file="$VAR_FILE" azurerm_resource_group.test "/subscriptions/${ARM_SUBSCRIPTION_ID}/resourceGroups/${RG}"
-            else
-              echo "Resource group $RG not found in Azure — nothing to import."
-            fi
-          else
-            echo "Terraform state already populated — skipping import."
-          fi
+      ##################################################
+      # Manual Approval
+      ##################################################
 
-      - name: ⏳ Approval Before Destroy
-        if: ${{ !inputs.auto_approve }}
+      - name: ⏳ Approval
         uses: trstringer/manual-approval@v1
         with:
-          secret: ${{ github.token }}
+          secret: ${{ secrets.GITHUB_TOKEN }}
           approvers: ${{ inputs.approvers }}
           minimum-approvals: ${{ inputs['minimum-approvals'] }}
-          timeout-minutes: ${{ inputs.timeout }}
-          issue-title: "Approve Terraform Destroy"
+          issue-title: "${{ inputs.destroy && 'Approve Terraform Destroy' || 'Approve Terraform Apply' }}"
+
+      ##################################################
+      # Destroy
+      ##################################################
 
       - name: 💣 Terraform Destroy
+        if: ${{ inputs.destroy }}
+        shell: bash
         run: |
-          cd "${{ inputs.terraform_directory }}"
-          ARGS="--auto-approve"
-          if [ -n "${{ inputs.var_file }}" ]; then
-            ARGS="$ARGS --var-file=${{ inputs.var_file }}"
+          if [ -f "${{ inputs.terraform_directory }}/${{ inputs.var_file }}" ]; then
+            echo "Using var file: ${{ inputs.var_file }}"
+            smurf stf destroy \
+              --auto-approve \
+              --dir="${{ inputs.terraform_directory }}" \
+              --var-file="${{ inputs.var_file }}"
+          else
+            echo "No tfvars file found"
+            smurf stf destroy \
+              --auto-approve \
+              --dir="${{ inputs.terraform_directory }}"
           fi
-          smurf stf destroy $ARGS
-...
+
+      ##################################################
+      # Apply
+      ##################################################
+
+      - name: 🚀 Terraform Apply
+        if: ${{ !inputs.destroy }}
+        shell: bash
+        run: |
+          if [ -f "${{ inputs.terraform_directory }}/${{ inputs.var_file }}" ]; then
+            echo "Using var file: ${{ inputs.var_file }}"
+            smurf stf apply \
+              --auto-approve \
+              --dir="${{ inputs.terraform_directory }}" \
+              --var-file="${{ inputs.var_file }}"
+          else
+            echo "No tfvars file found"
+            smurf stf apply \
+              --auto-approve \
+              --dir="${{ inputs.terraform_directory }}"
+          fi
