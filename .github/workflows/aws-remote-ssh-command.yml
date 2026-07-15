@@ -83,7 +83,7 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 🔐 Executing remote SSH commands using SSH key
         uses: appleboy/ssh-action@v1.2.5

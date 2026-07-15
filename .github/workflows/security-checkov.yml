@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: 🧹 Cleanup Old SARIF
         run: rm -f results.sarif || true

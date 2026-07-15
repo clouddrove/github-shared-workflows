@@ -179,7 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.5
@@ -208,7 +208,7 @@ jobs:
     environment: ${{ inputs.target_environment }}
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.5
@@ -314,7 +314,7 @@ jobs:
     environment: ${{ inputs.target_environment }}
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.5

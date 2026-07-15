@@ -137,7 +137,7 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - uses: webfactory/ssh-agent@v0.10.0
         if: ${{ inputs.git_ssh_key_setup == true }}
