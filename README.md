@@ -120,16 +120,18 @@ Above example is just a simple example to call workflow from github shared workf
 23. [Powerpipe workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/23.powerpipe.md)
 24. [Prowler workflow AWS](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/24.prowlerAWS.md)
 25. [Prowler workflow GCP](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/25.prowlerGCP.md)
-26. [Smurf-Docker-Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/26.smurf-docker-helm.md)
-27. [Smurf Terraform Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/27.smurf-terraform.md)
-28. [Terraform Module Tag Release Workflow (Shared)](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/28.terraform-module-tag-release.md) -->
+26. [Terraform Module Tag Release Workflow (Shared)](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/28.terraform-module-tag-release.md)
+27. [Smurf-Docker Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/26.smurf-docker.md)
+28. [Smurf Terraform Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/27.smurf-tf-workflow.md)
+28. [Smurf Terraform Drift Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/28.smurf-tf-drift.md)
+29. [Smurf helm deploy workflows](https://github.com/clouddrove/github-shared-workflows/blob/master/docs/28.smurf-helm-deploy.md) -->
 
 ## 📊 Workflow Statistics
 
 | Category | Count | Workflows |
 |----------|-------|-----------|
-| **Terraform** | 9 | Checks, Lint, Workflow, Drift, PR Checks, Smurf, Monorepo Tag Release, STF Checks |
-| **Docker** | 4 | Build Push, Scanner, Scout, Smurf Helm |
+| **Terraform** | 9 | Checks, Lint, Workflow, Drift, PR Checks, Monorepo Tag Release, STF Checks |
+| **Docker** | 4 | Build Push, Scanner, Scout |
 | **PR Automation** | 7 | Auto Assignee, Auto Merge, Checks, Claude Review, Gemini Review, Gitleaks, Lock, Stale |
 | **Security** | 5 | Checkov, Prowler, Powerpipe, TFSec |
 | **AWS** | 3 | Prowler, SSM Send Command, Remote SSH Command |
@@ -138,9 +140,10 @@ Above example is just a simple example to call workflow from github shared workf
 | **GCP** | 1 | Prowler |
 | **Helm** | 1 | Deploy |
 | **Notification** | 1 | Slack |
+| **Smurf** | 4 | docker, helm, terraform |
 | **Other** | 3 | Infracost, README Generation, SST |
 
-**Total: 41 Production-Ready Workflows**
+**Total: 42 Production-Ready Workflows**
 
 ## 🚀 Table of Contents
 
@@ -158,7 +161,7 @@ Above example is just a simple example to call workflow from github shared workf
   * [Example for scan and push docker image on Dockerhub](./docs/docker-build-push.md#example-for-scan-and-push-docker-image-on-dockerhub)
   * [Example for scan and push docker image on ECR](./docs/docker-build-push.md#example-for-scan-and-push-docker-image-on-ecr)
 - [Docker Scout Workflow](./docs/docker-scout.md)
-- [Docker Smurf Helm Workflow](./docs/docker-smurf.md)
+
 
 ### GCP Workflows
 - [GCP Prowler Workflow](./docs/gcp-prowler.md)
@@ -193,13 +196,19 @@ Above example is just a simple example to call workflow from github shared workf
   * [Example for terraform checks with azure cloud](./docs/tf-checks.md#example-for-terraform-checks-with-azure-cloud)
   * [Example for terraform checks with aws cloud](./docs/tf-checks.md#example-for-terraform-checks-with-aws-cloud)
   * [Example for terraform checks with digitalocean cloud](./docs/tf-checks.md#example-for-terraform-checks-with-digitalocean-cloud)
-- [Terraform Smurf Checks](./docs/stf-checks.md)
 - [Terraform Drift Workflow](./docs/tf-drift.md)
 - [Terraform Lint Workflow](./docs/tf-lint.md)
 - [Terraform Monorepo Tag Release Workflow](./docs/tf-monorepo-tag-release.md)
 - [Terraform Plan Difference Checks Workflow](./docs/tf-diff-checks.md)
-- [Terraform Smurf Workflow](./docs/tf-smurf.md)
 - [Terraform Workflow](./docs/tf-workflow.md)
+
+### Smurf Workflows
+- [Docker Smurf Workflow](./docs/smurf-docker.md)
+- [Docker helm Workflow](./docs/smurf-helm-deploy.md)
+- [Terraform Smurf Workflow](./docs/smurf-tf-workflow.md)
+- [Terraform Smurf Checks](./docs/smurf-tf-checks.md)
+- [Terraform Smurf drift](./docs/smurf-tf-drift.md)
+
 
 ### Other Workflows
 - [CI/CD Pipeline Workflow](./docs/ci.md)
@@ -281,7 +290,7 @@ Please review our [Security Policy](./.github/SECURITY.md) before reporting secu
 <summary><b>☁️ Infrastructure as Code</b> - Deploy with confidence</summary>
 
 - [Terraform Workflow](./docs/tf-workflow.md) - Full Terraform lifecycle management
-- [Terraform Smurf Checks](./docs/stf-checks.md) - Validation and testing
+- [Smurf Terraform Checks](./docs/smurf-tf-checks.md) - Validation and testing
 - [CloudFormation Deploy](./docs/cf-deploy.md) - AWS CloudFormation deployment
 
 </details>

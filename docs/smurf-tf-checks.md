@@ -1,6 +1,6 @@
-## [Smurf Terraform Checks Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/tf-checks.yml)
+## [Smurf Terraform Checks Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/smurf-tf-checks.yml)
 
-This workflow automates smurf terraform checks including format, init, validate, and optionally plan and version compatibility testing. It utilizes the workflows defined in `.github/workflows/stf-checks.yml`
+This workflow automates smurf terraform checks including format, init, validate, and optionally plan and version compatibility testing. It utilizes the workflows defined in `.github/workflows/smurf-tf-checks.yml`
 
 ### Features
 
@@ -24,7 +24,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/stf-checks.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'azurerm'
@@ -42,7 +42,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/stf-checks.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'aws'
@@ -66,7 +66,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/stf-checks.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'aws'
@@ -88,7 +88,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/stf-checks.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'azurerm'
@@ -108,7 +108,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/stf-checks.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'aws'
@@ -131,7 +131,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/stf-checks.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'digitalocean'
@@ -150,7 +150,7 @@ on:
 
 jobs:
   terraform-checks:
-    uses: clouddrove/github-shared-workflows/.github/workflows/stf-checks.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-tf-checks.yml@v2
     with:
       working_directory: './examples/complete/'
       provider: 'gcp'
