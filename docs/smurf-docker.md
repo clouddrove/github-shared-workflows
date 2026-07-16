@@ -1,8 +1,8 @@
-## [Smurf Docker Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/docker-smurf.yml)
+## [Smurf Docker Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/smurf-docker.yml)
 
 Reusable workflow for building, scanning, and pushing Docker images with [Smurf SDKR](https://github.com/clouddrove/smurf) (`smurf sdkr`).
 
-**Shared workflow:** `.github/workflows/docker-smurf.yml`  
+**Shared workflow:** `.github/workflows/smurf-docker.yml`  
 **Caller workflow:** lives in your application repo under `.github/workflows/` and calls the shared workflow via `workflow_call`.
 
 ### Architecture
@@ -11,7 +11,7 @@ Reusable workflow for building, scanning, and pushing Docker images with [Smurf 
 Your repo (caller)                    github-shared-workflows (shared)
 ─────────────────                   ─────────────────────────────────
 .github/workflows/
-  docker-caller.yml  ──uses──►  .github/workflows/docker-smurf.yml
+  docker-caller.yml  ──uses──►  .github/workflows/smurf-docker.yml
                                       │
                                       ├── job: docker_build
                                       │     build → save tar → upload artifact
@@ -118,7 +118,7 @@ permissions:
 
 jobs:
   docker-ecr:
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-docker.yml@v2
     with:
       docker_enable: 'true'
       docker_push: 'true'
@@ -150,7 +150,7 @@ permissions:
 
 jobs:
   docker-hub:
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-docker.yml@v2
     with:
       docker_enable: 'true'
       docker_push: 'true'
@@ -180,7 +180,7 @@ permissions:
 
 jobs:
   docker-gcp:
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-docker.yml@v2
     with:
       docker_enable: 'true'
       docker_push: 'true'
@@ -215,7 +215,7 @@ permissions:
 
 jobs:
   docker-azure:
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-docker.yml@v2
     with:
       docker_enable: 'true'
       docker_push: 'true'
@@ -240,7 +240,7 @@ jobs:
 ```yaml
 jobs:
   docker-build:
-    uses: clouddrove/github-shared-workflows/.github/workflows/docker-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-docker.yml@v2
     with:
       docker_enable: 'true'
       docker_push: 'false'
