@@ -6,7 +6,7 @@ on:
   workflow_call:
     inputs:
       terraform_directory:
-        required: true
+        required: false
         type: string
         description: Root directory of Terraform configuration.
 
@@ -231,7 +231,7 @@ jobs:
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@master
         with:
-          version: latest
+          version: ${{ inputs.smurf_version }}
 
       - name: 🧹 Terraform Format
         run: |
@@ -249,16 +249,23 @@ jobs:
         if: ${{ !inputs.destroy }}
         shell: bash
         run: |
-          if [ -f "${{ inputs.terraform_directory }}/${{ inputs.var_file }}" ]; then
-            echo "Using var file: ${{ inputs.var_file }}"
+          if [ -n "${{ inputs.var_file }}" ]; then
+            echo "Using tfvars: ${{ inputs.var_file }}"
+
+            cd "${{ inputs.terraform_directory }}"
+
+            pwd
+            ls -la
+
             smurf stf plan \
-              --dir="${{ inputs.terraform_directory }}" \
               --var-file="${{ inputs.var_file }}"
           else
-            echo "No tfvars file found"
+            echo "No tfvars provided"
+
             smurf stf plan \
               --dir="${{ inputs.terraform_directory }}"
           fi
+            
 
   terraform-apply:
     name: "${{ inputs.destroy && '🔥 Terraform Destroy' || '🚀 Terraform Apply' }}"
@@ -337,7 +344,7 @@ jobs:
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@master
         with:
-          version: latest
+          version: ${{ inputs.smurf_version }}
 
       - name: 🏗 Terraform Init
         run: |
@@ -363,14 +370,20 @@ jobs:
         if: ${{ inputs.destroy }}
         shell: bash
         run: |
-          if [ -f "${{ inputs.terraform_directory }}/${{ inputs.var_file }}" ]; then
-            echo "Using var file: ${{ inputs.var_file }}"
+          if [ -n "${{ inputs.var_file }}" ]; then
+            echo "Using tfvars: ${{ inputs.var_file }}"
+
+            cd "${{ inputs.terraform_directory }}"
+
+            pwd
+            ls -la
+
             smurf stf destroy \
               --auto-approve \
-              --dir="${{ inputs.terraform_directory }}" \
               --var-file="${{ inputs.var_file }}"
           else
-            echo "No tfvars file found"
+            echo "No tfvars provided"
+
             smurf stf destroy \
               --auto-approve \
               --dir="${{ inputs.terraform_directory }}"
@@ -384,14 +397,20 @@ jobs:
         if: ${{ !inputs.destroy }}
         shell: bash
         run: |
-          if [ -f "${{ inputs.terraform_directory }}/${{ inputs.var_file }}" ]; then
-            echo "Using var file: ${{ inputs.var_file }}"
+          if [ -n "${{ inputs.var_file }}" ]; then
+            echo "Using tfvars: ${{ inputs.var_file }}"
+
+            cd "${{ inputs.terraform_directory }}"
+
+            pwd
+            ls -la
+
             smurf stf apply \
               --auto-approve \
-              --dir="${{ inputs.terraform_directory }}" \
               --var-file="${{ inputs.var_file }}"
           else
-            echo "No tfvars file found"
+            echo "No tfvars provided"
+
             smurf stf apply \
               --auto-approve \
               --dir="${{ inputs.terraform_directory }}"
