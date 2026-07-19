@@ -1,8 +1,8 @@
-## [Smurf Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/helm-smurf.yml)
+## [Smurf Helm Workflow](https://github.com/clouddrove/github-shared-workflows/blob/master/.github/workflows/smurf-helm-deploy.yml)
 
 Reusable workflow for Helm chart lint, template, deploy, and rollback using [Smurf SELM](https://github.com/clouddrove/smurf) (`smurf selm`).
 
-**Shared workflow:** `.github/workflows/helm-smurf.yml`  
+**Shared workflow:** `.github/workflows/smurf-helm-deploy.yml`  
 **Caller workflow:** lives in your application repo and calls the shared workflow via `workflow_call`.
 
 ### Architecture
@@ -11,7 +11,7 @@ Reusable workflow for Helm chart lint, template, deploy, and rollback using [Smu
 Your repo (caller)                    github-shared-workflows (shared)
 ─────────────────                   ─────────────────────────────────
 .github/workflows/
-  helm-caller.yml    ──uses──►  .github/workflows/helm-smurf.yml
+  helm-caller.yml    ──uses──►  .github/workflows/smurf-helm-deploy.yml
                                       │
                                       ├── job: helm-lint      (helm_enable)
                                       ├── job: helm-deploy    (helm_enable, needs lint)
@@ -106,7 +106,7 @@ permissions:
 
 jobs:
   helm-deploy:
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-helm-deploy.yml@v2
     with:
       provider: aws
       helm_enable: true
@@ -138,7 +138,7 @@ permissions:
 
 jobs:
   helm-deploy:
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-helm-deploy.yml@v2
     with:
       provider: gcp
       helm_enable: true
@@ -172,7 +172,7 @@ permissions:
 
 jobs:
   helm-deploy:
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-helm-deploy.yml@v2
     with:
       provider: azure
       helm_enable: true
@@ -217,7 +217,7 @@ permissions:
 jobs:
   helm-deploy:
     if: ${{ github.event.inputs.action == 'deploy' }}
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-helm-deploy.yml@v2
     with:
       provider: aws
       helm_enable: true
@@ -232,7 +232,7 @@ jobs:
 
   helm-rollback:
     if: ${{ github.event.inputs.action == 'rollback' }}
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-helm-deploy.yml@v2
     with:
       provider: aws
       helm_rollback_enable: true
@@ -252,7 +252,7 @@ jobs:
 ```yaml
 jobs:
   helm-deploy:
-    uses: clouddrove/github-shared-workflows/.github/workflows/helm-smurf.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/smurf-helm-deploy.yml@v2
     with:
       provider: aws
       helm_enable: true

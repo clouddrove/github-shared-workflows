@@ -29,7 +29,7 @@ Complete index of all available workflows organized by category and use case.
 | [tf-lint.yml](./.github/workflows/tf-lint.yml) | Lint Terraform code | Code quality checks |
 | [tf-drift.yml](./.github/workflows/tf-drift.yml) | Detect infrastructure drift | Compliance checking |
 | [tf-pr-checks.yml](./.github/workflows/tf-pr-checks.yml) | PR plan comparison | Change review |
-| [tf-smurf.yml](./.github/workflows/tf-smurf.yml) | Smurf-based Terraform operations | Advanced workflows |
+| [smurf-tf-workflow.yml](./.github/workflows/smurf-tf-workflow.yml) | Smurf-based Terraform operations | Advanced workflows |
 | [tf-monorepo-tag-release.yml](./.github/workflows/tf-monorepo-tag-release.yml) | Auto-tag modules in monorepo | Module versioning |
 
 #### CloudFormation Workflows

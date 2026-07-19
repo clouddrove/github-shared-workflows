@@ -107,7 +107,6 @@ on:
         default: false
         description: Run only Terraform plan without applying changes.
 
-
     secrets:
 
         AZURE_CREDENTIALS:
@@ -251,17 +250,11 @@ jobs:
         run: |
           if [ -n "${{ inputs.var_file }}" ]; then
             echo "Using tfvars: ${{ inputs.var_file }}"
-
             cd "${{ inputs.terraform_directory }}"
-
-            pwd
-            ls -la
-
             smurf stf plan \
               --var-file="${{ inputs.var_file }}"
           else
             echo "No tfvars provided"
-
             smurf stf plan \
               --dir="${{ inputs.terraform_directory }}"
           fi
@@ -372,18 +365,12 @@ jobs:
         run: |
           if [ -n "${{ inputs.var_file }}" ]; then
             echo "Using tfvars: ${{ inputs.var_file }}"
-
             cd "${{ inputs.terraform_directory }}"
-
-            pwd
-            ls -la
-
             smurf stf destroy \
               --auto-approve \
               --var-file="${{ inputs.var_file }}"
           else
             echo "No tfvars provided"
-
             smurf stf destroy \
               --auto-approve \
               --dir="${{ inputs.terraform_directory }}"
@@ -399,18 +386,12 @@ jobs:
         run: |
           if [ -n "${{ inputs.var_file }}" ]; then
             echo "Using tfvars: ${{ inputs.var_file }}"
-
             cd "${{ inputs.terraform_directory }}"
-
-            pwd
-            ls -la
-
             smurf stf apply \
               --auto-approve \
               --var-file="${{ inputs.var_file }}"
           else
             echo "No tfvars provided"
-
             smurf stf apply \
               --auto-approve \
               --dir="${{ inputs.terraform_directory }}"

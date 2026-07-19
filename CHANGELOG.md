@@ -79,7 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `terraform-lint.yml` → `tf-lint.yml`
   - `terraform-monorepo-tag-release.yml` → `tf-monorepo-tag-release.yml`
   - `terraform-pr-checks.yml` → `tf-pr-checks.yml`
-  - `terraform-smurf.yml` → `tf-smurf.yml`
+  - `terraform-smurf.yml` → `smurf-tf-woorkflow.yml`
   - `terraform-workflow.yml` → `tf-workflow.yml`
 
 - **CloudFormation workflows:** All `cloudformation-*` workflows renamed to `cf-*`
