@@ -87,10 +87,11 @@ jobs:
       - name: 📨 Generate Slack message
         id: infracost-slack
         run: |
+          delimiter="EOF_$(openssl rand -hex 16)"
           {
-            echo "slack-message<<EOF_${{ github.run_id }}"
+            echo "slack-message<<${delimiter}"
             infracost output --path=/tmp/infracost.json --format=slack-message --show-skipped
-            echo "EOF_${{ github.run_id }}"
+            echo "${delimiter}"
           } >> "$GITHUB_OUTPUT"
           echo "diffTotalMonthlyCost=$(jq '(.diffTotalMonthlyCost // 0) | tonumber' /tmp/infracost.json)" >> "$GITHUB_OUTPUT"
 
