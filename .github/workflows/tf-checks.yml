@@ -190,13 +190,13 @@ jobs:
           terraform_wrapper: false
           terraform_version: ${{ steps.set-version.outputs.tf_version }}
 
-      - name: 🌱 Set environment variables
+      - name: 🌱 Set environment variables    
         run: |
           (
           cat <<'_EOT'
           ${{ secrets.env-vars }}
           _EOT
-          ) >> "$GITHUB_ENV"
+          ) >> "$GITHUB_ENV" 
 
       - name: 🧹 Terraform Format
         run: terraform fmt --recursive -check=true
