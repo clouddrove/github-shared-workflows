@@ -12,6 +12,7 @@ Complete index of all available workflows organized by category and use case.
 | Deploy Helm Chart | [helm-deploy.yml](./.github/workflows/helm-deploy.yml) |
 | Scan Security | [security-checkov.yml](./.github/workflows/security-checkov.yml) |
 | Validate PR | [pr-checks.yml](./.github/workflows/pr-checks.yml) |
+| Diagnose failed CI | [pr-naoru.yml](./.github/workflows/pr-naoru.yml) |
 | Auto Assign PR | [pr-auto-assignee.yml](./.github/workflows/pr-auto-assignee.yml) |
 | Release Tags | [release-tag.yml](./.github/workflows/release-tag.yml) |
 | Slack Notifications | [notify-slack.yml](./.github/workflows/notify-slack.yml) |
@@ -74,6 +75,7 @@ Complete index of all available workflows organized by category and use case.
 | [pr-gemini-review.yml](./.github/workflows/pr-gemini-review.yml) | AI code review (Gemini) | Code quality |
 | [pr-gitleaks-scan.yml](./.github/workflows/pr-gitleaks-scan.yml) | Secret scanning | Security |
 | [pr-lock.yml](./.github/workflows/pr-lock.yml) | Lock stale PRs/issues | Repository maintenance |
+| [pr-naoru.yml](./.github/workflows/pr-naoru.yml) | Diagnose failed CI jobs with AI | Failure triage |
 | [pr-stale.yml](./.github/workflows/pr-stale.yml) | Mark stale PRs | Cleanup |
 
 ### 🚀 Release Workflows
@@ -124,6 +126,7 @@ Complete index of all available workflows organized by category and use case.
 | **Kubernetes Deploy** | helm-deploy.yml |
 | **Security Scanning** | security-checkov.yml, security-prowler.yml |
 | **PR Automation** | pr-checks.yml, pr-auto-assignee.yml, pr-gitleaks-scan.yml |
+| **Failed CI Diagnosis** | pr-naoru.yml |
 | **Release Management** | release-tag.yml, release-changelog.yml |
 | **Multi-Cloud Security** | security-prowler.yml, aws-prowler.yml, gcp-prowler.yml |
 | **Cost Optimization** | infracost.yml |

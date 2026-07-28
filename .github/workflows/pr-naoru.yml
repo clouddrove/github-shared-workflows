@@ -1,0 +1,290 @@
+---
+name: PR Naoru CI Doctor
+
+on:
+  workflow_call:
+    inputs:
+      provider:
+        description: "LLM provider: anthropic | openai | gemini | openrouter | xai | groq | custom"
+        required: false
+        type: string
+        default: openrouter
+      model:
+        description: "Model id override"
+        required: false
+        type: string
+        default: deepseek/deepseek-v4-flash
+      base-url:
+        description: "API base URL override. Required when provider is custom."
+        required: false
+        type: string
+        default: ""
+      prompt:
+        description: "Prompt template. Supports {{LOG}}, {{JOB_NAME}}, and {{REPO}} placeholders."
+        required: false
+        type: string
+        default: |
+          You are a senior DevOps engineer. A CI job just failed.
+
+          Job: {{JOB_NAME}}
+          Repository: {{REPO}}
+
+          Here are the tailed logs from the failed job:
+
+          {{LOG}}
+
+          Diagnose the most likely root cause in 1-2 sentences, then give a
+          specific suggested fix. Keep the whole response under 200 words.
+          End with a single line: "Confidence: High|Medium|Low".
+      max-log-lines:
+        description: "Tail this many lines from the failed job log."
+        required: false
+        type: number
+        default: 500
+      max-tokens:
+        description: "Response token cap for the LLM request."
+        required: false
+        type: number
+        default: 600
+      failed-job-name:
+        description: "Failed job name to diagnose. If blank, the first failed job is used."
+        required: false
+        type: string
+        default: ""
+      post-comment:
+        description: "Post the diagnosis as a PR comment when the event is a pull request."
+        required: false
+        type: boolean
+        default: true
+      sticky:
+        description: "Update the same PR comment on reruns instead of creating a new one."
+        required: false
+        type: boolean
+        default: true
+    secrets:
+      API_KEY:
+        description: "API key for the selected provider."
+        required: true
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    outputs:
+      diagnosis: ${{ steps.call-llm.outputs.diagnosis }}
+    steps:
+      - name: Fetch failed job logs
+        id: logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          FAILED_JOB_NAME: ${{ inputs.failed-job-name }}
+          MAX_LOG_LINES: ${{ inputs.max-log-lines }}
+        run: |
+          set -euo pipefail
+
+          jobs_json="$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100")"
+          job_id=""
+
+          if [ -n "$FAILED_JOB_NAME" ]; then
+            name_lc="$(printf '%s' "$FAILED_JOB_NAME" | tr '[:upper:]' '[:lower:]')"
+            job_id="$(
+              printf '%s' "$jobs_json" |
+                jq -r --arg name "$name_lc" '.jobs[] | select(.conclusion == "failure") | select((.name | ascii_downcase) | contains($name)) | .id' |
+                head -n 1
+            )"
+          fi
+
+          if [ -z "$job_id" ]; then
+            job_id="$(
+              printf '%s' "$jobs_json" |
+                jq -r '.jobs[] | select(.conclusion == "failure") | .id' |
+                head -n 1
+            )"
+          fi
+
+          if [ -z "$job_id" ]; then
+            echo "(no failed job found in this workflow run)" > raw.log
+          else
+            gh api "repos/$REPO/actions/jobs/$job_id/logs" > raw.log
+          fi
+
+          tail -n "$MAX_LOG_LINES" raw.log > tailed.log
+          echo "Captured $(wc -l < tailed.log) log lines"
+
+      - name: Call LLM
+        id: call-llm
+        env:
+          CID_PROVIDER: ${{ inputs.provider }}
+          CID_MODEL: ${{ inputs.model }}
+          CID_BASE_URL: ${{ inputs.base-url }}
+          CID_API_KEY: ${{ secrets.API_KEY }}
+          CID_MAX_TOKENS: ${{ inputs.max-tokens }}
+          CID_PROMPT_TEMPLATE: ${{ inputs.prompt }}
+          CID_JOB_NAME: ${{ inputs.failed-job-name || github.job }}
+          CID_REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PYEOF'
+          import json
+          import os
+          import sys
+          import urllib.error
+          import urllib.request
+
+          provider = os.environ["CID_PROVIDER"].strip().lower()
+          model = os.environ.get("CID_MODEL", "").strip()
+          base_url = os.environ.get("CID_BASE_URL", "").strip()
+          api_key = os.environ.get("CID_API_KEY", "").strip()
+          max_tokens = int(os.environ.get("CID_MAX_TOKENS", "600"))
+
+          if not api_key:
+              print(f"::error::No API key received for provider '{provider}'.")
+              sys.exit(1)
+
+          with open("tailed.log", "r", errors="replace") as log_file:
+              log = log_file.read()[-12000:]
+
+          prompt = (
+              os.environ["CID_PROMPT_TEMPLATE"]
+              .replace("{{LOG}}", log)
+              .replace("{{JOB_NAME}}", os.environ.get("CID_JOB_NAME", "unknown"))
+              .replace("{{REPO}}", os.environ.get("CID_REPO", ""))
+          )
+
+          defaults = {
+              "anthropic": ("https://api.anthropic.com/v1/messages", "claude-sonnet-4-5"),
+              "openai": ("https://api.openai.com/v1/chat/completions", "gpt-4o"),
+              "gemini": ("https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent", "gemini-2.5-flash"),
+              "openrouter": ("https://openrouter.ai/api/v1/chat/completions", "deepseek/deepseek-v4-flash"),
+              "xai": ("https://api.x.ai/v1/chat/completions", "grok-2"),
+              "groq": ("https://api.groq.com/openai/v1/chat/completions", "llama-3.3-70b-versatile"),
+              "custom": (base_url, model),
+          }
+
+          if provider not in defaults:
+              print(f"::error::Unknown provider '{provider}'.")
+              sys.exit(1)
+
+          url, default_model = defaults[provider]
+          url = base_url or url
+          model = model or default_model
+
+          if provider == "custom" and (not url or not model):
+              print("::error::provider=custom requires base-url and model.")
+              sys.exit(1)
+
+          headers = {"content-type": "application/json"}
+
+          if provider == "anthropic":
+              headers["x-api-key"] = api_key
+              headers["anthropic-version"] = "2023-06-01"
+              body = {
+                  "model": model,
+                  "max_tokens": max_tokens,
+                  "messages": [{"role": "user", "content": prompt}],
+              }
+          elif provider == "gemini":
+              url = url.format(model=model) + f"?key={api_key}"
+              body = {
+                  "contents": [{"parts": [{"text": prompt}]}],
+                  "generationConfig": {"maxOutputTokens": max_tokens},
+              }
+          else:
+              headers["Authorization"] = f"Bearer {api_key}"
+              body = {
+                  "model": model,
+                  "max_tokens": max_tokens,
+                  "messages": [{"role": "user", "content": prompt}],
+              }
+
+          req = urllib.request.Request(
+              url,
+              data=json.dumps(body).encode(),
+              headers=headers,
+              method="POST",
+          )
+
+          try:
+              with urllib.request.urlopen(req, timeout=60) as resp:
+                  data = json.loads(resp.read().decode())
+          except urllib.error.HTTPError as err:
+              print(f"::error::{provider} API error {err.code}: {err.read().decode()[:500]}")
+              sys.exit(1)
+          except urllib.error.URLError as err:
+              print(f"::error::{provider} request failed: {err}")
+              sys.exit(1)
+
+          try:
+              if provider == "anthropic":
+                  text = data["content"][0]["text"]
+              elif provider == "gemini":
+                  text = data["candidates"][0]["content"]["parts"][0]["text"]
+              else:
+                  text = data["choices"][0]["message"]["content"]
+          except (KeyError, IndexError):
+              print(f"::error::Could not parse {provider} response: {json.dumps(data)[:500]}")
+              sys.exit(1)
+
+          with open("diagnosis.md", "w") as diagnosis_file:
+              diagnosis_file.write(text)
+
+          delim = "EOF_NAORU_DIAGNOSIS"
+          with open(os.environ["GITHUB_OUTPUT"], "a") as gh_out:
+              gh_out.write(f"diagnosis<<{delim}\n{text}\n{delim}\n")
+
+          print("Diagnosis written.")
+          PYEOF
+
+      - name: Build comment body
+        if: always()
+        env:
+          PROVIDER: ${{ inputs.provider }}
+          MODEL: ${{ inputs.model }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          {
+            echo "<!-- pr-naoru-ci-doctor -->"
+            echo "## Naoru CI Doctor"
+            echo
+            echo "**Provider:** \`$PROVIDER\`"
+            echo "**Model:** \`$MODEL\`"
+            echo "**Run:** $RUN_URL"
+            echo
+            cat diagnosis.md
+          } > comment.md
+
+      - name: Post sticky PR comment
+        if: ${{ inputs.post-comment && github.event.pull_request.number }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          STICKY: ${{ inputs.sticky }}
+          MARKER: "<!-- pr-naoru-ci-doctor -->"
+        run: |
+          set -euo pipefail
+
+          existing_id=""
+          if [ "$STICKY" = "true" ]; then
+            existing_id="$(
+              gh api "repos/$REPO/issues/$PR_NUMBER/comments?per_page=100" \
+                --jq "[.[] | select(.body | startswith(\"$MARKER\"))][0].id // empty"
+            )"
+          fi
+
+          body="$(cat comment.md)"
+          if [ -n "$existing_id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$existing_id" -f body="$body"
+          else
+            gh api "repos/$REPO/issues/$PR_NUMBER/comments" -f body="$body"
+          fi
+
+      - name: Write to Step Summary
+        if: ${{ !github.event.pull_request.number }}
+        run: cat comment.md >> "$GITHUB_STEP_SUMMARY"
+...
