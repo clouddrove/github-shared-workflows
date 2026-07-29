@@ -132,7 +132,7 @@ Above example is just a simple example to call workflow from github shared workf
 |----------|-------|-----------|
 | **Terraform** | 9 | Checks, Lint, Workflow, Drift, PR Checks, Monorepo Tag Release, STF Checks |
 | **Docker** | 4 | Build Push, Scanner, Scout |
-| **PR Automation** | 8 | Auto Assignee, Auto Merge, Checks, Claude Review, Gemini Review, Gitleaks, Lock, Naoru, Stale |
+| **PR Automation** | 8 | Auto Assignee, Auto Merge, Checks, Claude Review, Gemini Review, Gitleaks, Lock, Agent Naoru, Stale |
 | **Security** | 5 | Checkov, Prowler, Powerpipe, TFSec |
 | **AWS** | 3 | Prowler, SSM Send Command, Remote SSH Command |
 | **CloudFormation** | 3 | Deploy, Deploy StackSet, Lint |
@@ -181,7 +181,7 @@ Above example is just a simple example to call workflow from github shared workf
 - [PR Gemini Review Workflow](./docs/pr-gemini-review.md)
 - [PR Gitleaks Scan Workflow](./docs/pr-gitleaks-scan.md)
 - [PR Lock Workflow](./docs/pr-lock.md)
-- [PR Naoru CI Doctor Workflow](./docs/pr-naoru.md)
+- [Clouddrove Agent Naoru Workflow](./docs/agent-naoru.md)
 - [PR Stale Workflow](./docs/pr-stale.md)
 
 ### Release Workflows

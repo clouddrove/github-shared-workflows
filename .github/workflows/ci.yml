@@ -222,7 +222,7 @@ jobs:
           echo "Validating naming conventions..."
           
           # Define valid prefixes
-          valid_prefixes=("tf-" "cf-" "pr-" "aws-" "gcp-" "security-" "release-" "notify-" "docker-" "helm-" "yml-" "ci" "infracost" "readme" "sst")
+          valid_prefixes=("tf-" "cf-" "pr-" "agent-" "aws-" "gcp-" "security-" "release-" "notify-" "docker-" "helm-" "yml-" "ci" "infracost" "readme" "sst")
           
           for file in .github/workflows/*.yml; do
             filename=$(basename "$file" .yml)

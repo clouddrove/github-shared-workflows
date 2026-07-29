@@ -54,6 +54,7 @@ The CI/CD pipeline workflow (`ci.yml`) automatically validates, tests, and ensur
   - `tf-*` - Terraform workflows
   - `cf-*` - CloudFormation workflows
   - `pr-*` - Pull Request workflows
+  - `agent-*` - Clouddrove agent workflows
   - `aws-*` - AWS-specific workflows
   - `gcp-*` - GCP-specific workflows
   - `security-*` - Security workflows

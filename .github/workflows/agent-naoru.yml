@@ -1,5 +1,5 @@
 ---
-name: PR Naoru CI Doctor
+name: Clouddrove Agent Naoru
 
 on:
   workflow_call:
@@ -248,8 +248,8 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           {
-            echo "<!-- pr-naoru-ci-doctor -->"
-            echo "## Naoru CI Doctor"
+            echo "<!-- agent-naoru-ci-doctor -->"
+            echo "## Clouddrove Agent Naoru"
             echo
             echo "**Provider:** \`$PROVIDER\`"
             echo "**Model:** \`$MODEL\`"
@@ -265,7 +265,7 @@ jobs:
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           STICKY: ${{ inputs.sticky }}
-          MARKER: "<!-- pr-naoru-ci-doctor -->"
+          MARKER: "<!-- agent-naoru-ci-doctor -->"
         run: |
           set -euo pipefail
 

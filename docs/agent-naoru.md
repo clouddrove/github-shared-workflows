@@ -1,8 +1,8 @@
-# Naoru CI Doctor Workflow
+# Clouddrove Agent Naoru Workflow
 
 ## Overview
 
-The Naoru CI Doctor workflow (`pr-naoru.yml`) diagnoses a failed job in the same GitHub Actions run with an LLM and posts the result as a sticky pull request comment.
+The Clouddrove Agent Naoru workflow (`agent-naoru.yml`) diagnoses a failed job in the same GitHub Actions run with an LLM and posts the result as a sticky pull request comment.
 
 It is designed to run after your real validation, build, or test job fails. The workflow fetches the failed job logs directly from the GitHub Actions job log API, sends the tailed logs to the configured provider, and writes the diagnosis to the PR or workflow summary.
 
@@ -54,10 +54,10 @@ jobs:
       - name: Terraform validate
         run: terraform -chdir=terraform validate
 
-  naoru:
+  agent-naoru:
     needs: [terraform-check]
     if: ${{ always() && needs.terraform-check.result == 'failure' }}
-    uses: clouddrove/github-shared-workflows/.github/workflows/pr-naoru.yml@v2
+    uses: clouddrove/github-shared-workflows/.github/workflows/agent-naoru.yml@v2
     with:
       failed-job-name: terraform-check
     secrets:
@@ -97,7 +97,7 @@ secrets:
 
 ## Notes
 
-- The caller workflow must grant `actions: read` so Naoru can fetch failed job logs.
+- The caller workflow must grant `actions: read` so Clouddrove Agent Naoru can fetch failed job logs.
 - The caller workflow must grant `pull-requests: write` if PR comments should be posted.
 - The diagnosis workflow should depend on the job it diagnoses and use an `always()` failure condition.
 ...
