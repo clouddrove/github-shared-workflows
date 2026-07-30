@@ -33,9 +33,18 @@ on:
 
           {{LOG}}
 
-          Diagnose the most likely root cause in 1-2 sentences, then give a
-          specific suggested fix. Keep the whole response under 200 words.
-          End with a single line: "Confidence: High|Medium|Low".
+          Diagnose the failure and return markdown using exactly these sections:
+
+          ### Root Cause
+          Explain the most likely root cause in 1-2 sentences.
+
+          ### Suggested Solution
+          Give a specific fix the developer can apply.
+
+          ### Confidence
+          High|Medium|Low
+
+          Keep the whole response under 200 words.
       max-log-lines:
         description: "Tail this many lines from the failed job log."
         required: false
@@ -247,6 +256,35 @@ jobs:
           MODEL: ${{ inputs.model }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          python3 - <<'PYEOF'
+          import re
+
+          try:
+              with open("diagnosis.md", "r", encoding="utf-8") as diagnosis_file:
+                  diagnosis = diagnosis_file.read().strip()
+          except FileNotFoundError:
+              diagnosis = "The LLM diagnosis step did not produce a response."
+
+          has_root_cause = re.search(r"^###\s+Root Cause\b", diagnosis, re.IGNORECASE | re.MULTILINE)
+          has_solution = re.search(r"^###\s+Suggested Solution\b", diagnosis, re.IGNORECASE | re.MULTILINE)
+          has_confidence = re.search(r"^###\s+Confidence\b", diagnosis, re.IGNORECASE | re.MULTILINE)
+
+          if has_root_cause and has_solution and has_confidence:
+              summary = diagnosis
+          else:
+              summary = "\n\n".join([
+                  "### Root Cause",
+                  diagnosis,
+                  "### Suggested Solution",
+                  "Review the failed job log and apply the smallest code, dependency, or workflow configuration change that resolves the reported error. Re-run the failed job after the change.",
+                  "### Confidence",
+                  "Low",
+              ])
+
+          with open("diagnosis-summary.md", "w", encoding="utf-8") as summary_file:
+              summary_file.write(summary + "\n")
+          PYEOF
+
           {
             echo "<!-- agent-naoru-ci-doctor -->"
             echo "## Clouddrove Agent Naoru"
@@ -255,7 +293,7 @@ jobs:
             echo "**Model:** \`$MODEL\`"
             echo "**Run:** $RUN_URL"
             echo
-            cat diagnosis.md
+            cat diagnosis-summary.md
           } > comment.md
 
       - name: Post sticky PR comment

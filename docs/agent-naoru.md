@@ -4,13 +4,14 @@
 
 The Clouddrove Agent Naoru workflow (`agent-naoru.yml`) diagnoses a failed job in the same GitHub Actions run with an LLM and posts the result as a sticky pull request comment.
 
-It is designed to run after your real validation, build, or test job fails. The workflow fetches the failed job logs directly from the GitHub Actions job log API, sends the tailed logs to the configured provider, and writes the diagnosis to the PR or workflow summary.
+It is designed to run after your real validation, build, or test job fails. The workflow fetches the failed job logs directly from the GitHub Actions job log API, sends the tailed logs to the configured provider, and writes the diagnosis with root cause, suggested solution, and confidence sections to the PR or workflow summary.
 
 ## Features
 
 - Reusable `workflow_call` workflow for pull request pipelines.
 - Posts one sticky PR comment and updates it on reruns.
 - Writes to the workflow Step Summary on every run.
+- Formats every PR comment and workflow summary with `Root Cause`, `Suggested Solution`, and `Confidence` sections.
 - Supports OpenRouter, OpenAI, Anthropic, Gemini, xAI, Groq, and custom OpenAI-compatible endpoints.
 - Defaults to OpenRouter with `deepseek/deepseek-v4-flash` for a low-cost DeepSeek model.
 - Uses `actions: read`, `contents: read`, and `pull-requests: write` permissions.
@@ -71,7 +72,7 @@ jobs:
 | `provider` | `openrouter` | LLM provider: `anthropic`, `openai`, `gemini`, `openrouter`, `xai`, `groq`, or `custom`. |
 | `model` | `deepseek/deepseek-v4-flash` | Model id sent to the selected provider. |
 | `base-url` | `""` | API base URL override. Required when `provider` is `custom`. |
-| `prompt` | Built-in DevOps prompt | Prompt template. Supports `{{LOG}}`, `{{JOB_NAME}}`, and `{{REPO}}`. |
+| `prompt` | Built-in DevOps prompt | Prompt template. Supports `{{LOG}}`, `{{JOB_NAME}}`, and `{{REPO}}`. The default prompt asks for root cause, suggested solution, and confidence sections. |
 | `max-log-lines` | `500` | Number of failed job log lines to send. |
 | `max-tokens` | `600` | Response token cap. |
 | `failed-job-name` | `""` | Failed job name to diagnose. If blank, the first failed job is used. |
