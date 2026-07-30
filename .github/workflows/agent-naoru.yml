@@ -93,6 +93,9 @@ jobs:
     outputs:
       diagnosis: ${{ steps.call-llm.outputs.diagnosis }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Fetch failed job logs
         id: logs
         env:
@@ -133,9 +136,6 @@ jobs:
           tail -n "$MAX_LOG_LINES" raw.log > tailed.log
           echo "Captured $(wc -l < tailed.log) log lines"
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Collect source context
         run: |
           python3 - <<'PYEOF'
@@ -143,7 +143,13 @@ jobs:
           import re
 
           root = Path.cwd().resolve()
-          log = Path("tailed.log").read_text(errors="replace")
+          log_path = Path("tailed.log")
+          if not log_path.exists():
+              Path("source-context.md").write_text("(no failed job log found)\n")
+              print("No failed job log found; skipping source context.")
+              raise SystemExit(0)
+
+          log = log_path.read_text(errors="replace")
           candidates = []
 
           patterns = [
