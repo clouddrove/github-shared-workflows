@@ -20,7 +20,7 @@ on:
         type: string
         default: ""
       prompt:
-        description: "Prompt template. Supports {{LOG}}, {{JOB_NAME}}, and {{REPO}} placeholders."
+        description: "Prompt template. Supports {{LOG}}, {{SOURCE_CONTEXT}}, {{JOB_NAME}}, and {{REPO}} placeholders."
         required: false
         type: string
         default: |
@@ -33,13 +33,20 @@ on:
 
           {{LOG}}
 
+          Here is source context for files and line numbers mentioned in the logs:
+
+          {{SOURCE_CONTEXT}}
+
           Diagnose the failure and return markdown using exactly these sections:
 
           ### Root Cause
           Explain the most likely root cause in 1-2 sentences.
 
-          ### Suggested Solution
-          Give a specific fix the developer can apply.
+          ### Suggested Fix
+          Start with "Suggested fix:" and give a specific fix the developer can apply.
+          If source context is available, include a minimal unified diff in a fenced
+          diff block. If there is not enough context for a diff, say what file or
+          configuration should be changed.
 
           ### Confidence
           High|Medium|Low
@@ -126,6 +133,81 @@ jobs:
           tail -n "$MAX_LOG_LINES" raw.log > tailed.log
           echo "Captured $(wc -l < tailed.log) log lines"
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Collect source context
+        run: |
+          python3 - <<'PYEOF'
+          from pathlib import Path
+          import re
+
+          root = Path.cwd().resolve()
+          log = Path("tailed.log").read_text(errors="replace")
+          candidates = []
+
+          patterns = [
+              r'File "([^"]+)", line (\d+)',
+              r'((?:[A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+\.(?:py|js|ts|tsx|jsx|go|rb|java|kt|rs|sh|bash|tf|hcl|yaml|yml|json|Dockerfile)):(\d+)',
+          ]
+
+          for pattern in patterns:
+              for match in re.finditer(pattern, log):
+                  raw_path, line_no = match.group(1), int(match.group(2))
+                  candidates.append((raw_path, line_no))
+
+          def resolve_path(raw_path):
+              path = Path(raw_path)
+              if path.is_absolute() and path.exists():
+                  return path
+              if not path.is_absolute() and path.exists():
+                  return path
+
+              parts = path.parts
+              for index in range(len(parts)):
+                  candidate = Path(*parts[index:])
+                  if candidate.exists():
+                      return candidate
+              return None
+
+          seen = set()
+          sections = []
+          for raw_path, line_no in candidates:
+              path = resolve_path(raw_path)
+              if not path or not path.is_file():
+                  continue
+
+              try:
+                  relative = path.resolve().relative_to(root)
+              except ValueError:
+                  relative = path
+
+              key = str(relative)
+              if key in seen:
+                  continue
+              seen.add(key)
+
+              try:
+                  lines = path.read_text(errors="replace").splitlines()
+              except OSError:
+                  continue
+
+              start = max(1, line_no - 8)
+              end = min(len(lines), line_no + 8)
+              snippet = "\n".join(
+                  f"{number:>4}: {lines[number - 1]}"
+                  for number in range(start, end + 1)
+              )
+              sections.append(f"File: {relative}\nLine: {line_no}\n```text\n{snippet}\n```")
+
+              if len(sections) >= 5:
+                  break
+
+          context = "\n\n".join(sections) or "(no source context found)"
+          Path("source-context.md").write_text(context + "\n")
+          print(f"Collected source context for {len(sections)} file(s).")
+          PYEOF
+
       - name: Call LLM
         id: call-llm
         env:
@@ -157,10 +239,16 @@ jobs:
 
           with open("tailed.log", "r", errors="replace") as log_file:
               log = log_file.read()[-12000:]
+          try:
+              with open("source-context.md", "r", errors="replace") as source_file:
+                  source_context = source_file.read()[-12000:]
+          except FileNotFoundError:
+              source_context = "(no source context found)"
 
           prompt = (
               os.environ["CID_PROMPT_TEMPLATE"]
               .replace("{{LOG}}", log)
+              .replace("{{SOURCE_CONTEXT}}", source_context)
               .replace("{{JOB_NAME}}", os.environ.get("CID_JOB_NAME", "unknown"))
               .replace("{{REPO}}", os.environ.get("CID_REPO", ""))
           )
@@ -266,7 +354,7 @@ jobs:
               diagnosis = "The LLM diagnosis step did not produce a response."
 
           has_root_cause = re.search(r"^###\s+Root Cause\b", diagnosis, re.IGNORECASE | re.MULTILINE)
-          has_solution = re.search(r"^###\s+Suggested Solution\b", diagnosis, re.IGNORECASE | re.MULTILINE)
+          has_solution = re.search(r"^###\s+Suggested (?:Fix|Solution)\b", diagnosis, re.IGNORECASE | re.MULTILINE)
           has_confidence = re.search(r"^###\s+Confidence\b", diagnosis, re.IGNORECASE | re.MULTILINE)
 
           if has_root_cause and has_solution and has_confidence:
@@ -275,7 +363,7 @@ jobs:
               summary = "\n\n".join([
                   "### Root Cause",
                   diagnosis,
-                  "### Suggested Solution",
+                  "### Suggested Fix",
                   "Review the failed job log and apply the smallest code, dependency, or workflow configuration change that resolves the reported error. Re-run the failed job after the change.",
                   "### Confidence",
                   "Low",
