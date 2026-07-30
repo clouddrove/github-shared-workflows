@@ -216,6 +216,8 @@ jobs:
 
       - name: Call LLM
         id: call-llm
+        timeout-minutes: 2
+        continue-on-error: true
         env:
           CID_PROVIDER: ${{ inputs.provider }}
           CID_MODEL: ${{ inputs.model }}
