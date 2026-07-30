@@ -285,6 +285,6 @@ jobs:
           fi
 
       - name: Write to Step Summary
-        if: ${{ !github.event.pull_request.number }}
+        if: always()
         run: cat comment.md >> "$GITHUB_STEP_SUMMARY"
 ...

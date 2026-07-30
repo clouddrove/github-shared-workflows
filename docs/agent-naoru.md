@@ -10,7 +10,7 @@ It is designed to run after your real validation, build, or test job fails. The 
 
 - Reusable `workflow_call` workflow for pull request pipelines.
 - Posts one sticky PR comment and updates it on reruns.
-- Writes to the workflow Step Summary when there is no pull request.
+- Writes to the workflow Step Summary on every run.
 - Supports OpenRouter, OpenAI, Anthropic, Gemini, xAI, Groq, and custom OpenAI-compatible endpoints.
 - Defaults to OpenRouter with `deepseek/deepseek-v4-flash` for a low-cost DeepSeek model.
 - Uses `actions: read`, `contents: read`, and `pull-requests: write` permissions.
