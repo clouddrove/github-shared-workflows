@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.1.7] - 2026-08-11
+### :sparkles: New Features
+- [`5a15692`](https://github.com/clouddrove/github-shared-workflows/commit/5a15692ae38a05cc3aa3b7ab6744add91e9b8591) - **naoru-ai**: add naoru AI failure diagnosis to core build/deploy workflows *(PR [#397](https://github.com/clouddrove/github-shared-workflows/pull/397) by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+- [`f6ef7e5`](https://github.com/clouddrove/github-shared-workflows/commit/f6ef7e54f3a1f4e2a05a66ed1a8702c07ae94346) - **registry-webhook-sync**: Introducing Terraform Registry webhook sync workflow 🚀  *(PR [#400](https://github.com/clouddrove/github-shared-workflows/pull/400) by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+- [`e6583a4`](https://github.com/clouddrove/github-shared-workflows/commit/e6583a4eb6c10299fd0537e2304544579f9beecb) - update tf-smurf shared workflow to support tfvars and non-tfvars deployments *(PR [#406](https://github.com/clouddrove/github-shared-workflows/pull/406) by [@kalyani-cd](https://github.com/kalyani-cd))*
+- [`fa3d1e6`](https://github.com/clouddrove/github-shared-workflows/commit/fa3d1e67c55a67327f23e6af2e195c290c484458) - support Terraform execution with and without tfvars in tf-smurf workflow *(PR [#408](https://github.com/clouddrove/github-shared-workflows/pull/408) by [@kalyani-cd](https://github.com/kalyani-cd))*
+- [`ed07c00`](https://github.com/clouddrove/github-shared-workflows/commit/ed07c00ef9232249b4d473588ff0573cbeaa9f07) - add smurf stf drift workflows and update workflow names to the new format *(PR [#409](https://github.com/clouddrove/github-shared-workflows/pull/409))*
+
+### :bug: Bug Fixes
+- [`52af4dd`](https://github.com/clouddrove/github-shared-workflows/commit/52af4dd15a24e48d757fe773416849d995396a3c) - **tf-checks**: load environment variables for Terraform checks *(PR [#415](https://github.com/clouddrove/github-shared-workflows/pull/415) by [@kalyani-cd](https://github.com/kalyani-cd))*
+- [`4df0df2`](https://github.com/clouddrove/github-shared-workflows/commit/4df0df2f9b01542c5ff1927a88451972f53f682b) - stop pr_checks alias forwarding empty inputs as overrides *(PR [#417](https://github.com/clouddrove/github-shared-workflows/pull/417) by [@clouddrove-ci](https://github.com/clouddrove-ci))*
+
+### :wrench: Chores
+- [`e7f5acb`](https://github.com/clouddrove/github-shared-workflows/commit/e7f5acb4a950a8df0fdbde5e815019e0973abd21) - update smurf shared workflows for Docker, Helm, and Terraform, and update the documentation. *(PR [#405](https://github.com/clouddrove/github-shared-workflows/pull/405))*
+
+
 ## [v2.1.6] - 2026-05-20
 ### :bug: Bug Fixes
 - [`ae83847`](https://github.com/clouddrove/github-shared-workflows/commit/ae83847a1a595206eca5f3a7ef19b21c2742002d) - **readme**: resolve Push-Readme failure caused by missing GitHub token auth *(PR [#388](https://github.com/clouddrove/github-shared-workflows/pull/388) by [@hahirwar-cd](https://github.com/hahirwar-cd))*
@@ -615,3 +631,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [2.1.1]: https://github.com/clouddrove/github-shared-workflows/compare/2.1.0...2.1.1
 [v2.1.4]: https://github.com/clouddrove/github-shared-workflows/compare/2.1.3...v2.1.4
 [v2.1.6]: https://github.com/clouddrove/github-shared-workflows/compare/v2.1.5...v2.1.6
+[v2.1.7]: https://github.com/clouddrove/github-shared-workflows/compare/v2.1.6...v2.1.7
