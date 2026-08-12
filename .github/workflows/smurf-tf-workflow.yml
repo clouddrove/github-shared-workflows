@@ -349,6 +349,7 @@ jobs:
 
       - name: ⏳ Approval
         uses: trstringer/manual-approval@v1
+        timeout-minutes: ${{ inputs.timeout }}
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}
           approvers: ${{ inputs.approvers }}
