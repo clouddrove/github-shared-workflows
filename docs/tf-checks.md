@@ -10,6 +10,8 @@ This workflow automates terraform checks including format, init, validate, and o
 - ✅ Optional min/max version compatibility testing
 - ✅ Support for AWS, Azure, GCP, and DigitalOcean
 - ✅ Configurable working directory and terraform version
+- ✅ Secure environment variable support using env-vars
+- ✅ Support for passing Terraform variables using TF_VAR_<variable_name>
 
 ### Usage
 
@@ -55,6 +57,36 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       GITHUB: ${{ secrets.GITHUB }}
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+```
+
+#### With Environment Variables
+
+Use the env-vars secret to securely pass environment variables to Terraform without using a .tfvars file.
+
+For Terraform input variables, use the TF_VAR_<variable_name> format.
+
+```yaml
+name: Terraform Checks with Environment Variables
+
+on:
+  push:
+    branches: [master, main]
+
+jobs:
+  terraform-checks:
+    uses: clouddrove/github-shared-workflows/.github/workflows/tf-checks.yml@v2
+    with:
+      working_directory: './examples/complete/'
+      provider: 'aws'
+      enable_plan: true
+      show_plan: false
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      env-vars: |
+        TF_VAR_database_username=${{ secrets.DB_USERNAME }}
+        TF_VAR_database_password=${{ secrets.DB_PASSWORD }}
+
 ```
 
 #### With Version Compatibility Testing
@@ -182,6 +214,7 @@ jobs:
 | `token_format` | No | `access_token` | GCP token format (`access_token` or `id_token`) |
 | `access_token_lifetime` | No | `300s` | GCP access token lifetime |
 | `create_credentials_file` | No | `true` | Create GCP credentials file |
+| `env-vars` | No | - | Environment variables for Terraform execution, exported to `GITHUB_ENV`. |
 
 ### Secrets
 
@@ -198,3 +231,4 @@ jobs:
 | `GCP_CREDENTIALS` | No | GCP service account key JSON |
 | `WORKLOAD_IDENTITY_PROVIDER` | No | GCP Workload Identity Provider |
 | `SERVICE_ACCOUNT` | No | GCP service account email |
+| `env-vars` | No | Pass Terraform variables securely using `TF_VAR_<variable_name>`.|

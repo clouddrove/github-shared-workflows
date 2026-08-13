@@ -97,6 +97,9 @@ on:
       SERVICE_ACCOUNT:
         required: false
         description: 'The service account to be used'
+      env-vars:
+        required: false
+        description: Environment variables required during Terraform execution.
 
 jobs:
 
@@ -186,6 +189,14 @@ jobs:
         with:
           terraform_wrapper: false
           terraform_version: ${{ steps.set-version.outputs.tf_version }}
+
+      - name: 🌱 Set environment variables    
+        run: |
+          (
+          cat <<'_EOT'
+          ${{ secrets.env-vars }}
+          _EOT
+          ) >> "$GITHUB_ENV" 
 
       - name: 🧹 Terraform Format
         run: terraform fmt --recursive -check=true

@@ -3,21 +3,50 @@ name: '🔍 PR Validation (compat alias)'
 on:
   workflow_call:
     inputs:
+      # Defaults must mirror pr-checks.yml. An input left unset by the caller is
+      # forwarded as an empty string, which would override the downstream default
+      # rather than fall back to it.
       types:
         required: false
         type: string
+        default: |
+          fix
+          feat
+          docs
+          ci
+          chore
+          test
+          refactor
+          style
+          perf
+          build
+          revert
+
       requireScope:
         required: false
         type: boolean
+        default: false
+
       subjectPattern:
         required: false
         type: string
+        default: '[A-Za-z].+'
+
       validateSingleCommit:
         required: false
         type: boolean
+        default: false
+
       checkLabels:
         required: false
         type: boolean
+        default: true
+
+      commitlintConfig:
+        description: "Path to commitlint configuration file"
+        required: false
+        type: string
+        default: "commitlint.config.cjs"
 
 jobs:
   delegate:
@@ -28,5 +57,6 @@ jobs:
       subjectPattern: ${{ inputs.subjectPattern }}
       validateSingleCommit: ${{ inputs.validateSingleCommit }}
       checkLabels: ${{ inputs.checkLabels }}
+      commitlintConfig: ${{ inputs.commitlintConfig }}
     secrets: inherit
 ...
