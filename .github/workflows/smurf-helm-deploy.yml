@@ -20,6 +20,11 @@ on:
         type: string
         required: false
         default: v1.1.5
+      runs_on:
+        description: GitHub Actions runner to use
+        type: string
+        required: false
+        default: ubuntu-latest
 
       # ── AWS ──────────────────────────────────────────────────────────
       aws_region:
@@ -174,7 +179,7 @@ jobs:
   helm-lint:
     name: Helm Lint & Template
     if: ${{ inputs.helm_enable }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     steps:
       - name: 📦 Checkout
         uses: actions/checkout@v7
@@ -202,7 +207,7 @@ jobs:
     name: Helm Deploy
     if: ${{ inputs.helm_enable }}
     needs: helm-lint
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     environment: ${{ inputs.target_environment }}
     steps:
       - name: 📦 Checkout
@@ -308,7 +313,7 @@ jobs:
   helm-rollback:
     name: Helm Rollback
     if: ${{ inputs.helm_rollback_enable }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     environment: ${{ inputs.target_environment }}
     steps:
       - name: 📦 Checkout
