@@ -33,12 +33,6 @@ on:
         required: false
         default: ""
 
-      additional_packages:
-        description: "Comma-separated apt packages to install"
-        type: string
-        required: false
-        default: ""
-
       # ── AWS ──────────────────────────────────────────────────────────
       aws_region:
         description: AWS region
@@ -197,378 +191,6 @@ jobs:
       - name: 📦 Checkout
         uses: actions/checkout@v7
 
-      - name: 🧰 Install DevOps Binaries
-        if: ${{ inputs.devops_binary != '' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          # ---------------------------------------------------------------
-          # Detect architecture
-          # ---------------------------------------------------------------
-          case "$(uname -m)" in
-            x86_64)
-              ARCH="amd64"
-              AWS_ARCH="x86_64"
-              ;;
-            aarch64|arm64)
-              ARCH="arm64"
-              AWS_ARCH="aarch64"
-              ;;
-            *)
-              echo "::error::Unsupported architecture: $(uname -m)"
-              exit 1
-              ;;
-          esac
-          
-          echo "Detected architecture: ${ARCH}"
-          
-          # ---------------------------------------------------------------
-          # Install prerequisites once
-          # ---------------------------------------------------------------
-          NEED_APT_UPDATE=false
-          
-          command -v curl >/dev/null 2>&1 || NEED_APT_UPDATE=true
-          command -v unzip >/dev/null 2>&1 || NEED_APT_UPDATE=true
-          
-          if [ "$NEED_APT_UPDATE" = true ]; then
-            sudo apt-get update -y
-          fi
-          
-          if ! command -v curl >/dev/null 2>&1; then
-            sudo apt-get install -y curl
-          fi
-          
-          if ! command -v unzip >/dev/null 2>&1; then
-            sudo apt-get install -y unzip
-          fi
-          
-          # ---------------------------------------------------------------
-          # Helper to install one binary
-          # ---------------------------------------------------------------
-          install_binary() {
-            local name="$1"
-            local version="${2:-}"
-            local status=0
-          
-            echo "::group::Installing ${name}${version:+ (version ${version})}"
-          
-            # Disable errexit temporarily so we can ALWAYS close the group
-            # before returning the actual installation status.
-            set +e
-          
-            case "$name" in
-          
-              # -----------------------------------------------------------
-              # AWS CLI
-              # -----------------------------------------------------------
-              awscli)
-                if command -v aws >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "AWS CLI already present:"
-                  aws --version
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::AWS CLI version must be specified when installation is required."
-                    status=1
-                  else
-                    curl -fsSL \
-                      "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}-${version}.zip" \
-                      -o /tmp/awscliv2.zip
-              
-                    if [ $? -eq 0 ]; then
-                      unzip -q /tmp/awscliv2.zip -d /tmp
-                      status=$?
-              
-                      if [ $status -eq 0 ]; then
-                        sudo /tmp/aws/install --update
-                        status=$?
-                      fi
-                    fi
-              
-                    rm -rf /tmp/aws /tmp/awscliv2.zip
-              
-                    if [ $status -eq 0 ]; then
-                      aws --version
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # kubectl
-              # -----------------------------------------------------------
-              kubectl)
-                if command -v kubectl >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "kubectl already present:"
-                  kubectl version --client 2>/dev/null || true
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::kubectl version must be specified when installation is required."
-                    status=1
-                  else
-                    [[ "$version" != v* ]] && version="v${version}"
-              
-                    curl -fsSL \
-                      "https://dl.k8s.io/release/${version}/bin/linux/${ARCH}/kubectl" \
-                      -o /tmp/kubectl
-              
-                    status=$?
-              
-                    if [ $status -eq 0 ]; then
-                      chmod +x /tmp/kubectl
-                      sudo mv /tmp/kubectl /usr/local/bin/kubectl
-                      status=$?
-                    fi
-              
-                    if [ $status -eq 0 ]; then
-                      kubectl version --client
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Helm
-              # -----------------------------------------------------------
-              helm)
-                if command -v helm >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "Helm already present:"
-                  helm version --short
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::Helm version must be specified when installation is required."
-                    status=1
-                  else
-                    [[ "$version" != v* ]] && version="v${version}"
-              
-                    curl -fsSL \
-                      "https://get.helm.sh/helm-${version}-linux-${ARCH}.tar.gz" \
-                      -o /tmp/helm.tar.gz
-              
-                    status=$?
-              
-                    if [ $status -eq 0 ]; then
-                      tar -xzf /tmp/helm.tar.gz -C /tmp
-                      status=$?
-                    fi
-              
-                    if [ $status -eq 0 ]; then
-                      sudo mv "/tmp/linux-${ARCH}/helm" /usr/local/bin/helm
-                      status=$?
-                    fi
-              
-                    sudo chmod +x /usr/local/bin/helm 2>/dev/null || true
-              
-                    rm -rf /tmp/helm.tar.gz "/tmp/linux-${ARCH}"
-              
-                    if [ $status -eq 0 ]; then
-                      helm version --short
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Docker
-              # -----------------------------------------------------------
-              docker)
-                if command -v docker >/dev/null 2>&1; then
-                  echo "Docker already present:"
-                  docker --version
-                else
-                  curl -fsSL https://get.docker.com | sudo sh
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    docker --version
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Terraform
-              # -----------------------------------------------------------
-              terraform)
-                if command -v terraform >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "Terraform already present:"
-                  terraform version | head -n 1
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::Terraform version must be specified when installation is required."
-                    status=1
-                  else
-                    curl -fsSL \
-                      "https://releases.hashicorp.com/terraform/${version}/terraform_${version}_linux_${ARCH}.zip" \
-                      -o /tmp/terraform.zip
-              
-                    status=$?
-              
-                    if [ $status -eq 0 ]; then
-                      unzip -q /tmp/terraform.zip -d /tmp/terraform
-                      status=$?
-                    fi
-              
-                    if [ $status -eq 0 ]; then
-                      sudo mv /tmp/terraform/terraform /usr/local/bin/terraform
-                      status=$?
-                    fi
-              
-                    sudo chmod +x /usr/local/bin/terraform 2>/dev/null || true
-              
-                    rm -rf /tmp/terraform.zip /tmp/terraform
-              
-                    if [ $status -eq 0 ]; then
-                      terraform version | head -n 1
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Azure CLI
-              # -----------------------------------------------------------
-              azurecli)
-                if command -v az >/dev/null 2>&1; then
-                  echo "Azure CLI already present:"
-                  az version --output json | head -n 20
-                else
-                  curl -fsSL https://aka.ms/InstallAzureCLIDeb | sudo bash
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    az version --output json | head -n 20
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # GitHub CLI
-              # -----------------------------------------------------------
-              ghcli)
-                if command -v gh >/dev/null 2>&1; then
-                  echo "GitHub CLI already present:"
-                  gh --version | head -n 1
-                else
-                  sudo apt-get install -y gh
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    gh --version | head -n 1
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # jq
-              # -----------------------------------------------------------
-              jq)
-                if command -v jq >/dev/null 2>&1; then
-                  echo "jq already present:"
-                  jq --version
-                else
-                  sudo apt-get install -y jq
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    jq --version
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # yq
-              # -----------------------------------------------------------
-              yq)
-                if command -v yq >/dev/null 2>&1; then
-                  echo "yq already present:"
-                  yq --version
-                else
-                  curl -fsSL \
-                    "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH}" \
-                    -o /tmp/yq
-              
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    chmod +x /tmp/yq
-                    sudo mv /tmp/yq /usr/local/bin/yq
-                    status=$?
-                  fi
-              
-                  if [ $status -eq 0 ]; then
-                    yq --version
-                  fi
-                fi
-                ;;
-              
-              *)
-                echo "::error::Unsupported DevOps binary: ${name}"
-                echo "Supported binaries: awscli, helm, kubectl, docker, terraform, azurecli, ghcli, jq, yq"
-                status=1
-                ;;
-              
-            esac
-              
-            # Always close the GitHub Actions group.
-            echo "::endgroup::"
-              
-            # Restore errexit.
-            set -e
-              
-            return "$status"
-          }
-              
-          # ---------------------------------------------------------------
-          # Process requested binaries
-          #
-          # Format:
-          #   awscli@2.27.25,kubectl@1.32.4,helm@3.17.3
-          #
-          # If no version is specified, the binary must already exist.
-          # ---------------------------------------------------------------
-          IFS=',' read -ra BINARIES <<< "${{ inputs.devops_binary }}"
-          
-          for binary in "${BINARIES[@]}"; do
-            binary="$(echo "$binary" | xargs)"
-            [ -z "$binary" ] && continue
-          
-            name="${binary%@*}"
-            version=""
-          
-            if [[ "$binary" == *"@"* ]]; then
-              version="${binary#*@}"
-            fi
-          
-            install_binary "$name" "$version"
-          done
-          
-          
-      - name: 📦 Install Additional Packages
-        if: ${{ inputs.additional_packages != '' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          # Update apt cache once for this step.
-          sudo apt-get update -y
-          
-          IFS=',' read -ra PKGS <<< "${{ inputs.additional_packages }}"
-          
-          for pkg in "${PKGS[@]}"; do
-            pkg="$(echo "$pkg" | xargs)"
-            [ -z "$pkg" ] && continue
-          
-            echo "::group::Installing apt package: ${pkg}"
-          
-            if apt-cache show "$pkg" >/dev/null 2>&1; then
-              sudo apt-get install -y "$pkg"
-            else
-              echo "::warning::Package '${pkg}' is not available through apt. Skipping."
-            fi
-          
-            echo "::endgroup::"
-          done
-
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.6
         with:
@@ -608,14 +230,25 @@ jobs:
         uses: actions/checkout@v7
 
       - name: 🧰 Install DevOps Binaries
-        if: ${{ inputs.devops_binary != '' }}
+        if: ${{ inputs.devops_binary == 'install' }}
         shell: bash
         run: |
           set -euo pipefail
-          
-          # ---------------------------------------------------------------
+
+          # Detect package manager
+          if command -v apt-get >/dev/null 2>&1; then
+            PKG_MANAGER="apt"
+            sudo apt-get update -y
+            sudo apt-get install -y curl unzip tar gzip jq
+          elif command -v yum >/dev/null 2>&1; then
+            PKG_MANAGER="yum"
+            sudo yum install -y curl unzip tar gzip jq
+          else
+            echo "::error::Unsupported package manager. Only apt and yum are supported."
+            exit 1
+          fi
+
           # Detect architecture
-          # ---------------------------------------------------------------
           case "$(uname -m)" in
             x86_64)
               ARCH="amd64"
@@ -630,354 +263,126 @@ jobs:
               exit 1
               ;;
           esac
+
+          echo "Package manager: ${PKG_MANAGER}"
+          echo "Architecture: ${ARCH}"
+
+          # ---------------------------------------------------------------
+          # AWS CLI
+          # ---------------------------------------------------------------
+          curl -fsSL \
+            "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" \
+            -o /tmp/awscliv2.zip
           
-          echo "Detected architecture: ${ARCH}"
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          sudo /tmp/aws/install --update
+          
+          rm -rf /tmp/aws /tmp/awscliv2.zip
           
           # ---------------------------------------------------------------
-          # Install prerequisites once
+          # kubectl
           # ---------------------------------------------------------------
-          NEED_APT_UPDATE=false
+          KUBECTL_VERSION="$(curl -fsSL https://dl.k8s.io/release/stable.txt)"
           
-          command -v curl >/dev/null 2>&1 || NEED_APT_UPDATE=true
-          command -v unzip >/dev/null 2>&1 || NEED_APT_UPDATE=true
+          curl -fsSL \
+            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" \
+            -o /tmp/kubectl
           
-          if [ "$NEED_APT_UPDATE" = true ]; then
+          chmod +x /tmp/kubectl
+          sudo mv /tmp/kubectl /usr/local/bin/kubectl
+          
+          # ---------------------------------------------------------------
+          # Helm
+          # ---------------------------------------------------------------
+          HELM_VERSION="v3.17.3"
+          
+          curl -fsSL \
+            "https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz" \
+            -o /tmp/helm.tar.gz
+          
+          tar -xzf /tmp/helm.tar.gz -C /tmp
+          sudo mv "/tmp/linux-${ARCH}/helm" /usr/local/bin/helm
+          sudo chmod +x /usr/local/bin/helm
+          
+          rm -rf /tmp/helm.tar.gz "/tmp/linux-${ARCH}"
+          
+          # ---------------------------------------------------------------
+          # Docker
+          # ---------------------------------------------------------------
+          curl -fsSL https://get.docker.com | sudo sh
+          
+          # ---------------------------------------------------------------
+          # Terraform
+          # ---------------------------------------------------------------
+          TERRAFORM_VERSION="1.15.8"
+          
+          curl -fsSL \
+            "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${ARCH}.zip" \
+            -o /tmp/terraform.zip
+          
+          unzip -q /tmp/terraform.zip -d /tmp/terraform
+          sudo mv /tmp/terraform/terraform /usr/local/bin/terraform
+          sudo chmod +x /usr/local/bin/terraform
+          
+          rm -rf /tmp/terraform.zip /tmp/terraform
+          
+          # ---------------------------------------------------------------
+          # Azure CLI
+          # ---------------------------------------------------------------
+          if [ "${PKG_MANAGER}" = "apt" ]; then
+            curl -fsSL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          else
+            echo "Installing Azure CLI using official installer"
+            curl -fsSL https://aka.ms/InstallAzureCli | sudo bash
+          fi
+          
+          # ---------------------------------------------------------------
+          # GitHub CLI
+          # ---------------------------------------------------------------
+          if [ "${PKG_MANAGER}" = "apt" ]; then
+            curl -fsSL \
+              https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+              | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+          
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+              | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          
             sudo apt-get update -y
-          fi
-          
-          if ! command -v curl >/dev/null 2>&1; then
-            sudo apt-get install -y curl
-          fi
-          
-          if ! command -v unzip >/dev/null 2>&1; then
-            sudo apt-get install -y unzip
+            sudo apt-get install -y gh
+          else
+            sudo yum install -y 'dnf-command(config-manager)' || true
+            sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+            sudo yum install -y gh
           fi
           
           # ---------------------------------------------------------------
-          # Helper to install one binary
+          # yq
           # ---------------------------------------------------------------
-          install_binary() {
-            local name="$1"
-            local version="${2:-}"
-            local status=0
+          curl -fsSL \
+            "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH}" \
+            -o /tmp/yq
           
-            echo "::group::Installing ${name}${version:+ (version ${version})}"
+          chmod +x /tmp/yq
+          sudo mv /tmp/yq /usr/local/bin/yq
           
-            # Disable errexit temporarily so we can ALWAYS close the group
-            # before returning the actual installation status.
-            set +e
-          
-            case "$name" in
-          
-              # -----------------------------------------------------------
-              # AWS CLI
-              # -----------------------------------------------------------
-              awscli)
-                if command -v aws >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "AWS CLI already present:"
-                  aws --version
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::AWS CLI version must be specified when installation is required."
-                    status=1
-                  else
-                    curl -fsSL \
-                      "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}-${version}.zip" \
-                      -o /tmp/awscliv2.zip
-              
-                    if [ $? -eq 0 ]; then
-                      unzip -q /tmp/awscliv2.zip -d /tmp
-                      status=$?
-              
-                      if [ $status -eq 0 ]; then
-                        sudo /tmp/aws/install --update
-                        status=$?
-                      fi
-                    fi
-              
-                    rm -rf /tmp/aws /tmp/awscliv2.zip
-              
-                    if [ $status -eq 0 ]; then
-                      aws --version
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # kubectl
-              # -----------------------------------------------------------
-              kubectl)
-                if command -v kubectl >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "kubectl already present:"
-                  kubectl version --client 2>/dev/null || true
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::kubectl version must be specified when installation is required."
-                    status=1
-                  else
-                    [[ "$version" != v* ]] && version="v${version}"
-              
-                    curl -fsSL \
-                      "https://dl.k8s.io/release/${version}/bin/linux/${ARCH}/kubectl" \
-                      -o /tmp/kubectl
-              
-                    status=$?
-              
-                    if [ $status -eq 0 ]; then
-                      chmod +x /tmp/kubectl
-                      sudo mv /tmp/kubectl /usr/local/bin/kubectl
-                      status=$?
-                    fi
-              
-                    if [ $status -eq 0 ]; then
-                      kubectl version --client
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Helm
-              # -----------------------------------------------------------
-              helm)
-                if command -v helm >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "Helm already present:"
-                  helm version --short
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::Helm version must be specified when installation is required."
-                    status=1
-                  else
-                    [[ "$version" != v* ]] && version="v${version}"
-              
-                    curl -fsSL \
-                      "https://get.helm.sh/helm-${version}-linux-${ARCH}.tar.gz" \
-                      -o /tmp/helm.tar.gz
-              
-                    status=$?
-              
-                    if [ $status -eq 0 ]; then
-                      tar -xzf /tmp/helm.tar.gz -C /tmp
-                      status=$?
-                    fi
-              
-                    if [ $status -eq 0 ]; then
-                      sudo mv "/tmp/linux-${ARCH}/helm" /usr/local/bin/helm
-                      status=$?
-                    fi
-              
-                    sudo chmod +x /usr/local/bin/helm 2>/dev/null || true
-              
-                    rm -rf /tmp/helm.tar.gz "/tmp/linux-${ARCH}"
-              
-                    if [ $status -eq 0 ]; then
-                      helm version --short
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Docker
-              # -----------------------------------------------------------
-              docker)
-                if command -v docker >/dev/null 2>&1; then
-                  echo "Docker already present:"
-                  docker --version
-                else
-                  curl -fsSL https://get.docker.com | sudo sh
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    docker --version
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Terraform
-              # -----------------------------------------------------------
-              terraform)
-                if command -v terraform >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "Terraform already present:"
-                  terraform version | head -n 1
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::Terraform version must be specified when installation is required."
-                    status=1
-                  else
-                    curl -fsSL \
-                      "https://releases.hashicorp.com/terraform/${version}/terraform_${version}_linux_${ARCH}.zip" \
-                      -o /tmp/terraform.zip
-              
-                    status=$?
-              
-                    if [ $status -eq 0 ]; then
-                      unzip -q /tmp/terraform.zip -d /tmp/terraform
-                      status=$?
-                    fi
-              
-                    if [ $status -eq 0 ]; then
-                      sudo mv /tmp/terraform/terraform /usr/local/bin/terraform
-                      status=$?
-                    fi
-              
-                    sudo chmod +x /usr/local/bin/terraform 2>/dev/null || true
-              
-                    rm -rf /tmp/terraform.zip /tmp/terraform
-              
-                    if [ $status -eq 0 ]; then
-                      terraform version | head -n 1
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Azure CLI
-              # -----------------------------------------------------------
-              azurecli)
-                if command -v az >/dev/null 2>&1; then
-                  echo "Azure CLI already present:"
-                  az version --output json | head -n 20
-                else
-                  curl -fsSL https://aka.ms/InstallAzureCLIDeb | sudo bash
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    az version --output json | head -n 20
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # GitHub CLI
-              # -----------------------------------------------------------
-              ghcli)
-                if command -v gh >/dev/null 2>&1; then
-                  echo "GitHub CLI already present:"
-                  gh --version | head -n 1
-                else
-                  sudo apt-get install -y gh
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    gh --version | head -n 1
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # jq
-              # -----------------------------------------------------------
-              jq)
-                if command -v jq >/dev/null 2>&1; then
-                  echo "jq already present:"
-                  jq --version
-                else
-                  sudo apt-get install -y jq
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    jq --version
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # yq
-              # -----------------------------------------------------------
-              yq)
-                if command -v yq >/dev/null 2>&1; then
-                  echo "yq already present:"
-                  yq --version
-                else
-                  curl -fsSL \
-                    "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH}" \
-                    -o /tmp/yq
-              
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    chmod +x /tmp/yq
-                    sudo mv /tmp/yq /usr/local/bin/yq
-                    status=$?
-                  fi
-              
-                  if [ $status -eq 0 ]; then
-                    yq --version
-                  fi
-                fi
-                ;;
-              
-              *)
-                echo "::error::Unsupported DevOps binary: ${name}"
-                echo "Supported binaries: awscli, helm, kubectl, docker, terraform, azurecli, ghcli, jq, yq"
-                status=1
-                ;;
-              
-            esac
-              
-            # Always close the GitHub Actions group.
-            echo "::endgroup::"
-              
-            # Restore errexit.
-            set -e
-              
-            return "$status"
-          }
-              
           # ---------------------------------------------------------------
-          # Process requested binaries
-          #
-          # Format:
-          #   awscli@2.27.25,kubectl@1.32.4,helm@3.17.3
-          #
-          # If no version is specified, the binary must already exist.
+          # Verify
           # ---------------------------------------------------------------
-          IFS=',' read -ra BINARIES <<< "${{ inputs.devops_binary }}"
+          echo "========================================"
+          echo "Installed DevOps Binaries"
+          echo "========================================"
           
-          for binary in "${BINARIES[@]}"; do
-            binary="$(echo "$binary" | xargs)"
-            [ -z "$binary" ] && continue
-          
-            name="${binary%@*}"
-            version=""
-          
-            if [[ "$binary" == *"@"* ]]; then
-              version="${binary#*@}"
-            fi
-          
-            install_binary "$name" "$version"
-          done
-          
-          
-      - name: 📦 Install Additional Packages
-        if: ${{ inputs.additional_packages != '' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          # Update apt cache once for this step.
-          sudo apt-get update -y
-          
-          IFS=',' read -ra PKGS <<< "${{ inputs.additional_packages }}"
-          
-          for pkg in "${PKGS[@]}"; do
-            pkg="$(echo "$pkg" | xargs)"
-            [ -z "$pkg" ] && continue
-          
-            echo "::group::Installing apt package: ${pkg}"
-          
-            if apt-cache show "$pkg" >/dev/null 2>&1; then
-              sudo apt-get install -y "$pkg"
-            else
-              echo "::warning::Package '${pkg}' is not available through apt. Skipping."
-            fi
-          
-            echo "::endgroup::"
-          done
+          aws --version
+          helm version --short
+          kubectl version --client
+          docker --version
+          terraform version | head -n 1
+          az version --output tsv --query '"azure-cli"'
+          gh --version | head -n 1
+          jq --version
+          yq --version
 
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.6
@@ -1079,14 +484,25 @@ jobs:
         uses: actions/checkout@v7
 
       - name: 🧰 Install DevOps Binaries
-        if: ${{ inputs.devops_binary != '' }}
+        if: ${{ inputs.devops_binary == 'install' }}
         shell: bash
         run: |
           set -euo pipefail
-
-          # ---------------------------------------------------------------
+          
+          # Detect package manager
+          if command -v apt-get >/dev/null 2>&1; then
+            PKG_MANAGER="apt"
+            sudo apt-get update -y
+            sudo apt-get install -y curl unzip tar gzip jq
+          elif command -v yum >/dev/null 2>&1; then
+            PKG_MANAGER="yum"
+            sudo yum install -y curl unzip tar gzip jq
+          else
+            echo "::error::Unsupported package manager. Only apt and yum are supported."
+            exit 1
+          fi
+          
           # Detect architecture
-          # ---------------------------------------------------------------
           case "$(uname -m)" in
             x86_64)
               ARCH="amd64"
@@ -1102,353 +518,125 @@ jobs:
               ;;
           esac
           
-          echo "Detected architecture: ${ARCH}"
+          echo "Package manager: ${PKG_MANAGER}"
+          echo "Architecture: ${ARCH}"
           
           # ---------------------------------------------------------------
-          # Install prerequisites once
+          # AWS CLI
           # ---------------------------------------------------------------
-          NEED_APT_UPDATE=false
+          curl -fsSL \
+            "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" \
+            -o /tmp/awscliv2.zip
           
-          command -v curl >/dev/null 2>&1 || NEED_APT_UPDATE=true
-          command -v unzip >/dev/null 2>&1 || NEED_APT_UPDATE=true
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          sudo /tmp/aws/install --update
           
-          if [ "$NEED_APT_UPDATE" = true ]; then
+          rm -rf /tmp/aws /tmp/awscliv2.zip
+          
+          # ---------------------------------------------------------------
+          # kubectl
+          # ---------------------------------------------------------------
+          KUBECTL_VERSION="$(curl -fsSL https://dl.k8s.io/release/stable.txt)"
+          
+          curl -fsSL \
+            "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" \
+            -o /tmp/kubectl
+          
+          chmod +x /tmp/kubectl
+          sudo mv /tmp/kubectl /usr/local/bin/kubectl
+          
+          # ---------------------------------------------------------------
+          # Helm
+          # ---------------------------------------------------------------
+          HELM_VERSION="v3.17.3"
+          
+          curl -fsSL \
+            "https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz" \
+            -o /tmp/helm.tar.gz
+          
+          tar -xzf /tmp/helm.tar.gz -C /tmp
+          sudo mv "/tmp/linux-${ARCH}/helm" /usr/local/bin/helm
+          sudo chmod +x /usr/local/bin/helm
+          
+          rm -rf /tmp/helm.tar.gz "/tmp/linux-${ARCH}"
+          
+          # ---------------------------------------------------------------
+          # Docker
+          # ---------------------------------------------------------------
+          curl -fsSL https://get.docker.com | sudo sh
+          
+          # ---------------------------------------------------------------
+          # Terraform
+          # ---------------------------------------------------------------
+          TERRAFORM_VERSION="1.15.8"
+          
+          curl -fsSL \
+            "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${ARCH}.zip" \
+            -o /tmp/terraform.zip
+          
+          unzip -q /tmp/terraform.zip -d /tmp/terraform
+          sudo mv /tmp/terraform/terraform /usr/local/bin/terraform
+          sudo chmod +x /usr/local/bin/terraform
+          
+          rm -rf /tmp/terraform.zip /tmp/terraform
+          
+          # ---------------------------------------------------------------
+          # Azure CLI
+          # ---------------------------------------------------------------
+          if [ "${PKG_MANAGER}" = "apt" ]; then
+            curl -fsSL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          else
+            echo "Installing Azure CLI using official installer"
+            curl -fsSL https://aka.ms/InstallAzureCli | sudo bash
+          fi
+          
+          # ---------------------------------------------------------------
+          # GitHub CLI
+          # ---------------------------------------------------------------
+          if [ "${PKG_MANAGER}" = "apt" ]; then
+            curl -fsSL \
+              https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+              | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+          
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+          
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+              | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          
             sudo apt-get update -y
-          fi
-          
-          if ! command -v curl >/dev/null 2>&1; then
-            sudo apt-get install -y curl
-          fi
-          
-          if ! command -v unzip >/dev/null 2>&1; then
-            sudo apt-get install -y unzip
+            sudo apt-get install -y gh
+          else
+            sudo yum install -y 'dnf-command(config-manager)' || true
+            sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+            sudo yum install -y gh
           fi
           
           # ---------------------------------------------------------------
-          # Helper to install one binary
+          # yq
           # ---------------------------------------------------------------
-          install_binary() {
-            local name="$1"
-            local version="${2:-}"
-            local status=0
+          curl -fsSL \
+            "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH}" \
+            -o /tmp/yq
           
-            echo "::group::Installing ${name}${version:+ (version ${version})}"
+          chmod +x /tmp/yq
+          sudo mv /tmp/yq /usr/local/bin/yq
           
-            # Disable errexit temporarily so we can ALWAYS close the group
-            # before returning the actual installation status.
-            set +e
-          
-            case "$name" in
-          
-              # -----------------------------------------------------------
-              # AWS CLI
-              # -----------------------------------------------------------
-              awscli)
-                if command -v aws >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "AWS CLI already present:"
-                  aws --version
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::AWS CLI version must be specified when installation is required."
-                    status=1
-                  else
-                    curl -fsSL \
-                      "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}-${version}.zip" \
-                      -o /tmp/awscliv2.zip
-              
-                    if [ $? -eq 0 ]; then
-                      unzip -q /tmp/awscliv2.zip -d /tmp
-                      status=$?
-              
-                      if [ $status -eq 0 ]; then
-                        sudo /tmp/aws/install --update
-                        status=$?
-                      fi
-                    fi
-              
-                    rm -rf /tmp/aws /tmp/awscliv2.zip
-              
-                    if [ $status -eq 0 ]; then
-                      aws --version
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # kubectl
-              # -----------------------------------------------------------
-              kubectl)
-                if command -v kubectl >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "kubectl already present:"
-                  kubectl version --client 2>/dev/null || true
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::kubectl version must be specified when installation is required."
-                    status=1
-                  else
-                    [[ "$version" != v* ]] && version="v${version}"
-              
-                    curl -fsSL \
-                      "https://dl.k8s.io/release/${version}/bin/linux/${ARCH}/kubectl" \
-                      -o /tmp/kubectl
-              
-                    status=$?
-              
-                    if [ $status -eq 0 ]; then
-                      chmod +x /tmp/kubectl
-                      sudo mv /tmp/kubectl /usr/local/bin/kubectl
-                      status=$?
-                    fi
-              
-                    if [ $status -eq 0 ]; then
-                      kubectl version --client
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Helm
-              # -----------------------------------------------------------
-              helm)
-                if command -v helm >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "Helm already present:"
-                  helm version --short
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::Helm version must be specified when installation is required."
-                    status=1
-                  else
-                    [[ "$version" != v* ]] && version="v${version}"
-              
-                    curl -fsSL \
-                      "https://get.helm.sh/helm-${version}-linux-${ARCH}.tar.gz" \
-                      -o /tmp/helm.tar.gz
-              
-                    status=$?
-              
-                    if [ $status -eq 0 ]; then
-                      tar -xzf /tmp/helm.tar.gz -C /tmp
-                      status=$?
-                    fi
-              
-                    if [ $status -eq 0 ]; then
-                      sudo mv "/tmp/linux-${ARCH}/helm" /usr/local/bin/helm
-                      status=$?
-                    fi
-              
-                    sudo chmod +x /usr/local/bin/helm 2>/dev/null || true
-              
-                    rm -rf /tmp/helm.tar.gz "/tmp/linux-${ARCH}"
-              
-                    if [ $status -eq 0 ]; then
-                      helm version --short
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Docker
-              # -----------------------------------------------------------
-              docker)
-                if command -v docker >/dev/null 2>&1; then
-                  echo "Docker already present:"
-                  docker --version
-                else
-                  curl -fsSL https://get.docker.com | sudo sh
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    docker --version
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Terraform
-              # -----------------------------------------------------------
-              terraform)
-                if command -v terraform >/dev/null 2>&1 && [ -z "$version" ]; then
-                  echo "Terraform already present:"
-                  terraform version | head -n 1
-                else
-                  if [ -z "$version" ]; then
-                    echo "::error::Terraform version must be specified when installation is required."
-                    status=1
-                  else
-                    curl -fsSL \
-                      "https://releases.hashicorp.com/terraform/${version}/terraform_${version}_linux_${ARCH}.zip" \
-                      -o /tmp/terraform.zip
-              
-                    status=$?
-              
-                    if [ $status -eq 0 ]; then
-                      unzip -q /tmp/terraform.zip -d /tmp/terraform
-                      status=$?
-                    fi
-              
-                    if [ $status -eq 0 ]; then
-                      sudo mv /tmp/terraform/terraform /usr/local/bin/terraform
-                      status=$?
-                    fi
-              
-                    sudo chmod +x /usr/local/bin/terraform 2>/dev/null || true
-              
-                    rm -rf /tmp/terraform.zip /tmp/terraform
-              
-                    if [ $status -eq 0 ]; then
-                      terraform version | head -n 1
-                    fi
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # Azure CLI
-              # -----------------------------------------------------------
-              azurecli)
-                if command -v az >/dev/null 2>&1; then
-                  echo "Azure CLI already present:"
-                  az version --output json | head -n 20
-                else
-                  curl -fsSL https://aka.ms/InstallAzureCLIDeb | sudo bash
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    az version --output json | head -n 20
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # GitHub CLI
-              # -----------------------------------------------------------
-              ghcli)
-                if command -v gh >/dev/null 2>&1; then
-                  echo "GitHub CLI already present:"
-                  gh --version | head -n 1
-                else
-                  sudo apt-get install -y gh
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    gh --version | head -n 1
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # jq
-              # -----------------------------------------------------------
-              jq)
-                if command -v jq >/dev/null 2>&1; then
-                  echo "jq already present:"
-                  jq --version
-                else
-                  sudo apt-get install -y jq
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    jq --version
-                  fi
-                fi
-                ;;
-              
-              # -----------------------------------------------------------
-              # yq
-              # -----------------------------------------------------------
-              yq)
-                if command -v yq >/dev/null 2>&1; then
-                  echo "yq already present:"
-                  yq --version
-                else
-                  curl -fsSL \
-                    "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH}" \
-                    -o /tmp/yq
-              
-                  status=$?
-              
-                  if [ $status -eq 0 ]; then
-                    chmod +x /tmp/yq
-                    sudo mv /tmp/yq /usr/local/bin/yq
-                    status=$?
-                  fi
-              
-                  if [ $status -eq 0 ]; then
-                    yq --version
-                  fi
-                fi
-                ;;
-              
-              *)
-                echo "::error::Unsupported DevOps binary: ${name}"
-                echo "Supported binaries: awscli, helm, kubectl, docker, terraform, azurecli, ghcli, jq, yq"
-                status=1
-                ;;
-              
-            esac
-              
-            # Always close the GitHub Actions group.
-            echo "::endgroup::"
-              
-            # Restore errexit.
-            set -e
-              
-            return "$status"
-          }
-              
           # ---------------------------------------------------------------
-          # Process requested binaries
-          #
-          # Format:
-          #   awscli@2.27.25,kubectl@1.32.4,helm@3.17.3
-          #
-          # If no version is specified, the binary must already exist.
+          # Verify
           # ---------------------------------------------------------------
-          IFS=',' read -ra BINARIES <<< "${{ inputs.devops_binary }}"
+          echo "========================================"
+          echo "Installed DevOps Binaries"
+          echo "========================================"
           
-          for binary in "${BINARIES[@]}"; do
-            binary="$(echo "$binary" | xargs)"
-            [ -z "$binary" ] && continue
-          
-            name="${binary%@*}"
-            version=""
-          
-            if [[ "$binary" == *"@"* ]]; then
-              version="${binary#*@}"
-            fi
-          
-            install_binary "$name" "$version"
-          done
-          
-          
-      - name: 📦 Install Additional Packages
-        if: ${{ inputs.additional_packages != '' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          
-          # Update apt cache once for this step.
-          sudo apt-get update -y
-          
-          IFS=',' read -ra PKGS <<< "${{ inputs.additional_packages }}"
-          
-          for pkg in "${PKGS[@]}"; do
-            pkg="$(echo "$pkg" | xargs)"
-            [ -z "$pkg" ] && continue
-          
-            echo "::group::Installing apt package: ${pkg}"
-          
-            if apt-cache show "$pkg" >/dev/null 2>&1; then
-              sudo apt-get install -y "$pkg"
-            else
-              echo "::warning::Package '${pkg}' is not available through apt. Skipping."
-            fi
-          
-            echo "::endgroup::"
-          done
+          aws --version
+          helm version --short
+          kubectl version --client
+          docker --version
+          terraform version | head -n 1
+          az version --output tsv --query '"azure-cli"'
+          gh --version | head -n 1
+          jq --version
+          yq --version
 
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.6
