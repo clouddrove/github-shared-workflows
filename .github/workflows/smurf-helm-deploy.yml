@@ -189,6 +189,15 @@ jobs:
         with:
           version: ${{ inputs.smurf_version }}
 
+      - name: 📚 Add Helm Chart Repo
+        if: ${{ inputs.helm_repo_add }}
+        run: |
+          smurf selm repo add "${{ inputs.helm_repository }}" "${{ inputs.helm_repository_url }}"
+
+      - name: 🔄 Update Helm Chart Repos
+        if: ${{ inputs.helm_repo_add }}
+        run: smurf selm repo update
+
       - name: ✅ Helm Lint
         run: |
           smurf selm lint "${{ inputs.helm_chart_directory }}" \
