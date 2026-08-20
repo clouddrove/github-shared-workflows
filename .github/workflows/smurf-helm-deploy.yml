@@ -26,6 +26,21 @@ on:
         required: false
         default: ubuntu-latest
 
+      # ── Custom runner / package bootstrap ───────────────────────────
+      additional_packages:
+        description: >
+          Comma-separated list of extra CLI tools to install before the job
+          runs. Useful when runs_on points at a custom/self-hosted runner
+          (e.g. an ARC EKS runner) that doesn't ship with everything
+          pre-installed. Each entry can optionally pin a version with
+          "name@version". Known names get dedicated install logic
+          (aws-cli, kubectl, helm, jq, yq, azure-cli, gcloud); anything
+          else falls back to "apt-get install". Already-installed tools
+          are skipped. Example: "aws-cli,kubectl@1.28.0,jq"
+        type: string
+        required: false
+        default: ""
+
       # ── AWS ──────────────────────────────────────────────────────────
       aws_region:
         description: AWS region
@@ -184,6 +199,74 @@ jobs:
       - name: 📦 Checkout
         uses: actions/checkout@v7
 
+      - name: 🧰 Install Additional Packages
+        if: ${{ inputs.additional_packages != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          IFS=',' read -ra PKGS <<< "${{ inputs.additional_packages }}"
+          for pkg in "${PKGS[@]}"; do
+            pkg="$(echo "$pkg" | xargs)"
+            [ -z "$pkg" ] && continue
+            name="${pkg%@*}"
+            version=""
+            [[ "$pkg" == *"@"* ]] && version="${pkg#*@}"
+            echo "::group::Installing $name ${version:+(version $version)}"
+            case "$name" in
+              aws-cli|aws)
+                if command -v aws >/dev/null 2>&1; then
+                  echo "aws-cli already present: $(aws --version)"
+                else
+                  curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+                  unzip -q /tmp/awscliv2.zip -d /tmp
+                  sudo /tmp/aws/install
+                  rm -rf /tmp/awscliv2.zip /tmp/aws
+                fi
+                ;;
+              kubectl)
+                if command -v kubectl >/dev/null 2>&1 && [ -z "$version" ]; then
+                  echo "kubectl already present: $(kubectl version --client --short 2>/dev/null || true)"
+                else
+                  kver="${version:-$(curl -sSL https://dl.k8s.io/release/stable.txt)}"
+                  [[ "$kver" != v* ]] && kver="v${kver}"
+                  curl -sSL "https://dl.k8s.io/release/${kver}/bin/linux/amd64/kubectl" -o /tmp/kubectl
+                  chmod +x /tmp/kubectl
+                  sudo mv /tmp/kubectl /usr/local/bin/kubectl
+                fi
+                ;;
+              helm)
+                if command -v helm >/dev/null 2>&1 && [ -z "$version" ]; then
+                  echo "helm already present: $(helm version --short)"
+                else
+                  hver="${version:+--version v${version#v}}"
+                  curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash -s -- $hver
+                fi
+                ;;
+              jq)
+                command -v jq >/dev/null 2>&1 || (sudo apt-get update -y && sudo apt-get install -y jq)
+                ;;
+              yq)
+                if command -v yq >/dev/null 2>&1; then
+                  echo "yq already present: $(yq --version)"
+                else
+                  sudo curl -sSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -o /usr/local/bin/yq
+                  sudo chmod +x /usr/local/bin/yq
+                fi
+                ;;
+              azure-cli|az)
+                command -v az >/dev/null 2>&1 || curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
+                ;;
+              gcloud)
+                command -v gcloud >/dev/null 2>&1 || curl -sSL https://sdk.cloud.google.com | bash
+                ;;
+              *)
+                echo "No dedicated installer for '$name' — trying apt-get."
+                sudo apt-get update -y && sudo apt-get install -y "$name"
+                ;;
+            esac
+            echo "::endgroup::"
+          done
+
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.6
         with:
@@ -222,6 +305,74 @@ jobs:
       - name: 📦 Checkout
         uses: actions/checkout@v7
 
+      - name: 🧰 Install Additional Packages
+        if: ${{ inputs.additional_packages != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          IFS=',' read -ra PKGS <<< "${{ inputs.additional_packages }}"
+          for pkg in "${PKGS[@]}"; do
+            pkg="$(echo "$pkg" | xargs)"
+            [ -z "$pkg" ] && continue
+            name="${pkg%@*}"
+            version=""
+            [[ "$pkg" == *"@"* ]] && version="${pkg#*@}"
+            echo "::group::Installing $name ${version:+(version $version)}"
+            case "$name" in
+              aws-cli|aws)
+                if command -v aws >/dev/null 2>&1; then
+                  echo "aws-cli already present: $(aws --version)"
+                else
+                  curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+                  unzip -q /tmp/awscliv2.zip -d /tmp
+                  sudo /tmp/aws/install
+                  rm -rf /tmp/awscliv2.zip /tmp/aws
+                fi
+                ;;
+              kubectl)
+                if command -v kubectl >/dev/null 2>&1 && [ -z "$version" ]; then
+                  echo "kubectl already present: $(kubectl version --client --short 2>/dev/null || true)"
+                else
+                  kver="${version:-$(curl -sSL https://dl.k8s.io/release/stable.txt)}"
+                  [[ "$kver" != v* ]] && kver="v${kver}"
+                  curl -sSL "https://dl.k8s.io/release/${kver}/bin/linux/amd64/kubectl" -o /tmp/kubectl
+                  chmod +x /tmp/kubectl
+                  sudo mv /tmp/kubectl /usr/local/bin/kubectl
+                fi
+                ;;
+              helm)
+                if command -v helm >/dev/null 2>&1 && [ -z "$version" ]; then
+                  echo "helm already present: $(helm version --short)"
+                else
+                  hver="${version:+--version v${version#v}}"
+                  curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash -s -- $hver
+                fi
+                ;;
+              jq)
+                command -v jq >/dev/null 2>&1 || (sudo apt-get update -y && sudo apt-get install -y jq)
+                ;;
+              yq)
+                if command -v yq >/dev/null 2>&1; then
+                  echo "yq already present: $(yq --version)"
+                else
+                  sudo curl -sSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -o /usr/local/bin/yq
+                  sudo chmod +x /usr/local/bin/yq
+                fi
+                ;;
+              azure-cli|az)
+                command -v az >/dev/null 2>&1 || curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
+                ;;
+              gcloud)
+                command -v gcloud >/dev/null 2>&1 || curl -sSL https://sdk.cloud.google.com | bash
+                ;;
+              *)
+                echo "No dedicated installer for '$name' — trying apt-get."
+                sudo apt-get update -y && sudo apt-get install -y "$name"
+                ;;
+            esac
+            echo "::endgroup::"
+          done
+
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.6
         with:
@@ -283,13 +434,6 @@ jobs:
           aws eks update-kubeconfig \
             --name "${{ inputs.aws_eks_cluster_name }}" \
             --region "${{ inputs.aws_region }}"
-
-      - name: 🔧 Update kubeconfig (GKE)
-        if: ${{ inputs.provider == 'gcp' }}
-        run: |
-          gcloud container clusters get-credentials "${{ inputs.gcp_gke_cluster_name }}" \
-            --region "${{ inputs.gcp_region }}" \
-            --project "${{ inputs.gcp_project_id }}"
 
       # ── Helm plugins & repos ─────────────────────────────────────────
       - name: 🔌 Helm Plugin
@@ -328,6 +472,74 @@ jobs:
       - name: 📦 Checkout
         uses: actions/checkout@v7
 
+      - name: 🧰 Install Additional Packages
+        if: ${{ inputs.additional_packages != '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          IFS=',' read -ra PKGS <<< "${{ inputs.additional_packages }}"
+          for pkg in "${PKGS[@]}"; do
+            pkg="$(echo "$pkg" | xargs)"
+            [ -z "$pkg" ] && continue
+            name="${pkg%@*}"
+            version=""
+            [[ "$pkg" == *"@"* ]] && version="${pkg#*@}"
+            echo "::group::Installing $name ${version:+(version $version)}"
+            case "$name" in
+              aws-cli|aws)
+                if command -v aws >/dev/null 2>&1; then
+                  echo "aws-cli already present: $(aws --version)"
+                else
+                  curl -sSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+                  unzip -q /tmp/awscliv2.zip -d /tmp
+                  sudo /tmp/aws/install
+                  rm -rf /tmp/awscliv2.zip /tmp/aws
+                fi
+                ;;
+              kubectl)
+                if command -v kubectl >/dev/null 2>&1 && [ -z "$version" ]; then
+                  echo "kubectl already present: $(kubectl version --client --short 2>/dev/null || true)"
+                else
+                  kver="${version:-$(curl -sSL https://dl.k8s.io/release/stable.txt)}"
+                  [[ "$kver" != v* ]] && kver="v${kver}"
+                  curl -sSL "https://dl.k8s.io/release/${kver}/bin/linux/amd64/kubectl" -o /tmp/kubectl
+                  chmod +x /tmp/kubectl
+                  sudo mv /tmp/kubectl /usr/local/bin/kubectl
+                fi
+                ;;
+              helm)
+                if command -v helm >/dev/null 2>&1 && [ -z "$version" ]; then
+                  echo "helm already present: $(helm version --short)"
+                else
+                  hver="${version:+--version v${version#v}}"
+                  curl -sSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash -s -- $hver
+                fi
+                ;;
+              jq)
+                command -v jq >/dev/null 2>&1 || (sudo apt-get update -y && sudo apt-get install -y jq)
+                ;;
+              yq)
+                if command -v yq >/dev/null 2>&1; then
+                  echo "yq already present: $(yq --version)"
+                else
+                  sudo curl -sSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64" -o /usr/local/bin/yq
+                  sudo chmod +x /usr/local/bin/yq
+                fi
+                ;;
+              azure-cli|az)
+                command -v az >/dev/null 2>&1 || curl -sSL https://aka.ms/InstallAzureCLIDeb | sudo bash
+                ;;
+              gcloud)
+                command -v gcloud >/dev/null 2>&1 || curl -sSL https://sdk.cloud.google.com | bash
+                ;;
+              *)
+                echo "No dedicated installer for '$name' — trying apt-get."
+                sudo apt-get update -y && sudo apt-get install -y "$name"
+                ;;
+            esac
+            echo "::endgroup::"
+          done
+
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.6
         with:
@@ -389,13 +601,6 @@ jobs:
           aws eks update-kubeconfig \
             --name "${{ inputs.aws_eks_cluster_name }}" \
             --region "${{ inputs.aws_region }}"
-
-      - name: 🔧 Update kubeconfig (GKE)
-        if: ${{ inputs.provider == 'gcp' }}
-        run: |
-          gcloud container clusters get-credentials "${{ inputs.gcp_gke_cluster_name }}" \
-            --region "${{ inputs.gcp_region }}" \
-            --project "${{ inputs.gcp_project_id }}"
 
       - name: ⏪ Helm Rollback
         run: |
