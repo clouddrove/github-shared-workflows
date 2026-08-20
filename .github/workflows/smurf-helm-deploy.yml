@@ -402,12 +402,14 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: 🔑 Assume another IAM role
+      - name: Configure Target AWS Credentials (Role Chaining)
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
+          role-to-assume: ${{ inputs.aws_assume_role_arn }}
+          role-session-name: ChainedRoleSession
+          role-chaining: true
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
