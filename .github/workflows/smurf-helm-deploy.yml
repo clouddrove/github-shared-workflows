@@ -28,7 +28,7 @@ on:
 
       # ── Custom runner / package bootstrap ───────────────────────────
       devops_binary:
-        description: "Comma-separated DevOps binaries to install when missing"
+        description: "Install the required DevOps binaries (AWS CLI, kubectl, Helm, Docker, Terraform, Azure CLI, GitHub CLI, jq, and yq). Set to 'install' to enable installation."
         type: string
         required: false
         default: ""
@@ -397,13 +397,13 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: 🔑 AWS · Assume Chained IAM Role
+      - name: 🔑 Assume another IAM role (Role Chaining)
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: ${{ inputs.aws_region }}
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
-          role-session-name: ChainedRoleSession
+          role-session-name: ${{ github.event.repository.name }}-${{ github.run_id }}
           role-chaining: true
 
       - name: ☁️ Authenticate to Google Cloud
@@ -648,13 +648,13 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: 🔑 AWS · Assume Chained IAM Role
+      - name: 🔑 Assume another IAM role (Role Chaining)
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-region: ${{ inputs.aws_region }}
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
-          role-session-name: ChainedRoleSession
+          role-session-name: ${{ github.event.repository.name }}-${{ github.run_id }}
           role-chaining: true
 
       - name: ☁️ Authenticate to Google Cloud
