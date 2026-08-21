@@ -60,6 +60,17 @@ on:
         default: 10
         description: Maximum timeout duration for the Terraform workflow execution.
 
+      runner:
+        required: false
+        type: string
+        default: ubuntu-latest
+        description: >-
+          Runner label for both jobs. Defaults to the GitHub-hosted runner.
+          Set it to a self-hosted label when Terraform has to reach an endpoint
+          that is not on the public internet, such as a private EKS or AKS API
+          server: a GitHub-hosted runner has no route into the VPC, so those
+          plans fail on a connection timeout regardless of credentials.
+
       minimum-approvals:
         required: false
         type: string
@@ -157,7 +168,7 @@ jobs:
 
   terraform-plan:
     name: "⚙️ Terraform Init + Validate + Plan"
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner }}
     environment: ${{ inputs.target_environment }}
 
     steps:
@@ -264,7 +275,7 @@ jobs:
     name: "${{ inputs.destroy && '🔥 Terraform Destroy' || '🚀 Terraform Apply' }}"
     needs: terraform-plan
     if: ${{ !inputs.plan_only }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runner }}
     environment: ${{ inputs.target_environment }}
 
     steps:
