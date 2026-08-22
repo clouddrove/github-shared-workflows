@@ -214,12 +214,14 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: 🔑 Assume another IAM Role
-        if: inputs.aws_assume_role == 'true'
+      - name: 🔑 Assume another IAM role (Role Chaining)
+        if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
+          role-to-assume: ${{ inputs.aws_assume_role_arn }}
+          role-session-name: ${{ github.event.repository.name }}-${{ github.run_id }}
+          role-chaining: true
 
       - name: ☁️ Authenticate Google Cloud with WIP and Service Account
         if: inputs.gcp_auth_method == 'wip'

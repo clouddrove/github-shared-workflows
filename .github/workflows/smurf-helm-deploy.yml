@@ -20,6 +20,18 @@ on:
         type: string
         required: false
         default: v1.1.5
+      runs_on:
+        description: GitHub Actions runner to use
+        type: string
+        required: false
+        default: ubuntu-latest
+
+      # ── Custom runner / package bootstrap ───────────────────────────
+      devops_binary:
+        description: "Install the required DevOps binaries (AWS CLI, kubectl, Helm, Docker, Terraform, Azure CLI, GitHub CLI, jq, and yq). Set to 'install' to enable installation."
+        type: string
+        required: false
+        default: ""
 
       # ── AWS ──────────────────────────────────────────────────────────
       aws_region:
@@ -174,7 +186,7 @@ jobs:
   helm-lint:
     name: Helm Lint & Template
     if: ${{ inputs.helm_enable }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     steps:
       - name: 📦 Checkout
         uses: actions/checkout@v7
@@ -183,6 +195,15 @@ jobs:
         uses: clouddrove/smurf@v1.1.6
         with:
           version: ${{ inputs.smurf_version }}
+
+      - name: 📚 Add Helm Chart Repo
+        if: ${{ inputs.helm_repo_add }}
+        run: |
+          smurf selm repo add "${{ inputs.helm_repository }}" "${{ inputs.helm_repository_url }}"
+
+      - name: 🔄 Update Helm Chart Repos
+        if: ${{ inputs.helm_repo_add }}
+        run: smurf selm repo update
 
       - name: ✅ Helm Lint
         run: |
@@ -202,11 +223,161 @@ jobs:
     name: Helm Deploy
     if: ${{ inputs.helm_enable }}
     needs: helm-lint
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     environment: ${{ inputs.target_environment }}
     steps:
       - name: 📦 Checkout
         uses: actions/checkout@v7
+
+      - name: 🧰 Install DevOps Binaries
+        if: ${{ inputs.devops_binary == 'install' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Detect package manager
+          if command -v apt-get >/dev/null 2>&1; then
+            PKG_MANAGER="apt"
+            echo "📦 Updating apt-get package lists..."
+            sudo apt-get update -y >/dev/null
+            sudo apt-get install -y curl unzip tar gzip jq >/dev/null
+          elif command -v yum >/dev/null 2>&1; then
+            PKG_MANAGER="yum"
+            echo "📦 Updating yum package lists..."
+            sudo yum install -y curl unzip tar gzip jq >/dev/null
+          else
+            echo "::error::Unsupported package manager. Only apt and yum are supported."
+            exit 1
+          fi
+
+          # Detect architecture
+          case "$(uname -m)" in
+            x86_64)
+              ARCH="amd64"
+              AWS_ARCH="x86_64"
+              ;;
+            aarch64|arm64)
+              ARCH="arm64"
+              AWS_ARCH="aarch64"
+              ;;
+            *)
+              echo "::error::Unsupported architecture: $(uname -m)"
+              exit 1
+              ;;
+          esac
+
+          echo "⚙️  Package manager: ${PKG_MANAGER}"
+          echo "⚙️  Architecture:    ${ARCH}"
+
+          # ---------------------------------------------------------------
+          # AWS CLI
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing AWS CLI..."
+          curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" -o /tmp/awscliv2.zip
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          sudo /tmp/aws/install --update >/dev/null
+          rm -rf /tmp/aws /tmp/awscliv2.zip
+          
+          # ---------------------------------------------------------------
+          # kubectl
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing kubectl..."
+          KUBECTL_VERSION="$(curl -fsSL https://dl.k8s.io/release/stable.txt)"
+          curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" -o /tmp/kubectl
+          chmod +x /tmp/kubectl
+          sudo mv /tmp/kubectl /usr/local/bin/kubectl
+          
+          # ---------------------------------------------------------------
+          # Helm
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing Helm..."
+          HELM_VERSION="v3.17.3"
+          curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz" -o /tmp/helm.tar.gz
+          tar -xzf /tmp/helm.tar.gz -C /tmp
+          sudo mv "/tmp/linux-${ARCH}/helm" /usr/local/bin/helm
+          sudo chmod +x /usr/local/bin/helm
+          rm -rf /tmp/helm.tar.gz "/tmp/linux-${ARCH}"
+          
+          # ---------------------------------------------------------------
+          # Docker
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing Docker..."
+          curl -fsSL https://get.docker.com | sudo sh >/dev/null 2>&1
+          
+          # ---------------------------------------------------------------
+          # Terraform
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing Terraform..."
+          TERRAFORM_VERSION="1.15.8"
+          curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${ARCH}.zip" -o /tmp/terraform.zip
+          unzip -q /tmp/terraform.zip -d /tmp/terraform
+          sudo mv /tmp/terraform/terraform /usr/local/bin/terraform
+          sudo chmod +x /usr/local/bin/terraform
+          rm -rf /tmp/terraform.zip /tmp/terraform
+          
+          # ---------------------------------------------------------------
+          # Azure CLI
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing Azure CLI..."
+          if [ "${PKG_MANAGER}" = "apt" ]; then
+            curl -fsSL https://aka.ms/InstallAzureCLIDeb | sudo bash >/dev/null 2>&1
+          else
+            curl -fsSL https://aka.ms/InstallAzureCli | sudo bash >/dev/null 2>&1
+          fi
+          
+          # ---------------------------------------------------------------
+          # GitHub CLI
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing GitHub CLI..."
+          if [ "${PKG_MANAGER}" = "apt" ]; then
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt-get update -y >/dev/null
+            sudo apt-get install -y gh >/dev/null
+          else
+            sudo yum install -y 'dnf-command(config-manager)' >/dev/null 2>&1 || true
+            sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo >/dev/null 2>&1
+            sudo yum install -y gh >/dev/null
+          fi
+          
+          # ---------------------------------------------------------------
+          # yq
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing yq..."
+          curl -fsSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH}" -o /tmp/yq
+          chmod +x /tmp/yq
+          sudo mv /tmp/yq /usr/local/bin/yq
+          
+          # ---------------------------------------------------------------
+          # Clean and Visual Tool Verification Output
+          # ---------------------------------------------------------------
+          echo ""
+          echo "========================================"
+          echo "🔍 INSTALLED DEVOPS BINARIES"
+          echo "========================================"
+
+          TOOLS=(
+            "AWS CLI|aws --version"
+            "Helm|helm version --short"
+            "Kubectl|kubectl version --client"
+            "Docker|docker --version"
+            "Terraform|terraform version | head -n 1"
+            "Azure CLI|az version --output tsv --query '\"azure-cli\"'"
+            "GitHub CLI|gh --version | head -n 1"
+            "jq|jq --version"
+            "yq|yq --version"
+          )
+
+          for TOOL in "${TOOLS[@]}"; do
+            NAME="${TOOL%%|*}"
+            CMD="${TOOL#*|}"
+            
+            echo "---"
+            echo "$NAME"
+            eval "$CMD" 2>&1 | sed 's/^/  /' || echo "  ⚠️ Execution failed"
+          done
+          echo "---"
 
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.6
@@ -226,12 +397,14 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: 🔑 Assume another IAM role
+      - name: 🔑 Assume another IAM role (Role Chaining)
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
+          role-to-assume: ${{ inputs.aws_assume_role_arn }}
+          role-session-name: ${{ github.event.repository.name }}-${{ github.run_id }}
+          role-chaining: true
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
@@ -269,13 +442,6 @@ jobs:
           aws eks update-kubeconfig \
             --name "${{ inputs.aws_eks_cluster_name }}" \
             --region "${{ inputs.aws_region }}"
-
-      - name: 🔧 Update kubeconfig (GKE)
-        if: ${{ inputs.provider == 'gcp' }}
-        run: |
-          gcloud container clusters get-credentials "${{ inputs.gcp_gke_cluster_name }}" \
-            --region "${{ inputs.gcp_region }}" \
-            --project "${{ inputs.gcp_project_id }}"
 
       # ── Helm plugins & repos ─────────────────────────────────────────
       - name: 🔌 Helm Plugin
@@ -308,11 +474,161 @@ jobs:
   helm-rollback:
     name: Helm Rollback
     if: ${{ inputs.helm_rollback_enable }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     environment: ${{ inputs.target_environment }}
     steps:
       - name: 📦 Checkout
         uses: actions/checkout@v7
+
+      - name: 🧰 Install DevOps Binaries
+        if: ${{ inputs.devops_binary == 'install' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Detect package manager
+          if command -v apt-get >/dev/null 2>&1; then
+            PKG_MANAGER="apt"
+            echo "📦 Updating apt-get package lists..."
+            sudo apt-get update -y >/dev/null
+            sudo apt-get install -y curl unzip tar gzip jq >/dev/null
+          elif command -v yum >/dev/null 2>&1; then
+            PKG_MANAGER="yum"
+            echo "📦 Updating yum package lists..."
+            sudo yum install -y curl unzip tar gzip jq >/dev/null
+          else
+            echo "::error::Unsupported package manager. Only apt and yum are supported."
+            exit 1
+          fi
+
+          # Detect architecture
+          case "$(uname -m)" in
+            x86_64)
+              ARCH="amd64"
+              AWS_ARCH="x86_64"
+              ;;
+            aarch64|arm64)
+              ARCH="arm64"
+              AWS_ARCH="aarch64"
+              ;;
+            *)
+              echo "::error::Unsupported architecture: $(uname -m)"
+              exit 1
+              ;;
+          esac
+
+          echo "⚙️  Package manager: ${PKG_MANAGER}"
+          echo "⚙️  Architecture:    ${ARCH}"
+
+          # ---------------------------------------------------------------
+          # AWS CLI
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing AWS CLI..."
+          curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_ARCH}.zip" -o /tmp/awscliv2.zip
+          unzip -q /tmp/awscliv2.zip -d /tmp
+          sudo /tmp/aws/install --update >/dev/null
+          rm -rf /tmp/aws /tmp/awscliv2.zip
+          
+          # ---------------------------------------------------------------
+          # kubectl
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing kubectl..."
+          KUBECTL_VERSION="$(curl -fsSL https://dl.k8s.io/release/stable.txt)"
+          curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" -o /tmp/kubectl
+          chmod +x /tmp/kubectl
+          sudo mv /tmp/kubectl /usr/local/bin/kubectl
+          
+          # ---------------------------------------------------------------
+          # Helm
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing Helm..."
+          HELM_VERSION="v3.17.3"
+          curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz" -o /tmp/helm.tar.gz
+          tar -xzf /tmp/helm.tar.gz -C /tmp
+          sudo mv "/tmp/linux-${ARCH}/helm" /usr/local/bin/helm
+          sudo chmod +x /usr/local/bin/helm
+          rm -rf /tmp/helm.tar.gz "/tmp/linux-${ARCH}"
+          
+          # ---------------------------------------------------------------
+          # Docker
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing Docker..."
+          curl -fsSL https://get.docker.com | sudo sh >/dev/null 2>&1
+          
+          # ---------------------------------------------------------------
+          # Terraform
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing Terraform..."
+          TERRAFORM_VERSION="1.15.8"
+          curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${ARCH}.zip" -o /tmp/terraform.zip
+          unzip -q /tmp/terraform.zip -d /tmp/terraform
+          sudo mv /tmp/terraform/terraform /usr/local/bin/terraform
+          sudo chmod +x /usr/local/bin/terraform
+          rm -rf /tmp/terraform.zip /tmp/terraform
+          
+          # ---------------------------------------------------------------
+          # Azure CLI
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing Azure CLI..."
+          if [ "${PKG_MANAGER}" = "apt" ]; then
+            curl -fsSL https://aka.ms/InstallAzureCLIDeb | sudo bash >/dev/null 2>&1
+          else
+            curl -fsSL https://aka.ms/InstallAzureCli | sudo bash >/dev/null 2>&1
+          fi
+          
+          # ---------------------------------------------------------------
+          # GitHub CLI
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing GitHub CLI..."
+          if [ "${PKG_MANAGER}" = "apt" ]; then
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt-get update -y >/dev/null
+            sudo apt-get install -y gh >/dev/null
+          else
+            sudo yum install -y 'dnf-command(config-manager)' >/dev/null 2>&1 || true
+            sudo yum-config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo >/dev/null 2>&1
+            sudo yum install -y gh >/dev/null
+          fi
+          
+          # ---------------------------------------------------------------
+          # yq
+          # ---------------------------------------------------------------
+          echo "⬇️  Installing yq..."
+          curl -fsSL "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_${ARCH}" -o /tmp/yq
+          chmod +x /tmp/yq
+          sudo mv /tmp/yq /usr/local/bin/yq
+          
+          # ---------------------------------------------------------------
+          # Clean and Visual Tool Verification Output
+          # ---------------------------------------------------------------
+          echo ""
+          echo "========================================"
+          echo "🔍 INSTALLED DEVOPS BINARIES"
+          echo "========================================"
+
+          TOOLS=(
+            "AWS CLI|aws --version"
+            "Helm|helm version --short"
+            "Kubectl|kubectl version --client"
+            "Docker|docker --version"
+            "Terraform|terraform version | head -n 1"
+            "Azure CLI|az version --output tsv --query '\"azure-cli\"'"
+            "GitHub CLI|gh --version | head -n 1"
+            "jq|jq --version"
+            "yq|yq --version"
+          )
+
+          for TOOL in "${TOOLS[@]}"; do
+            NAME="${TOOL%%|*}"
+            CMD="${TOOL#*|}"
+            
+            echo "---"
+            echo "$NAME"
+            eval "$CMD" 2>&1 | sed 's/^/  /' || echo "  ⚠️ Execution failed"
+          done
+          echo "---"
 
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.6
@@ -332,12 +648,14 @@ jobs:
           role-duration-seconds: 900
           role-skip-session-tagging: true
 
-      - name: 🔑 Assume another IAM role
+      - name: 🔑 Assume another IAM role (Role Chaining)
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ inputs.aws_assume_role_arn }}
           aws-region: ${{ inputs.aws_region }}
+          role-to-assume: ${{ inputs.aws_assume_role_arn }}
+          role-session-name: ${{ github.event.repository.name }}-${{ github.run_id }}
+          role-chaining: true
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
@@ -375,13 +693,6 @@ jobs:
           aws eks update-kubeconfig \
             --name "${{ inputs.aws_eks_cluster_name }}" \
             --region "${{ inputs.aws_region }}"
-
-      - name: 🔧 Update kubeconfig (GKE)
-        if: ${{ inputs.provider == 'gcp' }}
-        run: |
-          gcloud container clusters get-credentials "${{ inputs.gcp_gke_cluster_name }}" \
-            --region "${{ inputs.gcp_region }}" \
-            --project "${{ inputs.gcp_project_id }}"
 
       - name: ⏪ Helm Rollback
         run: |

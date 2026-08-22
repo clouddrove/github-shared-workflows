@@ -96,7 +96,7 @@ jobs:
           echo "diffTotalMonthlyCost=$(jq '(.diffTotalMonthlyCost // 0) | tonumber' /tmp/infracost.json)" >> "$GITHUB_OUTPUT"
 
       - name: 🚀 Send cost estimate to Slack
-        uses: slackapi/slack-github-action@v3
+        uses: slackapi/slack-github-action@v4
         if: ${{ inputs.slack_notification == 'true' }}
         with:
           payload: ${{ steps.infracost-slack.outputs.slack-message }}
