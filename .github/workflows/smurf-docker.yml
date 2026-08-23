@@ -53,6 +53,13 @@ on:
         description: Docker Image Build Platform
         type: string
         default: linux/amd64
+      runs_on:
+        description: Runner for the build job. Point this at an arm64 runner to
+          build arm64 images natively instead of under emulation, which is
+          several times faster.
+        type: string
+        required: false
+        default: ubuntu-latest
       docker_buildkit_enable:
         description: Set true to enable docker buildkit
         type: string
@@ -137,7 +144,7 @@ jobs:
   ###############################################
   docker_build:
     if: inputs.docker_enable == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     permissions:
       id-token: write
       contents: read
@@ -147,6 +154,21 @@ jobs:
 
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@v1.1.6
+
+      - name: 🧩 Register binfmt handlers for cross platform builds
+        # Without a binfmt handler the runner cannot execute binaries for
+        # another architecture, so `--platform linux/arm64` on an amd64 runner
+        # pulls the right base image and then dies on the first RUN with
+        # "exec format error". The build looks like a Dockerfile problem when
+        # it is really a missing emulator.
+        #
+        # Skipped only when the requested platform is exactly the runner's
+        # own, so a native build, which is the default and the common case,
+        # is unaffected. An exact comparison rather than a substring one:
+        # a multi platform value such as linux/amd64,linux/arm64 contains
+        # the native platform but still needs an emulator for the rest.
+        if: ${{ inputs.docker_build_platform != (runner.arch == 'X64' && 'linux/amd64' || 'linux/arm64') }}
+        uses: docker/setup-qemu-action@v4.2.0
 
       - name: 🐳 Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
