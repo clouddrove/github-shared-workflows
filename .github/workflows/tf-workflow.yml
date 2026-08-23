@@ -217,7 +217,7 @@ jobs:
       - name: 📋 Terraform Plan
         if: ${{ inputs.target == '' && inputs.target_file == '' }}
         id: tf-plan
-        uses: dflook/terraform-plan@v2
+        uses: dflook/terraform-plan@v3
         with:
           path: ${{ inputs.working_directory }}
           var_file: ${{ inputs.var_file }}
