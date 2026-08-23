@@ -60,6 +60,21 @@ on:
         default: 10
         description: Maximum timeout duration for the Terraform workflow execution.
 
+      ## Named runs_on to match smurf-helm-deploy.yml, which already takes the
+      ## same input with the same default. One concept, one name.
+      runs_on:
+        required: false
+        type: string
+        default: ubuntu-latest
+        description: >-
+          GitHub Actions runner to use, for both jobs. Defaults to the
+          GitHub-hosted runner. Set a self-hosted label when Terraform has to
+          reach an endpoint that is not on the public internet, such as a
+          private EKS or AKS API server: a GitHub-hosted runner has no route
+          into the VPC, so those plans fail on a connection timeout regardless
+          of credentials. A self-hosted runner must provide Docker, which the
+          approval gate's container action requires.
+
       minimum-approvals:
         required: false
         type: string
@@ -157,7 +172,7 @@ jobs:
 
   terraform-plan:
     name: "⚙️ Terraform Init + Validate + Plan"
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     environment: ${{ inputs.target_environment }}
 
     steps:
@@ -294,7 +309,7 @@ jobs:
     name: "${{ inputs.destroy && '🔥 Terraform Destroy' || '🚀 Terraform Apply' }}"
     needs: terraform-plan
     if: ${{ !inputs.plan_only }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     environment: ${{ inputs.target_environment }}
 
     steps:
