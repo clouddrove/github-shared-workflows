@@ -255,20 +255,50 @@ jobs:
         run: |
           smurf stf validate --dir=${{ inputs.terraform_directory }}
 
+      # A caller may invoke this workflow several times in one run via a matrix,
+      # and every instance shares github.run_id. The artifact name therefore has
+      # to distinguish the directory as well, and artifact names cannot contain
+      # a slash, so it is slugified here rather than in an expression.
+      - name: 🏷 Plan artifact name
+        id: planid
+        shell: bash
+        run: |
+          slug="$(printf '%s' "${{ inputs.terraform_directory }}" \
+            | sed 's#^\./##; s#/*$##; s#[^A-Za-z0-9_.-]#-#g')"
+          echo "name=tfplan-${{ github.run_id }}-${slug}" >> "$GITHUB_OUTPUT"
+
+      # The plan is SAVED, not just printed. What a human approves further down
+      # has to be the same set of changes that is executed, and the only way to
+      # guarantee that is to hand the execution stage a plan file rather than
+      # let it work out afresh what to do.
       - name: 📋 Terraform Plan
         if: ${{ !inputs.destroy }}
         shell: bash
         run: |
+          cd "${{ inputs.terraform_directory }}"
           if [ -n "${{ inputs.var_file }}" ]; then
             echo "Using tfvars: ${{ inputs.var_file }}"
-            cd "${{ inputs.terraform_directory }}"
             smurf stf plan \
+              --out=tfplan \
               --var-file="${{ inputs.var_file }}"
           else
             echo "No tfvars provided"
             smurf stf plan \
-              --dir="${{ inputs.terraform_directory }}"
+              --out=tfplan
           fi
+          test -f tfplan || { echo "::error::plan file was not produced"; exit 1; }
+
+      # Carried to the next job as an artifact. The name is keyed on the
+      # directory so a matrix of directories cannot overwrite each other's plan
+      # and hand the wrong one to the wrong stage.
+      - name: 📦 Upload plan
+        if: ${{ !inputs.destroy }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.planid.outputs.name }}
+          path: ${{ inputs.terraform_directory }}/tfplan
+          retention-days: 1
+          if-no-files-found: error
             
 
   terraform-apply:
@@ -354,6 +384,28 @@ jobs:
         run: |
           smurf stf init --dir=${{ inputs.terraform_directory }}
 
+      # A caller may invoke this workflow several times in one run via a matrix,
+      # and every instance shares github.run_id. The artifact name therefore has
+      # to distinguish the directory as well, and artifact names cannot contain
+      # a slash, so it is slugified here rather than in an expression.
+      - name: 🏷 Plan artifact name
+        id: planid
+        shell: bash
+        run: |
+          slug="$(printf '%s' "${{ inputs.terraform_directory }}" \
+            | sed 's#^\./##; s#/*$##; s#[^A-Za-z0-9_.-]#-#g')"
+          echo "name=tfplan-${{ github.run_id }}-${slug}" >> "$GITHUB_OUTPUT"
+
+      # Downloaded BEFORE the approval gate, so a missing or unreadable plan
+      # fails while nobody is waiting on an approval issue, rather than after
+      # someone has already approved.
+      - name: 📥 Download plan
+        if: ${{ !inputs.destroy }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ steps.planid.outputs.name }}
+          path: ${{ inputs.terraform_directory }}
+
       ##################################################
       # Manual Approval
       ##################################################
@@ -392,19 +444,17 @@ jobs:
       # Apply
       ##################################################
 
+      # Executes the SAVED plan, so this stage carries out exactly the change
+      # set that was reviewed and approved. No --var-file here on purpose:
+      # variable values are already baked into the plan file, and Terraform
+      # rejects being given them a second time alongside a saved plan.
       - name: 🚀 Terraform Apply
         if: ${{ !inputs.destroy }}
         shell: bash
         run: |
-          if [ -n "${{ inputs.var_file }}" ]; then
-            echo "Using tfvars: ${{ inputs.var_file }}"
-            cd "${{ inputs.terraform_directory }}"
-            smurf stf apply \
-              --auto-approve \
-              --var-file="${{ inputs.var_file }}"
-          else
-            echo "No tfvars provided"
-            smurf stf apply \
-              --auto-approve \
-              --dir="${{ inputs.terraform_directory }}"
-          fi
+          cd "${{ inputs.terraform_directory }}"
+          test -f tfplan || {
+            echo "::error::no plan file to execute; refusing to re-derive one after approval"
+            exit 1
+          }
+          smurf stf apply tfplan
