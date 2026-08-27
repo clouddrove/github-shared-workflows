@@ -37,6 +37,12 @@ on:
         type: boolean
         default: true
 
+      gcp_project_id:
+        description: "GCP project ID to authenticate against"
+        required: false
+        type: string
+        default: ""
+
       token_format:
         description: "GCP authentication token format"
         required: false
@@ -204,7 +210,7 @@ jobs:
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.SERVICE_ACCOUNT }}
           access_token_lifetime: ${{ inputs.access_token_lifetime }}
-          project_id: ${{ inputs.GCP_PROJECT_ID }}
+          project_id: ${{ inputs.gcp_project_id }}
 
 
       ###############################################################

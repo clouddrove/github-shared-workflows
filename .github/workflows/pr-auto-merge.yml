@@ -83,7 +83,7 @@ jobs:
     if: |
       always() &&
       github.actor == 'dependabot[bot]' &&
-      (needs.static-checks.result == 'success' || needs.static-checks-azure.result == 'success')  && !inputs.azure_cloud
+      needs.static-checks.result == 'success' && !inputs.azure_cloud
     steps:
       - name: Approve PR via GitHub Bot
         run: gh pr review --approve "$PR_URL"
@@ -107,7 +107,7 @@ jobs:
     if: |
       always() &&
       github.actor == 'dependabot[bot]' &&
-      (needs.static-checks.result == 'success' || needs.static-checks-azure.result == 'success') &&
+      needs.static-checks-azure.result == 'success' &&
       inputs.azure_cloud == true
     steps:
       - name: Approve PR via GitHub Bot
