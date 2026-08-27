@@ -241,6 +241,19 @@ jobs:
         uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ inputs.terraform_version }}
+          ## The wrapper is a Node script that shims the terraform binary so a
+          ## step can read stdout/stderr as action outputs. Nothing here uses
+          ## those outputs: smurf shells out to terraform itself.
+          ##
+          ## It is actively harmful on a self-hosted runner. The actions-runner
+          ## image ships Node only for running JS actions (externals/node20) and
+          ## does not put it on PATH, so the shim fails with:
+          ##
+          ##   /usr/bin/env: 'node': No such file or directory
+          ##   Initialization failed: exit status 127
+          ##
+          ## which reads as a Terraform problem and is not one.
+          terraform_wrapper: false
 
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@master
@@ -378,6 +391,19 @@ jobs:
         uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ inputs.terraform_version }}
+          ## The wrapper is a Node script that shims the terraform binary so a
+          ## step can read stdout/stderr as action outputs. Nothing here uses
+          ## those outputs: smurf shells out to terraform itself.
+          ##
+          ## It is actively harmful on a self-hosted runner. The actions-runner
+          ## image ships Node only for running JS actions (externals/node20) and
+          ## does not put it on PATH, so the shim fails with:
+          ##
+          ##   /usr/bin/env: 'node': No such file or directory
+          ##   Initialization failed: exit status 127
+          ##
+          ## which reads as a Terraform problem and is not one.
+          terraform_wrapper: false
 
       - name: ⚙️ Setup Smurf
         uses: clouddrove/smurf@master
