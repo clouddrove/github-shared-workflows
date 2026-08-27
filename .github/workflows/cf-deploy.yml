@@ -17,6 +17,11 @@ on:
         required: false
         default: 'us-east-1'
         type: string
+      role-to-assume:
+        description: 'ARN of the IAM role to assume. Leave empty to use the static access keys.'
+        required: false
+        default: ''
+        type: string
       stack-name:
         description: 'Stack name defined'
         required: true
@@ -101,7 +106,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ inputs.aws-region }}
-          role-to-assume: ${{ inputs.ROLE-TO-ASSUME }}
+          role-to-assume: ${{ inputs.role-to-assume }}
 
       - name: 📦 Src folder code convert into zip and upload to S3
         run: |

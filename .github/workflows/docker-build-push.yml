@@ -29,6 +29,11 @@ on:
       assume_role_arn:
         required: false
         type: string
+      role_duration_seconds:
+        description: 'Lifetime of the assumed role session, in seconds. Empty uses the action default.'
+        required: false
+        default: ''
+        type: string
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -86,9 +91,9 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          role-to-assume: ${{ secrets.BUILD_ROLE }}
+          role-to-assume: ${{ inputs.assume_role_arn || secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: ${{ inputs.role-duration-seconds }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
           role-skip-session-tagging: true
 
       - name: 🕵️ Verify awscli
