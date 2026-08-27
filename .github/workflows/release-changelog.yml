@@ -73,14 +73,14 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ secrets.GITHUB }}
           ref: ${{ inputs.release_tag }}
 
       - name: 📝 Generate Changelog
         id: changelog
-        uses: requarks/changelog-action@v1
+        uses: requarks/changelog-action@b78a3354a01f4a1affb484b9264b506a815c46b1 # v1.10.3
         with:
           token: ${{ secrets.GITHUB }}
           tag: ${{ inputs.release_tag }}
@@ -92,7 +92,7 @@ jobs:
           reverseOrder: false
 
       - name: 🚀 Create Release
-        uses: ncipollo/release-action@v1.21.0
+        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
         with:
           token: ${{ secrets.GITHUB }}
           tag: ${{ inputs.release_tag }}
@@ -103,7 +103,7 @@ jobs:
           body: ${{ steps.changelog.outputs.changes }}
 
       - name: 💾 Commit CHANGELOG.md
-        uses: stefanzweifel/git-auto-commit-action@v7
+        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
         with:
           branch: ${{ inputs.branch }}
           commit_user_name: clouddrove-ci
