@@ -94,7 +94,7 @@ jobs:
     steps:
       # Checkout the repository to the GitHub Actions runner
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔧 Set environment variables
         run: |
@@ -106,7 +106,7 @@ jobs:
 
       - name: ☁️ Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.aws_access_key_id }}
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
@@ -119,7 +119,7 @@ jobs:
       # Authenticate to GCP
       - name: 🔐 Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: 'google-github-actions/auth@v3'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           create_credentials_file: ${{ inputs.create_credentials_file }}
@@ -132,12 +132,12 @@ jobs:
       # Install azure-cli
       - name: 🔧 Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
-        uses: azure/login@v3
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: ⚙️ Set up Terraform
-        uses: hashicorp/setup-terraform@v4
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
@@ -164,7 +164,7 @@ jobs:
 
       # Save plan to artifacts
       - name: 💾 Publish Terraform Plan
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: tfplan
           path: tfplan
@@ -197,7 +197,7 @@ jobs:
       # If changes are detected, create a new issue
       - name: 🚨 Publish Drift Report and create new issue
         if: steps.tf-plan.outputs.exitcode == 2
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           SUMMARY: "${{ steps.tf-plan-string.outputs.summary }}"
         with:
@@ -245,7 +245,7 @@ jobs:
       # If changes aren't detected, close any open drift issues
       - name: ✅ Publish Drift Report
         if: steps.tf-plan.outputs.exitcode == 0
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           github-token: ${{ secrets.GITHUB }}
           script: |

@@ -57,10 +57,10 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Execute Remote Command via AWS SSM
-        uses: peterkimzz/aws-ssm-send-command@master
+        uses: peterkimzz/aws-ssm-send-command@8d32fbc744c127490e85b29eefff09d40494fc86 # v1.1.1
         id: ssm
         with:
           aws-region: ${{ secrets.AWS_REGION }}
@@ -73,7 +73,7 @@ jobs:
 
       - name: Slack notification
         if: ${{ inputs.slack-notification == 'true' && always() }}
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_MESSAGE: ${{ inputs.slack_message }}

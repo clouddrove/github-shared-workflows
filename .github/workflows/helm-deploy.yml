@@ -117,11 +117,11 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔧 Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -133,7 +133,7 @@ jobs:
 
       - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azure' }}
-        uses: azure/login@v3
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -186,7 +186,7 @@ jobs:
 
       - name: 📤 Upload Diagram Artifact
         if: ${{ inputs.generate-diagram == true }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: helm-diagram
           path: ${{ inputs.diagram-file-name }}
@@ -241,7 +241,7 @@ jobs:
         env:
           NAORU_KEY: ${{ secrets.NAORU_API_KEY }}
         if: ${{ env.NAORU_KEY != '' }}
-        uses: clouddrove/naoru@v0
+        uses: clouddrove/naoru@1fbf9f8977d855a35865c771679bb51f7474e397 # v0.2.3
         with:
           api-key: ${{ secrets.NAORU_API_KEY }}
           provider: openrouter

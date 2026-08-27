@@ -37,7 +37,7 @@ jobs:
         shell: bash
 
       - name: Wait for "${{ matrix.tf-checks }}" to Succeed
-        uses: lewagon/wait-on-check-action@v1.8.0
+        uses: lewagon/wait-on-check-action@96d9100b431964d10e0136aff8b9ccb92470505e # v1.8.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           check-name: ${{ matrix.tf-checks }}
@@ -65,7 +65,7 @@ jobs:
         shell: bash
 
       - name: Wait for "${{ matrix.tf-checks }}" to Succeed
-        uses: lewagon/wait-on-check-action@v1.8.0
+        uses: lewagon/wait-on-check-action@96d9100b431964d10e0136aff8b9ccb92470505e # v1.8.0
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           check-name: ${{ matrix.tf-checks }}
@@ -133,7 +133,7 @@ jobs:
       inputs.azure_cloud == true
     steps:
       - name: Automerge
-        uses: pascalgn/automerge-action@v0.16.4
+        uses: pascalgn/automerge-action@7961b8b5eec56cc088c140b56d864285eabd3f67 # v0.16.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB }}
           MERGE_FILTER_AUTHOR: 'dependabot[bot]'
@@ -151,7 +151,7 @@ jobs:
       github.event.pull_request.draft == false && !inputs.azure_cloud
     steps:
       - name: Automerge
-        uses: pascalgn/automerge-action@v0.16.4
+        uses: pascalgn/automerge-action@7961b8b5eec56cc088c140b56d864285eabd3f67 # v0.16.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB }}
           MERGE_FILTER_AUTHOR: 'dependabot[bot]'

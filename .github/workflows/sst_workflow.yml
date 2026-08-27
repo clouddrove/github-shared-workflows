@@ -75,7 +75,7 @@ jobs:
     name: 🚀 Run sst-deploy
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 📝 Update environment variable in .env file
         run: |
@@ -84,7 +84,7 @@ jobs:
           fi
 
       - name: 🔑 Configure AWS Creds via role
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-region: us-west-2
           role-to-assume: ${{ secrets.build-role }}
@@ -140,7 +140,7 @@ jobs:
 
       - name: 🧹 Cleanup preview env deployment
         if: ${{ ( github.event.action == 'labeled' && github.event.label.name == 'destroy' && inputs.preview == 'true' ) || (github.event.action == 'closed' && inputs.preview == 'true' || github.event.pull_request.merged == true && inputs.preview == 'true' ) }}
-        uses: strumwolf/delete-deployment-environment@v4.0.0
+        uses: strumwolf/delete-deployment-environment@035f6d27c8b8951729f4d71b2d3d6a7975139476 # v4.0.0
         with:
           token: ${{ secrets.token }}
           environment: ${{ github.head_ref }}

@@ -178,9 +178,9 @@ jobs:
     steps:
 
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
-      - uses: webfactory/ssh-agent@v0.10.0
+      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
         if: ${{ inputs.git_ssh_key_setup == true }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -199,7 +199,7 @@ jobs:
 
       - name: 🟦 Configure AWS
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -211,13 +211,13 @@ jobs:
 
       - name: ☁️ Azure Login
         if: ${{ inputs.provider == 'azurerm' }}
-        uses: azure/login@v3
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           create_credentials_file: ${{ inputs.create_credentials_file }}
@@ -229,7 +229,7 @@ jobs:
 
       - name: 🌊 Configure DigitalOcean
         if: ${{ inputs.provider == 'digitalocean' }}
-        uses: digitalocean/action-doctl@v2
+        uses: digitalocean/action-doctl@3cb3953159719656269e044e0e24ca16dd2a690f # v2.5.2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
@@ -238,7 +238,7 @@ jobs:
       ##########################
 
       - name: 🛠 Setup Terraform
-        uses: hashicorp/setup-terraform@v4
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: ${{ inputs.terraform_version }}
           ## The wrapper is a Node script that shims the terraform binary so a
@@ -256,7 +256,7 @@ jobs:
           terraform_wrapper: false
 
       - name: ⚙️ Setup Smurf
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@01c843ad06c0cd75f97a79e7e4b6463860f15ea5 # master@2026-08-26
         with:
           version: ${{ inputs.smurf_version }}
 
@@ -310,7 +310,7 @@ jobs:
       # and hand the wrong one to the wrong stage.
       - name: 📦 Upload plan
         if: ${{ !inputs.destroy }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ${{ steps.planid.outputs.name }}
           path: ${{ inputs.terraform_directory }}/tfplan
@@ -328,9 +328,9 @@ jobs:
     steps:
 
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
-      - uses: webfactory/ssh-agent@v0.10.0
+      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
         if: ${{ inputs.git_ssh_key_setup == true }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -349,7 +349,7 @@ jobs:
 
       - name: 🟦 Configure AWS
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -361,13 +361,13 @@ jobs:
 
       - name: ☁️ Azure Login
         if: ${{ inputs.provider == 'azurerm' }}
-        uses: azure/login@v3
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           create_credentials_file: ${{ inputs.create_credentials_file }}
@@ -379,7 +379,7 @@ jobs:
 
       - name: 🌊 Configure DigitalOcean
         if: ${{ inputs.provider == 'digitalocean' }}
-        uses: digitalocean/action-doctl@v2
+        uses: digitalocean/action-doctl@3cb3953159719656269e044e0e24ca16dd2a690f # v2.5.2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
@@ -388,7 +388,7 @@ jobs:
       ##################################################
 
       - name: 🛠 Setup Terraform
-        uses: hashicorp/setup-terraform@v4
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: ${{ inputs.terraform_version }}
           ## The wrapper is a Node script that shims the terraform binary so a
@@ -406,7 +406,7 @@ jobs:
           terraform_wrapper: false
 
       - name: ⚙️ Setup Smurf
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@01c843ad06c0cd75f97a79e7e4b6463860f15ea5 # master@2026-08-26
         with:
           version: ${{ inputs.smurf_version }}
 
@@ -431,7 +431,7 @@ jobs:
       # someone has already approved.
       - name: 📥 Download plan
         if: ${{ !inputs.destroy }}
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: ${{ steps.planid.outputs.name }}
           path: ${{ inputs.terraform_directory }}
@@ -441,7 +441,7 @@ jobs:
       ##################################################
 
       - name: ⏳ Approval
-        uses: trstringer/manual-approval@v1
+        uses: trstringer/manual-approval@fa642940caf8412403569b28b2db4a1df08a83a3 # v1.13.1
         timeout-minutes: ${{ inputs.timeout }}
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}

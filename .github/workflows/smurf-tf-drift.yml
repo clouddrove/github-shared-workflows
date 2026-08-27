@@ -97,7 +97,7 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       - name: 🌱 Set environment variables
         env:
@@ -113,7 +113,7 @@ jobs:
 
       - name: 🟦 Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -125,7 +125,7 @@ jobs:
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           create_credentials_file: ${{ inputs.create_credentials_file }}
@@ -136,13 +136,13 @@ jobs:
           project_id: ${{ inputs.project_id }}
 
       - name: 🛠️ Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_version: ${{ inputs.terraform_version }}
           terraform_wrapper: false
 
       - name: ⚙️ Set up Smurf
-        uses: clouddrove/smurf@v1.1.6
+        uses: clouddrove/smurf@bcbebeb0d9ac2747befbe40c3b685a30dd48f1e6 # v1.1.6
         with:
           version: ${{ inputs.smurf_version }}
 
@@ -195,7 +195,7 @@ jobs:
 
       - name: 💾 Upload plan artifact
         if: steps.tf-plan.outputs.exitcode == '2' || steps.tf-plan.outputs.exitcode == '3'
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: smurf-tfplan-${{ github.run_id }}
           path: ${{ inputs.terraform_directory }}/${{ inputs.plan_out }}
@@ -236,7 +236,7 @@ jobs:
 
       - name: 🚨 Create or update drift issue
         if: inputs.create_issue && steps.tf-plan.outputs.exitcode == '2'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         env:
           SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
           ISSUE_TITLE: ${{ inputs.drift_issue_title }}
@@ -276,7 +276,7 @@ jobs:
 
       - name: ✅ Close drift issue when clean
         if: inputs.close_issue_on_clean && steps.tf-plan.outputs.exitcode == '0'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
         env:
           ISSUE_TITLE: ${{ inputs.drift_issue_title }}
         with:

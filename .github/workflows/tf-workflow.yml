@@ -137,9 +137,9 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: webfactory/ssh-agent@v0.10.0
+      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
         if: ${{ inputs.git_ssh_key_setup == true }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -154,7 +154,7 @@ jobs:
 
       - name: 🟦 Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -166,13 +166,13 @@ jobs:
 
       - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}
-        uses: azure/login@v3
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: 'google-github-actions/auth@v3'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           create_credentials_file: ${{ inputs.create_credentials_file }}
@@ -184,19 +184,19 @@ jobs:
 
       - name: 🟦 Install doctl
         if: ${{ inputs.provider == 'digitalocean' }}
-        uses: digitalocean/action-doctl@v2
+        uses: digitalocean/action-doctl@3cb3953159719656269e044e0e24ca16dd2a690f # v2.5.2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: 🛠️ Set up Terraform
-        uses: hashicorp/setup-terraform@v4
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
       - name: 🧹 Terraform Format
         if: ${{ inputs.destroy != true }}
         id: fmt
-        uses: 'dflook/terraform-fmt-check@v3'
+        uses: dflook/terraform-fmt-check@5702d43749973bd5b54e2380f090c1ad8054ecd4 # v3.0.0
         with:
           actions_subcommand: 'fmt'
           path: ${{ inputs.working_directory }}
@@ -209,7 +209,7 @@ jobs:
       - name: 🔎 Terraform validate
         if: ${{ inputs.destroy != true }}
         id: validate
-        uses: dflook/terraform-validate@v3
+        uses: dflook/terraform-validate@36ef08d500fe2cd9b742b10176d2683707c7074e # v3.0.0
         with:
           path: ${{ inputs.working_directory }}
 
@@ -217,7 +217,7 @@ jobs:
       - name: 📋 Terraform Plan
         if: ${{ inputs.target == '' && inputs.target_file == '' }}
         id: tf-plan
-        uses: dflook/terraform-plan@v3
+        uses: dflook/terraform-plan@3f1559b085c5ceff68c3724c9b66c015a6c940cd # v3.0.0
         with:
           path: ${{ inputs.working_directory }}
           var_file: ${{ inputs.var_file }}
@@ -265,7 +265,7 @@ jobs:
       # Upload plan artifact when using targeting
       - name: 📤 Publish Terraform Plan Artifact
         if: ${{ inputs.target != '' || inputs.target_file != '' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: tfplan
           path: ${{ inputs.working_directory }}/tfplan
@@ -320,7 +320,7 @@ jobs:
 
       - name: ✅ Accept plan or deny
         if: ${{ inputs.plan_only != true }}
-        uses: trstringer/manual-approval@v1
+        uses: trstringer/manual-approval@fa642940caf8412403569b28b2db4a1df08a83a3 # v1.13.1
         timeout-minutes: ${{ inputs.timeout }}
         with:
           secret: ${{ github.TOKEN }}
@@ -371,7 +371,7 @@ jobs:
 
       - name: 📤 Upload Errored Terraform State Artifact
         if: ${{ always() && steps.find_errored_tfstate.outputs.errored_found == 'true' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: errored_tfstate
           path: ${{ inputs.working_directory }}/errored.tfstate
@@ -431,7 +431,7 @@ jobs:
         env:
           NAORU_KEY: ${{ secrets.NAORU_API_KEY }}
         if: ${{ env.NAORU_KEY != '' }}
-        uses: clouddrove/naoru@v0
+        uses: clouddrove/naoru@1fbf9f8977d855a35865c771679bb51f7474e397 # v0.2.3
         with:
           api-key: ${{ secrets.NAORU_API_KEY }}
           provider: openrouter

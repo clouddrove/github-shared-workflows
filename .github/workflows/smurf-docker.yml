@@ -150,10 +150,10 @@ jobs:
       contents: read
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: ⚙️ Setup Smurf
-        uses: clouddrove/smurf@v1.1.6
+        uses: clouddrove/smurf@bcbebeb0d9ac2747befbe40c3b685a30dd48f1e6 # v1.1.6
 
       - name: 🧩 Register binfmt handlers for cross platform builds
         # Without a binfmt handler the runner cannot execute binaries for
@@ -168,7 +168,7 @@ jobs:
         # a multi platform value such as linux/amd64,linux/arm64 contains
         # the native platform but still needs an emulator for the rest.
         if: ${{ inputs.docker_build_platform != (runner.arch == 'X64' && 'linux/amd64' || 'linux/arm64') }}
-        uses: docker/setup-qemu-action@v4.2.0
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
 
       - name: 🐳 Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
@@ -193,7 +193,7 @@ jobs:
             -o ${{ inputs.docker_image_tar }}
 
       - name: 📤 Upload Docker Image Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: docker-image
           path: ${{ inputs.docker_image_tar }}
@@ -210,13 +210,13 @@ jobs:
       contents: read
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: ⚙️ Setup Smurf
-        uses: clouddrove/smurf@v1.1.6
+        uses: clouddrove/smurf@bcbebeb0d9ac2747befbe40c3b685a30dd48f1e6 # v1.1.6
 
       - name: 📥 Download Docker Image Artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: docker-image
 
@@ -226,7 +226,7 @@ jobs:
       # ── Cloud authentication ─────────────────────────────────────────
       - name: 🟦 Install AWS CLI
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -238,7 +238,7 @@ jobs:
 
       - name: 🔑 Assume another IAM role (Role Chaining)
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-region: ${{ inputs.aws_region }}
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
@@ -247,7 +247,7 @@ jobs:
 
       - name: ☁️ Authenticate Google Cloud with WIP and Service Account
         if: inputs.gcp_auth_method == 'wip'
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           token_format: access_token
           workload_identity_provider: ${{ secrets.GCP_WIP }}
@@ -257,7 +257,7 @@ jobs:
 
       - name: ☁️ Authenticate Google Cloud with Service Account JSON Key
         if: inputs.gcp_auth_method == 'json'
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
 

@@ -189,10 +189,10 @@ jobs:
     runs-on: ${{ inputs.runs_on }}
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: ⚙️ Setup Smurf
-        uses: clouddrove/smurf@v1.1.6
+        uses: clouddrove/smurf@bcbebeb0d9ac2747befbe40c3b685a30dd48f1e6 # v1.1.6
         with:
           version: ${{ inputs.smurf_version }}
 
@@ -227,7 +227,7 @@ jobs:
     environment: ${{ inputs.target_environment }}
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🧰 Install DevOps Binaries
         if: ${{ inputs.devops_binary == 'install' }}
@@ -380,14 +380,14 @@ jobs:
           echo "---"
 
       - name: ⚙️ Setup Smurf
-        uses: clouddrove/smurf@v1.1.6
+        uses: clouddrove/smurf@bcbebeb0d9ac2747befbe40c3b685a30dd48f1e6 # v1.1.6
         with:
           version: ${{ inputs.smurf_version }}
 
       # ── Cloud authentication ─────────────────────────────────────────
       - name: 🟦 Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -399,7 +399,7 @@ jobs:
 
       - name: 🔑 Assume another IAM role (Role Chaining)
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-region: ${{ inputs.aws_region }}
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
@@ -408,7 +408,7 @@ jobs:
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
@@ -417,7 +417,7 @@ jobs:
 
       - name: 🛠️ Set up gcloud SDK
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/setup-gcloud@v3
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
         with:
           project_id: ${{ inputs.gcp_project_id }}
           install_components: gke-gcloud-auth-plugin
@@ -432,7 +432,7 @@ jobs:
 
       - name: 🔵 Login to Azure
         if: ${{ inputs.provider == 'azure' }}
-        uses: azure/login@v3
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -478,7 +478,7 @@ jobs:
     environment: ${{ inputs.target_environment }}
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🧰 Install DevOps Binaries
         if: ${{ inputs.devops_binary == 'install' }}
@@ -631,14 +631,14 @@ jobs:
           echo "---"
 
       - name: ⚙️ Setup Smurf
-        uses: clouddrove/smurf@v1.1.6
+        uses: clouddrove/smurf@bcbebeb0d9ac2747befbe40c3b685a30dd48f1e6 # v1.1.6
         with:
           version: ${{ inputs.smurf_version }}
 
       # ── Cloud authentication ─────────────────────────────────────────
       - name: 🟦 Configure AWS credentials
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -650,7 +650,7 @@ jobs:
 
       - name: 🔑 Assume another IAM role (Role Chaining)
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-region: ${{ inputs.aws_region }}
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
@@ -659,7 +659,7 @@ jobs:
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
@@ -668,7 +668,7 @@ jobs:
 
       - name: 🛠️ Set up gcloud SDK
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/setup-gcloud@v3
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
         with:
           project_id: ${{ inputs.gcp_project_id }}
           install_components: gke-gcloud-auth-plugin
@@ -683,7 +683,7 @@ jobs:
 
       - name: 🔵 Login to Azure
         if: ${{ inputs.provider == 'azure' }}
-        uses: azure/login@v3
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
