@@ -74,7 +74,7 @@ jobs:
 
       - name: 🕵️ Docker Scout
         id: docker-scout
-        uses: docker/scout-action@bacf462e8d090c09660de30a6ccc718035f961e3 # v1.20.4
+        uses: docker/scout-action@7c6b6c3f7844478ace1ffd4e7aef649053d1f87d # v1.24.0
         with:
           command: cves,recommendations,compare
           to-latest: false
