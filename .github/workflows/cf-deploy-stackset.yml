@@ -8,6 +8,16 @@ on:
         required: false
         default: 'us-east-2'
         type: string
+      role_duration_seconds:
+        description: "The duration in seconds for the AWS IAM role session."
+        required: false
+        type: number
+        default: 3600
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
       stackset-instance-region:
         description: 'Stackset-instance regions where you need cloudformation stacks'
         required: false
@@ -85,6 +95,8 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ inputs.aws-region }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: 🔄 Check if StackSet exists or not-exist then create/update stack-set
         id: check-stackset
