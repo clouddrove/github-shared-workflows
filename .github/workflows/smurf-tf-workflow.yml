@@ -21,6 +21,18 @@ on:
         default: us-east-2
         description: AWS region where resources will be provisioned.
 
+      role_duration_seconds:
+        description: "The duration in seconds for the AWS IAM role session."
+        required: false
+        type: number
+        default: 3600
+
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
+
       gcp_region:
         required: false
         type: string
@@ -58,7 +70,7 @@ on:
         required: false
         type: number
         default: 10
-        description: Maximum timeout duration for the Terraform workflow execution.
+        description: Maximum number of minutes to wait for manual approval before the approval step times out.
 
       ## Named runs_on to match smurf-helm-deploy.yml, which already takes the
       ## same input with the same default. One concept, one name.
@@ -206,8 +218,8 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: 900
-          role-skip-session-tagging: true
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: ☁️ Azure Login
         if: ${{ inputs.provider == 'azurerm' }}
@@ -356,8 +368,8 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: 900
-          role-skip-session-tagging: true
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: ☁️ Azure Login
         if: ${{ inputs.provider == 'azurerm' }}

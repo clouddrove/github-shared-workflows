@@ -52,6 +52,16 @@ on:
         description: IAM role ARN to assume
         type: string
         required: false
+      role_duration_seconds:
+        description: "The duration in seconds for the AWS IAM role session."
+        required: false
+        type: number
+        default: 3600
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
 
       # ── GCP ──────────────────────────────────────────────────────────
       gcp_project_id:
@@ -394,8 +404,8 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: 900
-          role-skip-session-tagging: true
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: 🔑 Assume another IAM role (Role Chaining)
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
@@ -405,6 +415,8 @@ jobs:
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
           role-session-name: ${{ github.event.repository.name }}-${{ github.run_id }}
           role-chaining: true
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
@@ -645,8 +657,8 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: 900
-          role-skip-session-tagging: true
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: 🔑 Assume another IAM role (Role Chaining)
         if: ${{ inputs.provider == 'aws' && inputs.aws_assume_role }}
@@ -656,6 +668,8 @@ jobs:
           role-to-assume: ${{ inputs.aws_assume_role_arn }}
           role-session-name: ${{ github.event.repository.name }}-${{ github.run_id }}
           role-chaining: true
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
