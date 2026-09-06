@@ -16,6 +16,16 @@ on:
         type: string
         default: us-east-2
         description: 'AWS region of terraform deployment.'
+      role_duration_seconds:
+        description: "The duration in seconds for the AWS IAM role session."
+        required: false
+        type: number
+        default: 3600
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
       gcp_region:
         required: false
         type: string
@@ -161,8 +171,8 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: 900
-          role-skip-session-tagging: true
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' }}

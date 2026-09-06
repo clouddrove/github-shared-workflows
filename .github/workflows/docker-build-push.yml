@@ -34,6 +34,11 @@ on:
         required: false
         default: ''
         type: string
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
@@ -94,7 +99,7 @@ jobs:
           role-to-assume: ${{ inputs.assume_role_arn || secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
           role-duration-seconds: ${{ inputs.role_duration_seconds }}
-          role-skip-session-tagging: true
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: 🕵️ Verify awscli
         if: ${{ inputs.provider == 'aws' }}

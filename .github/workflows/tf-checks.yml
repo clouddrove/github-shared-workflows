@@ -33,6 +33,11 @@ on:
         type: number
         default: 3600
         description: 'The assumed role duration in seconds, if assuming a role. Defaults to 1 hour (3600 seconds). Acceptable values range from 15 minutes (900 seconds) to 12 hours (43200 seconds).'
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
       enable_plan:
         required: false
         type: boolean
@@ -158,7 +163,7 @@ jobs:
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
           role-duration-seconds: ${{ inputs.role_duration_seconds }}
-          role-skip-session-tagging: true
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: ☁️ Install Azure CLI
         if: ${{ inputs.provider == 'azurerm' && inputs.enable_plan }}

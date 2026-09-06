@@ -8,7 +8,6 @@ on:
         description: 'Cloud Provider Name. i.g. AWS, Azure, GCP, OCI'
         required: true
         type: string
-        default: 'AWS'
       mod_url:
         description: 'Powerpipe Mod URL. Get URL from here: https://hub.powerpipe.io/'
         required: false
@@ -53,6 +52,23 @@ on:
         required: false
         type: string
         description: 'ID of the default project to use for future API calls and invocations.'
+      
+      # AWS Authentication
+      aws_region:
+        required: false
+        type: string
+        default: us-east-2
+        description: 'AWS region of terraform deployment.'
+      role_duration_seconds:
+        description: "The duration in seconds for the AWS IAM role session."
+        required: false
+        type: number
+        default: 3600
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
 
     secrets:
       TOKEN:
@@ -63,6 +79,15 @@ on:
       aws_assume_role:
         description: 'AWS IAM role to assume. Necessary if cloud_provider is AWS.'
         required: false
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
 
       # Azure Authentication
       AZURE_CLIENT_ID:
@@ -95,12 +120,17 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔑 Setup AWS Credentials
+        if: ${{ inputs.cloud_provider == 'AWS' }}
         uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.aws_assume_role }}
           role-session-name: powerpipe
-          aws-region: us-east-1
-        if: ${{ inputs.cloud_provider == 'AWS' }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: ☁️ Authenticate to Google Cloud
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0

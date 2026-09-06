@@ -35,6 +35,26 @@ on:
         description: 'Deploy stack with github self hosted runner or not'
         type: string
         default: true
+      provider:
+        required: false
+        type: string
+        default: aws
+        description: 'Cloud provider to run the workflow. e.g. azurerm, aws, gcp or digitalocean'
+      aws_region:
+        required: false
+        type: string
+        default: us-east-2
+        description: 'AWS region of terraform deployment.'
+      role_duration_seconds:
+        description: "The duration in seconds for the AWS IAM role session."
+        required: false
+        type: number
+        default: 3600
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
 
     secrets:
       token:
@@ -44,8 +64,17 @@ on:
         description: 'Environment-variables to store in .env file'
         required: false
       build-role:
-        description: 'Assume role arn'
-        required: true
+        required: false
+        description: 'AWS OIDC role for aws authentication.'
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
 
 jobs:
   setup:
@@ -83,13 +112,17 @@ jobs:
            echo -e "${{ secrets.env-vars }}" > ./.env
           fi
 
-      - name: 🔑 Configure AWS Creds via role
+      - name: 🟦 Install AWS CLI
+        if: ${{ inputs.provider == 'aws' }}
         uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
-          aws-region: us-west-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.build-role }}
-          role-duration-seconds: 900
-          role-skip-session-tagging: true
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: 📦 Install yarn
         run: sudo npm install -g yarn
