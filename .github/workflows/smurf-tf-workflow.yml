@@ -272,9 +272,19 @@ jobs:
         with:
           version: ${{ inputs.smurf_version }}
 
+      # The subcommand is `fmt`. `smurf stf format` does not exist: it printed a
+      # hint and exited 0 until smurf started rejecting unknown subcommands, so
+      # this step passed for as long as it had existed having formatted nothing,
+      # then began failing on smurf v1.2.0 with no change here.
+      #
+      # It is also the only step in this job that runs without --dir, so it
+      # covers the whole checkout rather than the target root. `smurf stf fmt`
+      # gained a --dir flag after this was reported; pass it here once the
+      # release carrying it is out, otherwise a caller pinning an older
+      # smurf_version fails on an unknown flag.
       - name: 🧹 Terraform Format
         run: |
-          smurf stf format
+          smurf stf fmt
 
       - name: 🏗 Terraform Init
         run: |
