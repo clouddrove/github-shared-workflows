@@ -83,10 +83,10 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔐 Executing remote SSH commands using SSH key
-        uses: appleboy/ssh-action@v1.2.5
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
@@ -99,7 +99,7 @@ jobs:
 
       - name: 📣 Slack notification
         if: ${{ inputs.slack-notification == 'true' && always() }}
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
           SLACK_MESSAGE: ${{ inputs.slack_message }}

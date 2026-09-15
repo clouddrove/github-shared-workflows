@@ -8,7 +8,6 @@ on:
         description: 'Cloud Provider Name. i.g. AWS, Azure, GCP, OCI'
         required: true
         type: string
-        default: 'AWS'
       mod_url:
         description: 'Powerpipe Mod URL. Get URL from here: https://hub.powerpipe.io/'
         required: false
@@ -53,6 +52,23 @@ on:
         required: false
         type: string
         description: 'ID of the default project to use for future API calls and invocations.'
+      
+      # AWS Authentication
+      aws_region:
+        required: false
+        type: string
+        default: us-east-2
+        description: 'AWS region of terraform deployment.'
+      role_duration_seconds:
+        description: "The duration in seconds for the AWS IAM role session."
+        required: false
+        type: number
+        default: 3600
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
 
     secrets:
       TOKEN:
@@ -63,6 +79,15 @@ on:
       aws_assume_role:
         description: 'AWS IAM role to assume. Necessary if cloud_provider is AWS.'
         required: false
+      AWS_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID to install AWS CLI.'
+      AWS_SECRET_ACCESS_KEY:
+        required: false
+        description: 'AWS Secret access key to install AWS CLI'
+      AWS_SESSION_TOKEN:
+        required: false
+        description: 'AWS Session Token to install AWS CLI'
 
       # Azure Authentication
       AZURE_CLIENT_ID:
@@ -92,18 +117,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔑 Setup AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
+        if: ${{ inputs.cloud_provider == 'AWS' }}
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.aws_assume_role }}
           role-session-name: powerpipe
-          aws-region: us-east-1
-        if: ${{ inputs.cloud_provider == 'AWS' }}
+          aws-region: ${{ inputs.aws_region }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: ☁️ Authenticate to Google Cloud
-        uses: 'google-github-actions/auth@v3'
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           create_credentials_file: ${{ inputs.create_credentials_file }}
@@ -115,7 +145,7 @@ jobs:
         if: ${{ inputs.cloud_provider == 'GCP' }}
 
       - name: 🔷 Authenticate to Azure Cloud
-        uses: azure/login@v3
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -123,19 +153,19 @@ jobs:
         if: ${{ inputs.cloud_provider == 'AZURE' }}
 
       - name: 🧩 Setup Steampipe
-        uses: turbot/steampipe-action-setup@v1
+        uses: turbot/steampipe-action-setup@ea334bd03cc89b940db6b2daec94d0e0eab47dc0 # v1.7.0
         with:
           plugin-connections: ${{ inputs.plugin_connection }}
 
       - name: ⚡ Install Powerpipe
-        uses: turbot/powerpipe-action-setup@v1
+        uses: turbot/powerpipe-action-setup@458766075e63ffeb1992e6109759526f68611708 # v1.0.0
 
       - name: ▶️ Start steampipe service
         run: |
           steampipe service start
 
       - name: 🛡️ Run Terraform AWS Compliance control
-        uses: turbot/powerpipe-action-check@v1
+        uses: turbot/powerpipe-action-check@0b905d17e8b6970bc39bcd347c053992bd8770de # v1.0.1
         with:
           mod-url: ${{ inputs.mod_url }}
           controls: ${{ inputs.controls }}
@@ -153,7 +183,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: 💬 Comment on the PR with the markdown report
-        uses: peter-evans/create-or-update-comment@v5
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5.0.0
         with:
           token: ${{ secrets.TOKEN }}
           issue-number: ${{ github.event.pull_request.number }}

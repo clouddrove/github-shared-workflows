@@ -8,6 +8,16 @@ on:
         required: false
         default: 'us-east-2'
         type: string
+      role_duration_seconds:
+        description: "The duration in seconds for the AWS IAM role session."
+        required: false
+        type: number
+        default: 3600
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
       stackset-instance-region:
         description: 'Stackset-instance regions where you need cloudformation stacks'
         required: false
@@ -75,16 +85,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔐 Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ inputs.aws-region }}
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: 🔄 Check if StackSet exists or not-exist then create/update stack-set
         id: check-stackset

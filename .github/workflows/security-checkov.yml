@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🧹 Cleanup Old SARIF
         run: rm -f results.sarif || true
@@ -47,7 +47,7 @@ jobs:
       - name: 🛡️ Run Checkov (Docker-based)
         id: checkov
         continue-on-error: true
-        uses: bridgecrewio/checkov-action@v12
+        uses: bridgecrewio/checkov-action@5659ddea96102e16d8f221b3d8402453c0b1c150 # v12.3121.0
         with:
           directory: ${{ inputs.directory }}
           framework: terraform
@@ -60,14 +60,14 @@ jobs:
 
       - name: 📤 Upload SARIF to GitHub Security
         if: always() && !cancelled()
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
         with:
           sarif_file: results.sarif
           category: checkov
 
       - name: 💬 Comment on PR with Checkov results
         if: github.event_name == 'pull_request'
-        uses: clouddrove/checkov-sarif-view@v0.0.1
+        uses: clouddrove/checkov-sarif-view@63254cbfe07b670c4ede0a012df60090c1af6d8a # v0.0.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sarif_file: results.sarif

@@ -20,10 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🐍 Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: '3.x'
 
@@ -51,10 +51,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🧹 Run YAML Lint
-        uses: ibiqlik/action-yamllint@v3
+        uses: ibiqlik/action-yamllint@2576378a8e339169678f9939646ee3ee325e845c # v3.1.1
         continue-on-error: true
         with:
           file_or_dir: .github/workflows/
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔍 Validate Workflow Structure
         run: |
@@ -107,17 +107,17 @@ jobs:
       security-events: write
     steps:
       - name: 📦 Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔒 Run TFSec Security Scan
-        uses: aquasecurity/tfsec-action@v1.0.3
+        uses: aquasecurity/tfsec-action@b466648d6e39e7c75324f25d83891162a721f2d6 # v1.0.3
         continue-on-error: true
         with:
           soft_fail: true
           working_directory: .github/workflows/
 
       - name: 🔒 Run Checkov Security Scan
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@5659ddea96102e16d8f221b3d8402453c0b1c150 # v12.3121.0
         continue-on-error: true
         with:
           directory: .github/workflows/
@@ -145,7 +145,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 📚 Check Documentation Links
         run: |
@@ -215,7 +215,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🏷️ Check Naming Conventions
         run: |
@@ -248,10 +248,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔍 Run Actionlint
-        uses: reviewdog/action-actionlint@v1
+        uses: reviewdog/action-actionlint@dbe5299849118fd6f099ba563d263d770955a64a # v1.73.2
         continue-on-error: true
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -266,7 +266,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 📝 Generate Workflow Index
         run: |
@@ -287,7 +287,7 @@ jobs:
           echo "✅ Workflow index generated"
 
       - name: 📤 Upload Artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: workflow-index
           path: WORKFLOW_INDEX.md
@@ -298,7 +298,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: ⚠️ Check for Deprecated Actions
         run: |
@@ -326,7 +326,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🔐 Check Workflow Permissions
         run: |
@@ -349,7 +349,7 @@ jobs:
     if: always()
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 📊 CI Summary
         run: |
@@ -386,7 +386,7 @@ jobs:
         env:
           NAORU_KEY: ${{ secrets.NAORU_API_KEY }}
         if: ${{ env.NAORU_KEY != '' }}
-        uses: clouddrove/naoru@v0
+        uses: clouddrove/naoru@1fbf9f8977d855a35865c771679bb51f7474e397 # v0.2.3
         with:
           api-key: ${{ secrets.NAORU_API_KEY }}
           provider: openrouter

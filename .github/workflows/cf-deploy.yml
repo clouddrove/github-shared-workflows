@@ -17,6 +17,21 @@ on:
         required: false
         default: 'us-east-1'
         type: string
+      role-to-assume:
+        description: 'ARN of the IAM role to assume. Leave empty to use the static access keys.'
+        required: false
+        default: ''
+        type: string
+      role_duration_seconds:
+        description: "The duration in seconds for the AWS IAM role session."
+        required: false
+        type: number
+        default: 3600
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
       stack-name:
         description: 'Stack name defined'
         required: true
@@ -84,10 +99,10 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 📥 Checkout code from another Repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ${{ inputs.organization-name }}/${{ inputs.GitHub-repo-name }}
           ref: ${{ inputs.GitHub-branch }}
@@ -95,13 +110,15 @@ jobs:
           path: ${{ inputs.GitHub-repo-name }}
 
       - name: 🔐 Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ inputs.aws-region }}
-          role-to-assume: ${{ inputs.ROLE-TO-ASSUME }}
+          role-to-assume: ${{ inputs.role-to-assume }}
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: 📦 Src folder code convert into zip and upload to S3
         run: |
@@ -111,7 +128,7 @@ jobs:
             aws s3 cp  ${{inputs.zip-file-name}} s3://${{ inputs.s3-bucket }}/${{ inputs.bucket-prefix }}/
 
       - name: 🚀 Deploy cloudformation stack using template
-        uses: aws-actions/aws-cloudformation-github-deploy@v2
+        uses: aws-actions/aws-cloudformation-github-deploy@81e3b03d2266bcb76c4bcc37a7d71d9cb67838bb # v2.2.0
         with:
           name: ${{ inputs.stack-name }}
           template: ${{ inputs.template-path }}
@@ -133,7 +150,7 @@ jobs:
         env:
           NAORU_KEY: ${{ secrets.NAORU_API_KEY }}
         if: ${{ env.NAORU_KEY != '' }}
-        uses: clouddrove/naoru@v0
+        uses: clouddrove/naoru@1fbf9f8977d855a35865c771679bb51f7474e397 # v0.2.3
         with:
           api-key: ${{ secrets.NAORU_API_KEY }}
           provider: openrouter

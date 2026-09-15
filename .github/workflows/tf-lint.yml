@@ -14,22 +14,22 @@ jobs:
 
     steps:
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 💾 Cache plugin dir
-        uses: actions/cache@v6
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.tflint.d/plugins
           key: ubuntu-latest-tflint-${{ hashFiles('.tflint.hcl') }}
 
       - name: ⚙️ Setup TFLint
-        uses: terraform-linters/setup-tflint@v6
+        uses: terraform-linters/setup-tflint@6e1e0642c0289bd619021bf6b34e3c08ed1e005a # v6.3.0
         with:
           tflint_version: v0.44.1
           github_token: ${{ secrets.GITHUB }}
 
       - name: 🛠️ Setup tflint-config
-        uses: terraform-linters/tflint-load-config-action@v3
+        uses: terraform-linters/tflint-load-config-action@32d9f74138340b95873e956fbdfc390db819bff1 # v3.0.0
         with:
           source-repo: clouddrove/github-shared-workflows
           source-path: .github/config/.tflint.hcl

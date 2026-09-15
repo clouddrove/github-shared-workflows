@@ -21,6 +21,18 @@ on:
         default: us-east-2
         description: AWS region where resources will be provisioned.
 
+      role_duration_seconds:
+        description: "The duration in seconds for the AWS IAM role session."
+        required: false
+        type: number
+        default: 3600
+
+      role_skip_session_tagging:
+        description: "Whether to skip adding session tags when assuming the AWS IAM role."
+        required: false
+        type: boolean
+        default: true
+
       gcp_region:
         required: false
         type: string
@@ -58,7 +70,22 @@ on:
         required: false
         type: number
         default: 10
-        description: Maximum timeout duration for the Terraform workflow execution.
+        description: Maximum number of minutes to wait for manual approval before the approval step times out.
+
+      ## Named runs_on to match smurf-helm-deploy.yml, which already takes the
+      ## same input with the same default. One concept, one name.
+      runs_on:
+        required: false
+        type: string
+        default: ubuntu-latest
+        description: >-
+          GitHub Actions runner to use, for both jobs. Defaults to the
+          GitHub-hosted runner. Set a self-hosted label when Terraform has to
+          reach an endpoint that is not on the public internet, such as a
+          private EKS or AKS API server: a GitHub-hosted runner has no route
+          into the VPC, so those plans fail on a connection timeout regardless
+          of credentials. A self-hosted runner must provide Docker, which the
+          approval gate's container action requires.
 
       minimum-approvals:
         required: false
@@ -157,15 +184,15 @@ jobs:
 
   terraform-plan:
     name: "⚙️ Terraform Init + Validate + Plan"
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     environment: ${{ inputs.target_environment }}
 
     steps:
 
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
-      - uses: webfactory/ssh-agent@v0.10.0
+      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
         if: ${{ inputs.git_ssh_key_setup == true }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -184,25 +211,25 @@ jobs:
 
       - name: 🟦 Configure AWS
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: 900
-          role-skip-session-tagging: true
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: ☁️ Azure Login
         if: ${{ inputs.provider == 'azurerm' }}
-        uses: azure/login@v3
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           create_credentials_file: ${{ inputs.create_credentials_file }}
@@ -214,7 +241,7 @@ jobs:
 
       - name: 🌊 Configure DigitalOcean
         if: ${{ inputs.provider == 'digitalocean' }}
-        uses: digitalocean/action-doctl@v2
+        uses: digitalocean/action-doctl@3cb3953159719656269e044e0e24ca16dd2a690f # v2.5.2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
@@ -223,18 +250,41 @@ jobs:
       ##########################
 
       - name: 🛠 Setup Terraform
-        uses: hashicorp/setup-terraform@v4
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: ${{ inputs.terraform_version }}
+          ## The wrapper is a Node script that shims the terraform binary so a
+          ## step can read stdout/stderr as action outputs. Nothing here uses
+          ## those outputs: smurf shells out to terraform itself.
+          ##
+          ## It is actively harmful on a self-hosted runner. The actions-runner
+          ## image ships Node only for running JS actions (externals/node20) and
+          ## does not put it on PATH, so the shim fails with:
+          ##
+          ##   /usr/bin/env: 'node': No such file or directory
+          ##   Initialization failed: exit status 127
+          ##
+          ## which reads as a Terraform problem and is not one.
+          terraform_wrapper: false
 
       - name: ⚙️ Setup Smurf
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@01c843ad06c0cd75f97a79e7e4b6463860f15ea5 # master@2026-08-26
         with:
           version: ${{ inputs.smurf_version }}
 
+      # The subcommand is `fmt`. `smurf stf format` does not exist: it printed a
+      # hint and exited 0 until smurf started rejecting unknown subcommands, so
+      # this step passed for as long as it had existed having formatted nothing,
+      # then began failing on smurf v1.2.0 with no change here.
+      #
+      # It is also the only step in this job that runs without --dir, so it
+      # covers the whole checkout rather than the target root. `smurf stf fmt`
+      # gained a --dir flag after this was reported; pass it here once the
+      # release carrying it is out, otherwise a caller pinning an older
+      # smurf_version fails on an unknown flag.
       - name: 🧹 Terraform Format
         run: |
-          smurf stf format
+          smurf stf fmt
 
       - name: 🏗 Terraform Init
         run: |
@@ -244,35 +294,65 @@ jobs:
         run: |
           smurf stf validate --dir=${{ inputs.terraform_directory }}
 
+      # A caller may invoke this workflow several times in one run via a matrix,
+      # and every instance shares github.run_id. The artifact name therefore has
+      # to distinguish the directory as well, and artifact names cannot contain
+      # a slash, so it is slugified here rather than in an expression.
+      - name: 🏷 Plan artifact name
+        id: planid
+        shell: bash
+        run: |
+          slug="$(printf '%s' "${{ inputs.terraform_directory }}" \
+            | sed 's#^\./##; s#/*$##; s#[^A-Za-z0-9_.-]#-#g')"
+          echo "name=tfplan-${{ github.run_id }}-${slug}" >> "$GITHUB_OUTPUT"
+
+      # The plan is SAVED, not just printed. What a human approves further down
+      # has to be the same set of changes that is executed, and the only way to
+      # guarantee that is to hand the execution stage a plan file rather than
+      # let it work out afresh what to do.
       - name: 📋 Terraform Plan
         if: ${{ !inputs.destroy }}
         shell: bash
         run: |
+          cd "${{ inputs.terraform_directory }}"
           if [ -n "${{ inputs.var_file }}" ]; then
             echo "Using tfvars: ${{ inputs.var_file }}"
-            cd "${{ inputs.terraform_directory }}"
             smurf stf plan \
+              --out=tfplan \
               --var-file="${{ inputs.var_file }}"
           else
             echo "No tfvars provided"
             smurf stf plan \
-              --dir="${{ inputs.terraform_directory }}"
+              --out=tfplan
           fi
+          test -f tfplan || { echo "::error::plan file was not produced"; exit 1; }
+
+      # Carried to the next job as an artifact. The name is keyed on the
+      # directory so a matrix of directories cannot overwrite each other's plan
+      # and hand the wrong one to the wrong stage.
+      - name: 📦 Upload plan
+        if: ${{ !inputs.destroy }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ steps.planid.outputs.name }}
+          path: ${{ inputs.terraform_directory }}/tfplan
+          retention-days: 1
+          if-no-files-found: error
             
 
   terraform-apply:
     name: "${{ inputs.destroy && '🔥 Terraform Destroy' || '🚀 Terraform Apply' }}"
     needs: terraform-plan
     if: ${{ !inputs.plan_only }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     environment: ${{ inputs.target_environment }}
 
     steps:
 
       - name: 📦 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
 
-      - uses: webfactory/ssh-agent@v0.10.0
+      - uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
         if: ${{ inputs.git_ssh_key_setup == true }}
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -291,25 +371,25 @@ jobs:
 
       - name: 🟦 Configure AWS
         if: ${{ inputs.provider == 'aws' }}
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           role-to-assume: ${{ secrets.BUILD_ROLE }}
           aws-region: ${{ inputs.aws_region }}
-          role-duration-seconds: 900
-          role-skip-session-tagging: true
+          role-duration-seconds: ${{ inputs.role_duration_seconds }}
+          role-skip-session-tagging: ${{ inputs.role_skip_session_tagging }}
 
       - name: ☁️ Azure Login
         if: ${{ inputs.provider == 'azurerm' }}
-        uses: azure/login@v3
+        uses: azure/login@7ddb5af1ef8758cf1353cf3b42f940aee27ba21c # v3.0.2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: ☁️ Authenticate to Google Cloud
         if: ${{ inputs.provider == 'gcp' }}
-        uses: google-github-actions/auth@v3
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
           create_credentials_file: ${{ inputs.create_credentials_file }}
@@ -321,7 +401,7 @@ jobs:
 
       - name: 🌊 Configure DigitalOcean
         if: ${{ inputs.provider == 'digitalocean' }}
-        uses: digitalocean/action-doctl@v2
+        uses: digitalocean/action-doctl@3cb3953159719656269e044e0e24ca16dd2a690f # v2.5.2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
@@ -330,12 +410,25 @@ jobs:
       ##################################################
 
       - name: 🛠 Setup Terraform
-        uses: hashicorp/setup-terraform@v4
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: ${{ inputs.terraform_version }}
+          ## The wrapper is a Node script that shims the terraform binary so a
+          ## step can read stdout/stderr as action outputs. Nothing here uses
+          ## those outputs: smurf shells out to terraform itself.
+          ##
+          ## It is actively harmful on a self-hosted runner. The actions-runner
+          ## image ships Node only for running JS actions (externals/node20) and
+          ## does not put it on PATH, so the shim fails with:
+          ##
+          ##   /usr/bin/env: 'node': No such file or directory
+          ##   Initialization failed: exit status 127
+          ##
+          ## which reads as a Terraform problem and is not one.
+          terraform_wrapper: false
 
       - name: ⚙️ Setup Smurf
-        uses: clouddrove/smurf@master
+        uses: clouddrove/smurf@01c843ad06c0cd75f97a79e7e4b6463860f15ea5 # master@2026-08-26
         with:
           version: ${{ inputs.smurf_version }}
 
@@ -343,12 +436,34 @@ jobs:
         run: |
           smurf stf init --dir=${{ inputs.terraform_directory }}
 
+      # A caller may invoke this workflow several times in one run via a matrix,
+      # and every instance shares github.run_id. The artifact name therefore has
+      # to distinguish the directory as well, and artifact names cannot contain
+      # a slash, so it is slugified here rather than in an expression.
+      - name: 🏷 Plan artifact name
+        id: planid
+        shell: bash
+        run: |
+          slug="$(printf '%s' "${{ inputs.terraform_directory }}" \
+            | sed 's#^\./##; s#/*$##; s#[^A-Za-z0-9_.-]#-#g')"
+          echo "name=tfplan-${{ github.run_id }}-${slug}" >> "$GITHUB_OUTPUT"
+
+      # Downloaded BEFORE the approval gate, so a missing or unreadable plan
+      # fails while nobody is waiting on an approval issue, rather than after
+      # someone has already approved.
+      - name: 📥 Download plan
+        if: ${{ !inputs.destroy }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ${{ steps.planid.outputs.name }}
+          path: ${{ inputs.terraform_directory }}
+
       ##################################################
       # Manual Approval
       ##################################################
 
       - name: ⏳ Approval
-        uses: trstringer/manual-approval@v1
+        uses: trstringer/manual-approval@fa642940caf8412403569b28b2db4a1df08a83a3 # v1.13.1
         timeout-minutes: ${{ inputs.timeout }}
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}
@@ -381,19 +496,17 @@ jobs:
       # Apply
       ##################################################
 
+      # Executes the SAVED plan, so this stage carries out exactly the change
+      # set that was reviewed and approved. No --var-file here on purpose:
+      # variable values are already baked into the plan file, and Terraform
+      # rejects being given them a second time alongside a saved plan.
       - name: 🚀 Terraform Apply
         if: ${{ !inputs.destroy }}
         shell: bash
         run: |
-          if [ -n "${{ inputs.var_file }}" ]; then
-            echo "Using tfvars: ${{ inputs.var_file }}"
-            cd "${{ inputs.terraform_directory }}"
-            smurf stf apply \
-              --auto-approve \
-              --var-file="${{ inputs.var_file }}"
-          else
-            echo "No tfvars provided"
-            smurf stf apply \
-              --auto-approve \
-              --dir="${{ inputs.terraform_directory }}"
-          fi
+          cd "${{ inputs.terraform_directory }}"
+          test -f tfplan || {
+            echo "::error::no plan file to execute; refusing to re-derive one after approval"
+            exit 1
+          }
+          smurf stf apply tfplan
