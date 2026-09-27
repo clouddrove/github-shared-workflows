@@ -26,6 +26,7 @@ jobs:
   terraform-checks:
     uses: clouddrove/github-shared-workflows/.github/workflows/smurf-tf-checks.yml@v2
     with:
+      runs_on:             # Optional runner label, default ubuntu-latest (e.g. a self-hosted scale set)
       working_directory: './examples/complete/'
       provider: 'azurerm'
     secrets:

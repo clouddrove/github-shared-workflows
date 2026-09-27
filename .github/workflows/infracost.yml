@@ -3,6 +3,11 @@ name: 💸 Infracost Analysis
 on:
   workflow_call:
     inputs:
+      runs_on:
+        description: GitHub Actions runner to use (for example a self-hosted runner label)
+        type: string
+        required: false
+        default: ubuntu-latest
       working-directory:
         required: true
         description: Working directory of terraform resources
@@ -25,7 +30,7 @@ on:
 jobs:
   infracost:
     name: 💸 Infracost Analysis
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     steps:
       - name: 🛠️ Setup Infracost
         uses: infracost/actions/setup@fb736a8f219195d6efdca58682069b16fe1bc280 # v4.2.0

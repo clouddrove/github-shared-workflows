@@ -5,6 +5,11 @@ name: 🧪 tf Checks
 on:
   workflow_call:
     inputs:
+      runs_on:
+        description: GitHub Actions runner to use (for example a self-hosted runner label)
+        type: string
+        required: false
+        default: ubuntu-latest
       working_directory:
         description: 'Directory where a complete example exists for the module.'
         required: false
@@ -88,7 +93,7 @@ jobs:
   # - Terraform version extract as output.
   versionExtract:
     name: 🏷️ Get min/max versions
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
 
     outputs:
       minVersion: ${{ steps.minMax.outputs.minVersion }}
@@ -107,7 +112,7 @@ jobs:
   # - Evaluating terraform version based on version extract
   versionEvaluate:
     name: 🧪 Evaluate Terraform versions
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     needs: versionExtract
     strategy:
       fail-fast: false
@@ -173,7 +178,7 @@ jobs:
 # Action to verify terraform formatting.
   format:
     name: 🧹 Check code format
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     needs: [versionExtract, versionEvaluate]
 
     steps:

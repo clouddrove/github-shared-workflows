@@ -32,6 +32,7 @@ jobs:
   infracost:
     uses: clouddrove/github-shared-workflows/.github/workflows/infracost.yml@v2
     with:
+      runs_on:             # Optional runner label, default ubuntu-latest (e.g. a self-hosted scale set)
       working-directory:   # Need to specify working-directory as that's where the terraform files live in the source code
       slack_notification:  # If we need slack notification then its value is true else false
     secrets:

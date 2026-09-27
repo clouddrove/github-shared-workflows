@@ -3,6 +3,11 @@ name: '📡 Terraform Configuration Drift Detection'
 on:
   workflow_call:
     inputs:
+      runs_on:
+        description: GitHub Actions runner to use (for example a self-hosted runner label)
+        type: string
+        required: false
+        default: ubuntu-latest
       working_directory:
         required: true
         type: string
@@ -94,7 +99,7 @@ on:
 jobs:
   terraform-plan:
     name: 'Terraform Plan'
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     env:
       # This is needed since we are running terraform with read-only permissions
       ARM_SKIP_PROVIDER_REGISTRATION: true
