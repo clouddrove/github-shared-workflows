@@ -8,102 +8,166 @@ on:
         required: true
         type: string
         description: 'Root directory of the Terraform configuration.'
+
       provider:
         required: true
         type: string
         description: 'Cloud provider: aws or gcp'
+
       aws_region:
         required: false
         type: string
         default: us-east-1
         description: 'AWS region for Terraform deployment.'
+
       role_duration_seconds:
-        description: "The duration in seconds for the AWS IAM role session."
         required: false
         type: number
         default: 3600
+        description: 'The duration in seconds for the AWS IAM role session.'
+
       role_skip_session_tagging:
-        description: "Whether to skip adding session tags when assuming the AWS IAM role."
         required: false
         type: boolean
         default: true
+        description: 'Whether to skip adding session tags when assuming the AWS IAM role.'
+
       var_file:
         required: false
         type: string
         default: ''
-        description: 'Terraform var file path relative to terraform_directory. e.g. vars/dev.tfvars'
+        description: 'Terraform var file path relative to terraform_directory.'
+
       terraform_version:
         type: string
         default: '1.5.7'
-        description: 'Terraform CLI version (used for terraform show on plan file).'
+        description: 'Terraform CLI version.'
+
       smurf_version:
         type: string
         default: v1.1.6
-        description: 'Smurf CLI version'
+        description: 'Smurf CLI version.'
+
       plan_out:
         type: string
         default: tfplan
         description: 'Plan filename written inside terraform_directory.'
+
       create_issue:
         type: boolean
         default: true
         description: 'Open/update a GitHub issue when drift is detected.'
+
       close_issue_on_clean:
         type: boolean
         default: true
-        description: 'Close open drift issues when no drift is detected.'
+        description: 'Close the open drift issue when no drift is detected.'
+
       drift_issue_title:
         type: string
         default: 'Terraform Configuration Drift Detected'
         description: 'Title for the drift GitHub issue.'
+
+      environment:
+        required: false
+        type: string
+        default: ''
+        description: 'Environment name used in Slack alerts.'
+
+      slack_alert_title:
+        required: false
+        type: string
+        default: 'Terraform DRIFT Detected'
+        description: 'Title displayed in the Slack drift alert.'
+
+      fail_on_drift:
+        required: false
+        type: boolean
+        default: false
+        description: 'Fail the workflow when Terraform drift is detected.'
+
+      slack_alert_on_drift:
+        required: false
+        type: boolean
+        default: true
+        description: 'Send a Slack alert when Terraform drift is detected.'
+
       token_format:
         required: false
         type: string
         default: access_token
+
       access_token_lifetime:
         required: false
         type: string
         default: 300s
+
       project_id:
         required: false
         type: string
         default: ''
+
       create_credentials_file:
         required: false
         type: string
         default: 'true'
+
       backend_config:
         required: false
         type: string
         default: ''
-        description: 'Backend config file path relative to terraform_directory. e.g. vars/backend.hcl'
+        description: 'Backend config file path relative to terraform_directory.'
+
     secrets:
       AWS_ACCESS_KEY_ID:
         required: false
+
       AWS_SECRET_ACCESS_KEY:
         required: false
+
       AWS_SESSION_TOKEN:
         required: false
+
       BUILD_ROLE:
         required: false
+
+      SLACK_WEBHOOK_URL:
+        required: false
+
       GCP_CREDENTIALS:
         required: false
+
       WORKLOAD_IDENTITY_PROVIDER:
         required: false
+
       SERVICE_ACCOUNT:
         required: false
+
       env-vars:
         required: false
+
+    outputs:
+      drift_detected:
+        description: 'Whether Terraform drift was detected.'
+        value: ${{ jobs.smurf-stf-drift.outputs.drift_detected }}
+
+      plan_exit_code:
+        description: 'Terraform drift result: 0 clean, 2 drift, 3 bootstrap.'
+        value: ${{ jobs.smurf-stf-drift.outputs.plan_exit_code }}
 
 jobs:
   smurf-stf-drift:
     name: 'Smurf STF Drift Check'
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       issues: write
+      id-token: write
+
     outputs:
-      tfplanExitCode: ${{ steps.tf-plan.outputs.exitcode }}
+      drift_detected: ${{ steps.tf-plan.outputs.drift_detected }}
+      plan_exit_code: ${{ steps.tf-plan.outputs.exitcode }}
 
     steps:
       - name: 📦 Checkout Repository
@@ -159,55 +223,102 @@ jobs:
       - name: 🏗️ Smurf Terraform Init
         run: |
           INIT_ARGS=(--dir=${{ inputs.terraform_directory }})
+
           if [ -n "${{ inputs.backend_config }}" ]; then
             INIT_ARGS+=(--backend-config=${{ inputs.terraform_directory }}/${{ inputs.backend_config }})
           fi
+
           smurf stf init "${INIT_ARGS[@]}"
 
       - name: 🔎 Smurf Terraform Validate
-        run: smurf stf validate --dir=${{ inputs.terraform_directory }}
+        run: |
+          smurf stf validate --dir=${{ inputs.terraform_directory }}
 
       - name: 📐 Smurf Terraform Plan (drift check)
         id: tf-plan
         working-directory: ${{ inputs.terraform_directory }}
         run: |
           set +e
+
           PLAN_ARGS="--out=${{ inputs.plan_out }}"
+
           if [ -n "${{ inputs.var_file }}" ]; then
             PLAN_ARGS="$PLAN_ARGS --var-file=${{ inputs.var_file }}"
           fi
+
           smurf stf plan $PLAN_ARGS
+
           PLAN_EXIT=$?
+
           set -e
 
           if [ "$PLAN_EXIT" -ne 0 ]; then
             echo "exitcode=1" >> "$GITHUB_OUTPUT"
+            echo "drift_detected=false" >> "$GITHUB_OUTPUT"
             echo "Smurf plan failed with exit code $PLAN_EXIT"
             exit 1
           fi
 
           # Smurf removes an empty plan file when there are no changes.
-          if [ -f "${{ inputs.plan_out }}" ] && [ -s "${{ inputs.plan_out }}" ]; then
-            PLAN_JSON=$(terraform show -json "${{ inputs.plan_out }}")
-            ONLY_CREATE=$(echo "$PLAN_JSON" | jq -r 'if (.resource_changes | length) == 0 then false else ([.resource_changes[].change.actions[]] | all(. == "create")) end')
+          if [ ! -f "${{ inputs.plan_out }}" ] || [ ! -s "${{ inputs.plan_out }}" ]; then
+            echo "exitcode=0" >> "$GITHUB_OUTPUT"
+            echo "drift_detected=false" >> "$GITHUB_OUTPUT"
+            echo "No drift detected."
+            exit 0
+          fi
 
-            if [ "$ONLY_CREATE" = "true" ]; then
-              echo "exitcode=3" >> "$GITHUB_OUTPUT"
-              echo "Bootstrap required — plan only contains create actions (no remote state or first run)."
+          PLAN_JSON=$(terraform show -json "${{ inputs.plan_out }}")
+
+          # Terraform's resource_drift contains resources whose real
+          # infrastructure has changed outside Terraform.
+          MANAGED_CHANGES=$(echo "$PLAN_JSON" | jq '
+            (.resource_changes // [])
+            | map(select(.mode == "managed"))
+            | map(select(.change.actions != ["no-op"]))
+            | map(select(.change.actions != ["read"]))
+          ')
+
+          MANAGED_CHANGE_COUNT=$(echo "$MANAGED_CHANGES" | jq 'length')
+
+          ONLY_CREATE=$(echo "$MANAGED_CHANGES" | jq '
+            if length == 0 then
+              false
             else
-              echo "exitcode=2" >> "$GITHUB_OUTPUT"
-              echo "Drift detected — plan file exists and contains update/replace/destroy changes."
-            fi
+              all(.change.actions == ["create"])
+            end
+          ')
+
+          DRIFT_COUNT=$(echo "$PLAN_JSON" | jq '
+            (.resource_drift // [])
+            | map(select(.mode == "managed"))
+            | length
+          ')
+
+          echo "Terraform resource drift count: $DRIFT_COUNT"
+          echo "Terraform actionable managed changes: $MANAGED_CHANGE_COUNT"
+          echo "Bootstrap/create-only plan: $ONLY_CREATE"
+
+          if [ "$ONLY_CREATE" = "true" ]; then
+            echo "exitcode=3" >> "$GITHUB_OUTPUT"
+            echo "drift_detected=false" >> "$GITHUB_OUTPUT"
+            echo "Bootstrap required — plan only contains create actions."
+
+          elif [ "$MANAGED_CHANGE_COUNT" -gt 0 ]; then
+            echo "exitcode=2" >> "$GITHUB_OUTPUT"
+            echo "drift_detected=true" >> "$GITHUB_OUTPUT"
+            echo "Drift detected — Terraform has $MANAGED_CHANGE_COUNT actionable managed resource change(s)."
+
           else
             echo "exitcode=0" >> "$GITHUB_OUTPUT"
-            echo "No drift detected."
+            echo "drift_detected=false" >> "$GITHUB_OUTPUT"
+            echo "No actionable Terraform changes detected."
           fi
 
       - name: 💾 Upload plan artifact
         if: steps.tf-plan.outputs.exitcode == '2' || steps.tf-plan.outputs.exitcode == '3'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: smurf-tfplan-${{ github.run_id }}
+          name: smurf-tfplan-${{ github.run_id }}-${{ inputs.environment || inputs.aws_region }}
           path: ${{ inputs.terraform_directory }}/${{ inputs.plan_out }}
           if-no-files-found: ignore
 
@@ -218,17 +329,26 @@ jobs:
         run: |
           TERRAFORM_PLAN=$(terraform show -no-color "${{ inputs.plan_out }}")
           delimiter="$(openssl rand -hex 8)"
+
           TITLE="## Terraform Drift Detected (Smurf STF)"
+
           if [ "${{ steps.tf-plan.outputs.exitcode }}" = "3" ]; then
             TITLE="## Bootstrap Required (Smurf STF)"
           fi
+
           {
             echo "summary<<${delimiter}"
             echo "$TITLE"
             echo ""
+
+            if [ -n "${{ inputs.environment }}" ]; then
+              echo "### Environment: \`${{ inputs.environment }}\`"
+            fi
+
             echo "### Working Directory: \`${{ inputs.terraform_directory }}\`"
             echo "### Provider: \`${{ inputs.provider }}\`"
             echo ""
+
             echo "<details><summary>Click to expand plan output</summary>"
             echo ""
             echo '```terraform'
@@ -242,7 +362,8 @@ jobs:
         if: steps.tf-plan.outputs.exitcode == '2' || steps.tf-plan.outputs.exitcode == '3'
         env:
           SUMMARY: ${{ steps.tf-plan-string.outputs.summary }}
-        run: echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
 
       - name: 🚨 Create or update drift issue
         if: inputs.create_issue && steps.tf-plan.outputs.exitcode == '2'
@@ -267,6 +388,7 @@ jobs:
 
             if (issues.data.length > 0) {
               const issue = issues.data[0];
+
               if (issue.body !== body) {
                 await github.rest.issues.update({
                   owner: context.repo.owner,
@@ -284,6 +406,48 @@ jobs:
               });
             }
 
+      - name: 🚨 Send Slack drift alert
+        if: inputs.slack_alert_on_drift && steps.tf-plan.outputs.exitcode == '2'
+        env:
+          HOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_ALERT_TITLE: ${{ inputs.slack_alert_title }}
+          ENVIRONMENT: ${{ inputs.environment }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          REPOSITORY: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${HOOK:-}" ]; then
+            echo "SLACK_WEBHOOK_URL is not configured; skipping Slack alert."
+            exit 0
+          fi
+
+          ENVIRONMENT="${ENVIRONMENT:-unknown}"
+
+          MESSAGE="${SLACK_ALERT_TITLE}"
+          if [ -n "$ENVIRONMENT" ]; then
+            MESSAGE="${MESSAGE} — ${ENVIRONMENT}"
+          fi
+
+          MESSAGE="${MESSAGE}
+
+          Repo: ${REPOSITORY}
+          Branch: ${BRANCH}
+          Run: ${RUN_URL}"
+
+          PAYLOAD=$(jq -n \
+            --arg text "$MESSAGE" \
+            '{text: $text}')
+
+          curl -sf \
+            -X POST \
+            -H 'Content-type: application/json' \
+            --data "$PAYLOAD" \
+            "$HOOK" >/dev/null
+
+          echo "Slack drift alert sent."
+
       - name: ✅ Close drift issue when clean
         if: inputs.close_issue_on_clean && steps.tf-plan.outputs.exitcode == '0'
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7.1.0
@@ -294,6 +458,7 @@ jobs:
           script: |
             const title = process.env.ISSUE_TITLE;
             const creator = 'github-actions[bot]';
+
             const issues = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -301,11 +466,20 @@ jobs:
               creator,
               title,
             });
-            if (issues.data.length > 0) {
+
+            for (const issue of issues.data) {
               await github.rest.issues.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                issue_number: issues.data[0].number,
+                issue_number: issue.number,
                 state: 'closed',
               });
             }
+
+      - name: ❌ Fail workflow when drift is detected
+        if: inputs.fail_on_drift && steps.tf-plan.outputs.exitcode == '2'
+        run: |
+          echo "Terraform drift detected."
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Directory: ${{ inputs.terraform_directory }}"
+          exit 1
