@@ -178,7 +178,7 @@ jobs:
         # a multi platform value such as linux/amd64,linux/arm64 contains
         # the native platform but still needs an emulator for the rest.
         if: ${{ inputs.docker_build_platform != (runner.arch == 'X64' && 'linux/amd64' || 'linux/arm64') }}
-        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4.2.0
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
 
       - name: 🐳 Docker Image Build
         if: inputs.docker_buildkit_enable != 'true'
