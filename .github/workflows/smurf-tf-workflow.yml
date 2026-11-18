@@ -134,6 +134,12 @@ on:
         default: false
         description: Run only Terraform plan without applying changes.
 
+      auto_approve:
+        required: false
+        type: boolean
+        default: false
+        description: Skip the manual approval step. Only for callers that already gate the apply with their own approval (for example one approval job in front of a matrix of directories).
+
     secrets:
 
         AZURE_CREDENTIALS:
@@ -462,7 +468,11 @@ jobs:
       # Manual Approval
       ##################################################
 
+      # A caller running a matrix of directories would otherwise open one
+      # approval issue per directory. auto_approve lets it gate the whole
+      # matrix with a single approval of its own instead.
       - name: ⏳ Approval
+        if: ${{ !inputs.auto_approve }}
         uses: trstringer/manual-approval@fa642940caf8412403569b28b2db4a1df08a83a3 # v1.13.1
         timeout-minutes: ${{ inputs.timeout }}
         with:

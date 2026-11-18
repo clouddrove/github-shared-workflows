@@ -55,7 +55,7 @@ When both flags are set in one run, destroy runs after create completes successf
 | `var_file` | string | — | Var file path relative to `terraform_directory` |
 | `plan_only` | boolean | `false` | Plan only — skip apply |
 | `plan_out` | string | `tfplan` | Plan filename inside `terraform_directory` |
-| `auto_approve` | boolean | `false` | Skip manual approval steps |
+| `auto_approve` | boolean | `false` | Skip the manual approval step. Only for callers that gate the apply with their own approval (for example one approval job in front of a matrix). |
 | `approvers` | string | — | GitHub usernames for approval |
 | `minimum-approvals` | string | `1` | Minimum approvers required |
 | `timeout` | number | `10` | Approval timeout (minutes) |
