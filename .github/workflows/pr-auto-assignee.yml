@@ -1,3 +1,4 @@
+---
 name: Assignees
 
 on:
@@ -12,7 +13,7 @@ on:
         required: false
         type: string
       assign_yourself:
-        description: 'Whether to assign the PR opener as an assignee '
+        description: 'Whether to assign the PR opener as an assignee'
         required: false
         type: boolean
         default: true
@@ -20,11 +21,6 @@ on:
       GITHUB:
         description: 'Your GitHub token for authentication.'
         required: true
-
-permissions:
-  contents: read
-  issues: write
-  pull-requests: write
 
 jobs:
   assign:
@@ -43,13 +39,11 @@ jobs:
           github-token: ${{ secrets.GITHUB }}
           script: |
             const opener = context.payload.pull_request.user.login;
-            try {
-              await github.rest.issues.addAssignees({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                assignees: [opener]
-              });
-            } catch (error) {
-              core.warning(`Could not assign PR opener (${opener}): ${error.message}`);
-            }
+
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              assignees:[ opener ] 
+            });
+...
