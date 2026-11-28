@@ -22,6 +22,11 @@ on:
         description: 'Your GitHub token for authentication.'
         required: true
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 jobs:
   assign:
     runs-on: ubuntu-latest
@@ -39,11 +44,14 @@ jobs:
           github-token: ${{ secrets.GITHUB }}
           script: |
             const opener = context.payload.pull_request.user.login;
-
-            await github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              assignees:[ opener ] 
-            });
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                assignees: [opener]
+              });
+            } catch (error) {
+              core.warning(`Could not assign PR opener (${opener}): ${error.message}`);
+            }
 ...
